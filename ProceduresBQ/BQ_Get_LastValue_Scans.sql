@@ -1,3 +1,20 @@
+-- ==========================================================================================
+-- Routine:		Get_LastValue_Scans
+-- Description:   
+--    Determines the starting Date (and RecordId) to use for reading data from the source system.
+--    Three values are returned: StartId, LastDate and EndDate. 
+--    For 'ScanDate' calcMethod, StartId and StartDate are obtained from the max RecordSourceId and ScanDate in dv.LNK_Scan
+--    For 'UploadDate' calcMethod, StartId is 0 and UploadDate is obtained from Staging.LoadControl 
+--    EndDate is the lesser of Now(), lastDate plus MaxDays or the value of @endDate. The latter allows backdated scans to be loaded.
+-- Example:	Exec [Staging].[Get_LastValue_Scans] @RecordSource='tsections', @CalcMethod=N'UploadDate', @EndDate='2021-06-10', @MaxDays=5
+--			Exec [Staging].[Get_LastValue_Scans] @RecordSource='tsections', @CalcMethod=N'RecordId', @EndDate='2021-06-10', @MaxDays=5
+-- History:
+--	17/06/2019  P. Waldron		Written 
+--  30/10/2020  P. Waldron		Re-introduce 'RecordId' calc method
+-- ==========================================================================================
+
+
+
 CREATE OR REPLACE PROCEDURE `Staging.Get_LastValue_Scans`(
     IN p_RecordSource STRING,
     IN p_CalcMethod STRING,

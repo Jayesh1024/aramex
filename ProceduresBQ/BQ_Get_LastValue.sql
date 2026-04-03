@@ -1,3 +1,14 @@
+-- ==========================================================================================
+-- Routine:		Get_LastValue
+-- Description: Gets the Last Id/Date used to query the source system for latest data
+-- Example:		Exec [Staging].[Get_LastValue] 'LabelMaster'
+-- History:
+--	23/11/2018  P. Waldron		Routine Written
+--	02/07/2019  P. Waldron		Refactor to use RecordSource instead of DatasetName
+-- ==========================================================================================
+
+
+
 CREATE OR REPLACE PROCEDURE `Staging.Get_LastValue`(
     IN p_RecordSource STRING
 )

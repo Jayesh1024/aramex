@@ -1,3 +1,13 @@
+-- ==========================================================================================
+-- Routine:		Load_SAT_STK_RFProducts
+-- Description: 	Loads table SAT_STK_RFProducts
+-- Example:		Exec [DV].[Load_SAT_STK_RFProducts]  'Fastway'  
+-- History:
+--	25/09/2024	B. Woods		Routine Written
+-- ==========================================================================================
+
+
+
 CREATE OR REPLACE PROCEDURE `dv.Load_SAT_STK_RFProducts`(
     IN p_RecordSource STRING
 )

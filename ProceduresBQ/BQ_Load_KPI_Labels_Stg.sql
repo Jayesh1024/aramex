@@ -1,3 +1,18 @@
+-- ==========================================================================================
+-- Routine:		Load_KPI_Labels_Stg
+-- Description: Identifies Label Numbers for Staging.Load_Fact_Scan_KPI_Stg to process.
+--              Usually the set of most recently received Labels (in Staging.LNK_Scan_Stg) is selected.
+--              If a date range is provided then Labels previously processed (in dv.LNK_Scan) are added.
+-- Example:		Exec [Staging].[Load_KPI_Labels_Stg] 123, Null, Null -- (usual operation)
+--              Exec [Staging].[Load_KPI_Labels_Stg] 123, Start TrackAndTraceID, END TrackAndTraceID, 1 
+-- History:
+--	20/12/2019  P. Waldron		Routine Written
+--	17/07/2020  P. Waldron		Add Filter for 'Australia' and 'New Zealand'
+--	13/10/2020  P. Waldron		Add 'South Africa' to the filter 
+--	05/03/2024	B. Woods		Changed to select labels from dv.LNK_Scan by TrackAndTraceID
+-- ==========================================================================================
+
+
 CREATE OR REPLACE PROCEDURE `Staging.Load_KPI_Labels_Stg`(
     IN p_ProcessID INT64,
     IN p_SinceScanDate DATETIME,

@@ -1,3 +1,13 @@
+-- ==========================================================================================
+-- Routine:		Get_LoadReportHtml
+-- Description: Generates the load report in html format
+-- Example:		Exec [Staging].[Get_LoadReportHtml] 346,847
+-- History:
+--	22/11/2019  P. Waldron		Routine Written
+-- ==========================================================================================
+
+
+
 CREATE OR REPLACE PROCEDURE `Staging.Get_LoadReportHtml`(
     IN p_ProcessId INT64,
     IN p_ExecutionId INT64

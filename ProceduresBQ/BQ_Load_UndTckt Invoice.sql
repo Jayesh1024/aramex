@@ -1,3 +1,14 @@
+-- ==========================================================================================
+-- Routine:     Load_Payzone_Agents]
+-- Description: Loads any under ticketed invoices into [dbo].[UndTcktInvoice table]
+-- Example:     Exec [dbo].[Load_UndTckt_Invoice] 30
+-- History:
+--  01/07/2025  B. Woods        Routine Written
+--
+-- ==========================================================================================
+
+
+
 CREATE OR REPLACE PROCEDURE `dbo.Load_UndTckt_Invoice`(
     IN p_ProcessID INT64
 )

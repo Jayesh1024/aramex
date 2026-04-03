@@ -1,3 +1,12 @@
+-- ==========================================================================================
+-- Routine:     Load_SAT_Label_PickupRequests
+-- Description: Loads relationships into LNK_RuralOnforwards 
+--              
+-- Example:     Exec dv.Load_SAT_Label_PickupRequests 590 
+-- History:
+--  17/01/2024  B. Woods        Routine Written
+-- ==========================================================================================
+
 CREATE OR REPLACE PROCEDURE `dv.Load_SAT_Label_PickupRequests`(
     IN p_ProcessID INT64
 )

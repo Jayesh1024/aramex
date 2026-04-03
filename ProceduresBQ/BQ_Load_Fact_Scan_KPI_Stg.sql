@@ -1,3 +1,17 @@
+
+-- ==========================================================================================
+-- Routine:		Load_Fact_Scan_KPI_Stg
+-- Description: Recalc scan KPI stats for Labels that have just arrived
+-- Example:		Exec [Staging].[Load_Fact_Scan_KPI_Stg2] 124
+-- History:
+--	11/04/2019  P. Waldron		Routine Written
+--	01/07/2019  P. Waldron		Add First/Last Scan elements
+--  20/11/2019  P. Waldron		Change Inner Join on dbo.KPILabels to Left Join
+--  14/02/2020  P. Waldron      Refactor for new KPI Groups
+--  29/04/2020  P. Waldron      Use ScanTypeOrder for FirstPscan and FirstDscan calcs
+-- ==========================================================================================
+
+
 CREATE OR REPLACE PROCEDURE `Staging.Load_Fact_Scan_KPI_Stg`(
     IN p_ProcessID INT64
 )

@@ -1,3 +1,13 @@
+-- ==========================================================================================
+-- Routine:     Load_Fact_KPI_Stg
+-- Description: Maintains the stats for InterBranch Pickup & Delivery KPIs
+-- Example:     Exec [dbo].[Load_Fact_KPI_Stg] 30
+-- History:
+--  01/12/2022  B. Woods        Routine Written
+--
+-- ==========================================================================================
+
+
 CREATE OR REPLACE PROCEDURE `Staging.Load_Fact_KPI_Src_Stg`(
     IN p_ProcessID INT64, 
     IN p_StartDateOverRide STRING, 

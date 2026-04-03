@@ -1,3 +1,13 @@
+-- ==========================================================================================
+-- Routine:     Load_Payzone_Regions]
+-- Description: Loads any labels into [dbo].[Payzone_Regions]]
+-- Example:     Exec [dbo].[Load_Payzone_Regions]] 30
+-- History:
+--  13/05/2025  B. Woods        Routine Written
+--
+-- ==========================================================================================
+
+
 CREATE OR REPLACE PROCEDURE `dbo.Load_Payzone_Regions`(
     IN p_ProcessID INT64
 )
