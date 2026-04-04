@@ -1,3 +1,11 @@
+-- ==========================================================================================
+-- Routine:		Load_HUB_ScanStatus
+-- Description: Loads business keys into HUB_ScanStatus
+-- Example:		Exec [dv].[Load_HUB_ScanStatus] 10, 'Fastway'  
+-- History:
+--	13/11/2018  P. Waldron		Routine Written
+-- ==========================================================================================
+
 CREATE OR REPLACE PROCEDURE `dv.Load_HUB_ScanStatus`(
     IN p_ProcessID INT64,
     IN p_RecordSource STRING

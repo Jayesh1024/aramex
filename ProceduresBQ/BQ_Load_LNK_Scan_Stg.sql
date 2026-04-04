@@ -1,3 +1,13 @@
+-- ==========================================================================================
+-- Routine:     Load_LNK_Scan_Stg
+-- Description: Prepares staging table for loading into LNK_Scan
+-- Example:     Exec Staging.Load_LNK_Scan_Stg 687  
+-- History:
+--  28/11/2018  P. Waldron      Routine Written
+--  17/07/2020  P. Waldron      Check for already existing LNK_Scan rows based on Scan_HSK
+--  12/10/2020  P. Waldron      Replace Joins to HUB_Label and HUB_Location with HSK calc 
+-- ==========================================================================================
+
 CREATE OR REPLACE PROCEDURE `Staging.Load_LNK_Scan_Stg`(
     IN p_ProcessID INT64
 )

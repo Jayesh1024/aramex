@@ -1,3 +1,11 @@
+-- ==========================================================================================
+-- Routine:		Load_SAT_Label_Allocation_EBAY
+-- Description: Loads attributes into Load_SAT_Label_Allocation_EBAY from [Staging].[Ebay_Labels_Stg] 
+-- Example:		Exec [dv].[Load_SAT_Label_Allocation_EBAY] 123 
+-- History:
+--	06/11/2019  P. Waldron		Routine Written
+-- ==========================================================================================
+
 CREATE OR REPLACE PROCEDURE `dv.Load_SAT_Label_Allocation_EBAY`(
     IN p_ProcessID INT64,
     IN p_RecordSource STRING

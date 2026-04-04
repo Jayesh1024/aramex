@@ -1,3 +1,11 @@
+-- ==========================================================================================
+-- Routine:		Load_SAT_Label_Allocation_FL
+-- Description: Loads attributes into SAT_Label_Allocation_FL from Staging.tblFastLabel_Consignment_stg
+-- Example:		Exec [dv].[Load_SAT_Label_Allocation_FL] 174  
+-- History:
+--	25/07/2019  P. Waldron		Routine Written
+-- ==========================================================================================
+
 CREATE OR REPLACE PROCEDURE `dv.Load_SAT_Label_Allocation_FL`(
     IN p_ProcessID INT64,
     IN p_RecordSource STRING

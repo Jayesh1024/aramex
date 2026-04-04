@@ -1,3 +1,12 @@
+-- ==========================================================================================
+-- Routine:		Load_HUB_Product
+-- Description: Loads business keys into HUB_Product
+-- Example:		Exec [dv].[Load_HUB_ServiceItem] 657, 'Fastway'  
+-- History:
+--	16/09/2020  P. Waldron		Routine Written
+--	01/09/2021  P. Waldron		Add HSK column on Staging table select to improve performance
+-- ==========================================================================================
+
 CREATE OR REPLACE PROCEDURE `dv.Load_HUB_ServiceItem`(
     IN p_ProcessID INT64,
     IN p_RecordSource STRING

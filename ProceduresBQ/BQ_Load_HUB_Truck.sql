@@ -1,3 +1,11 @@
+-- ==========================================================================================
+-- Routine:		Load_HUB_Truck
+-- Description: Loads business keys into HUB_Truck
+-- Example:		Exec [dv].[Load_HUB_Truck] 123, 'Fastway'  (40871100 rows in 19 mins)
+-- History:
+--	25/10/2018  P. Waldron		Routine Written
+-- ==========================================================================================
+
 CREATE OR REPLACE PROCEDURE `dv.Load_HUB_Truck`(
     IN p_ProcessID INT64,
     IN p_RecordSource STRING

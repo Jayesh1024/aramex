@@ -1,3 +1,12 @@
+-- ==========================================================================================
+-- Routine:     Load_LNK_Label_InterBranch
+-- Description: Loads LNK_Label_InterBranch from Staging.Label_InterBranch_Stg for a country
+-- Example:     Exec [dv].[Load_LNK_Label_InterBranch] 659,  'InterBranchAU' 
+-- History:
+--  15/08/2020  P. Waldron      Routine Written
+--  21/06/2022  B. Woods         Cloned
+-- ==========================================================================================
+
 CREATE OR REPLACE PROCEDURE `dv.Load_LNK_Label_InterBranch`(
     IN p_ProcessID INT64,
     IN p_RecordSource STRING

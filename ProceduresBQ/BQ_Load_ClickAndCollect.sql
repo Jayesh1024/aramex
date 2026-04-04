@@ -1,3 +1,12 @@
+-- ==========================================================================================
+-- Routine:     Load_ClickAndCollect
+-- Description: Loads any labels into [dbo].[FWFastway_ClickAndCollect]
+-- Example:     Exec [dbo].[Load_ClickAndCollect] 30
+-- History:
+--  29/05/2025  B. Woods        Routine Written
+--
+-- ==========================================================================================
+
 CREATE OR REPLACE PROCEDURE `dbo.Load_ClickAndCollect`(
     IN p_ProcessID INT64
 )

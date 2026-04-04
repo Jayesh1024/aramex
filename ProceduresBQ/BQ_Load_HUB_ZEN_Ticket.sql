@@ -1,3 +1,12 @@
+-- ==========================================================================================
+-- Routine:     Load_HUB_Product
+-- Description: Loads business keys into HUB_Product
+-- Example:     Exec [dv].[Load_HUB_Product] 123, 'ZENLog'  
+-- History:
+--  13/04/2024  B. Woods      Routine Written
+--
+-- ==========================================================================================
+
 CREATE OR REPLACE PROCEDURE `dv.Load_HUB_ZEN_Ticket`(
     IN p_ProcessID INT64,
     IN p_RecordSource STRING

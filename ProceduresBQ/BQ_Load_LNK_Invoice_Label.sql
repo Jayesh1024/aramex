@@ -1,3 +1,11 @@
+-- ==========================================================================================
+-- Routine:		Load_LNK_Invoice_Label
+-- Description: Loads Invoice-Label relationships into into [dv].[LNK_Invoice_Label]
+-- Example:		Exec [dv].[Load_LNK_Invoice_Label] 123 
+-- History:
+--	19/11/2019  P. Waldron		Routine Written
+-- ==========================================================================================
+
 CREATE OR REPLACE PROCEDURE `dv.Load_LNK_Invoice_Label`(
     IN p_ProcessID INT64,
     IN p_RecordSource STRING

@@ -1,3 +1,10 @@
+-- ==========================================================================================
+-- Routine:		Load_Dim_Time
+-- Description: Loads dates for the given year into the Dim_Time table. 
+-- Proc will not not add any new dates if the year already exists in the table.
+-- Example:		Exec [dbo].[Load_Dim_Label] 2024
+-- Example:		Exec [dbo].[Load_Dim_Label] 2024, 1 -- To remove existing data
+
 CREATE OR REPLACE PROCEDURE `dbo.Load_Dim_Time`(
     IN p_ProcessID INT64, 
     IN p_Year INT64,

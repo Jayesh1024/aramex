@@ -1,3 +1,12 @@
+-- ==========================================================================================
+-- Routine:		Load_LNK_InvoiceLine
+-- Description: Loads Invoice Lines into into [dv].[LNK_InvoiceLine]
+-- Example:		Exec [dv].[Load_LNK_InvoiceLine] 123 
+-- History:
+--	19/11/2019  P. Waldron		Routine Written
+--	24/02/2020  P. Waldron		Add RFCode to the Staging.FMS_InvoiceLines_Stg Join 
+-- ==========================================================================================
+
 CREATE OR REPLACE PROCEDURE `dv.Load_LNK_InvoiceLine`(
     IN p_ProcessID INT64,
     IN p_RecordSource STRING

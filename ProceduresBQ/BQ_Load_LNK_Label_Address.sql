@@ -1,3 +1,11 @@
+-- ==========================================================================================
+-- Routine:		Load_LNK_Label_Address
+-- Description: Loads LabelNo-Address relationships into [dv].[LNK_Label_Address]
+-- Example:		Exec [dv].[Load_LNK_Label_Address] 288 
+-- History:
+--	07/11/2019  P. Waldron		Routine Written
+-- ==========================================================================================
+
 CREATE OR REPLACE PROCEDURE `dv.Load_LNK_Label_Address`(
     IN p_ProcessID INT64
 )
