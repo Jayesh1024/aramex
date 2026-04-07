@@ -1,22 +1,22 @@
 -- ==========================================================================================
 -- Routine:     Load_LSAT_Label_Product_ServiceItem
--- Description: Loads attributes into LSAT_Label_Product_ServiceItem from Staging.fl_ConItemSrv_Stg 
+-- Description: Loads attributes into LSAT_Label_Product_ServiceItem from Staging_fl_ConItemSrv_Stg 
 -- Example:     Exec [dv].[Load_LSAT_Label_Product_ServiceItem] 659
 -- History:
 --  17/09/2020  P. Waldron      Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `dv.Load_LSAT_Label_Product_ServiceItem`(IN p_ProcessID INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LSAT_Label_Product_ServiceItem`(IN p_ProcessID INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_LSAT_Label_Product_ServiceItem
-  ** Description: Loads attributes into LSAT_Label_Product_ServiceItem from Staging.fl_ConItemSrv_Stg 
+  ** Description: Loads attributes into LSAT_Label_Product_ServiceItem from Staging_fl_ConItemSrv_Stg 
   */
 
   DECLARE v_DefaultValidFrom DATETIME DEFAULT '1900-01-01 00:00:00';
   DECLARE v_DefaultValidTo DATETIME DEFAULT '9999-12-31 23:59:59';
   DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
 
-  DECLARE v_Component STRING DEFAULT 'dv.Load_LSAT_Label_Product_ServiceItem';
+  DECLARE v_Component STRING DEFAULT 'dv_Load_LSAT_Label_Product_ServiceItem';
   DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
   DECLARE v_Ended DATETIME;
   DECLARE v_Result STRING;
@@ -27,14 +27,14 @@ BEGIN
   BEGIN
     -- Using a single MERGE to handle SCD Type 2 logic (Expire + Insert)
     -- As per CORE RULES: v_Updated = Inserted + Updated; v_Inserted = 0.
-    MERGE `dv.LSAT_Label_Product_ServiceItem` AS Tgt
+    MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_Label_Product_ServiceItem` AS Tgt
     USING (
       WITH StagingData AS (
         SELECT 
           *,
           -- Hash key calculation consistent with original logic
           TO_HEX(SHA256(CONCAT(IFNULL(Country, ''), '^', IFNULL(LabelNo, ''), '^', IFNULL(ProductCode, ''), '^', IFNULL(ServiceItem, '')))) AS Calc_HSK
-        FROM `Staging.Label_Product_ServiceItem_Stg`
+        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Product_ServiceItem_Stg`
       ),
       -- Identify changes compared to current records
       DetectedChanges AS (
@@ -57,7 +57,7 @@ BEGIN
             T.ServicePriceDiscountPercent != S.ServicePriceDiscountPercent OR T.UpdatedOn != S.UpdatedOn
           )) AS HasChanged
         FROM StagingData S
-        LEFT JOIN `dv.LSAT_Label_Product_ServiceItem` T ON S.Calc_HSK = T.Label_Product_ServiceItem_HSK AND T.IsCurrent = 1
+        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_Label_Product_ServiceItem` T ON S.Calc_HSK = T.Label_Product_ServiceItem_HSK AND T.IsCurrent = 1
       )
       -- Rows to expire existing current record
       SELECT *, 'EXPIRE' AS MergeAction FROM DetectedChanges WHERE HasChanged = TRUE
@@ -110,7 +110,7 @@ BEGIN
 
   SET v_Ended = CURRENT_DATETIME();
   -- SaveLog signature: component, processId, started, ended, result, errorMessage, inserted, updated, -1
-  CALL `Staging.SaveLog`(
+  CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
     v_Component, 
     p_ProcessID, 
     v_Started, 

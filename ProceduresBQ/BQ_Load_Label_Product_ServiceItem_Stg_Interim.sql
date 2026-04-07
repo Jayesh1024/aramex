@@ -1,23 +1,23 @@
 -- ==========================================================================================
 -- Routine:     Load_LNK_Label_Product_ServiceItem
--- Description: Loads Label_Product_ServiceItem_Stg from Staging.fl_ConItemSrv_Stg 
+-- Description: Loads Label_Product_ServiceItem_Stg from Staging_fl_ConItemSrv_Stg 
 -- Example:     Exec [dv].[Load_Label_Product_ServiceItem_Stg] 659,  'MyFastway' 
 -- History:
 --  17/08/2020  P. Waldron      Routine Written
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `dv.Load_Label_Product_ServiceItem_Stg_Interim`(IN p_ProcessID INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_Label_Product_ServiceItem_Stg_Interim`(IN p_ProcessID INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_LNK_Label_Product_ServiceItem
-  ** Description: Loads Label_Product_ServiceItem_Stg from Staging.fl_ConItemSrv_Stg 
+  ** Description: Loads Label_Product_ServiceItem_Stg from Staging_fl_ConItemSrv_Stg 
   */
 
   DECLARE v_DefaultValidFrom DATETIME DEFAULT '1900-01-01 00:00:00';
   DECLARE v_DefaultValidTo DATETIME DEFAULT '9999-12-31 23:59:59';
   DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
 
-  DECLARE v_Component STRING DEFAULT 'dv.Load_Label_Product_ServiceItem_Stg_Interim';
+  DECLARE v_Component STRING DEFAULT 'dv_Load_Label_Product_ServiceItem_Stg_Interim';
   DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
   DECLARE v_Ended DATETIME;
   DECLARE v_Result STRING;
@@ -27,7 +27,7 @@ BEGIN
 
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `Staging.Label_Product_ServiceItem_Stg_Interim`
+    INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Product_ServiceItem_Stg_Interim`
     (
       Label_Product_ServiceItem_HSK,
       LabelNo_HSK,
@@ -160,10 +160,10 @@ BEGIN
         ServicePriceDiscountFixed,
         ServicePriceDiscountPercent,
         UpdatedOn
-      FROM `Staging.fl_ConItemSrv_Stg_Interim` AS Srv  
-      LEFT JOIN `dbo.Dim_Country` AS cty ON cty.CountryCode = Srv.CountryId
-      LEFT JOIN `Staging.Product_Stg` AS Prod ON Srv.CountryId = Prod.CountryCode AND Srv.ProductId = Prod.ProductId
-      LEFT JOIN `Staging.fl_ServiceItem_Stg` AS SI ON Srv.CountryId = SI.CountryId AND Srv.ProductId = SI.ProductId AND Srv.ServiceItemId = SI.ServiceItemId 
+      FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_fl_ConItemSrv_Stg_Interim` AS Srv  
+      LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS cty ON cty.CountryCode = Srv.CountryId
+      LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.Staging_Product_Stg` AS Prod ON Srv.CountryId = Prod.CountryCode AND Srv.ProductId = Prod.ProductId
+      LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.Staging_fl_ServiceItem_Stg` AS SI ON Srv.CountryId = SI.CountryId AND Srv.ProductId = SI.ProductId AND Srv.ServiceItemId = SI.ServiceItemId 
     ) AS Src;
 
     SET v_Inserted = @@row_count;
@@ -176,7 +176,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
-  CALL `Staging.SaveLog`(
+  CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
     v_Component, 
     p_ProcessID, 
     v_Started, 

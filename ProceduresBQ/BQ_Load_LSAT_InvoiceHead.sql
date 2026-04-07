@@ -7,16 +7,17 @@
 --
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `dv.Load_LSAT_InvoiceHead`(IN p_ProcessID INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LSAT_InvoiceHead`(IN p_ProcessID INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_LSAT_InvoiceHead
   ** Description: Loads FMS Invoice Head into into dv.LSAT_InvoiceHead
+  ** Description: Loads FMS Invoice Head into into dv_LSAT_InvoiceHead
   */
 
   DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
 
-  DECLARE v_Component STRING DEFAULT 'dv.Load_LSAT_InvoiceHead';
+  DECLARE v_Component STRING DEFAULT 'dv_Load_LSAT_InvoiceHead';
   DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
   DECLARE v_Ended DATETIME;
   DECLARE v_Result STRING;
@@ -26,7 +27,7 @@ BEGIN
 
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `dv.LSAT_InvoiceHead` (
+    INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_InvoiceHead` (
       Invoice_HSK,
       FranchiseeCode_HSK,
       FranchiseeCode,
@@ -89,7 +90,7 @@ BEGIN
         PurchaseOrderNumber,
         Comments,
         ExcludedFromBaseRate
-      FROM `Staging.FMS_InvoiceHead_Stg`
+      FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_FMS_InvoiceHead_Stg`
     )
     SELECT
       Src.Invoice_HSK,
@@ -126,7 +127,7 @@ BEGIN
     FROM InvoiceHeadStg AS Src
     WHERE NOT EXISTS (
       SELECT 1 
-      FROM `dv.LSAT_InvoiceHead` AS Tgt 
+      FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_InvoiceHead` AS Tgt 
       WHERE Tgt.FranchiseeCode = Src.FranchiseeCode 
         AND Tgt.InvoiceNumber = Src.InvoiceNumber
     );
@@ -141,7 +142,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
-  CALL `Staging.SaveLog`(
+  CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
     v_Component, 
     p_ProcessID, 
     v_Started, 

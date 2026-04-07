@@ -14,7 +14,7 @@
 --  27/06/2022  B. Woods        BI-264 - Add local bulk customers
 --  09/01/2024  J. Rogers       BI-460 - Improve speed of Load_Fact_Delivery_Performance
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `dbo.Load_Fact_Delivery_Performance`(IN p_ProcessID INT64, IN p_Force INT64)
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dbo_Load_Fact_Delivery_Performance`(IN p_ProcessID INT64, IN p_Force INT64)
 BEGIN
   /*
   ** Routine: Load_Fact_Delivery_Performance
@@ -22,7 +22,7 @@ BEGIN
   */
 
   DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
-  DECLARE v_Component STRING DEFAULT 'dbo.Load_Fact_Delivery_Performance';
+  DECLARE v_Component STRING DEFAULT 'dbo_Load_Fact_Delivery_Performance';
   DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
   DECLARE v_Ended DATETIME;
   DECLARE v_Result STRING;
@@ -33,11 +33,11 @@ BEGIN
   BEGIN
     -- Handle the TRUNCATE logic if p_Force is 1 (simulating SQL Server BIT)
     IF p_Force = 1 THEN
-      TRUNCATE TABLE `dbo.Fact_Delivery_Performance`;
+      TRUNCATE TABLE `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_Delivery_Performance`;
     END IF;
 
     -- MERGE Rule: Single MERGE since SP contains both INSERT and UPDATE
-    MERGE `dbo.Fact_Delivery_Performance` AS Tgt
+    MERGE `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_Delivery_Performance` AS Tgt
     USING (
       SELECT
         ReceivedRF,  
@@ -67,11 +67,11 @@ BEGIN
           CASE WHEN k.KPI + 1 + k.StopHoliday - k.StopDays >= 0 THEN 1 ELSE 0 END AS KPI1,
           CASE WHEN k.KPI + 2 + k.StopHoliday - k.StopDays >= 0 THEN 1 ELSE 0 END AS KPI2,
           CASE WHEN k.SLA + k.DeliveryHoliday - k.DeliveryDays >= 0 THEN 1 ELSE 0 END AS SLA
-        FROM `dbo.Fact_Scan_KPI` AS k
-        INNER JOIN `dbo.Dim_RF` AS r ON k.FirstStopRF = r.FranchiseeCode
-        LEFT JOIN `dbo.Dim_Label` AS l ON k.LabelNo = l.LabelNo AND r.CountryCode = l.CountryCode
-        LEFT JOIN `dbo.KPIBulkCustomer` AS c ON l.OESCustomerID = c.OESCustomerID AND l.CountryCode = c.CountryCode
-        LEFT JOIN `dbo.KPIBulkLocalCustomer` AS lc ON l.FMSCustomerID = lc.FMSCustomerId AND l.CountryCode = lc.CountryCode            
+        FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_Scan_KPI` AS k
+        INNER JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_RF` AS r ON k.FirstStopRF = r.FranchiseeCode
+        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label` AS l ON k.LabelNo = l.LabelNo AND r.CountryCode = l.CountryCode
+        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIBulkCustomer` AS c ON l.OESCustomerID = c.OESCustomerID AND l.CountryCode = c.CountryCode
+        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIBulkLocalCustomer` AS lc ON l.FMSCustomerID = lc.FMSCustomerId AND l.CountryCode = lc.CountryCode            
       ) AS d
       GROUP BY ReceivedRF, DeliveryRF, DeliveryCF, DeliveryDate, Category
     ) AS Src
@@ -142,9 +142,9 @@ BEGIN
     SET v_ErrorMessage = @@error.message;
   END;
 
-  -- Logging Rule: Every translated SP MUST end with CALL Staging.SaveLog covering success and failure
+  -- Logging Rule: Every translated SP MUST end with CALL Staging_SaveLog covering success and failure
   SET v_Ended = CURRENT_DATETIME();
-  CALL `Staging.SaveLog`(
+  CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
     v_Component,
     p_ProcessID,
     v_Started,

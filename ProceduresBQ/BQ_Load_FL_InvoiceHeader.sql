@@ -5,15 +5,15 @@
 -- History:
 --  21/07/2025  B. Woods        Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `dv.Load_FL_InvoiceHeader`(IN p_ProcessId INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_FL_InvoiceHeader`(IN p_ProcessId INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_FL_InvoiceHeader
-  ** Description: Loads FWFastwayDW fl_InvoiceHeader into dv.LSAT_FL_InvoiceHeader
+  ** Description: Loads FWFastwayDW fl_InvoiceHeader into dv_LSAT_FL_InvoiceHeader
   */
 
   DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
-  DECLARE v_Component STRING DEFAULT 'dv.Load_FL_InvoiceHeader';
+  DECLARE v_Component STRING DEFAULT 'dv_Load_FL_InvoiceHeader';
   DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
   DECLARE v_Ended DATETIME;
   DECLARE v_Result STRING;
@@ -23,8 +23,8 @@ BEGIN
 
   BEGIN
     -- MERGE Rule: Use single MERGE for SP containing both INSERT + UPDATE
-    MERGE `dv.LSAT_FL_InvoiceHeader` AS Tgt
-    USING `Staging.fl_InvoiceHeader_Stg` AS Src
+    MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_FL_InvoiceHeader` AS Tgt
+    USING `{{ project_id }}.{{ target_dataset_id }}.Staging_fl_InvoiceHeader_Stg` AS Src
     ON Tgt.InvoiceHeaderId = Src.InvoiceHeaderId
     WHEN MATCHED AND (
       Tgt.BatchId IS DISTINCT FROM Src.BatchId OR
@@ -112,9 +112,9 @@ BEGIN
     SET v_ErrorMessage = @@error.message;
   END;
 
-  -- Logging Rule: Every translated SP MUST end with CALL Staging.SaveLog covering success and failure
+  -- Logging Rule: Every translated SP MUST end with CALL Staging_SaveLog covering success and failure
   SET v_Ended = CURRENT_DATETIME();
-  CALL `Staging.SaveLog`(
+  CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
     v_Component,
     p_ProcessId,
     v_Started,

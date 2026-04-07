@@ -4,18 +4,18 @@
 -- Example:		Exec [dv].[Load_LSAT_InvoiceLine2] 453 
 -- History:
 --	27/12/2019  P. Waldron		Routine Written
---	24/03/2019  P. Waldron		Add EnteredDate to dv.LSAT_InvoiceLine
+--	24/03/2019  P. Waldron		Add EnteredDate to dv_LSAT_InvoiceLine
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `dv.Load_LSAT_InvoiceLine`(IN p_ProcessID INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LSAT_InvoiceLine`(IN p_ProcessID INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_LSAT_InvoiceLine
-  ** Description: Loads Invoice Lines into into dv.LSAT_InvoiceLine
+  ** Description: Loads Invoice Lines into into dv_LSAT_InvoiceLine
   */
 
   DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
 
-  DECLARE v_Component STRING DEFAULT 'dv.Load_LSAT_InvoiceLine';
+  DECLARE v_Component STRING DEFAULT 'dv_Load_LSAT_InvoiceLine';
   DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
   DECLARE v_Ended DATETIME;
   DECLARE v_Result STRING;
@@ -25,7 +25,7 @@ BEGIN
 
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `dv.LSAT_InvoiceLine` (
+    INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_InvoiceLine` (
       InvoiceLine_HSK, 
       Invoice_HSK,
       FranchiseeCode_HSK,
@@ -72,10 +72,10 @@ BEGIN
         il.GSTAmount,
         il.SaleType,
         il.LineType
-      FROM `Staging.FMS_InvoiceHead_Stg` AS ih
-      JOIN `Staging.FMS_InvoiceLines_Stg` AS il ON il.InvoiceNumber = ih.InvoiceNumber
-      JOIN `dbo.Dim_Country` AS c ON c.CountryCode = il.NMId 
-      JOIN `Staging.Product_Stg` AS ps ON ps.ProductId = il.ProductId AND ps.Country = c.CountryName 
+      FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_FMS_InvoiceHead_Stg` AS ih
+      JOIN `{{ project_id }}.{{ target_dataset_id }}.Staging_FMS_InvoiceLines_Stg` AS il ON il.InvoiceNumber = ih.InvoiceNumber
+      JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS c ON c.CountryCode = il.NMId 
+      JOIN `{{ project_id }}.{{ target_dataset_id }}.Staging_Product_Stg` AS ps ON ps.ProductId = il.ProductId AND ps.Country = c.CountryName 
       INNER JOIN (
         -- Replacing T-SQL CROSS APPLY Top 1 logic
         SELECT 
@@ -83,7 +83,7 @@ BEGIN
           RFId, 
           CustomerKey, 
           ROW_NUMBER() OVER (PARTITION BY CustomerID, RFId ORDER BY Active DESC) as rn
-        FROM `Staging.FMS_Customer_Stg`
+        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_FMS_Customer_Stg`
       ) AS cust ON cust.CustomerID = ih.CustomerId AND cust.RFId = il.RFId AND cust.rn = 1
     ),
     NewInvoiceLines AS (
@@ -113,7 +113,7 @@ BEGIN
         LineType
       FROM RawData AS Src
       WHERE NOT EXISTS (
-        SELECT 1 FROM `dv.LSAT_InvoiceLine` AS Tgt WHERE Tgt.InvoiceLine_HSK = TO_HEX(SHA256(CONCAT(CAST(Src.InvoiceNumber AS STRING), '^', Src.FranchiseeCode, '^', Src.CourierNumber, '^', Src.CustomerKey, '^', Src.ProductCode, '^', Src.Country)))
+        SELECT 1 FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_InvoiceLine` AS Tgt WHERE Tgt.InvoiceLine_HSK = TO_HEX(SHA256(CONCAT(CAST(Src.InvoiceNumber AS STRING), '^', Src.FranchiseeCode, '^', Src.CourierNumber, '^', Src.CustomerKey, '^', Src.ProductCode, '^', Src.Country)))
       )
     )
     SELECT
@@ -155,7 +155,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
-  CALL `Staging.SaveLog`(
+  CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
     v_Component, 
     p_ProcessID, 
     v_Started, 

@@ -1,4 +1,4 @@
-	-- ==========================================================================================
+-- ==========================================================================================
 -- Routine:     Load_Missing_Label_Invoices
 -- Description: Attempts to find and Load any missing Invoice-Label relationships in [dbo].[Dim_label]
 -- Example:     Exec [dv].[Load_Label_Invoices] 123 
@@ -6,17 +6,17 @@
 --  02/07/2024  B. Woods      Routine Written
 --  10/07/2024  B. Woods      Added criteria to the DIM_Label update to limit the scope by Partition number
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `dv.Load_Label_Invoices`(IN p_ProcessID INT64, IN p_Start_Date STRING, IN p_End_Date STRING)
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_Label_Invoices`(IN p_ProcessID INT64, IN p_Start_Date STRING, IN p_End_Date STRING)
 BEGIN
   /*
   ** Routine: Load_Label_Invoices
-  ** Description: Attempts to find and Load any missing Invoice-Label relationships in dbo.Dim_label
+  ** Description: Attempts to find and Load any missing Invoice-Label relationships in dbo_Dim_label
   */
 
   DECLARE v_StartDate DATETIME;
   DECLARE v_NextDate DATETIME;
   DECLARE v_EndDate DATETIME;
-  DECLARE v_Component STRING DEFAULT 'dv.Load_Label_Invoices';
+  DECLARE v_Component STRING DEFAULT 'dv_Load_Label_Invoices';
   DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
   DECLARE v_Ended DATETIME;
   DECLARE v_Result STRING;
@@ -33,15 +33,15 @@ BEGIN
   BEGIN
     WHILE v_NextDate <= v_EndDate DO
       
-      TRUNCATE TABLE `Staging.FastwayLabels_Stg`;
+      TRUNCATE TABLE `{{ project_id }}.{{ target_dataset_id }}.Staging_FastwayLabels_Stg`;
 
       -- Identify labels with missing invoice info and find the "BookInvoiceNumber" using window functions
-      INSERT INTO `Staging.FastwayLabels_Stg` (LabelNo, FranchiseeCode, InvoiceNumber, CountryCode)
+      INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.Staging_FastwayLabels_Stg` (LabelNo, FranchiseeCode, InvoiceNumber, CountryCode)
       WITH TargetLabels AS (
         SELECT 
           LabelNo, 
           CountryCode
-        FROM `dbo.Dim_Label`
+        FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label`
         WHERE (FMSInvoiceID IS NULL OR FMSInvoiceID = 0 OR FMSRfID IS NULL)
           AND CreateDate >= v_StartDate AND CreateDate < v_NextDate
           AND CountryCode IN (1, 6, 24)
@@ -52,7 +52,7 @@ BEGIN
           LabelNo, 
           InvoiceNumber, 
           FranchiseeCode
-        FROM `dv.LNK_Invoice_Label`
+        FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LNK_Invoice_Label`
       ),
       Combined AS (
         -- Combine target labels with potential source invoices to use positional window functions
@@ -80,11 +80,11 @@ BEGIN
       WHERE Typ = 'TGT';
 
       -- Update the Dimension table based on discovered mappings for the current date iteration
-      UPDATE `dbo.Dim_Label` AS dim
+      UPDATE `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label` AS dim
       SET 
         FMSInvoiceID = src.InvoiceNumber, 
         FMSRfID = src.FranchiseeCode
-      FROM `Staging.FastwayLabels_Stg` AS src
+      FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_FastwayLabels_Stg` AS src
       WHERE src.LabelNo = dim.LabelNo
         AND dim.CreateDate >= v_StartDate AND dim.CreateDate < v_NextDate -- Fixed inconsistency to use loop range
         AND (
@@ -113,7 +113,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
-  CALL `Staging.SaveLog`(
+  CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
     v_Component, 
     p_ProcessID, 
     v_Started, 

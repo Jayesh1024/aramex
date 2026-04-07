@@ -6,15 +6,15 @@
 --  21/07/2025  B. Woods        Routine Written
 --
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `dv.Load_FL_InvoicePayment`(IN p_ProcessId INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_FL_InvoicePayment`(IN p_ProcessId INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_FL_InvoicePayment
-  ** Description: Loads FWFastwayDW fl_InvoicePayment into dv.LSAT_FL_InvoicePayment
+  ** Description: Loads FWFastwayDW fl_InvoicePayment into dv_LSAT_FL_InvoicePayment
   */
 
   DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
-  DECLARE v_Component STRING DEFAULT 'dv.Load_FL_InvoicePayment';
+  DECLARE v_Component STRING DEFAULT 'dv_Load_FL_InvoicePayment';
   DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
   DECLARE v_Ended DATETIME;
   DECLARE v_Result STRING;
@@ -24,8 +24,8 @@ BEGIN
 
   BEGIN
     -- MERGE Rule: Use single MERGE for Insert + Update logic
-    MERGE `dv.LSAT_FL_InvoicePayment` AS Tgt
-    USING `Staging.fl_InvoicePayment_Stg` AS Src
+    MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_FL_InvoicePayment` AS Tgt
+    USING `{{ project_id }}.{{ target_dataset_id }}.Staging_fl_InvoicePayment_Stg` AS Src
     ON Tgt.InvoicePaymentId = Src.InvoicePaymentId
     WHEN MATCHED AND (
       Tgt.CountryId IS DISTINCT FROM Src.CountryId OR
@@ -85,9 +85,9 @@ BEGIN
     SET v_ErrorMessage = @@error.message;
   END;
 
-  -- Logging Rule: Every translated SP MUST end with CALL Staging.SaveLog
+  -- Logging Rule: Every translated SP MUST end with CALL Staging_SaveLog
   SET v_Ended = CURRENT_DATETIME();
-  CALL `Staging.SaveLog`(
+  CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
     v_Component,
     p_ProcessId,
     v_Started,

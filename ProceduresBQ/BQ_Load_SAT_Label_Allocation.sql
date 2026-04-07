@@ -1,6 +1,6 @@
 -- ==========================================================================================
 -- Routine:		Load_SAT_Label_Allocation
--- Description: Loads attributes into SAT_Label from Staging.SAT_Label_Allocation_Stg
+-- Description: Loads attributes into SAT_Label from Staging_SAT_Label_Allocation_Stg
 -- Example:		Exec [dv].[Load_SAT_Label_Allocation] 649
 -- History:
 --	20/11/2018  P. Waldron		Routine Written
@@ -12,18 +12,18 @@
 --  17/08/2020  P. Waldron      Refactor MERGE to UPDATE then INSERT - to avoid CCI slowdown
 --  10/09/2020  P. Waldron		Add PickupCF and DeliveryCF columns 
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `dv.Load_SAT_Label_Allocation`(IN p_ProcessID INT64)
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_SAT_Label_Allocation`(IN p_ProcessID INT64)
 BEGIN
   /*
   ** Routine: Load_SAT_Label_Allocation
-  ** Description: Loads attributes into SAT_Label from Staging.SAT_Label_Allocation_Stg
+  ** Description: Loads attributes into SAT_Label from Staging_SAT_Label_Allocation_Stg
   */
 
   DECLARE v_DefaultValidFrom DATETIME DEFAULT '1900-01-01 00:00:00';
   DECLARE v_DefaultValidTo DATETIME DEFAULT '9999-12-31 23:59:59';
   DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
 
-  DECLARE v_Component STRING DEFAULT 'dv.Load_SAT_Label_Allocation';
+  DECLARE v_Component STRING DEFAULT 'dv_Load_SAT_Label_Allocation';
   DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
   DECLARE v_Ended DATETIME;
   DECLARE v_Result STRING;
@@ -36,7 +36,7 @@ BEGIN
     -- v_Updated will contain the total count of rows affected (both expired and inserted).
     -- v_Inserted remains 0 as per CORE RULES for MERGE operations.
     
-    MERGE `dv.SAT_Label_Allocation` AS Tgt
+    MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation` AS Tgt
     USING (
       WITH DeduplicatedStg AS (
         -- Deduplicate staging data as per original Row_Number logic
@@ -71,8 +71,8 @@ BEGIN
           Stg.RecordSourceId,
           Stg.Action,
           ROW_NUMBER() OVER (PARTITION BY Stg.LabelNo ORDER BY Stg.CountryCode) AS RowNum
-        FROM `Staging.SAT_Label_Allocation_Stg` AS Stg
-        LEFT JOIN `dbo.Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
+        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_SAT_Label_Allocation_Stg` AS Stg
+        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
       )
       -- Combine 'EXPIRE' actions and 'INSERT' actions into a single source stream
       SELECT *, 'INSERT' AS MergeAction FROM DeduplicatedStg WHERE RowNum = 1
@@ -170,7 +170,7 @@ BEGIN
 
   -- Log the procedure execution result
   SET v_Ended = CURRENT_DATETIME();
-  CALL `Staging.SaveLog`(
+  CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
     v_Component,
     p_ProcessId,
     v_Started,

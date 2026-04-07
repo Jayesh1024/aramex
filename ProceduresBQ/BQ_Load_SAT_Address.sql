@@ -5,7 +5,7 @@
 -- History:
 --	30/10/2019  P. Waldron		Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `dv.Load_SAT_Address`(IN p_ProcessID INT64)
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_SAT_Address`(IN p_ProcessID INT64)
 BEGIN
   /*
   ** Routine: Load_SAT_Address (Parcel from/to locations)
@@ -16,7 +16,7 @@ BEGIN
   DECLARE v_DefaultValidTo DATETIME DEFAULT '9999-12-31 23:59:59';
   DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
 
-  DECLARE v_Component STRING DEFAULT 'dv.Load_SAT_Address';
+  DECLARE v_Component STRING DEFAULT 'dv_Load_SAT_Address';
   DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
   DECLARE v_Ended DATETIME;
   DECLARE v_Result STRING;
@@ -26,7 +26,7 @@ BEGIN
 
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `dv.SAT_Address` (
+    INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Address` (
       Address_HSK,
       AddressLine1,
       AddressLine2,
@@ -59,11 +59,11 @@ BEGIN
       v_DefaultValidFrom AS ValidFrom,
       v_DefaultValidTo AS ValidTo,
       1 AS IsCurrent
-    FROM `Staging.Label_Address_Stg` AS Stg
+    FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Address_Stg` AS Stg
     WHERE Stg.AddressSeq = 1
       AND NOT EXISTS (
         SELECT 1 
-        FROM `dv.SAT_Address` AS Dest
+        FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Address` AS Dest
         WHERE Dest.Address_HSK = Stg.Address_HSK
       );
 
@@ -77,7 +77,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
-  CALL `Staging.SaveLog`(
+  CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
     v_Component, 
     p_ProcessID, 
     v_Started, 

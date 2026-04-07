@@ -1,22 +1,22 @@
 -- ==========================================================================================
 -- Routine:     Load_LSAT_Label_Product_ServiceItem
--- Description: Loads attributes into LSAT_Label_Product_ServiceItem from Staging.fl_ConItemSrv_Stg 
+-- Description: Loads attributes into LSAT_Label_Product_ServiceItem from Staging_fl_ConItemSrv_Stg 
 -- Example:     Exec [dv].[Load_LSAT_Label_Product_ServiceItem] 659
 -- History:
 --  17/09/2020  P. Waldron      Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `dv.Load_LSAT_Product_ServiceCon`(IN p_ProcessID INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LSAT_Product_ServiceCon`(IN p_ProcessID INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_LSAT_Label_Product_ServiceItem
-  ** Description: Loads attributes into LSAT_Label_Product_ServiceItem from Staging.fl_ConItemSrv_Stg
+  ** Description: Loads attributes into LSAT_Label_Product_ServiceItem from Staging_fl_ConItemSrv_Stg
   */
 
   DECLARE v_DefaultValidFrom DATETIME DEFAULT '1900-01-01 00:00:00';
   DECLARE v_DefaultValidTo DATETIME DEFAULT '9999-12-31 23:59:59';
   DECLARE v_Loaded DATETIME DEFAULT CAST(CURRENT_TIMESTAMP() AS DATETIME);
 
-  DECLARE v_Component STRING DEFAULT 'dv.Load_LSAT_Product_ServiceCon';
+  DECLARE v_Component STRING DEFAULT 'dv_Load_LSAT_Product_ServiceCon';
   DECLARE v_Started DATETIME DEFAULT CAST(CURRENT_TIMESTAMP() AS DATETIME);
   DECLARE v_Ended DATETIME;
   DECLARE v_Result STRING;
@@ -26,7 +26,7 @@ BEGIN
 
   BEGIN
     -- Only INSERT is present in the active logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `dv.LSAT_Product_ServiceCon` (
+    INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_Product_ServiceCon` (
       Product_ServiceCon_HSK,
       Product_HSK,
       ConId,
@@ -111,8 +111,8 @@ BEGIN
       v_Loaded AS ValidFrom,
       v_DefaultValidTo AS ValidTo,
       1 AS IsCurrent
-    FROM `Staging.Product_ServiceCon_Stg` AS Src
-    LEFT JOIN `dv.LSAT_Product_ServiceCon` AS Tgt ON Tgt.Product_ServiceCon_HSK = Src.Product_ServiceCon_HSK
+    FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Product_ServiceCon_Stg` AS Src
+    LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_Product_ServiceCon` AS Tgt ON Tgt.Product_ServiceCon_HSK = Src.Product_ServiceCon_HSK
     WHERE Tgt.Product_ServiceCon_HSK IS NULL;
 
     SET v_Inserted = @@row_count;
@@ -125,7 +125,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CAST(CURRENT_TIMESTAMP() AS DATETIME);
-  CALL `Staging.SaveLog`(
+  CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
     v_Component,
     p_ProcessID,
     v_Started,

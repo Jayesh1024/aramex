@@ -1,23 +1,24 @@
 -- ==========================================================================================
 -- Routine:     Load_LSAT_Label_InterBranch
--- Description: Loads LSAT_Label_InterBranch from Staging.Label_InterBranch_Stg for a country
+-- Description: Loads LSAT_Label_InterBranch from Staging_Label_InterBranch_Stg for a country
 -- Example:     Exec [dv].[Load_LSAT_Label_InterBranch] 659,  'InterBranchAU' 
 -- History:
 --  17/09/2020  P. Waldron      Routine Written
 --  21/06/2022  B. Woods         Cloned
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `dv.Load_LSAT_Label_InterBranch`(IN p_ProcessID INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LSAT_Label_InterBranch`(IN p_ProcessID INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_LSAT_Label_InterBranch
-  ** Description: Loads LSAT_Label_InterBranch from Staging.Label_InterBranch_Stg for a country
+  ** Description: Loads LSAT_Label_InterBranch from Staging_Label_InterBranch_Stg for a country
+  ** Description: Loads LSAT_Label_InterBranch from Staging_Label_InterBranch_Stg for a country
   */
 
   DECLARE v_DefaultValidFrom DATETIME DEFAULT '1900-01-01 00:00:00';
   DECLARE v_DefaultValidTo DATETIME DEFAULT '9999-12-31 23:59:59';
   DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
 
-  DECLARE v_Component STRING DEFAULT 'dv.Load_LSAT_Label_InterBranch';
+  DECLARE v_Component STRING DEFAULT 'dv_Load_LSAT_Label_InterBranch';
   DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
   DECLARE v_Ended DATETIME;
   DECLARE v_Result STRING;
@@ -27,7 +28,7 @@ BEGIN
 
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `dv.LSAT_Label_InterBranch` (
+    INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_Label_InterBranch` (
       Label_InterBranch_HSK,
       LabelNo,
       CountryCode,
@@ -83,11 +84,11 @@ BEGIN
         DeliveryTime,
         Price,
         BatchId
-      FROM `Staging.Label_InterBranch_Stg`
+      FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_InterBranch_Stg`
     ) AS Src
     WHERE NOT EXISTS (
       SELECT 1 
-      FROM `dv.LSAT_Label_InterBranch` AS Tgt
+      FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_Label_InterBranch` AS Tgt
       WHERE Tgt.Label_InterBranch_HSK = Src.Label_InterBranch_HSK
     );
 
@@ -101,7 +102,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
-  CALL `Staging.SaveLog`(
+  CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
     v_Component,
     p_ProcessID,
     v_Started,

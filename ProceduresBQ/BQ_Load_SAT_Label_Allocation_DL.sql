@@ -1,24 +1,24 @@
 -- ==========================================================================================
 -- Routine:     Load_SAT_Label_Allocation_DL (refactored Load_SAT_Label_Allocation)
--- Description: Loads attributes into dv.SAT_Label_Allocation_DL from Staging.SAT_Label_Allocation_Stg
+-- Description: Loads attributes into dv_SAT_Label_Allocation_DL from Staging_SAT_Label_Allocation_Stg
 -- Example:     Exec [dv].[Load_SAT_Label_Allocation_DL] 653, 'DynamicLabel'
 -- History:
 --  31/10/2019  P. Waldron      Routine Written
 --  07/11/2019  P. Waldron      Remove CountryName from Label_HSK 
 --  12/01/2024  B. Woods        Replaced MERGE with DELETE and INSERT
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `dv.Load_SAT_Label_Allocation_DL`(IN p_ProcessID INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_SAT_Label_Allocation_DL`(IN p_ProcessID INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_SAT_Label_Allocation_DL
-  ** Description: Loads attributes into dv.SAT_Label_Allocation_DL from Staging.SAT_Label_Allocation_Stg
+  ** Description: Loads attributes into dv_SAT_Label_Allocation_DL from Staging_SAT_Label_Allocation_Stg
   */
 
   DECLARE v_DefaultValidFrom DATETIME DEFAULT '1900-01-01 00:00:00';
   DECLARE v_DefaultValidTo DATETIME DEFAULT '9999-12-31 23:59:59';
   DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
 
-  DECLARE v_Component STRING DEFAULT 'dv.Load_SAT_Label_Allocation_DL';
+  DECLARE v_Component STRING DEFAULT 'dv_Load_SAT_Label_Allocation_DL';
   DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
   DECLARE v_Ended DATETIME;
   DECLARE v_Result STRING;
@@ -30,7 +30,7 @@ BEGIN
     -- Use MERGE to handle the DELETE + INSERT pattern (Replace Current) in a single scan.
     -- v_Updated will contain the total rows affected. v_Inserted = 0 per CORE RULES.
     
-    MERGE `dv.SAT_Label_Allocation_DL` AS Tgt
+    MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_DL` AS Tgt
     USING (
       SELECT DISTINCT 
         TO_HEX(SHA256(CAST(Stg.LabelNumber AS STRING))) AS LabelNo_HSK,
@@ -55,8 +55,8 @@ BEGIN
         Stg.CubicWeight AS ParcelCubicWeight,
         Stg.GroupTransId,
         Stg.HistoryId AS RecordSourceId
-      FROM `Staging.API_RF_AdHocLabel_AllocationHistory_Stg` AS Stg  
-      LEFT JOIN `dbo.Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
+      FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_API_RF_AdHocLabel_AllocationHistory_Stg` AS Stg  
+      LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
     ) AS Src
     ON Tgt.LabelNo = Src.LabelNo AND Tgt.IsCurrent = 1
     WHEN MATCHED THEN
@@ -113,7 +113,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CURRENT_TIMESTAMP();
-  CALL `Staging.SaveLog`(
+  CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
     v_Component,
     p_ProcessID,
     v_Started,

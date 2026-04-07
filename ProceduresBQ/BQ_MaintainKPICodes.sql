@@ -6,14 +6,14 @@
 --	12/04/2019  P. Waldron		Routine Written
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `dbo.MaintainKPICodes`()
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dbo_MaintainKPICodes`()
 BEGIN
   /*
   ** Routine: MaintainKPICodes
-  ** Description: Load new RFs or CFs into dbo.KPICodes
+  ** Description: Load new RFs or CFs into dbo_KPICodes
   */
 
-  DECLARE v_Component STRING DEFAULT 'dbo.MaintainKPICodes';
+  DECLARE v_Component STRING DEFAULT 'dbo_MaintainKPICodes';
   DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
   DECLARE v_Ended DATETIME;
   DECLARE v_Result STRING;
@@ -55,14 +55,14 @@ BEGIN
     -- Cage
     INSERT INTO KPICodes_Temp (KPIGroup, ScanType, ScanStatus)
     SELECT 'Cage', 'T', rf.FranchiseeCode
-    FROM `dv.HUB_RF` AS rf
-    JOIN `dv.SAT_RF` AS sat ON sat.FranchiseeCode_HSK = rf.FranchiseeCode_HSK
+    FROM `{{ project_id }}.{{ target_dataset_id }}.dv_HUB_RF` AS rf
+    JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_RF` AS sat ON sat.FranchiseeCode_HSK = rf.FranchiseeCode_HSK
     WHERE sat.CountryCode IN (1, 6, 24, 11) AND sat.IsCurrent = 1;
 
     -- Bay
     INSERT INTO KPICodes_Temp (KPIGroup, ScanType, ScanStatus)
     SELECT DISTINCT 'Bay', 'T', CourierNumber
-    FROM `dv.HUB_CF` AS cf
+    FROM `{{ project_id }}.{{ target_dataset_id }}.dv_HUB_CF` AS cf
     WHERE cf.CourierNumber NOT IN ('', '#12', '#16', '#17', '#20', '***')
       AND cf.CourierNumber NOT IN (SELECT ScanStatus FROM KPICodes_Temp WHERE ScanType = 'T');
 
@@ -76,10 +76,10 @@ BEGIN
       ('Delivery', 'D', 'YES');
 
     -- Final Load into target table (INSERT ... SELECT as only INSERT is used)
-    INSERT INTO `dbo.KPICodes` (KPIGroup, ScanType, ScanStatus)
+    INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dbo_KPICodes` (KPIGroup, ScanType, ScanStatus)
     SELECT src.KPIGroup, src.ScanType, src.ScanStatus 
     FROM KPICodes_Temp AS src
-    LEFT JOIN `dbo.KPICodes` AS tgt 
+    LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPICodes` AS tgt 
       ON tgt.KPIGroup = src.KPIGroup 
       AND IFNULL(tgt.ScanType, '') = IFNULL(src.ScanType, '') 
       AND IFNULL(tgt.ScanStatus, '') = IFNULL(src.ScanStatus, '')
@@ -95,7 +95,7 @@ BEGIN
 
   -- Log the procedure execution
   SET v_Ended = CURRENT_DATETIME();
-  CALL `Staging.SaveLog`(
+  CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
     v_Component,
     v_ProcessId,
     v_Started,
