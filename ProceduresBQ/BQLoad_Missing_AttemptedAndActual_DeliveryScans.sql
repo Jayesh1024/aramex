@@ -15,7 +15,7 @@
 --		01/12/2022  B. Woods        Routine Written
 --
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.staging_Load_Missing_AttemptedAndActual_DeliveryScans`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.staging_Load_Missing_AttemptedAndActual_DeliveryScans`(
   IN p_ProcessId  INT64,
   IN p_StartDate  STRING,    -- e.g. '2024-01-01'
   IN p_EndDate    STRING     -- e.g. '2025-05-01'
@@ -37,13 +37,13 @@ BEGIN
     D.CountryCode,
     S.FranchiseeCode,
     S.CourierNumber
-  FROM `{{ project_id }}.{{ dataset_id }}.dbo_Fact_KPI_Daily` D
-  LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dv_LNK_Scan` S
+  FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_KPI_Daily` D
+  LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_LNK_Scan` S
     ON  D.LabelNo  = S.LabelNo
     AND S.ScanType = 'D'
     AND S.ScanDate >= CAST(p_StartDate AS DATETIME)
     AND S.ScanDate <  CAST(p_EndDate   AS DATETIME)
-  LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dbo_KPIScanGroups` G
+  LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIScanGroups` G
     ON G.ScanStatus = S.ScanStatus
    AND G.KPIGroup   IN ('Attempted')
   WHERE S.LabelNo              IS NOT NULL
@@ -53,12 +53,12 @@ BEGIN
   -- -----------------------------------------------------------------------
   -- Step 2: Truncate staging target before loading
   -- -----------------------------------------------------------------------
-  TRUNCATE TABLE `{{ project_id }}.{{ dataset_id }}.staging_Fact_KPI_Src_Stg`;
+  TRUNCATE TABLE `{{ project_id }}.{{ target_dataset_id }}.staging_Fact_KPI_Src_Stg`;
 
   -- -----------------------------------------------------------------------
   -- Step 3: Insert attempted scans joined to SAT_Label_Allocation_MF
   -- -----------------------------------------------------------------------
-  INSERT INTO `{{ project_id }}.{{ dataset_id }}.staging_Fact_KPI_Src_Stg`
+  INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.staging_Fact_KPI_Src_Stg`
   (
     LabelNo,
     CountryCode,
@@ -100,7 +100,7 @@ BEGIN
       MF.Zone,
       MF.CustomerId
     FROM temp_AttemptedDeliveryScans R
-    INNER JOIN `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Allocation_MF` MF
+    INNER JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` MF
       ON  MF.CountryCode   = 1
       AND MF.LabelNo       = R.LabelNo
       AND MF.IsCurrent     = 1
@@ -122,13 +122,13 @@ BEGIN
     D.CountryCode,
     S.FranchiseeCode,
     S.CourierNumber
-  FROM `{{ project_id }}.{{ dataset_id }}.dbo_Fact_KPI_Daily` D
-  LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dv_LNK_Scan` S
+  FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_KPI_Daily` D
+  LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_LNK_Scan` S
     ON  D.LabelNo  = S.LabelNo
     AND S.ScanType = 'D'
     AND S.ScanDate >= CAST(p_StartDate AS DATETIME)
     AND S.ScanDate <  CAST(p_EndDate   AS DATETIME)
-  LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dbo_KPIScanGroups` G
+  LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIScanGroups` G
     ON G.ScanStatus = S.ScanStatus
    AND G.KPIGroup   IN ('Delivery')
   WHERE S.LabelNo                IS NOT NULL
@@ -138,7 +138,7 @@ BEGIN
   -- -----------------------------------------------------------------------
   -- Step 5: Insert actual delivery scans joined to SAT_Label_Allocation_MF
   -- -----------------------------------------------------------------------
-  INSERT INTO `{{ project_id }}.{{ dataset_id }}.staging_Fact_KPI_Src_Stg`
+  INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.staging_Fact_KPI_Src_Stg`
   (
     LabelNo,
     CountryCode,
@@ -180,7 +180,7 @@ BEGIN
       MF.Zone,
       MF.CustomerId
     FROM temp_ActualDeliveryScans R
-    INNER JOIN `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Allocation_MF` MF
+    INNER JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` MF
       ON  MF.CountryCode   = 1
       AND MF.LabelNo       = R.LabelNo
       AND MF.IsCurrent     = 1
@@ -191,6 +191,6 @@ BEGIN
   -- -----------------------------------------------------------------------
   -- Step 6: Chain to downstream load procedure
   -- -----------------------------------------------------------------------
-  CALL `{{ project_id }}.{{ dataset_id }}.staging_Load_Fact_KPI_Daily_Stg`(p_ProcessId);
+  CALL `{{ project_id }}.{{ sp_dataset_id }}.staging_Load_Fact_KPI_Daily_Stg`(p_ProcessId);
 
 END;

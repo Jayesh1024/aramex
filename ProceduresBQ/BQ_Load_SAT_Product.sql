@@ -8,7 +8,7 @@
 --  05/09/2022	B. Woods		Changed primary key to use ProductId instead of ProductCode
 --  09/07/2025  B. Woods		Added additional columns	SAPGroup, SAPProductGroup, SAPSubProduct
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.dv_Load_SAT_Product`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_SAT_Product`(
   IN p_ProcessId    INT64,
   IN p_RecordSource STRING
 )
@@ -30,7 +30,7 @@ BEGIN
     -- BQ MERGE does not support EXCEPT in WHEN MATCHED predicate;
     -- explicit column inequality used instead
     -- -----------------------------------------------------------------------
-    MERGE `{{ project_id }}.{{ dataset_id }}.dv_SAT_Product` AS Tgt
+    MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Product` AS Tgt
     USING (
       SELECT DISTINCT
         Sat.Product_HSK,
@@ -52,8 +52,8 @@ BEGIN
         Stg.SAPGroup,
         Stg.SAPProductGroup,
         Stg.SAPSubProduct
-      FROM `{{ project_id }}.{{ dataset_id }}.staging_Product_Stg` Stg
-      LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dv_SAT_Product` Sat
+      FROM `{{ project_id }}.{{ target_dataset_id }}.staging_Product_Stg` Stg
+      LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Product` Sat
         ON  Sat.Country     = Stg.Country
         AND Sat.ProductCode = Stg.Code
         AND Sat.IsCurrent   = 1
@@ -149,7 +149,7 @@ BEGIN
     -- Joins rows just expired in Step 1 back to source to produce
     -- the new IsCurrent = 1 row — replaces OUTPUT $action pattern
     -- -----------------------------------------------------------------------
-    INSERT INTO `{{ project_id }}.{{ dataset_id }}.dv_SAT_Product`
+    INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Product`
     (
       Product_HSK,
       Country,
@@ -203,8 +203,8 @@ BEGIN
       v_Loaded                          AS ValidFrom,
       DATETIME '9999-12-31 00:00:00'    AS ValidTo,
       1                                 AS IsCurrent
-    FROM `{{ project_id }}.{{ dataset_id }}.dv_SAT_Product` Sat
-    INNER JOIN `{{ project_id }}.{{ dataset_id }}.staging_Product_Stg` Stg
+    FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Product` Sat
+    INNER JOIN `{{ project_id }}.{{ target_dataset_id }}.staging_Product_Stg` Stg
       ON  Sat.Country     = Stg.Country
       AND Sat.ProductCode = Stg.Code
     WHERE Sat.IsCurrent        = 0
@@ -217,14 +217,14 @@ BEGIN
     -- -----------------------------------------------------------------------
     SET v_Updated = (
       SELECT COUNTIF(IsCurrent = 0)
-      FROM `{{ project_id }}.{{ dataset_id }}.dv_SAT_Product`
+      FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Product`
       WHERE ProcessId = p_ProcessId
         AND ValidTo   = v_Loaded
     );
 
     SET v_Inserted = (
       SELECT COUNTIF(IsCurrent = 1)
-      FROM `{{ project_id }}.{{ dataset_id }}.dv_SAT_Product`
+      FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Product`
       WHERE ProcessId = p_ProcessId
         AND ValidFrom = v_Loaded
     );
@@ -242,7 +242,7 @@ BEGIN
   -- -----------------------------------------------------------------------
   SET v_Ended = CURRENT_DATETIME();
 
-  CALL `{{ project_id }}.{{ dataset_id }}.staging_SaveLog`(
+  CALL `{{ project_id }}.{{ sp_dataset_id }}.staging_SaveLog`(
     v_Component,
     p_ProcessId,
     v_Started,

@@ -10,7 +10,7 @@
 --	23/11/2018  P. Waldron		Routine Written
 --	02/07/2019  P. Waldron		Refactor to use RecordSource instead of DatasetName
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.staging_Set_LastValue`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.staging_Set_LastValue`(
   IN  p_RecordSource  STRING,
   IN  p_ColumnName    STRING,    -- Pass NULL to use value from LoadControl
   IN  p_LastValue     STRING,    -- Pass NULL to derive from staging table
@@ -37,7 +37,7 @@ BEGIN
     COUNT(*)    INTO v_RowCount,
     MAX(ColumnName)  INTO v_Stg_ColumnName,
     MAX(LastValue)   INTO v_Stg_LastValue
-  FROM `{{ project_id }}.{{ dataset_id }}.staging_LoadControl`
+  FROM `{{ project_id }}.{{ target_dataset_id }}.staging_LoadControl`
   WHERE RecordSource = p_RecordSource;
 
   IF v_RowCount <> 1 THEN
@@ -56,15 +56,15 @@ BEGIN
       REGEXP_EXTRACT(DatasetName, r'[^.]+$'),   -- extract part after last '.'
       '_Stg'
     ) INTO v_StagingTable
-  FROM `{{ project_id }}.{{ dataset_id }}.staging_LoadControl`
+  FROM `{{ project_id }}.{{ target_dataset_id }}.staging_LoadControl`
   WHERE RecordSource = p_RecordSource;
 
-  SET v_StagingTableFQN = CONCAT('`{{ project_id }}.{{ dataset_id }}.', v_StagingTable, '`');
+  SET v_StagingTableFQN = CONCAT('`{{ project_id }}.{{ target_dataset_id }}.', v_StagingTable, '`');
 
   -- Verify staging table exists via INFORMATION_SCHEMA
   SELECT COUNT(*) INTO v_TableExists
-  FROM `{{ project_id }}.{{ dataset_id }}`.INFORMATION_SCHEMA.TABLES
-  WHERE CONCAT(table_schema, '.', table_name) = REPLACE(REPLACE(v_StagingTable, '`', ''), '{{ project_id }}.{{ dataset_id }}.', '');
+  FROM `{{ project_id }}.{{ target_dataset_id }}`.INFORMATION_SCHEMA.TABLES
+  WHERE CONCAT(table_schema, '.', table_name) = REPLACE(REPLACE(v_StagingTable, '`', ''), '{{ project_id }}.{{ target_dataset_id }}.', '');
 
   IF v_TableExists = 0 THEN
     SET v_Msg = CONCAT('Staging table not found for RecordSource ''', p_RecordSource, '''');
@@ -90,7 +90,7 @@ BEGIN
   -- Update LoadControl if a value was found or force flag is set
   -- -----------------------------------------------------------------------
   IF v_LastValue IS NOT NULL OR p_Force = TRUE THEN
-    UPDATE `{{ project_id }}.{{ dataset_id }}.staging_LoadControl`
+    UPDATE `{{ project_id }}.{{ target_dataset_id }}.staging_LoadControl`
     SET LastValue = v_LastValue
     WHERE RecordSource = p_RecordSource;
   END IF;

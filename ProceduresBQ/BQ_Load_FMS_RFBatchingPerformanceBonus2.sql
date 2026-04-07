@@ -6,7 +6,7 @@
 --  02/02/2023  B. Woods      Routine Written
 --
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.dbo_Load_FMS_RFBatchingPerformanceBonus2`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dbo_Load_FMS_RFBatchingPerformanceBonus2`(
   IN p_ProcessId BIGINT
 )
 BEGIN
@@ -31,7 +31,7 @@ BEGIN
   -- -----------------------------------------------------------------------
   SELECT CAST(LastValue AS DATE)
   INTO v_DateBOM
-  FROM `{{ project_id }}.{{ dataset_id }}.staging_LoadControl`
+  FROM `{{ project_id }}.{{ target_dataset_id }}.staging_LoadControl`
   WHERE RecordSource = 'Fact_KPI_DPFM_Export';
 
   -- Default date window
@@ -88,12 +88,12 @@ BEGIN
         Category,
         v_DateBOM                                                               AS DateBOM,
         CAST(ROUND(SUM(OnTimeDelivery) * 100.0 / SUM(NumofLabels), 0) AS INT64) AS PerformancePercentage
-      FROM `{{ project_id }}.{{ dataset_id }}.dbo_Fact_KPI_Delivery_Performance`
+      FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_KPI_Delivery_Performance`
       WHERE Category    = 'Interbranch'
         AND DeliveryDate BETWEEN v_StartDate AND v_EndDate
       GROUP BY CountryCode, PickupRF, DeliveryRF, Category
     ) t
-    LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dbo_KPIRate` r ON t.DateBOM = r.DateBOM
+    LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIRate` r ON t.DateBOM = r.DateBOM
     -- WHERE PerformancePercentage >= COALESCE(r.Rate, 95)
     -- WHERE PerformancePercentage >= 90
 
@@ -131,18 +131,18 @@ BEGIN
         Category,
         v_DateBOM                                                               AS DateBOM,
         CAST(ROUND(SUM(OnTimeDelivery) * 100.0 / SUM(NumofLabels), 0) AS INT64) AS PerformancePercentage
-      FROM `{{ project_id }}.{{ dataset_id }}.dbo_Fact_KPI_Delivery_Performance`
+      FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_KPI_Delivery_Performance`
       WHERE Category    = 'Interbranch'
         AND DeliveryDate BETWEEN v_StartDate AND v_EndDate
       GROUP BY CountryCode, DeliveryRF, Category
     ) t
-    LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dbo_KPIRate` r ON t.DateBOM = r.DateBOM;
+    LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIRate` r ON t.DateBOM = r.DateBOM;
     -- WHERE PerformancePercentage >= COALESCE(r.Rate, 95)
     -- WHERE PerformancePercentage >= 90
 
     SET v_Result = 'Success';
 
-    -- UPDATE `{{ project_id }}.{{ dataset_id }}.staging_LoadControl`
+    -- UPDATE `{{ project_id }}.{{ target_dataset_id }}.staging_LoadControl`
     -- SET LastValue = CAST(DATE_ADD(v_DateBOM, INTERVAL 1 MONTH) AS STRING)
     -- WHERE RecordSource = 'Fact_KPI_DPFM_Export';
 
@@ -155,7 +155,7 @@ BEGIN
   /*
   SET v_Ended = CURRENT_DATETIME();
 
-  CALL `{{ project_id }}.{{ dataset_id }}.staging_SaveLog`(
+  CALL `{{ project_id }}.{{ sp_dataset_id }}.staging_SaveLog`(
     v_Component,
     p_ProcessId,
     v_Started,
