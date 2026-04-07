@@ -5,7 +5,7 @@
 -- History:
 --	23/04/2019  P. Waldron		Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.staging.SaveLog`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.staging_SaveLog`(
   IN p_Component    STRING,
   IN p_ProcessId    INT64,
   IN p_Started      DATETIME,
@@ -18,7 +18,7 @@ CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.staging.SaveLog`(
 )
 BEGIN
 
-  INSERT INTO `{{ project_id }}.{{ dataset_id }}.staging.LoadLog` (
+  INSERT INTO `{{ project_id }}.{{ dataset_id }}.staging_LoadLog` (
     Component,
     ProcessId,
     Started,

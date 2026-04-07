@@ -6,7 +6,7 @@
 --  18/07/2020  P. Waldron      Routine Written
 --  17/12/2020  B. Woods        Updated to insert rows from the new TrackAndTrace_Stg source table
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.interimstaging.Interim_Load_Scans_Stg`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.interimstaging_Interim_Load_Scans_Stg`(
   IN p_ProcessId INT64
 )
 BEGIN
@@ -22,7 +22,7 @@ BEGIN
 
   BEGIN
 
-    INSERT INTO `{{ project_id }}.{{ dataset_id }}.staging.Scans_Stg` (
+    INSERT INTO `{{ project_id }}.{{ dataset_id }}.staging_Scans_Stg` (
       FranchiseeCode,
       CourierNo,
       LabelNo,
@@ -76,8 +76,8 @@ BEGIN
         MAX(stg.iLocate)         AS iLocate,
         MAX(stg.Signature)       AS Signature,
         MAX(stg.UploadDate)      AS UploadDate
-      FROM `{{ project_id }}.{{ dataset_id }}.interimstaging.TrackAndTrace_Stg` AS stg
-      INNER JOIN `{{ project_id }}.{{ dataset_id }}.dbo.Dim_Country` DC
+      FROM `{{ project_id }}.{{ dataset_id }}.interimstaging_TrackAndTrace_Stg` AS stg
+      INNER JOIN `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Country` DC
         ON DC.CountryCode = stg.CountryCode
       GROUP BY
         stg.FranchiseeCode,
@@ -104,7 +104,7 @@ BEGIN
         IFNULL(Longitude, 0),
         MAX(RecordId)    AS RecordSourceId,
         'Fastway.dbo.Labels' AS RecordSource
-      FROM `{{ project_id }}.{{ dataset_id }}.staging.Labels_Stg` AS stg
+      FROM `{{ project_id }}.{{ dataset_id }}.staging_Labels_Stg` AS stg
       GROUP BY
         Franchise, CourierNo, LabelNo, CountryName,
         ScanDate, PickupDelivery, Status,
@@ -113,8 +113,8 @@ BEGIN
     ) AS Src;
 
     -- Capture inserted row count and last processed ID
-    SET v_Inserted = (SELECT COUNT(*) FROM `{{ project_id }}.{{ dataset_id }}.staging.Scans_Stg` WHERE ProcessId = p_ProcessId);
-    SET v_LastId   = (SELECT MAX(ID) FROM `{{ project_id }}.{{ dataset_id }}.interimstaging.TrackAndTrace_Stg`);
+    SET v_Inserted = (SELECT COUNT(*) FROM `{{ project_id }}.{{ dataset_id }}.staging_Scans_Stg` WHERE ProcessId = p_ProcessId);
+    SET v_LastId   = (SELECT MAX(ID) FROM `{{ project_id }}.{{ dataset_id }}.interimstaging_TrackAndTrace_Stg`);
 
     SET v_Result       = 'Success';
     SET v_ErrorMessage = CONCAT('LastID = ', CAST(v_LastId AS STRING));
@@ -128,7 +128,7 @@ BEGIN
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
 
-  CALL `{{ project_id }}.{{ dataset_id }}.staging.SaveLog`(
+  CALL `{{ project_id }}.{{ dataset_id }}.staging_SaveLog`(
     v_Component,
     p_ProcessId,
     v_Started,

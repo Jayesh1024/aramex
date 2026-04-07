@@ -7,7 +7,7 @@
 -- History:
 --  02/02/2023  B. Woods      Copied & modified
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.staging.Get_ExportReportHtml`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.staging_Get_ExportReportHtml`(
   IN p_ProcessId INT64
 )
 BEGIN
@@ -96,7 +96,7 @@ BEGIN
     )
     FROM (
       SELECT DeliveryRF, COUNT(*) AS cnt
-      FROM `{{ project_id }}.{{ dataset_id }}.staging.Export_KPI_Delivery_Perf_Data`
+      FROM `{{ project_id }}.{{ dataset_id }}.staging_Export_KPI_Delivery_Perf_Data`
       GROUP BY DeliveryRF
     )
   );
@@ -113,7 +113,7 @@ BEGIN
         '</tbody>',
       '</table>'
     )
-    FROM `{{ project_id }}.{{ dataset_id }}.staging.Export_KPI_Delivery_Perf_Data`
+    FROM `{{ project_id }}.{{ dataset_id }}.staging_Export_KPI_Delivery_Perf_Data`
   );
 
   /*
@@ -185,7 +185,7 @@ BEGIN
   -- CONVERT(varchar(10), @DateBOM, 120) → FORMAT_DATE('%Y-%m-%d', v_DateBOM)
   -- -----------------------------------------------------------------------
   SELECT MIN(DateBOM) INTO v_DateBOM
-  FROM `{{ project_id }}.{{ dataset_id }}.staging.Export_KPI_Delivery_Perf_Data`;
+  FROM `{{ project_id }}.{{ dataset_id }}.staging_Export_KPI_Delivery_Perf_Data`;
 
   SET v_BodyIntro = CONCAT(
     'FMS_RFBatchingPerformanceBonus load results for Date BOM = ',

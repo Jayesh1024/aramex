@@ -6,15 +6,15 @@
 -- History:
 --	23/11/2018  P. Waldron		Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.staging.Set_LastValue_All`()
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.staging_Set_LastValue_All`()
 BEGIN
 
   FOR rec IN (
     SELECT RecordSource
-    FROM `{{ project_id }}.{{ dataset_id }}.staging.LoadControl`
+    FROM `{{ project_id }}.{{ dataset_id }}.staging_LoadControl`
   )
   DO
-    CALL `{{ project_id }}.{{ dataset_id }}.staging.Set_LastValue`(rec.RecordSource, NULL, NULL, FALSE);
+    CALL `{{ project_id }}.{{ dataset_id }}.staging_Set_LastValue`(rec.RecordSource, NULL, NULL, FALSE);
   END FOR;
 
 END;

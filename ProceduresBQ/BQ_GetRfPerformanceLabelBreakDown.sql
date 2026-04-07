@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.rpt.GetRfPerformanceLabelBreakDown`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.rpt_GetRfPerformanceLabelBreakDown`(
   IN p_StartDate  DATETIME,
   IN p_EndDate    DATETIME
 )
@@ -17,16 +17,16 @@ BEGIN
       f.LabelNo,
       (
         SELECT MAX(dt.Calendar_Date)
-        FROM `{{ project_id }}.{{ dataset_id }}.rpt.Dim_Time` dt
-        LEFT JOIN `{{ project_id }}.{{ dataset_id }}.rpt.KPIExcludedDates` ex
+        FROM `{{ project_id }}.{{ dataset_id }}.rpt_Dim_Time` dt
+        LEFT JOIN `{{ project_id }}.{{ dataset_id }}.rpt_KPIExcludedDates` ex
           ON dt.Calendar_Date = ex.Date
          AND ex.Franchise     = CASE WHEN m.ToRf = '' THEN m.Zone ELSE m.ToRf END
         WHERE dt.Calendar_Date <= CAST(f.ActualAttemptedDate AS DATE)
           AND dt.week_day_flag  = 'Y'
           AND ex.Comment IS NULL
       ) AS ActualAttemptedDateAdjust
-    FROM `{{ project_id }}.{{ dataset_id }}.dbo.Fact_KPI` f
-    INNER JOIN `{{ project_id }}.{{ dataset_id }}.dv.SAT_Label_Allocation_MF` m
+    FROM `{{ project_id }}.{{ dataset_id }}.dbo_Fact_KPI` f
+    INNER JOIN `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Allocation_MF` m
       ON f.LabelNo   = m.LabelNo
     WHERE f.CountryCode          = 1
       AND f.ActualAttemptedDate  > p_StartDate
@@ -67,8 +67,8 @@ BEGIN
       f.DueDate,
       COALESCE(f.KPIAttemptedDate, f.KPIAttemptedDateAdjust) AS EstimatedDeliveryDate,
       a.ActualAttemptedDateAdjust
-    FROM `{{ project_id }}.{{ dataset_id }}.dbo.Fact_KPI` f
-    INNER JOIN `{{ project_id }}.{{ dataset_id }}.dv.SAT_Label_Allocation_MF` m
+    FROM `{{ project_id }}.{{ dataset_id }}.dbo_Fact_KPI` f
+    INNER JOIN `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Allocation_MF` m
       ON f.LabelNo   = m.LabelNo
     INNER JOIN AttemptedDateAdjust a
       ON f.LabelNo   = a.LabelNo

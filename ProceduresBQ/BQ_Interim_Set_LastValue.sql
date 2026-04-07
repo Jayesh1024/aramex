@@ -10,7 +10,7 @@
 --	23/11/2018  P. Waldron		Routine Written
 --	02/07/2019  P. Waldron		Refactor to use RecordSource instead of DatasetName
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.interimstaging.Set_LastValue`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.interimstaging_Set_LastValue`(
   IN p_RecordSource  STRING,
   IN p_ColumnName    STRING,
   IN p_LastValue     STRING,
@@ -36,7 +36,7 @@ BEGIN
     COUNT(*)         INTO v_RowCount,
     MAX(ColumnName)  INTO v_Stg_ColumnName,
     MAX(LastValue)   INTO v_Stg_LastValue
-  FROM `{{ project_id }}.{{ dataset_id }}.staging.LoadControl`
+  FROM `{{ project_id }}.{{ dataset_id }}.staging_LoadControl`
   WHERE RecordSource = p_RecordSource;
 
   IF v_RowCount <> 1 THEN
@@ -53,7 +53,7 @@ BEGIN
       REGEXP_EXTRACT(DatasetName, r'[^.]+$'),
       '_Stg'
     ) INTO v_StagingTable
-  FROM `{{ project_id }}.{{ dataset_id }}.staging.LoadControl`
+  FROM `{{ project_id }}.{{ dataset_id }}.staging_LoadControl`
   WHERE RecordSource = p_RecordSource;
 
   SET v_StagingTableFQN = CONCAT('`{{ project_id }}.{{ dataset_id }}.', v_StagingTable, '`');
@@ -87,7 +87,7 @@ BEGIN
   -- Update LoadControl if a value was found or force flag is set
   -- -----------------------------------------------------------------------
   IF v_LastValue IS NOT NULL OR p_Force = TRUE THEN
-    UPDATE `{{ project_id }}.{{ dataset_id }}.staging.LoadControl`
+    UPDATE `{{ project_id }}.{{ dataset_id }}.staging_LoadControl`
     SET LastValue = v_LastValue
     WHERE RecordSource = p_RecordSource;
   END IF;

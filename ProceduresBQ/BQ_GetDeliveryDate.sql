@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.rpt.GetDeliveryDate`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.rpt_GetDeliveryDate`(
   IN  p_ArrivalDate   DATETIME,
   IN  p_PickupRF      STRING,
   IN  p_Suburb        STRING,
@@ -53,7 +53,7 @@ BEGIN
       ELSE        Mon
     END
   INTO v_CurrentCycle
-  FROM `{{ project_id }}.{{ dataset_id }}.rpt.Tmp_TSS`
+  FROM `{{ project_id }}.{{ dataset_id }}.rpt_Tmp_TSS`
   WHERE PickFranchise = p_PickupRF
     AND Town          = p_Suburb
     AND Postcode      = p_Postcode
@@ -111,7 +111,7 @@ BEGIN
         ELSE        Mon
       END
     INTO v_CurrentCycle
-    FROM `{{ project_id }}.{{ dataset_id }}.rpt.Tmp_TSS`
+    FROM `{{ project_id }}.{{ dataset_id }}.rpt_Tmp_TSS`
     WHERE PickFranchise = p_PickupRF
       AND Town          = p_Suburb
       AND Postcode      = p_Postcode
