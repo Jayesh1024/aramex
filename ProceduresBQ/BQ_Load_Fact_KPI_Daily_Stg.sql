@@ -1,22 +1,18 @@
--- ==========================================================================================
--- Routine:     Load_Fact_KPI_Stg
--- Description: Maintains the stats for InterBranch Pickup & Delivery KPIs
--- Example:     Exec [dbo].[Load_Fact_KPI_Stg] 30
--- History:
---  01/12/2022  B. Woods        Routine Written
---
--- ==========================================================================================
+{#-- ==========================================================================================
+Routine:     Load_Fact_KPI_Daily_Stg
+Description: Maintains the stats for InterBranch Pickup & Delivery KPIs
+History:
+  01/12/2022  B. Woods        Routine Written
+--========================================================================================== --#}
 
-
-
-CREATE OR REPLACE PROCEDURE `Staging.Load_Fact_KPI_Daily_Stg`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id}}.Load_Fact_KPI_Daily_Stg`(
     IN p_ProcessID INT64, 
     IN p_StartDateOverRide STRING, 
     IN p_EndDateOverRide STRING
 )
 BEGIN
     -- Variables Setup
-    DECLARE v_Component STRING DEFAULT 'Staging.Load_Fact_KPI_Daily_Stg';
+    DECLARE v_Component STRING DEFAULT '{{ project_id }}.{{ target_dataset_id }}.Load_Fact_KPI_Daily_Stg';
     DECLARE v_Started TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
     DECLARE v_Result STRING DEFAULT 'Success';
     DECLARE v_ErrorMessage STRING;
@@ -24,10 +20,10 @@ BEGIN
 
     BEGIN
         -- Clear staging table
-        TRUNCATE TABLE `Staging.Fact_KPI_Stg`;
+        TRUNCATE TABLE `{{ project_id }}.{{ target_dataset_id }}.Fact_KPI_Stg`;
 
         -- Insert newly processed KPI data
-        INSERT INTO `Staging.Fact_KPI_Stg` (
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.Fact_KPI_Stg` (
             LabelNo, CountryCode, Category, ServiceType, RealisedDate, CreatedOn, FromRf, ToRf, SLA, 
             KPIPickup, KPILEA, KPIDelivery, KPIPickupImpact, KPILEAImpact, KPIDeliveryImpact, DueDate, 
             KPIDepartureDate, KPIArrivalDate, KPIAttemptedDate, KPIAttemptedDateAdjust, ActualDepartureDate, 
@@ -51,9 +47,9 @@ BEGIN
             MIN(KPIPickup) AS KPIPickup,
             MIN(KPILEA) AS KPILEA,
             MIN(KPIDelivery) AS KPIDelivery,
-            0 AS KPIPickupImpact,	   -- MIN(KPIPickupImpact)
-            0 AS KPILEAImpact,	       -- MIN(KPILEAImpact)
-            0 AS KPIDeliveryImpact,	   -- MIN(KPIDeliveryImpact)
+            0 AS KPIPickupImpact,
+            0 AS KPILEAImpact,
+            0 AS KPIDeliveryImpact,
             MIN(DueDate) AS DueDate,
             MIN(KPIDepartureDate) AS KPIDepartureDate,
             NULL AS KPIArrivalDate,
@@ -123,19 +119,18 @@ BEGIN
                 L.CreatedOn,
                 L.RealisedDate,
                 
-                -- BQ optimization for dynamic offsets using ARRAY_AGG and SAFE_OFFSET
                 (
                     SELECT ARRAY_AGG(Calendar_Date ORDER BY Calendar_Date)[SAFE_OFFSET(COALESCE(CAST(SLA AS INT64), 1))]
-                    FROM `dbo.Dim_Time`  
-                    LEFT JOIN `dbo.KPIExcludedDates` 
+                    FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Time`  
+                    LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIExcludedDates` 
                         ON Calendar_Date = Date AND Franchise IN (FromRf, ToRf) AND CountryCode = L.CountryCode
                     WHERE Calendar_Date >= RealisedDateAsDateOnly AND week_day_flag = 'Y' AND Comment IS NULL
                 ) AS DueDate,
 
                 (
                     SELECT Calendar_Date
-                    FROM `dbo.Dim_Time`  
-                    LEFT JOIN `dbo.KPIExcludedDates` 
+                    FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Time`  
+                    LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIExcludedDates` 
                         ON Calendar_Date = Date AND Franchise = FromRf AND CountryCode = L.CountryCode
                     WHERE Calendar_Date >= RealisedDateAsDateOnly AND week_day_flag = 'Y' AND Comment IS NULL
                     ORDER BY Calendar_Date
@@ -145,12 +140,6 @@ BEGIN
                 NULL AS KPIArrivalDate,
                 NULL AS KPIAttemptedDate,
                 NULL AS KPIAttemptedDateAdjust,
-
-                /* 
-                -- Impact Values Commented out for performance, kept for BQ syntax mapping
-                IF((SELECT ScanStatus FROM `dbo.KPIImpactCodes` c INNER JOIN `dv.LNK_scan` s ON c.ScanStatus = s.ScanStatus AND ScanDate BETWEEN DateStart AND DateEnd AND s.FranchiseeCode = c.RF AND s.CourierNumber = c.CF
-                    WHERE c.Mile = 'P' AND s.CountryName = 'Australia' AND c.CountryCode = 1 AND s.LabelNo = L.LabelNo ORDER BY ScanDate DESC LIMIT 1) IS NULL, 0, 1) AS KPIPickupImpact,		
-                */
 
                 ActualDepartureDate, ActualDepartureRF, ActualDepartureCF, ActualDepartureType, ActualDepartureStatus,
                 ActualFirstArrivalDate, ActualFirstArrivalRF, ActualFirstArrivalCF, ActualFirstArrivalType, ActualFirstArrivalStatus,
@@ -229,7 +218,7 @@ BEGIN
                     FROM (
                         SELECT
                             CASE 
-                                WHEN L.FromRf = L.ToRf AND G.KPIGroup = 'Departure' THEN NULL  -- is Local 
+                                WHEN L.FromRf = L.ToRf AND G.KPIGroup = 'Departure' THEN NULL 
                                 ELSE G.KPIGroup 
                             END AS KPIGroup,
                             CASE    
@@ -253,14 +242,14 @@ BEGIN
                             L.ToCf, L.ToPostalCode, L.ToLocality, L.CustomerId, L.RealisedDate,
                             L.Zone, L.ScanStatus, L.ScanDate, L.ScanDateTime, L.ScanType, L.FranchiseeCode,
                             L.CourierNumber, L.CreatedOn
-                        FROM `Staging.Fact_KPI_Src_Stg` AS L
-                        LEFT JOIN `dbo.KPIScanGroups` G 
+                        FROM `{{ project_id }}.{{ target_dataset_id }}.Fact_KPI_Src_Stg` AS L
+                        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIScanGroups` G 
                             ON G.ScanStatus = L.ScanStatus AND G.CountryCode = L.CountryCode
-                        LEFT JOIN `dbo.KPIMatrix` k 
+                        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIMatrix` k 
                             ON L.FromRf = k.PickupFranchise AND (CASE WHEN L.ToRf = '' THEN Zone ELSE L.ToRf END) = k.DeliveryFranchise
-                        LEFT JOIN `dbo.TSS_PostCodeMaster` t 
+                        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_TSS_PostCodeMaster` t 
                             ON L.ToLocality = t.Suburb AND L.ToPostalCode = CAST(t.Postcode AS STRING) AND t.CountryCode = 1
-                        LEFT JOIN `dv.LSAT_Label_Product_ServiceItem` s  
+                        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_Label_Product_ServiceItem` s  
                             ON s.ProductCode = 'MYFPRI' AND s.Labelno = L.LabelNo 
                     ) L
                 ) L
@@ -276,7 +265,7 @@ BEGIN
     END;
 
     -- Standardize Call Logging block
-    CALL `Staging.SaveLog`(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

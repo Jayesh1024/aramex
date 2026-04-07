@@ -1,21 +1,18 @@
--- ==========================================================================================
--- Routine:     Load_Fact_KPI_Stg
--- Description: Maintains the stats for InterBranch Pickup & Delivery KPIs
--- Example:     Exec [dbo].[Load_Fact_KPI_Stg] 30
--- History:
---  01/12/2022  B. Woods        Routine Written
---
--- ==========================================================================================
+{#-- ==========================================================================================
+Routine:     Staging_Load_Fact_KPI_Src_Stg
+Description: Maintains the stats for InterBranch Pickup & Delivery KPIs
+History:
+  01/12/2022  B. Woods        Routine Written
+========================================================================================== --#}
 
-
-CREATE OR REPLACE PROCEDURE `Staging.Load_Fact_KPI_Src_Stg`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id}}.Staging_Load_Fact_KPI_Src_Stg`(
     IN p_ProcessID INT64, 
     IN p_StartDateOverRide STRING, 
     IN p_EndDateOverRide STRING
 )
 BEGIN
     -- Core Variables
-    DECLARE v_Component STRING DEFAULT 'Staging.Load_Fact_KPI_Src_Stg';
+    DECLARE v_Component STRING DEFAULT '{{ project_id }}.{{ target_dataset_id }}.Staging_Load_Fact_KPI_Src_Stg';
     DECLARE v_Step STRING DEFAULT 'Initialization';
     DECLARE v_Started TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
     DECLARE v_Ended TIMESTAMP;
@@ -36,7 +33,7 @@ BEGIN
         -- Get LastValue for StartDate
         SET v_StartDate = (
             SELECT SAFE_CAST(LastValue AS DATETIME) 
-            FROM `Staging.LoadControl` 
+            FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_LoadControl` 
             WHERE RecordSource = 'Fact_KPI_Scan' 
             LIMIT 1
         );
@@ -55,9 +52,9 @@ BEGIN
         -- ====================================================================
         SET v_Step = 'Part1';
 
-        TRUNCATE TABLE `Staging.Fact_KPI_Src_Stg`;
+        TRUNCATE TABLE `{{ project_id }}.{{ target_dataset_id }}.Staging_Fact_KPI_Src_Stg`;
 
-        INSERT INTO `Staging.Fact_KPI_Src_Stg` (
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.Staging_Fact_KPI_Src_Stg` (
             LabelNo, CountryCode, ScanDateTime, ScanType, ScanStatus, FranchiseeCode, 
             CourierNumber, ScanDate, CreatedOn, FromRf, FromCf, ToRf, ToCf, 
             ToLocality, ToPostalCode, RealisedDate, Zone, CustomerId
@@ -81,8 +78,8 @@ BEGIN
             MF.RealisedDate,
             MF.Zone,
             MF.CustomerId
-        FROM `Fact_Scan_Recent` R 
-        JOIN `dv.SAT_Label_Allocation_MF` MF 
+        FROM `{{ project_id }}.{{ target_dataset_id }}.Fact_Scan_Recent` R 
+        JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` MF 
             ON MF.CountryCode = 1 
             AND MF.LabelNo = R.LabelNo 
             AND MF.IsCurrent = 1 
@@ -95,12 +92,12 @@ BEGIN
         SET v_Inserted = @@row_count;
 
         -- Update Watermark / Last Loaded Date
-        CALL `Staging.Set_LastValue`('Fact_KPI_Scan', 'ScanDateTime', CAST(v_EndDate AS STRING));
+        CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_Set_LastValue`('Fact_KPI_Scan', 'ScanDateTime', CAST(v_EndDate AS STRING));
 
         -- Log Part 1 Success
         SET v_Ended = CURRENT_TIMESTAMP();
-        CALL `Staging.SaveLog`(
-            v_Component || '-Part1',
+        CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
+            CONCAT(v_Component, '-Part1'),
             p_ProcessID,
             v_Started,
             v_Ended,
@@ -120,7 +117,7 @@ BEGIN
         -- StartDate moves back to 30 days ago
         SET v_StartDate = DATETIME_SUB(v_Loaded, INTERVAL 30 DAY);
 
-        INSERT INTO `Staging.Fact_KPI_Src_Stg` (
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.Staging_Fact_KPI_Src_Stg` (
             LabelNo, CountryCode, ScanDateTime, ScanType, ScanStatus, FranchiseeCode, 
             CourierNumber, ScanDate, CreatedOn, FromRf, FromCf, ToRf, ToCf, 
             ToLocality, ToPostalCode, RealisedDate, Zone, CustomerId
@@ -144,14 +141,14 @@ BEGIN
             MF.RealisedDate,
             MF.Zone,
             MF.CustomerId
-        FROM `dv.LNK_Scan` R 
-        JOIN `dv.SAT_Label_Allocation_MF` MF 
+        FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LNK_Scan` R 
+        JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` MF 
             ON MF.CountryCode = 1 
             AND MF.LabelNo = R.LabelNo 
             AND MF.IsCurrent = 1 
             AND MF.RealisedDate IS NOT NULL
             AND MF.RealisedDate > v_RealisedDateCutOff
-        LEFT JOIN `Staging.Fact_KPI_Src_Stg` stg 
+        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.Staging_Fact_KPI_Src_Stg` stg 
             ON stg.LabelNo = MF.LabelNo 
             AND stg.ScanDateTime = R.ScanDate  
         WHERE stg.LabelNo IS NULL   -- not already in todays load
@@ -167,8 +164,8 @@ BEGIN
 
         -- Log Part 2 Success
         SET v_Ended = CURRENT_TIMESTAMP();
-        CALL `Staging.SaveLog`(
-            v_Component || '-Part2',
+        CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
+            CONCAT(v_Component, '-Part2'),
             p_ProcessID,
             v_Started,
             v_Ended,
@@ -184,8 +181,8 @@ BEGIN
         SET v_Result = 'Failed';
         SET v_ErrorMessage = @@error.message;
         
-        CALL `Staging.SaveLog`(
-            v_Component || '-' || v_Step,
+        CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
+            CONCAT(v_Component, '-', v_Step),
             p_ProcessID,
             v_Started,
             CURRENT_TIMESTAMP(),

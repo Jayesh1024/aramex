@@ -1,12 +1,17 @@
-CREATE OR REPLACE PROCEDURE `rpt.GetAgingbyDate`(
+{#-- ==========================================================================================
+Routine:     rpt_GetAgingbyDate
+Description: Calculates Label Aging based on KPIMatrix and working day calendars.
+History:
+  Converted from SQL Server to BigQuery
+========================================================================================== --#}
+
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id}}.rpt_GetAgingbyDate`(
     IN p_ReportDate TIMESTAMP
 )
 BEGIN
     -- ------------------------------------------------------------------------------------------
     -- Routine:     GetAgingbyDate
     -- Description: Calculates Label Aging based on KPIMatrix and working day calendars.
-    -- History:
-    --  Converted from SQL Server to BigQuery
     -- ------------------------------------------------------------------------------------------
 
     WITH labels AS (
@@ -23,10 +28,13 @@ BEGIN
                 ELSE '' 
              END) AS DestRF,
             p.CFDeliveryString AS DestCF
-        FROM `dbo.Fact_Scan_KPI` AS k
-        INNER JOIN `dbo.Dim_RF` AS r ON k.FirstReceivedRF = r.FranchiseeCode 
-        LEFT OUTER JOIN `dbo.Dim_Label` AS l ON k.LabelNo = l.LabelNo AND r.CountryCode = l.CountryCode 
-        LEFT OUTER JOIN `dbo.TSS_PostCodeMaster` AS p ON l.DeliveryPostcode = RTRIM(p.PostCode) 
+        FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_Scan_KPI` AS k
+        INNER JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_RF` AS r 
+            ON k.FirstReceivedRF = r.FranchiseeCode 
+        LEFT OUTER JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label` AS l 
+            ON k.LabelNo = l.LabelNo AND r.CountryCode = l.CountryCode 
+        LEFT OUTER JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_TSS_PostCodeMaster` AS p 
+            ON l.DeliveryPostcode = RTRIM(p.PostCode) 
             AND UPPER(LTRIM(l.DeliveryTown)) = RTRIM(p.Suburb) 
             AND p.CountryCode IN (1,6) 
         WHERE 
@@ -41,15 +49,6 @@ BEGIN
     SELECT 
         DestRF, 
         DestCF, 
-        /*
-        (CASE 
-            WHEN DATE_DIFF(DATE(p_ReportDate), DueDate, DAY) <= 0 THEN 'Not Due'
-            WHEN DATE_DIFF(DATE(p_ReportDate), DueDate, DAY) BETWEEN 1 AND 2 THEN '1-2 Days' 
-            WHEN DATE_DIFF(DATE(p_ReportDate), DueDate, DAY) BETWEEN 3 AND 4 THEN '3-4 Days' 
-            WHEN DATE_DIFF(DATE(p_ReportDate), DueDate, DAY) BETWEEN 5 AND 7 THEN '5-7 Days' 
-            ELSE 'Over 7 days' 
-        END) AS Overdue,
-        */
         DueDate, 
         COUNT(1) AS NumofLabels, 
         p_ReportDate AS ReportDate 
@@ -59,8 +58,9 @@ BEGIN
             (CASE WHEN PickupRF = DestRF THEN m.Days ELSE m.Days + 1 END) AS KPIDays,
             -- Subquery to calculate the Nth working day based on KPI Matrix days
             (SELECT Calendar_Date
-             FROM `dbo.Dim_Time` AS dt
-             LEFT JOIN `dbo.KPIExcludedDates` AS ex ON dt.Calendar_Date = ex.Date AND ex.Franchise = ''
+             FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Time` AS dt
+             LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIExcludedDates` AS ex 
+                ON dt.Calendar_Date = ex.Date AND ex.Franchise = ''
              WHERE dt.Calendar_Date >= l.PickupDate 
                AND dt.week_day_flag = 'Y' 
                AND ex.Comment IS NULL 
@@ -68,9 +68,9 @@ BEGIN
              LIMIT 1 OFFSET CAST(COALESCE((CASE WHEN PickupRF = DestRF THEN 1 ELSE m.Days + 1 END), 0) AS INT64)
             ) AS DueDate
         FROM labels l
-        LEFT JOIN `dbo.KPIMatrix` m ON l.PickupRF = m.PickupFranchise AND l.DestRF = m.DeliveryFranchise
+        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIMatrix` m 
+            ON l.PickupRF = m.PickupFranchise AND l.DestRF = m.DeliveryFranchise
     ) AS final_set
-    -- WHERE DueDate < DATE(p_ReportDate)
     GROUP BY DestRF, DestCF, DueDate;
 
 END;

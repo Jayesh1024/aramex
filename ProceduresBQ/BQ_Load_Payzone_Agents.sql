@@ -1,27 +1,20 @@
--- ==========================================================================================
--- Routine:     Load_Payzone_Agents]
--- Description: Loads any labels into [dbo].[Payzone_Agents]]
--- Example:     Exec [dbo].[Load_Payzone_Agents] 30
--- History:
---  13/05/2025  B. Woods        Routine Written
---
--- ==========================================================================================
+{#-- ==========================================================================================
+Routine:     dbo_Load_Payzone_Agents
+Description: Loads any labels into dbo_Payzone_Agents
+History:
+  13/05/2025  B. Woods        Routine Written
+========================================================================================== --#}
 
-
-
-
-CREATE OR REPLACE PROCEDURE `dbo.Load_Payzone_Agents`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id}}.dbo_Load_Payzone_Agents`(
     IN p_ProcessID INT64
 )
 BEGIN
     -- ------------------------------------------------------------------------------------------
-    -- Routine:     Load_Payzone_Agents
-    -- Description: Upserts labels into dbo.Payzone_Agents using a MERGE statement
-    -- History:
-    --  13/05/2025  B. Woods / AI   Routine converted to BigQuery
+    -- Routine:     dbo_Load_Payzone_Agents
+    -- Description: Upserts labels into dbo_Payzone_Agents using a MERGE statement
     -- ------------------------------------------------------------------------------------------
 
-    DECLARE v_Component STRING DEFAULT 'dbo.Load_Payzone_Agents';
+    DECLARE v_Component STRING DEFAULT '{{ project_id }}.{{ target_dataset_id }}.dbo_Load_Payzone_Agents';
     DECLARE v_Step STRING DEFAULT 'Upsert';
     DECLARE v_Started TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
     DECLARE v_Ended TIMESTAMP;
@@ -30,9 +23,9 @@ BEGIN
     DECLARE v_AffectedRows INT64 DEFAULT 0;
 
     BEGIN
-        -- BigQuery MERGE handles both Updates and Inserts in one atomic operation
-        MERGE INTO `dbo.Payzone_Agents` AS Tgt
-        USING `Staging.payzone_agents_stg` AS Src
+        -- BigQuery MERGE handles both Updates and Inserts
+        MERGE INTO `{{ project_id }}.{{ target_dataset_id }}.dbo_Payzone_Agents` AS Tgt
+        USING `{{ project_id }}.{{ target_dataset_id }}.Staging_payzone_agents_stg` AS Src
         ON Tgt.Id = Src.Id
         
         WHEN MATCHED THEN
@@ -88,7 +81,6 @@ BEGIN
                 Src.store_state, Src.SYS_CHANGE_VERSION
             );
 
-        -- Capture total affected rows (Updates + Inserts)
         SET v_AffectedRows = @@row_count;
 
     EXCEPTION WHEN ERROR THEN
@@ -96,19 +88,18 @@ BEGIN
         SET v_ErrorMessage = @@error.message;
     END;
 
-    -- Final Log Call (Combined Metrics)
     SET v_Ended = CURRENT_TIMESTAMP();
     
-    CALL `Staging.SaveLog`(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,
         v_Ended,
         v_Result,
         v_ErrorMessage,
-        v_AffectedRows, -- Total Inserts/Updates in BQ are usually tracked together in MERGE
-        v_AffectedRows,
-        -1
+        v_AffectedRows, 
+        0, -- Assuming v_AffectedRows covers the primary operation count
+        IF(v_Result = 'Success', 0, -1)
     );
 
 END;

@@ -1,14 +1,11 @@
--- ==========================================================================================
--- Routine:		Get_LoadReportHtml
--- Description: Generates the load report in html format
--- Example:		Exec [Staging].[Get_LoadReportHtml] 346,847
--- History:
---	22/11/2019  P. Waldron		Routine Written
--- ==========================================================================================
+{#-- ==========================================================================================
+Routine:     Get_LoadReportHtml
+Description: Generates the load report in html format
+History:
+    22/11/2019  P. Waldron      Routine Written
+========================================================================================== --#}
 
-
-
-CREATE OR REPLACE PROCEDURE `Staging.Get_LoadReportHtml`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id}}.Staging_Get_LoadReportHtml`(
     IN p_ProcessId INT64,
     IN p_ExecutionId INT64
 )
@@ -30,37 +27,13 @@ BEGIN
 <html>
   <head>
   <style>
-    body {
-      font-family: Tahoma,Geneva,sas-serif;
-      font-size: 11px;
-    }
-    table {
-      font-family: Tahoma,Geneva,sas-serif;
-      border: 1px solid #f3efef;
-      text-align: center;
-      border-collapse: collapse;
-    }
-    table td, table th {
-      border: 1px solid #f3efef;
-      padding: 3px 2px;
-    }
-    table tbody td {
-      font-size: 10px;
-    }
-    table tr:nth-child(even) {
-      background: #D0E4F5;
-    }
-    table thead {
-      background: #0B6FA4;
-      border-bottom: 3px solid #f3efef;
-    }
-    table thead th {
-      font-size: 11px;
-      font-weight: bold;
-      color: #FFFFFF;
-      text-align: center;
-      border-left: 2px solid #f3efef;
-    }
+    body { font-family: Tahoma,Geneva,sas-serif; font-size: 11px; }
+    table { font-family: Tahoma,Geneva,sas-serif; border: 1px solid #f3efef; text-align: center; border-collapse: collapse; }
+    table td, table th { border: 1px solid #f3efef; padding: 3px 2px; }
+    table tbody td { font-size: 10px; }
+    table tr:nth-child(even) { background: #D0E4F5; }
+    table thead { background: #0B6FA4; border-bottom: 3px solid #f3efef; }
+    table thead th { font-size: 11px; font-weight: bold; color: #FFFFFF; text-align: center; border-left: 2px solid #f3efef; }
   </style>
   </head>
 <body>
@@ -75,7 +48,7 @@ BEGIN
 </body>
 </html>''';
 
-    -- Get Load Log details and construct HTML Table 1
+    -- Construct HTML Table 1: Load Log Details
     SET v_BodyTable1 = (
         SELECT CONCAT(
             '<table><thead><tr><th>Started</th><th>Component</th><th>Load Result</th><th>Duration</th><th>Inserted</th><th>Updated</th><th>Errors</th><th>Error Message</th></tr></thead><tbody>',
@@ -100,14 +73,14 @@ BEGIN
             SELECT 
                 SUBSTR(CAST(started AS STRING), 1, 19) AS Started,
                 Component,
-                -- Assuming format_duration logic is ported over as a UDF or replaced with BQ native timestamp diffs
-                `dbo.FormatDuration`(started, ended, 'hh:mm:ss') AS Duration,
+                -- UDF Call: dbo.FormatDuration -> dbo_FormatDuration
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_FormatDuration`(started, ended, 'hh:mm:ss') AS Duration,
                 Result,
                 FORMAT("%'d", IFNULL(Inserted, 0)) AS Inserted,
                 FORMAT("%'d", IF(IFNULL(Updated, -1) = -1, 0, Updated)) AS Updated,
                 FORMAT("%'d", IF(IFNULL(Errors, -1) = -1, 0, Errors)) AS Errors,
                 IFNULL(ErrorMessage, '') AS ErrorMessage
-            FROM `Staging.LoadLog` 
+            FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_LoadLog` 
             WHERE ProcessID = p_ProcessId
             ORDER BY Id DESC
         )
@@ -130,12 +103,12 @@ BEGIN
                 WHEN 8 THEN 'Stopping' 
                 WHEN 9 THEN 'Completed' 
             END
-        FROM `SSISDB.executions` 
+        FROM `{{ project_id }}.{{ target_dataset_id }}.SSISDB_executions` 
         WHERE execution_id = p_ExecutionId
         LIMIT 1
     );
 
-    -- Get SSIS package execution outcome and construct HTML Table 2
+    -- Construct HTML Table 2: Packages Executed
     SET v_BodyTable2 = (
         SELECT CONCAT(
             '<p>Packages executed:</p><table><thead><tr><th>Package Name</th><th>Started</th><th>Ended</th><th>Outcome</th></tr></thead><tbody>',
@@ -163,8 +136,8 @@ BEGIN
                     WHEN 2 THEN 'Completion'
                     WHEN 3 THEN 'Cancelled'
                 END AS ExecutionResult
-            FROM `SSISDB.executables` e
-            LEFT JOIN `SSISDB.executable_statistics` es
+            FROM `{{ project_id }}.{{ target_dataset_id }}.SSISDB_executables` e
+            LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.SSISDB_executable_statistics` es
                 ON e.executable_id = es.executable_id
                AND e.execution_id = es.execution_id
             WHERE e.package_path = '\\Package'
@@ -173,7 +146,7 @@ BEGIN
         )
     );
 
-    -- Get SSIS Errors (if any) and construct HTML Table 3
+    -- Construct HTML Table 3: Package Errors
     SET v_BodyTable3 = (
         SELECT IF(COUNT(1) > 0,
             CONCAT(
@@ -192,7 +165,7 @@ BEGIN
                 ),
                 '</tbody></table>'
             ),
-            NULL -- If no errors exist
+            NULL
         )
         FROM (
             SELECT  
@@ -201,27 +174,25 @@ BEGIN
                 SUBSTR(event_name, 3) AS Event,
                 FORMAT_TIMESTAMP('%Y-%m-%d %H:%M:%S', message_time) AS Occurred,
                 message AS ErrorMessage
-            FROM `SSISDB.event_messages`
+            FROM `{{ project_id }}.{{ target_dataset_id }}.SSISDB_event_messages`
             WHERE operation_id = p_ExecutionId
               AND event_name = 'OnError'
             ORDER BY event_message_id
         )
     );
 
-    -- Format email Html
+    -- Format email Html variables
     SET v_BodyIntro = CONCAT(IFNULL(v_PackageName, 'Unknown Package'), ' load results for ProcessId ', CAST(p_ProcessId AS STRING), ':');
     SET v_BodyEnd   = CONCAT('Review logs on project ', @@project_id, ' for details.');
 
+    -- Inject values into HTML template
     SET v_HTML = REPLACE(v_HTML, '$bodyIntro', IFNULL(v_BodyIntro, ''));
     SET v_HTML = REPLACE(v_HTML, '$bodyEnd', IFNULL(v_BodyEnd, ''));
+    SET v_HTML = REPLACE(v_HTML, '$bodyTable1', IFNULL(v_BodyTable1, ''));
+    SET v_HTML = REPLACE(v_HTML, '$bodyTable2', IFNULL(v_BodyTable2, ''));
+    SET v_HTML = REPLACE(v_HTML, '$bodyTable3', IFNULL(v_BodyTable3, ''));
 
-    -- Note: Placeholders for Tables 1-3 were commented out in your original SP's final SET HTML statements. 
-    -- If you want them injected directly into the HTML body variable, uncomment these lines:
-    -- SET v_HTML = REPLACE(v_HTML, '$bodyTable1', IFNULL(v_BodyTable1, ''));
-    -- SET v_HTML = REPLACE(v_HTML, '$bodyTable2', IFNULL(v_BodyTable2, ''));
-    -- SET v_HTML = REPLACE(v_HTML, '$bodyTable3', IFNULL(v_BodyTable3, ''));
-
-    -- Return html to caller via a standard query output
+    -- Final Output
     SELECT 
         v_HTML AS HtmlBody, 
         IFNULL(v_BodyTable1, '') AS BodyTable1, 

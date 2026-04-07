@@ -1,40 +1,34 @@
--- ==========================================================================================
--- Routine:		Load_SAT_STK_RFProducts
--- Description: 	Loads table SAT_STK_RFProducts
--- Example:		Exec [DV].[Load_SAT_STK_RFProducts]  'Fastway'  
--- History:
---	25/09/2024	B. Woods		Routine Written
--- ==========================================================================================
+{#-- ==========================================================================================
+Routine:		dv_Load_SAT_STK_RFProducts
+Description: 	Loads table SAT_STK_RFProducts
+History:
+	25/09/2024	B. Woods		Routine Written
+========================================================================================== --#}
 
-
-
-CREATE OR REPLACE PROCEDURE `dv.Load_SAT_STK_RFProducts`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id}}.dv_Load_SAT_STK_RFProducts`(
     IN p_RecordSource STRING
 )
 BEGIN
     -- ------------------------------------------------------------------------------------------
-    -- Routine:     Load_SAT_STK_RFProducts
-    -- Description: Full refresh of SAT_STK_RFProducts from Staging
-    -- History:
-    --  25/09/2024  B. Woods / AI   Routine written and converted to BigQuery
+    -- Routine:     dv_Load_SAT_STK_RFProducts
+    -- Description: Full refresh of dv_SAT_STK_RFProducts from Staging
     -- ------------------------------------------------------------------------------------------
 
-    DECLARE v_Component STRING DEFAULT 'dv.Load_SAT_STK_RFProducts';
+    DECLARE v_Component STRING DEFAULT '{{ project_id }}.{{ target_dataset_id }}.dv_Load_SAT_STK_RFProducts';
     DECLARE v_Started TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
     DECLARE v_Ended TIMESTAMP;
     DECLARE v_Result STRING DEFAULT 'Success';
     DECLARE v_ErrorMessage STRING DEFAULT NULL;
     DECLARE v_Inserted INT64 DEFAULT 0;
     
-    -- Keeping @delim logic as requested (Carriage Return)
     DECLARE v_Delim STRING DEFAULT '\r'; 
 
     BEGIN
         -- 1. Clear the target table
-        TRUNCATE TABLE `dv.SAT_STK_RFProducts`;
+        TRUNCATE TABLE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_STK_RFProducts`;
 
         -- 2. Load the data from Staging
-        INSERT INTO `dv.SAT_STK_RFProducts` (
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_STK_RFProducts` (
             RFCode,
             ProductId,
             QtyOnHand,
@@ -69,13 +63,12 @@ BEGIN
             UpdatedBy,
             v_Started AS Loaded,
             p_RecordSource AS RecordSource
-        FROM `Staging.STK_RFProducts_Stg`;
+        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_STK_RFProducts_Stg`;
 
         -- Capture row count of the insert
         SET v_Inserted = @@row_count;
 
     EXCEPTION WHEN ERROR THEN
-        -- Catch any system errors and log the failure
         SET v_Result = 'Failed';
         SET v_ErrorMessage = @@error.message;
     END;
@@ -83,15 +76,16 @@ BEGIN
     -- Record load metrics in log
     SET v_Ended = CURRENT_TIMESTAMP();
 
-    CALL `Staging.SaveLog`(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         v_Component,
-        -1,                 -- ProcessID default
+        -1,                 
         v_Started,
         v_Ended,
         v_Result,
         v_ErrorMessage,
-        v_Inserted,         -- Inserted
-        0                   -- Updated
+        v_Inserted,         
+        0,
+        IF(v_Result = 'Success', 0, -1)
     );
 
 END;

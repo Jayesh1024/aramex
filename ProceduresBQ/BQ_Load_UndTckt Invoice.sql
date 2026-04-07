@@ -1,26 +1,20 @@
--- ==========================================================================================
--- Routine:     Load_Payzone_Agents]
--- Description: Loads any under ticketed invoices into [dbo].[UndTcktInvoice table]
--- Example:     Exec [dbo].[Load_UndTckt_Invoice] 30
--- History:
---  01/07/2025  B. Woods        Routine Written
---
--- ==========================================================================================
+{#-- ==========================================================================================
+Routine:     dbo_Load_UndTckt_Invoice
+Description: Loads any under ticketed invoices into dbo_FMS_UndTcktInvoice
+History:
+  01/07/2025  B. Woods        Routine Written
+========================================================================================== --#}
 
-
-
-CREATE OR REPLACE PROCEDURE `dbo.Load_UndTckt_Invoice`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id}}.dbo_Load_UndTckt_Invoice`(
     IN p_ProcessID INT64
 )
 BEGIN
     -- ------------------------------------------------------------------------------------------
-    -- Routine:     Load_UndTckt_Invoice
-    -- Description: Upserts under-ticketed invoices into dbo.FMS_UndTcktInvoice
-    -- History:
-    --  01/07/2025  B. Woods / AI   Routine written and converted to BigQuery
+    -- Routine:     dbo_Load_UndTckt_Invoice
+    -- Description: Upserts under-ticketed invoices into dbo_FMS_UndTcktInvoice
     -- ------------------------------------------------------------------------------------------
 
-    DECLARE v_Component STRING DEFAULT 'dbo.Load_UndTckt_Invoice';
+    DECLARE v_Component STRING DEFAULT '{{ project_id }}.{{ target_dataset_id }}.dbo_Load_UndTckt_Invoice';
     DECLARE v_Step STRING DEFAULT 'Upsert';
     DECLARE v_Started TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
     DECLARE v_Ended TIMESTAMP;
@@ -30,13 +24,12 @@ BEGIN
 
     BEGIN
         -- Using MERGE to synchronize the Target table with the Staging data
-        MERGE INTO `dbo.FMS_UndTcktInvoice` AS Tgt
-        USING `Staging.FMS_UndTcktInvoice_Stg` AS Src
+        MERGE INTO `{{ project_id }}.{{ target_dataset_id }}.dbo_FMS_UndTcktInvoice` AS Tgt
+        USING `{{ project_id }}.{{ target_dataset_id }}.Staging_FMS_UndTcktInvoice_Stg` AS Src
         ON Tgt.UnderTickId = Src.UnderTickId
         
         WHEN MATCHED THEN
             UPDATE SET
-                -- UnderTickId is the join key and is not updated
                 CountryId = Src.CountryId,
                 LoggedByRF = Src.LoggedByRF,
                 UpdatedByRF = Src.UpdatedByRF,
@@ -134,16 +127,16 @@ BEGIN
     SET v_Ended = CURRENT_TIMESTAMP();
     
     -- Final Log Call
-    CALL `Staging.SaveLog`(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,
         v_Ended,
         v_Result,
         v_ErrorMessage,
-        0,              -- Inserted Count
-        v_AffectedRows, -- Updated Count (Total merged)
-        -1
+        0,              
+        v_AffectedRows, 
+        IF(v_Result = 'Success', 0, -1)
     );
 
 END;

@@ -1,24 +1,20 @@
--- ==========================================================================================
--- Routine:     Load_SAT_Label_PickupRequests
--- Description: Loads relationships into LNK_RuralOnforwards 
---              
--- Example:     Exec dv.Load_SAT_Label_PickupRequests 590 
--- History:
---  17/01/2024  B. Woods        Routine Written
--- ==========================================================================================
+{#-- ==========================================================================================
+Routine:     dv_Load_SAT_Label_PickupRequests
+Description: Loads relationships into LNK_RuralOnforwards 
+History:
+  17/01/2024  B. Woods        Routine Written
+========================================================================================== --#}
 
-CREATE OR REPLACE PROCEDURE `dv.Load_SAT_Label_PickupRequests`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id}}.dv_Load_SAT_Label_PickupRequests`(
     IN p_ProcessID INT64
 )
 BEGIN
     -- ------------------------------------------------------------------------------------------
-    -- Routine:     Load_SAT_Label_PickupRequests
-    -- Description: Full refresh of SAT_Label_PickupRequest from Staging
-    -- History:
-    --  17/01/2024  B. Woods / AI   Routine written and converted to BigQuery
+    -- Routine:     dv_Load_SAT_Label_PickupRequests
+    -- Description: Full refresh of dv_SAT_Label_PickupRequest from Staging
     -- ------------------------------------------------------------------------------------------
 
-    DECLARE v_Component STRING DEFAULT 'dv.Load_SAT_Label_PickupRequests';
+    DECLARE v_Component STRING DEFAULT '{{ project_id }}.{{ target_dataset_id }}.dv_Load_SAT_Label_PickupRequests';
     DECLARE v_Started TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
     DECLARE v_Ended TIMESTAMP;
     DECLARE v_Result STRING DEFAULT 'Success';
@@ -26,11 +22,11 @@ BEGIN
     DECLARE v_Inserted INT64 DEFAULT 0;
 
     BEGIN
-        -- 1. Truncate target table (BigQuery standard for full refresh)
-        TRUNCATE TABLE `dv.SAT_Label_PickupRequest`;
+        -- 1. Truncate target table
+        TRUNCATE TABLE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_PickupRequest`;
 
         -- 2. Insert transformed data
-        INSERT INTO `dv.SAT_Label_PickupRequest` (
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_PickupRequest` (
             PickupRequest_HSK, LabelNo_HSK, FranchiseeCode_HSK, Courier_HSK,
             CreateDateUtc, ShouldPrintLabel, PickupFranchiseeCode, PickupCourierNumber,
             LabelNo, Country, CollectionDate, CollectionCycle, PickupName, PickupPhone,
@@ -47,7 +43,7 @@ BEGIN
             IsPriority, Loaded, ProcessId, RecordSourceId, RecordSource
         )
         SELECT 
-            -- Hashing Logic: Mimicking dbo.GetHashKey using SHA256
+            -- Hashing Logic using BigQuery native SHA256
             UPPER(TO_HEX(SHA256(CONCAT(IFNULL(SUBSTR(Src.LabelNumber, 1, 12), ''), '^', IFNULL(CAST(Src.CountryCode AS STRING), ''), '^')))) AS PickupRequest_HSK,
             UPPER(TO_HEX(SHA256(IFNULL(Src.LabelNumber, '')))) AS LabelNo_HSK,
             UPPER(TO_HEX(SHA256(IFNULL(Src.PickupFranchiseeCode, '')))) AS FranchiseeCode_HSK,
@@ -72,9 +68,10 @@ BEGIN
             v_Started AS Loaded,
             p_ProcessID AS ProcessId,
             Src.ID AS RecordSourceID,
-            'PickupRequest_Stg' AS RecordSource -- Hardcoded Source string
-        FROM `Staging.PickupRequest_Stg` AS Src
-        LEFT JOIN `dbo.Dim_Country` AS C ON C.CountryCode = Src.CountryCode
+            'PickupRequest_Stg' AS RecordSource 
+        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_PickupRequest_Stg` AS Src
+        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS C 
+            ON C.CountryCode = Src.CountryCode
         WHERE Src.LabelNumber IS NOT NULL;
 
         SET v_Inserted = @@row_count;
@@ -87,16 +84,16 @@ BEGIN
     -- Final Log Call
     SET v_Ended = CURRENT_TIMESTAMP();
     
-    CALL `Staging.SaveLog`(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,
         v_Ended,
         v_Result,
         v_ErrorMessage,
-        v_Inserted, -- Inserted
-        0,          -- Updated
-        -1          -- Status
+        v_Inserted, 
+        0,          
+        IF(v_Result = 'Success', 0, -1)
     );
 
 END;

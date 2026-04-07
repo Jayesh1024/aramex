@@ -1,20 +1,16 @@
+{#-- ==========================================================================================
+Routine:		dv_Load_SAT_CustomerCommissionOverride
+Description: 	Loads table SAT_CustomerCommissionOverride
+History:
+	25/09/2024	B. Woods		Routine Written
+========================================================================================== --#}
 
-			 
--- ==========================================================================================
--- Routine:		Load_SAT_CustomerCommissionOverride
--- Description: 	Loads table SAT_CustomerCommissionOverride
--- Example:		Exec [DV].[Load_SAT_FL_Zones]  'Fastway_PriceOverrides'  
--- History:
---	25/09/2024	B. Woods		Routine Written
--- ==========================================================================================
-
-
-CREATE OR REPLACE PROCEDURE `dv.Load_SAT_CustomerCommissionOverride`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id}}.dv_Load_SAT_CustomerCommissionOverride`(
     IN p_RecordSource STRING
 )
 BEGIN
     -- Logging Variables
-    DECLARE v_Component STRING DEFAULT 'dv.Load_SAT_CustomerCommissionOverride';
+    DECLARE v_Component STRING DEFAULT '{{ project_id }}.{{ target_dataset_id }}.dv_Load_SAT_CustomerCommissionOverride';
     DECLARE v_Started TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
     DECLARE v_Result STRING DEFAULT 'Success';
     DECLARE v_ErrorMessage STRING;
@@ -29,12 +25,11 @@ BEGIN
 
     BEGIN
         -- Multi-statement transaction to prevent downstream queries from reading an empty table
-        -- during the window between TRUNCATE and INSERT.
         BEGIN TRANSACTION;
 
-            TRUNCATE TABLE `dv.SAT_CustomerCommissionOverride`;
+            TRUNCATE TABLE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_CustomerCommissionOverride`;
             
-            INSERT INTO `dv.SAT_CustomerCommissionOverride` (
+            INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_CustomerCommissionOverride` (
                 CountryCode, 
                 RFCode, 
                 CustomerId, 
@@ -55,7 +50,7 @@ BEGIN
                 UpdatedBy,
                 v_Loaded AS Loaded,
                 p_RecordSource AS RecordSource
-            FROM `Staging.CustomerCommissionOverride_Stg`;
+            FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_CustomerCommissionOverride_Stg`;
 
             SET v_Inserted = @@row_count;
 
@@ -69,9 +64,9 @@ BEGIN
     END;
 
     -- Record load metrics in log
-    CALL `Staging.SaveLog`(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         v_Component,
-        -1,  -- Hardcoded -1 as per the original script
+        -1,  
         v_Started,
         CURRENT_TIMESTAMP(),
         v_Result,

@@ -1,27 +1,22 @@
--- ==========================================================================================
--- Routine:		Load_KPI_Labels_Stg
--- Description: Identifies Label Numbers for Staging.Load_Fact_Scan_KPI_Stg to process.
---              Usually the set of most recently received Labels (in Staging.LNK_Scan_Stg) is selected.
---              If a date range is provided then Labels previously processed (in dv.LNK_Scan) are added.
--- Example:		Exec [Staging].[Load_KPI_Labels_Stg] 123, Null, Null -- (usual operation)
---              Exec [Staging].[Load_KPI_Labels_Stg] 123, Start TrackAndTraceID, END TrackAndTraceID, 1 
--- History:
---	20/12/2019  P. Waldron		Routine Written
---	17/07/2020  P. Waldron		Add Filter for 'Australia' and 'New Zealand'
---	13/10/2020  P. Waldron		Add 'South Africa' to the filter 
---	05/03/2024	B. Woods		Changed to select labels from dv.LNK_Scan by TrackAndTraceID
--- ==========================================================================================
+{#-- ==========================================================================================
+Routine:		Staging_Load_KPI_Labels_Stg
+Description: Identifies Label Numbers for Staging_Load_Fact_Scan_KPI_Stg to process.
+History:
+	20/12/2019  P. Waldron		Routine Written
+	17/07/2020  P. Waldron		Add Filter for 'Australia' and 'New Zealand'
+	13/10/2020  P. Waldron		Add 'South Africa' to the filter 
+	05/03/2024	B. Woods		Changed to select labels from dv_LNK_Scan by TrackAndTraceID
+========================================================================================== --#}
 
-
-CREATE OR REPLACE PROCEDURE `Staging.Load_KPI_Labels_Stg`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id}}.Staging_Load_KPI_Labels_Stg`(
     IN p_ProcessID INT64,
     IN p_SinceScanDate DATETIME,
     IN p_UntilScanDate DATETIME,
-    IN p_UseScanDates INT64   -- Pass 1 for True, 0 for False (replacing bit = 0)
+    IN p_UseScanDates INT64
 )
 BEGIN
     -- Variables Setup
-    DECLARE v_Component STRING DEFAULT 'Staging.Load_KPI_Labels_Stg';
+    DECLARE v_Component STRING DEFAULT '{{ project_id }}.{{ target_dataset_id }}.Staging_Load_KPI_Labels_Stg';
     DECLARE v_Started TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
     DECLARE v_Result STRING DEFAULT 'Success';
     DECLARE v_ErrorMessage STRING;
@@ -32,17 +27,17 @@ BEGIN
     DECLARE v_LastID INT64;
 
     -- Fetch bounds
-    SET v_MaxID = (SELECT MAX(TrackAndTraceID) FROM `dv.LNK_Scan`);
+    SET v_MaxID = (SELECT MAX(TrackAndTraceID) FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LNK_Scan`);
     
     SET v_LastID = (
         SELECT SAFE_CAST(LastValue AS INT64) 
-        FROM `Staging.LoadControl` 
+        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_LoadControl` 
         WHERE RecordSource = 'TrackAndTraceID'
     );
 
     BEGIN
         -- Insert unique KPI labels
-        INSERT INTO `Staging.KPI_Labels_Stg` (
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.Staging_KPI_Labels_Stg` (
             LabelNo, 
             Loaded, 
             ProcessId
@@ -53,15 +48,15 @@ BEGIN
             p_ProcessId 
         FROM (
             SELECT LabelNo, CountryName 
-            FROM `dv.LNK_Scan`
+            FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LNK_Scan`
             WHERE CountryName IN ('Australia', 'New Zealand', 'South Africa')
               AND TrackAndTraceID > COALESCE(v_LastID, 0) 
               AND TrackAndTraceID <= COALESCE(v_MaxID, 0)
             
-            UNION ALL  -- Using ALL since the outer query handles DISTINCT
+            UNION ALL
             
             SELECT LabelNo, CountryName 
-            FROM `dv.LNK_Scan` 
+            FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LNK_Scan` 
             WHERE p_UseScanDates = 1 
               AND p_SinceScanDate IS NOT NULL 
               AND p_UntilScanDate IS NOT NULL
@@ -75,7 +70,7 @@ BEGIN
         ) scan
         WHERE LENGTH(scan.LabelNo) = 12
           AND NOT EXISTS ( 
-              SELECT 1 FROM `dbo.KPIExcludedLabels` excl
+              SELECT 1 FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIExcludedLabels` excl
               WHERE excl.CountryName = scan.CountryName 
                 AND excl.LabelPrefix = SUBSTR(scan.LabelNo, 1, 2) 
           )
@@ -90,7 +85,7 @@ BEGIN
     END;
 
     -- Record load metrics in log
-    CALL `Staging.SaveLog`(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,
