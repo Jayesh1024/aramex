@@ -1,84 +1,69 @@
 -- ==========================================================================================
--- Routine:     Load_SAT_BLKContainerManifest  (BigQuery Version)
--- Description: Loads SAT_BLKContainerManifest (full-replace pattern)
--- Example:     CALL dv.Load_SAT_BLKContainerManifest(-2, 'BLK_ManifestID')
+-- Routine:     BQ_Load_SAT_BLKContainerManifest
+-- Description: Loads SAT_BLKContainerManifest from `{{ project_id }}.{{ target_dataset_id }}.Staging_BLK_ContainerManifest_Stg`
+--              BigQuery compatible version of Load_SAT_BLKContainerManifest
+--              Note: TRUNCATE + INSERT pattern preserved.
+--                    WITH (TABLOCK) hint removed (not supported in BQ).
+-- Example:     CALL dv.BQ_Load_SAT_BLKContainerManifest(-2, 'BLK_ManifestID')
 -- History:
---  30/05/2024  B. Woods      Routine Written
---  [BQ Migration] Converted SQL Server -> BigQuery
---    * TRUNCATE TABLE inside BEGIN TRANSACTION -> replaced with DELETE FROM ... WHERE TRUE
---      BQ does NOT allow DDL (TRUNCATE) inside explicit transactions; DELETE is DML and is
---      transaction-safe. Functionally identical – removes all rows before the INSERT.
---    * INSERT ... WITH (TABLOCK) -> INSERT ... (hint removed; not applicable in BQ)
---    * IIF() -> IF()
---    * OBJECT_NAME(@@PROCID) -> hardcoded string
---    * See file 1 header for full conversion notes
+--  30/05/2024  B. Woods        Routine Written
+--  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE dv.Load_SAT_BLKContainerManifest(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.BQ_Load_SAT_BLKContainerManifest`(
     IN ProcessID    INT64,
-    IN RecordSource STRING   -- Pass NULL to use default 'BLK_ManifestID'
+    IN RecordSource STRING
 )
 BEGIN
-    DECLARE v_Loaded        DATETIME DEFAULT CURRENT_DATETIME();
-    DECLARE v_RecordSource  STRING   DEFAULT IFNULL(RecordSource, 'BLK_ManifestID');
-    DECLARE Component       STRING   DEFAULT IF(
-                                         TRUE,   -- always has a proc name in BQ
-                                         'dv.Load_SAT_BLKContainerManifest',
-                                         'dv.Load_SAT_BLKContainerManifest'
-                                     );
-    DECLARE Started         DATETIME DEFAULT CURRENT_DATETIME();
-    DECLARE Ended           DATETIME;
-    DECLARE Result          STRING   DEFAULT 'Success';
-    DECLARE ErrorMessage    STRING   DEFAULT NULL;
-    DECLARE Inserted        INT64    DEFAULT 0;
+
+    DECLARE Loaded    DATETIME DEFAULT CURRENT_DATETIME();
+
+    DECLARE Component    STRING DEFAULT 'dv.Load_SAT_BLKContainerManifest';
+    DECLARE Started      DATETIME DEFAULT CURRENT_DATETIME();
+    DECLARE Ended        DATETIME;
+    DECLARE Result       STRING;
+    DECLARE ErrorMessage STRING;
+    DECLARE Inserted     INT64 DEFAULT 0;
 
     BEGIN
 
-        BEGIN TRANSACTION;
+        TRUNCATE TABLE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_BLKContainerManifest`;
 
-        -- Full-replace: delete all rows first (replaces TRUNCATE which can't run in a BQ transaction)
-        DELETE FROM dv.SAT_BLKContainerManifest WHERE TRUE;
-
-        INSERT INTO dv.SAT_BLKContainerManifest
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_BLKContainerManifest`
         SELECT
-            ContainerManifestId,
-            ContainerId,
-            ContainerBarcode,
-            Location,
-            Destination,
-            TotalParcels,
-            Status,
-            ActionDate,
-            IsMixed,
-            MixedUnknownDest,
-            CurrentLocation,
-            CountryCode,
-            Sortation,
-            SortationStatus,
-            SortationOpen,
-            SortationClosed,
-            Started         AS Loaded,
-            ProcessID       AS ProcessID,
-            v_RecordSource  AS RecordSource
-        FROM Staging.BLK_ContainerManifest_Stg;
+             ContainerManifestId
+            ,ContainerId
+            ,ContainerBarcode
+            ,Location
+            ,Destination
+            ,TotalParcels
+            ,Status
+            ,ActionDate
+            ,IsMixed
+            ,MixedUnknownDest
+            ,CurrentLocation
+            ,CountryCode
+            ,Sortation
+            ,SortationStatus
+            ,SortationOpen
+            ,SortationClosed
+            ,Started  AS Loaded
+            ,ProcessID AS ProcessID
+            ,RecordSource AS RecordSource
+        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_BLK_ContainerManifest_Stg`;
 
-        SET Inserted = @@row_count;
-
-        COMMIT TRANSACTION;
-        SET Result = 'Success';
+        SET Inserted = @@ROW_COUNT;
+        SET Result   = 'Success';
 
     EXCEPTION WHEN ERROR THEN
-        IF @@in_transaction THEN
-            ROLLBACK TRANSACTION;
-        END IF;
         SET Result       = 'Failed';
-        SET ErrorMessage = @@error_message;
+        SET ErrorMessage = @@error.message;
+
     END;
 
     -- Record load metrics in log
-    SET Result = 'Success';   -- preserved from original
-
-    SET Ended = CURRENT_DATETIME();
-    CALL Staging.SaveLog(
+    SET Result = 'Success';
+    SET Ended  = CURRENT_DATETIME();
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.SaveLog`(
         Component,
         ProcessID,
         Started,

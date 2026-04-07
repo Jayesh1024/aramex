@@ -10,7 +10,7 @@
 --  13/07/2021  B. Woods        Routine Written
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE dv.BQ_Load_Weekly_Priced_Invoices(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.BQ_Load_Weekly_Priced_Invoices`(
     IN ProcessID INT64,
     IN LastID    INT64
 )
@@ -36,13 +36,13 @@ BEGIN
     -- UPDATE: replicate UPDATE ... FROM ... INNER JOIN using MERGE
     -- Updates Price and FMSInvoiceID on current rows that meet change criteria
     -- -----------------------------------------------------------------------
-    MERGE dv.SAT_Label_Allocation_DL AS DL
+    MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_DL` AS DL
     USING (
         SELECT
             H.HistoryID,
             H.PriceSoldAtExGST,
             H.FMSInvoiceID
-        FROM Staging.API_RF_AdHocLabel_AllocationHistory_Stg H
+        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_API_RF_AdHocLabel_AllocationHistory_Stg` H
     ) AS H
     ON  DL.RecordSourceId = H.HistoryID
     AND DL.IsCurrent      = 1
@@ -61,7 +61,7 @@ BEGIN
     SET Ended        = CURRENT_DATETIME();
     SET SubComponent = Component || ' (' || Step || ')';
 
-    CALL Staging.SaveLog(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.SaveLog`(
         SubComponent,
         ProcessID,
         Started,

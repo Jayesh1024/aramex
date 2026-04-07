@@ -1,94 +1,128 @@
 -- ==========================================================================================
 -- Routine:     BQ_Load_Fact_KPI
 -- Description: Maintains the stats for Pickup & Delivery KPIs
---              BigQuery compatible version of dbo.Load_Fact_KPI
---              Note:
---                - #LabelsToProcess temp table → BQ session temp table
---                - WHILE batch loop for INSERTs removed (BQ handles volume natively)
---                - WITH (TABLOCK) / INDEX hints removed
---                - WAITFOR DELAY removed (not supported in BQ)
---                - RAISERROR removed
---                - FORMAT(n,'N0') removed (logging only)
---                - GOTO RESULT → EXCEPTION block
---                - IIF → IF; ISNULL → IFNULL
---                - OBJECT_SCHEMA_NAME(@@PROCID) → hardcoded string
---                - SYSDATETIME() → CURRENT_DATETIME()
---                - DATETIME2(3) → DATETIME
---                - Interim SaveLog calls per batch consolidated to final call
---                - Audit table format preserved exactly.
+--              BigQuery compatible version of Load_Fact_KPI
+--              Note: Temp table (#LabelsToProcess) replaced with BQ temp table (CREATE TEMP TABLE).
+--                    WHILE batch loop removed - BQ handles large inserts natively.
+--                    WITH (TABLOCK) / WITH (INDEX ...) hints removed.
+--                    IIF → IF. ISNULL → IFNULL.
+--                    FORMAT(n,'N0') removed (logging only).
+--                    RAISERROR removed.
+--                    WAITFOR DELAY removed (not applicable in BQ).
+--                    OBJECT_ID('tempdb...') check removed.
+--                    GOTO replaced with EXCEPTION block.
+--                    BEGIN/COMMIT TRANSACTION removed.
+--                    SYSDATETIME() → CURRENT_DATETIME().
+--                    DATETIME2(3) → DATETIME.
+--                    CONVERT(varchar,...) → CAST(... AS STRING).
+--                    Audit table format preserved exactly.
 -- Example:     CALL dbo.BQ_Load_Fact_KPI(-82)
 -- History:
 --  11/04/2019  B. Woods        Routine Written
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE dbo.BQ_Load_Fact_KPI(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.BQ_Load_Fact_KPI`(
     IN ProcessID INT64
 )
 BEGIN
 
-    DECLARE Loaded   DATETIME DEFAULT CURRENT_DATETIME();
-
-    DECLARE Component    STRING DEFAULT 'Load_Fact_KPI';
+    DECLARE Loaded    DATETIME;
+    DECLARE Component STRING DEFAULT 'dbo.Load_Fact_KPI';
     DECLARE SubComponent STRING;
-    DECLARE Step         STRING;
-    DECLARE Started      DATETIME DEFAULT CURRENT_DATETIME();
-    DECLARE Ended        DATETIME;
-    DECLARE Result       STRING;
+    DECLARE Step      STRING;
+    DECLARE Started   DATETIME;
+    DECLARE Ended     DATETIME;
+    DECLARE Result    STRING;
     DECLARE ErrorMessage STRING;
-    DECLARE Inserted     INT64 DEFAULT 0;
-    DECLARE Updated      INT64 DEFAULT 0;
+    DECLARE Inserted  INT64 DEFAULT 0;
+    DECLARE Updated   INT64 DEFAULT 0;
+    DECLARE MaxInsertId INT64;
+    DECLARE MaxUpdateId INT64;
 
     /*
-        Get list of LabelNos to Update or Insert rows on dbo.Fact_KPI
+        Get list of LabelNos to Update or Insert rows on `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_KPI`
     */
     SET Step    = 'Temp Table';
     SET Started = CURRENT_DATETIME();
 
-    BEGIN
+    -- BQ temp table replaces SQL Server #LabelsToProcess
+    CREATE TEMP TABLE LabelsToProcess (
+        LabelNo   STRING,
+        UpdateId  INT64,
+        InsertId  INT64
+    );
 
-        -- #LabelsToProcess → BQ session temp table
-        -- IIF → IF; index hint removed
-        CREATE TEMP TABLE LabelsToProcess AS
+    INSERT INTO LabelsToProcess (LabelNo, UpdateId, InsertId)
         SELECT
             stg.LabelNo,
-            -- IF replaces IIF; window functions preserved (BQ supports them)
-            IF(tgt.LabelNo = stg.LabelNo,
-               ROW_NUMBER() OVER(PARTITION BY IF(tgt.LabelNo = stg.LabelNo, 1, NULL) ORDER BY stg.LabelNo),
-               NULL) AS UpdateId,
-            IF(tgt.LabelNo IS NULL,
-               ROW_NUMBER() OVER(PARTITION BY IF(tgt.LabelNo IS NULL, 1, NULL) ORDER BY stg.LabelNo),
-               NULL) AS InsertId
-        FROM Staging.Fact_KPI_Stg AS stg
-        LEFT JOIN dbo.Fact_KPI AS tgt
-            -- WITH (INDEX(PK_Fact_KPI)) removed
+            -- IIF → IF; row_number() preserved (BQ supports window functions)
+            UpdateId = IF(
+                Tgt.LabelNo = Stg.LabelNo,
+                ROW_NUMBER() OVER(
+                    PARTITION BY IF(Tgt.LabelNo = Stg.LabelNo, 1, NULL)
+                    ORDER BY Stg.LabelNo
+                ),
+                NULL
+            ),
+            InsertId = IF(
+                Tgt.LabelNo IS NULL,
+                ROW_NUMBER() OVER(
+                    PARTITION BY IF(Tgt.LabelNo IS NULL, 1, NULL)
+                    ORDER BY Stg.LabelNo
+                ),
+                NULL
+            )
+        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Fact_KPI_Stg` AS stg
+        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_KPI` AS tgt
+            -- WITH (INDEX (PK_Fact_KPI)) removed
             ON tgt.LabelNo = stg.LabelNo;
 
-        -- Record interim results
-        SET Ended        = CURRENT_DATETIME();
-        SET SubComponent = Component || ' (' || Step || ')';
+    -- @@ROWCOUNT check replicated with COUNT
+    IF (SELECT COUNT(*) FROM LabelsToProcess) = 0 THEN
+        SET Result = 'Success';
+    END IF;
 
-        CALL Staging.SaveLog(
-            SubComponent,
-            ProcessID,
-            Started,
-            Ended,
-            'Success',
-            ErrorMessage,
-            (SELECT IFNULL(MAX(InsertId), 0) FROM LabelsToProcess),
-            (SELECT IFNULL(MAX(UpdateId), 0) FROM LabelsToProcess)
-        );
+    SELECT MAX(InsertId), MAX(UpdateId)
+    INTO MaxInsertId, MaxUpdateId
+    FROM LabelsToProcess;
 
-        /*
-            Insert new Labels
-            WHILE batch loop removed — single INSERT handles full volume in BQ.
-            WAITFOR DELAY removed (not applicable in BQ).
-        */
-        SET Step    = 'Inserts';
-        SET Started = CURRENT_DATETIME();
-        SET Loaded  = CURRENT_DATETIME();
+    -- Record interim results
+    SET Ended        = CURRENT_DATETIME();
+    SET SubComponent = Component || ' (' || Step || ')';
+
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.SaveLog`(
+        SubComponent,
+        ProcessID,
+        Started,
+        Ended,
+        Result,
+        ErrorMessage,
+        MaxInsertId,
+        MaxUpdateId
+    );
+
+    /*
+        Update existing Labels  (Step preserved from original - no update logic in original INSERT-only proc)
+    */
+    SET Step    = 'Updates';
+    SET Started = CURRENT_DATETIME();
+    SET Inserted = 0;
+    SET Updated  = 0;
+
+    /*
+        Insert new Labels
+        BQ handles large inserts natively; WHILE batch loop removed.
+    */
+    SET Step    = 'Inserts';
+    SET Started = CURRENT_DATETIME();
+    SET Updated  = 0;
+
+    BEGIN
+
+        SET Loaded = CURRENT_DATETIME();
 
         -- WITH (TABLOCK) removed
-        INSERT INTO dbo.Fact_KPI
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_KPI`
         (
             LabelNo,
             CountryCode,
@@ -135,7 +169,8 @@ BEGIN
             LastScanCF,
             LastScanType,
             LastScanStatus,
-            -- MISScanDate, MISRF commented out in original; preserved
+            --MISScanDate,
+            --MISRF,
             LastUpdated,
             ProcessID
         )
@@ -187,7 +222,7 @@ BEGIN
             LastScanStatus,
             Loaded,
             ProcessID
-        FROM Staging.Fact_KPI_Stg Src
+        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Fact_KPI_Stg` Src
         JOIN LabelsToProcess Sel ON Sel.LabelNo = Src.LabelNo
         WHERE Sel.InsertId IS NOT NULL;
 
@@ -200,13 +235,11 @@ BEGIN
 
     END;
 
-    /*
-        Record load metrics in log — audit table format preserved exactly
-    */
+    -- Record load metrics in log (audit table format preserved exactly)
     SET Ended        = CURRENT_DATETIME();
     SET SubComponent = Component || ' (' || Step || ')';
 
-    CALL Staging.SaveLog(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.SaveLog`(
         SubComponent,
         ProcessID,
         Started,
@@ -217,6 +250,6 @@ BEGIN
         Updated
     );
 
-    DROP TABLE IF EXISTS LabelsToProcess;
+    DROP TABLE LabelsToProcess;
 
 END;

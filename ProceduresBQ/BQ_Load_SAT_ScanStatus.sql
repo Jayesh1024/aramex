@@ -16,7 +16,7 @@
 --  29/07/2021  B. Woods        Added column Active
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE dv.BQ_Load_SAT_ScanStatus(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.BQ_Load_SAT_ScanStatus`(
     IN ProcessID    INT64,
     IN RecordSource STRING
 )
@@ -39,7 +39,7 @@ BEGIN
         -- -----------------------------------------------------------------------
         -- STEP 1: Expire changed current rows (IsCurrent=0, ValidTo=Loaded)
         -- -----------------------------------------------------------------------
-        MERGE dv.SAT_ScanStatus AS Tgt
+        MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_ScanStatus` AS Tgt
         USING (
             SELECT DISTINCT
                 Sat.ScanStatus_HSK,
@@ -73,8 +73,8 @@ BEGIN
                 Stg.Onforward,
                 Stg.Delayed,
                 Stg.ReadyToCollect
-            FROM Staging.ScanStatus_Stg Stg
-            LEFT JOIN dv.SAT_ScanStatus Sat
+            FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_ScanStatus_Stg` Stg
+            LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_ScanStatus` Sat
                 ON  Sat.CountryName = Stg.CountryName
                 AND Sat.ScanStatus  = Stg.StatusCode
         ) AS Src
@@ -122,7 +122,7 @@ BEGIN
         -- -----------------------------------------------------------------------
         -- STEP 2: Insert new rows for unmatched source records
         -- -----------------------------------------------------------------------
-        INSERT INTO dv.SAT_ScanStatus
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_ScanStatus`
         (
             ScanStatus_HSK,
             CountryName,
@@ -203,13 +203,13 @@ BEGIN
             DefaultValidFrom AS ValidFrom,
             DefaultValidTo  AS ValidTo,
             1               AS IsCurrent
-        FROM Staging.ScanStatus_Stg Stg
-        LEFT JOIN dv.SAT_ScanStatus Sat
+        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_ScanStatus_Stg` Stg
+        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_ScanStatus` Sat
             ON  Sat.CountryName = Stg.CountryName
             AND Sat.ScanStatus  = Stg.StatusCode
         WHERE NOT EXISTS (
             SELECT 1
-            FROM dv.SAT_ScanStatus AS Tgt
+            FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_ScanStatus` AS Tgt
             WHERE Tgt.ScanStatus_HSK = IFNULL(
                     Sat.ScanStatus_HSK,
                     TO_HEX(MD5(IF(Stg.CountryName IS NULL, 'Unknown', TRIM(Stg.CountryName)) || '^' || Stg.StatusCode))
@@ -231,17 +231,17 @@ BEGIN
     -- -----------------------------------------------------------------------
     SET Updated = (
         SELECT IFNULL(COUNTIF(IsCurrent = 0), 0)
-        FROM dv.SAT_Product
+        FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Product`
         WHERE ProcessId = ProcessID
     );
     SET Inserted = (
         SELECT IFNULL(COUNTIF(IsCurrent = 1), 0)
-        FROM dv.SAT_Product
+        FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Product`
         WHERE ProcessId = ProcessID
     );
 
     SET Ended = CURRENT_DATETIME();
-    CALL Staging.SaveLog(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.SaveLog`(
         Component,
         ProcessID,
         Started,

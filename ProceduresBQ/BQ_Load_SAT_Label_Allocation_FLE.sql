@@ -1,6 +1,6 @@
 -- ==========================================================================================
 -- Routine:     BQ_Load_SAT_Label_Allocation_FLE
--- Description: Loads attributes into SAT_Label_Allocation_FLE from Staging.ConsignmentItem_Stg
+-- Description: Loads attributes into SAT_Label_Allocation_FLE from `{{ project_id }}.{{ target_dataset_id }}.Staging_ConsignmentItem_Stg`
 --              BigQuery compatible version of Load_SAT_Label_Allocation_FLE
 --              Note: MERGE with OUTPUT $action is not supported in BQ.
 --                    Pattern replaced with:
@@ -15,7 +15,7 @@
 --  07/11/2019  P. Waldron      Remove CountryName from Label_HSK
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE dv.BQ_Load_SAT_Label_Allocation_FLE(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.BQ_Load_SAT_Label_Allocation_FLE`(
     IN ProcessID    INT64,
     IN RecordSource STRING
 )
@@ -39,7 +39,7 @@ BEGIN
         -- STEP 1: Expire changed current rows (IsCurrent=0, ValidTo=Loaded)
         -- Replicates the MERGE WHEN MATCHED ... THEN UPDATE SET IsCurrent=0 branch.
         -- -----------------------------------------------------------------------
-        MERGE dv.SAT_Label_Allocation_FLE AS Tgt
+        MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_FLE` AS Tgt
         USING (
             SELECT DISTINCT
                 Sat.LabelNo_HSK,
@@ -71,9 +71,9 @@ BEGIN
                 Stg.Height              AS HeightInCm,
                 Stg.Colour              AS LabelColour,
                 Stg.ConsignmentItemId
-            FROM Staging.ConsignmentItem_Stg Stg
-            LEFT JOIN dbo.Dim_Country cty ON cty.CountryCode = Stg.CountryId
-            LEFT JOIN dv.SAT_Label_Allocation_MF Sat ON Sat.LabelNo = Stg.LabelNumber
+            FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_ConsignmentItem_Stg` Stg
+            LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` cty ON cty.CountryCode = Stg.CountryId
+            LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` Sat ON Sat.LabelNo = Stg.LabelNumber
         ) AS Src
         ON  Tgt.LabelNo_HSK = Src.LabelNo_HSK
         AND Tgt.IsCurrent   = 1
@@ -119,7 +119,7 @@ BEGIN
         -- Replicates MERGE WHEN NOT MATCHED BY TARGET ... THEN INSERT branch,
         -- plus the outer INSERT from the OUTPUT Src.* WHERE Action='UPDATE' branch.
         -- -----------------------------------------------------------------------
-        INSERT INTO dv.SAT_Label_Allocation_FLE
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_FLE`
         (
             LabelNo_HSK,
             LabelNo,
@@ -195,12 +195,12 @@ BEGIN
             Loaded                  AS ValidFrom,
             DefaultValidTo          AS ValidTo,
             1                       AS IsCurrent
-        FROM Staging.ConsignmentItem_Stg Stg
-        LEFT JOIN dbo.Dim_Country cty ON cty.CountryCode = Stg.CountryId
-        LEFT JOIN dv.SAT_Label_Allocation_MF Sat ON Sat.LabelNo = Stg.LabelNumber
+        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_ConsignmentItem_Stg` Stg
+        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` cty ON cty.CountryCode = Stg.CountryId
+        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` Sat ON Sat.LabelNo = Stg.LabelNumber
         WHERE NOT EXISTS (
             SELECT 1
-            FROM dv.SAT_Label_Allocation_FLE AS Tgt
+            FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_FLE` AS Tgt
             WHERE Tgt.LabelNo_HSK = IFNULL(Sat.LabelNo_HSK, TO_HEX(MD5(Stg.LabelNumber)))
               AND Tgt.IsCurrent   = 1
         );
@@ -221,17 +221,17 @@ BEGIN
     -- -----------------------------------------------------------------------
     SET Updated = (
         SELECT IFNULL(COUNTIF(IsCurrent = 0), 0)
-        FROM dv.SAT_Label_Allocation_FLE
+        FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_FLE`
         WHERE ProcessId = ProcessID
     );
     SET Inserted = (
         SELECT IFNULL(COUNTIF(IsCurrent = 1), 0)
-        FROM dv.SAT_Label_Allocation_FLE
+        FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_FLE`
         WHERE ProcessId = ProcessID
     );
 
     SET Ended = CURRENT_DATETIME();
-    CALL Staging.SaveLog(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.SaveLog`(
         Component,
         ProcessID,
         Started,

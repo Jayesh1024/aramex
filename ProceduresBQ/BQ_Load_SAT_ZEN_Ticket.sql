@@ -1,6 +1,6 @@
 -- ==========================================================================================
 -- Routine:     BQ_Load_SAT_ZEN_Ticket
--- Description: Loads SAT_ZEN_Ticket from Staging.ZEN_Ticket_Stg
+-- Description: Loads SAT_ZEN_Ticket from `{{ project_id }}.{{ target_dataset_id }}.Staging_ZEN_Ticket_Stg`
 --              BigQuery compatible version of Load_SAT_ZEN_Ticket
 --              Note: WITH (TABLOCK) hints removed.
 --                    UPDATE ... FROM replaced with MERGE (BQ requires MERGE for UPDATE with JOIN).
@@ -10,7 +10,7 @@
 --  13/04/2024  B. Woods        Routine Written
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE dv.BQ_Load_SAT_ZEN_Ticket(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.BQ_Load_SAT_ZEN_Ticket`(
     IN ProcessID    INT64,
     IN RecordSource STRING
 )
@@ -31,7 +31,7 @@ BEGIN
         -- -----------------------------------------------------------------------
         -- STEP 1: Insert new rows (ZenDeskTicketId not yet in target)
         -- -----------------------------------------------------------------------
-        INSERT INTO dv.SAT_ZEN_Ticket
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_ZEN_Ticket`
         SELECT
             TO_HEX(MD5(CAST(ZenDeskTicketId AS STRING))) AS ZenTicket_HSK,
             ZenDeskTicketId,
@@ -57,10 +57,10 @@ BEGIN
                 Src.Issue,
                 Src.Solved,
                 Src.SysLastUpdatedUtc
-            FROM Staging.ZEN_Ticket_Stg AS Src
+            FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_ZEN_Ticket_Stg` AS Src
             WHERE NOT EXISTS (
                 SELECT 1
-                FROM dv.SAT_ZEN_Ticket AS Dest
+                FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_ZEN_Ticket` AS Dest
                 WHERE Dest.ZenDeskTicketId = TRIM(CAST(Src.ZenDeskTicketId AS STRING))
             )
         );
@@ -72,7 +72,7 @@ BEGIN
         -- STEP 2: Update existing rows (ZenDeskTicketId already in target)
         -- Replaces UPDATE ... FROM using MERGE
         -- -----------------------------------------------------------------------
-        MERGE dv.SAT_ZEN_Ticket AS Tgt
+        MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_ZEN_Ticket` AS Tgt
         USING (
             SELECT DISTINCT
                 Src.ZenDeskTicketId,
@@ -84,10 +84,10 @@ BEGIN
                 Src.Issue,
                 Src.Solved,
                 Src.SysLastUpdatedUtc
-            FROM Staging.ZEN_Ticket_Stg AS Src
+            FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_ZEN_Ticket_Stg` AS Src
             WHERE EXISTS (
                 SELECT 1
-                FROM dv.SAT_ZEN_Ticket AS Dest
+                FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_ZEN_Ticket` AS Dest
                 WHERE Dest.ZenDeskTicketId = TRIM(CAST(Src.ZenDeskTicketId AS STRING))
             )
         ) AS Src
@@ -117,7 +117,7 @@ BEGIN
     -- Record load metrics in log
     SET Result = 'Success';
     SET Ended  = CURRENT_DATETIME();
-    CALL Staging.SaveLog(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.SaveLog`(
         Component,
         ProcessID,
         Started,

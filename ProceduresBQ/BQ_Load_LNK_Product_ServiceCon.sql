@@ -1,37 +1,38 @@
 -- ==========================================================================================
--- Routine:     Load_LNK_Product_ServiceCon  (BigQuery Version)
--- Description: Loads LNK_Label_Product_ServiceItem from Staging.fl_ConItemSrv_Stg
--- Example:     CALL dv.Load_LNK_Product_ServiceCon(659, 'MyFastway')
+-- Routine:     BQ_Load_LNK_Product_ServiceCon
+-- Description: Loads LNK_Product_ServiceCon from `{{ project_id }}.{{ target_dataset_id }}.Staging_Product_ServiceCon_Stg`
+--              BigQuery compatible version of Load_LNK_Product_ServiceCon
+-- Example:     CALL dv.BQ_Load_LNK_Product_ServiceCon(659, 'MyFastway')
 -- History:
 --  15/08/2020  P. Waldron      Routine Written
---  [BQ Migration] Converted SQL Server -> BigQuery
---    * ISNULL()         -> IFNULL()
---    * IIF()            -> IF()
---    * REPLACE w/ cast  -> REPLACE(..., CAST(val AS STRING))
---    * See file 1 header for full conversion notes
+--  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE dv.Load_LNK_Product_ServiceCon(
-    IN ProcessID    INT64,
-    IN RecordSource STRING   -- Pass NULL to use default 'MyFastway'
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.BQ_Load_LNK_Product_ServiceCon`(
+    IN ProcessID INT64,
+    IN RecordSource STRING
 )
 BEGIN
-    DECLARE v_Loaded        DATETIME DEFAULT CURRENT_DATETIME();
-    DECLARE v_RecordSource  STRING   DEFAULT IFNULL(RecordSource, 'MyFastway');
-    DECLARE Component       STRING   DEFAULT 'dv.Load_LNK_Product_ServiceCon';
-    DECLARE Started         DATETIME DEFAULT CURRENT_DATETIME();
-    DECLARE Ended           DATETIME;
-    DECLARE Result          STRING   DEFAULT 'Success';
-    DECLARE ErrorMessage    STRING   DEFAULT NULL;
-    DECLARE Inserted        INT64    DEFAULT 0;
-    DECLARE Updated         INT64    DEFAULT 0;
+
+    DECLARE DefaultValidFrom DATETIME DEFAULT DATETIME '1900-01-01 00:00:00';
+    DECLARE DefaultValidTo   DATETIME DEFAULT DATETIME '9999-12-31 00:00:00';
+    DECLARE Loaded           DATETIME DEFAULT CURRENT_DATETIME();
+
+    DECLARE Component    STRING DEFAULT 'dv.Load_LNK_Product_ServiceCon';
+    DECLARE Started      DATETIME DEFAULT CURRENT_DATETIME();
+    DECLARE Ended        DATETIME;
+    DECLARE Result       STRING;
+    DECLARE ErrorMessage STRING;
+    DECLARE Inserted     INT64 DEFAULT 0;
+    DECLARE Updated      INT64 DEFAULT 0;
 
     BEGIN
 
-        INSERT INTO dv.LNK_Product_ServiceCon
+        -- Insert new records that don't already exist in the target
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_LNK_Product_ServiceCon`
         (
             Product_ServiceCon_HSK,
             Product_HSK,
-            -- ServiceItem_HSK,   -- commented out as per original
+            -- ServiceItem_HSK,
             ConId,
             Country,
             ProductCode,
@@ -49,37 +50,40 @@ BEGIN
             Stg.ConId,
             Stg.Country,
             Stg.ProductCode,
+            -- Replicate ISNULL(IIF(...)) logic:
+            -- Use DisplayText if non-empty, else Description, else fallback to ServiceItemId
             IFNULL(
                 IF(SI.DisplayText <> '', SI.DisplayText, SI.Description),
                 REPLACE('(:1:)', ':1:', CAST(Stg.ServiceItemId AS STRING))
-            )               AS ServiceItem,
+            ) AS ServiceItem,
             Stg.ServiceItemId,
-            v_Loaded        AS Loaded,
-            ProcessID       AS ProcessID,
+            Loaded        AS Loaded,
+            ProcessID     AS ProcessID,
             Stg.RecordSource,
             Stg.RecordSourceId
-        FROM Staging.Product_ServiceCon_Stg AS Stg
-        LEFT JOIN Staging.fl_ServiceItem_Stg AS SI
+        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Product_ServiceCon_Stg` AS Stg
+        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.Staging_fl_ServiceItem_Stg` AS SI
             ON  Stg.CountryId    = SI.CountryId
             AND Stg.ProductId    = SI.ProductId
-            AND Stg.ServiceItemId= SI.ServiceItemId
+            AND Stg.ServiceItemId = SI.ServiceItemId
         WHERE NOT EXISTS (
             SELECT 1
-            FROM dv.LNK_Product_ServiceCon AS Tgt
+            FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LNK_Product_ServiceCon` AS Tgt
             WHERE Tgt.Product_ServiceCon_HSK = Stg.Product_ServiceCon_HSK
         );
 
-        SET Inserted = @@row_count;
+        SET Inserted = @@ROW_COUNT;
         SET Result   = 'Success';
 
     EXCEPTION WHEN ERROR THEN
         SET Result       = 'Failed';
-        SET ErrorMessage = @@error_message;
+        SET ErrorMessage = @@error.message;
+
     END;
 
     -- Record load metrics in log
     SET Ended = CURRENT_DATETIME();
-    CALL Staging.SaveLog(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.SaveLog`(
         Component,
         ProcessID,
         Started,

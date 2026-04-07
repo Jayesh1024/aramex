@@ -1,54 +1,34 @@
 -- ==========================================================================================
--- Routine:     Load_SAT_BLKContainerManifestContents  (BigQuery Version)
--- Description: Loads SAT_BLKContainerManifestContents (new-keys-only insert)
--- Example:     CALL dv.Load_SAT_BLKContainerManifestContents(-4, 'BLK_ManifestContents')
+-- Routine:     BQ_Load_SAT_BLKContainerManifestContents
+-- Description: Loads SAT_BLKContainerManifestContents from `{{ project_id }}.{{ target_dataset_id }}.Staging_BLK_ContainerManifestContents_Stg`
+--              BigQuery compatible version of Load_SAT_BLKContainerManifestContents
+--              Note: CTE pattern preserved. WITH (TABLOCK) removed.
+--                    dbo.GetHashKey replaced with TO_HEX(MD5(...)).
+-- Example:     CALL dv.BQ_Load_SAT_BLKContainerManifestContents(-4, 'BLK_ManifestContents')
 -- History:
---  30/05/2024  B. Woods      Routine Written
---  [BQ Migration] Converted SQL Server -> BigQuery
---    * ;WITH CTE AS (...) -> WITH CTE AS (...)  (BQ does not need the leading semicolon)
---    * dbo.GetHashKey(key, default) -> TO_HEX(MD5(key))
---    * CONVERT(varchar(10), col)    -> CAST(col AS STRING)
---    * INSERT ... WITH (TABLOCK)    -> INSERT ... (hint removed)
---    * IIF()                        -> IF()
---    * See file 1 header for full conversion notes
+--  30/05/2024  B. Woods        Routine Written
+--  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE dv.Load_SAT_BLKContainerManifestContents(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.BQ_Load_SAT_BLKContainerManifestContents`(
     IN ProcessID    INT64,
-    IN RecordSource STRING   -- Pass NULL to use default 'BLK_ManifestContents'
+    IN RecordSource STRING
 )
 BEGIN
-    DECLARE v_Loaded        DATETIME DEFAULT CURRENT_DATETIME();
-    DECLARE v_RecordSource  STRING   DEFAULT IFNULL(RecordSource, 'BLK_ManifestContents');
-    DECLARE Component       STRING   DEFAULT IF(
-                                         TRUE,
-                                         'dv.Load_SAT_BLKContainerManifestContents',
-                                         'Load_SAT_BLKContainerManifestContents'
-                                     );
-    DECLARE Started         DATETIME DEFAULT CURRENT_DATETIME();
-    DECLARE Ended           DATETIME;
-    DECLARE Result          STRING   DEFAULT 'Success';
-    DECLARE ErrorMessage    STRING   DEFAULT NULL;
-    DECLARE Inserted        INT64    DEFAULT 0;
+
+    DECLARE Loaded    DATETIME DEFAULT CURRENT_DATETIME();
+
+    DECLARE Component    STRING DEFAULT 'dv.Load_SAT_BLKContainerManifestContents';
+    DECLARE Started      DATETIME DEFAULT CURRENT_DATETIME();
+    DECLARE Ended        DATETIME;
+    DECLARE Result       STRING;
+    DECLARE ErrorMessage STRING;
+    DECLARE Inserted     INT64 DEFAULT 0;
 
     BEGIN
 
-        BEGIN TRANSACTION;
-
-        -- Identify new business keys not already present in target
-        INSERT INTO dv.SAT_BLKContainerManifestContents
-        WITH NewBusinessKeys AS (
-            SELECT DISTINCT
-                Src.ContainerManifestId,
-                RTRIM(Src.LabelNo) AS LabelNo
-            FROM Staging.BLK_ContainerManifestContents_Stg AS Src
-            LEFT JOIN dv.SAT_BLKContainerManifestContents AS Dest
-                ON  RTRIM(CAST(Dest.ContainerManifestId AS STRING)) = RTRIM(CAST(Src.ContainerManifestId AS STRING))
-                AND RTRIM(Dest.LabelNo) = RTRIM(Src.LabelNo)
-            WHERE Dest.ContainerManifestId IS NULL  -- new keys only
-        )
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_BLKContainerManifestContents`
         SELECT
-            TO_HEX(MD5(CONCAT(CAST(Src.ContainerManifestId AS STRING), RTRIM(Src.LabelNo))))
-                                    AS ContainerManifestContents_HSK,
+            TO_HEX(MD5(CAST(Src.ContainerManifestId AS STRING) || TRIM(Src.LabelNo))) AS ContainerManifestContents_HSK,
             Src.ContainerManifestId,
             Src.LabelNo,
             Src.ScanDate,
@@ -57,32 +37,31 @@ BEGIN
             Src.MixedManifestId,
             Src.Weight,
             Src.CF,
-            Started                 AS Loaded,
-            ProcessID               AS ProcessID,
-            v_RecordSource          AS RecordSource
-        FROM Staging.BLK_ContainerManifestContents_Stg AS Src
-        JOIN NewBusinessKeys AS NBK
-            ON  RTRIM(CAST(NBK.ContainerManifestId AS STRING)) = RTRIM(CAST(Src.ContainerManifestId AS STRING))
-            AND RTRIM(NBK.LabelNo) = RTRIM(Src.LabelNo);
+            Started   AS Loaded,
+            ProcessID AS ProcessID,
+            RecordSource AS RecordSource
+        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_BLK_ContainerManifestContents_Stg` AS Src
+        -- Only insert rows whose (ContainerManifestId, LabelNo) key doesn't already exist
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_BLKContainerManifestContents` AS Dest
+            WHERE Dest.ContainerManifestId = TRIM(Src.ContainerManifestId)
+              AND TRIM(Dest.LabelNo)        = TRIM(Src.LabelNo)
+        );
 
-        SET Inserted = @@row_count;
-
-        COMMIT TRANSACTION;
-        SET Result = 'Success';
+        SET Inserted = @@ROW_COUNT;
+        SET Result   = 'Success';
 
     EXCEPTION WHEN ERROR THEN
-        IF @@in_transaction THEN
-            ROLLBACK TRANSACTION;
-        END IF;
         SET Result       = 'Failed';
-        SET ErrorMessage = @@error_message;
+        SET ErrorMessage = @@error.message;
+
     END;
 
     -- Record load metrics in log
-    SET Result = 'Success';   -- preserved from original
-
-    SET Ended = CURRENT_DATETIME();
-    CALL Staging.SaveLog(
+    SET Result = 'Success';
+    SET Ended  = CURRENT_DATETIME();
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.SaveLog`(
         Component,
         ProcessID,
         Started,

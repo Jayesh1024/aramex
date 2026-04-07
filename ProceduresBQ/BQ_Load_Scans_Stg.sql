@@ -1,6 +1,6 @@
 -- ==========================================================================================
 -- Routine:     BQ_Load_Scans_Stg
--- Description: Combines scan data into one table for loading into Staging.LNK_Scan_Stg
+-- Description: Combines scan data into one table for loading into `{{ project_id }}.{{ target_dataset_id }}.Staging_LNK_Scan_Stg`
 --              BigQuery compatible version of Load_Scans_Stg
 --              Note: WITH (TABLOCK) removed.
 --                    ROLLBACK TRANSACTION removed (BQ procedures don't use explicit transactions).
@@ -13,7 +13,7 @@
 --  17/12/2020  B. Woods        Updated to insert rows from new TrackAndTrace_Stg source table
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE Staging.BQ_Load_Scans_Stg(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.BQ_Load_Scans_Stg`(
     IN ProcessID INT64
 )
 BEGIN
@@ -29,7 +29,7 @@ BEGIN
 
     BEGIN
 
-        INSERT INTO Staging.Scans_Stg
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.Staging_Scans_Stg`
         (
             FranchiseeCode,
             CourierNo,
@@ -80,8 +80,8 @@ BEGIN
                 stg.iLocate,
                 Loaded                   AS Loaded,
                 ProcessID                AS ProcessId
-            FROM Staging.TrackAndTrace_Stg AS stg
-            INNER JOIN dbo.Dim_Country DC ON DC.CountryCode = stg.CountryCode
+            FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_TrackAndTrace_Stg` AS stg
+            INNER JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` DC ON DC.CountryCode = stg.CountryCode
             GROUP BY
                 stg.FranchiseeCode,
                 stg.CourierNo,
@@ -101,7 +101,7 @@ BEGIN
 
         SET LastId = (
             SELECT MAX(ID)
-            FROM Staging.TrackAndTrace_Stg
+            FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_TrackAndTrace_Stg`
         );
 
         SET Result       = 'Success';
@@ -115,7 +115,7 @@ BEGIN
 
     -- Record load metrics in log
     SET Ended = CURRENT_DATETIME();
-    CALL Staging.SaveLog(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.SaveLog`(
         Component,
         ProcessID,
         Started,

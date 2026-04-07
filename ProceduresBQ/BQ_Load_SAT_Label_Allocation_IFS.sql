@@ -1,6 +1,6 @@
 -- ==========================================================================================
 -- Routine:     BQ_Load_SAT_Label_Allocation_IFS
--- Description: Loads attributes into SAT_Label_Allocation_IFS from Staging.HDManifests_Stg
+-- Description: Loads attributes into SAT_Label_Allocation_IFS from `{{ project_id }}.{{ target_dataset_id }}.Staging_HDManifests_Stg`
 --              BigQuery compatible version of Load_SAT_Label_Allocation_IFS
 --              Note: MERGE with OUTPUT $action not supported in BQ.
 --                    Replaced with:
@@ -14,7 +14,7 @@
 --  25/07/2019  P. Waldron      Routine Written
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE dv.BQ_Load_SAT_Label_Allocation_IFS(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.BQ_Load_SAT_Label_Allocation_IFS`(
     IN ProcessID    INT64,
     IN RecordSource STRING
 )
@@ -37,7 +37,7 @@ BEGIN
         -- -----------------------------------------------------------------------
         -- STEP 1: Expire changed current rows (IsCurrent=0, ValidTo=Loaded)
         -- -----------------------------------------------------------------------
-        MERGE dv.SAT_Label_Allocation_IFS AS Tgt
+        MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_IFS` AS Tgt
         USING (
             SELECT DISTINCT
                 Sat.LabelNo_HSK,
@@ -60,9 +60,9 @@ BEGIN
                 Stg.DateInserted,
                 Stg.RecordId,
                 Stg.UniqueParcelIdentifier
-            FROM Staging.HDManifests_Stg Stg
-            LEFT JOIN dbo.Dim_Country cty ON cty.CountryCode = Stg.CountryCode
-            LEFT JOIN dv.SAT_Label_Allocation_IFS Sat ON Sat.LabelNo = Stg.LabelNo
+            FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_HDManifests_Stg` Stg
+            LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` cty ON cty.CountryCode = Stg.CountryCode
+            LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_IFS` Sat ON Sat.LabelNo = Stg.LabelNo
         ) AS Src
         ON  Tgt.LabelNo_HSK = Src.LabelNo_HSK
         AND Tgt.IsCurrent   = 1
@@ -97,7 +97,7 @@ BEGIN
         -- -----------------------------------------------------------------------
         -- STEP 2: Insert new rows for unmatched source records
         -- -----------------------------------------------------------------------
-        INSERT INTO dv.SAT_Label_Allocation_IFS
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_IFS`
         (
             LabelNo_HSK,
             LabelNo,
@@ -155,12 +155,12 @@ BEGIN
             DefaultValidTo  AS ValidTo,
             1               AS IsCurrent,
             Stg.UniqueParcelIdentifier
-        FROM Staging.HDManifests_Stg Stg
-        LEFT JOIN dbo.Dim_Country cty ON cty.CountryCode = Stg.CountryCode
-        LEFT JOIN dv.SAT_Label_Allocation_IFS Sat ON Sat.LabelNo = Stg.LabelNo
+        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_HDManifests_Stg` Stg
+        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` cty ON cty.CountryCode = Stg.CountryCode
+        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_IFS` Sat ON Sat.LabelNo = Stg.LabelNo
         WHERE NOT EXISTS (
             SELECT 1
-            FROM dv.SAT_Label_Allocation_IFS AS Tgt
+            FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_IFS` AS Tgt
             WHERE Tgt.LabelNo_HSK = IFNULL(Sat.LabelNo_HSK, TO_HEX(MD5(Stg.LabelNo)))
               AND Tgt.IsCurrent   = 1
         );
@@ -179,17 +179,17 @@ BEGIN
     -- -----------------------------------------------------------------------
     SET Updated = (
         SELECT IFNULL(COUNTIF(IsCurrent = 0), 0)
-        FROM dv.SAT_Label_Allocation_IFS
+        FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_IFS`
         WHERE ProcessId = ProcessID
     );
     SET Inserted = (
         SELECT IFNULL(COUNTIF(IsCurrent = 1), 0)
-        FROM dv.SAT_Label_Allocation_IFS
+        FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_IFS`
         WHERE ProcessId = ProcessID
     );
 
     SET Ended = CURRENT_DATETIME();
-    CALL Staging.SaveLog(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.SaveLog`(
         Component,
         ProcessID,
         Started,
