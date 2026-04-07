@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `project.rpt.GetParcelMovement`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.rpt.GetParcelMovement`(
   IN p_CountryCode      INT64,
   IN p_InvoiceFromDate  DATE,
   IN p_InvoiceToDate    DATE
@@ -22,7 +22,7 @@ BEGIN
       DeliveryRF          AS InvoiceFromRF,
       PickupRF            AS InvoiceToRF,
       DeliveryRFInvoiceDate AS InvoiceDate
-    FROM `project.rpt.DLBSInvoiceHeader`
+    FROM `{{ project_id }}.{{ dataset_id }}.rpt.DLBSInvoiceHeader`
     WHERE CountryId    = p_CountryCode
       AND DeliveryRFInvoiceDate BETWEEN p_InvoiceFromDate AND p_InvoiceToDate
     -- AND PickupRF = p_InvoiceToRF AND DeliveryRF = p_InvoiceFromRF
@@ -35,7 +35,7 @@ BEGIN
       PickupRF            AS InvoiceFromRF,
       DeliveryRF          AS InvoiceToRF,
       PickupRFInvoiceDate AS InvoiceDate
-    FROM `project.rpt.PLBSInvoiceHeader`
+    FROM `{{ project_id }}.{{ dataset_id }}.rpt.PLBSInvoiceHeader`
     WHERE CountryId    = p_CountryCode
       AND PickupRFInvoiceDate BETWEEN p_InvoiceFromDate AND p_InvoiceToDate
     -- AND DeliveryRF = p_InvoiceToRF AND PickupRF = p_InvoiceFromRF
@@ -46,7 +46,7 @@ BEGIN
       CountryCode,
       BatchId,
       DATE_SUB(Date, INTERVAL 1 MONTH) AS InvoiceDate
-    FROM `project.rpt.DLBSRFBatching`
+    FROM `{{ project_id }}.{{ dataset_id }}.rpt.DLBSRFBatching`
     WHERE CountryCode = p_CountryCode
       AND DATE_SUB(Date, INTERVAL 1 MONTH) BETWEEN p_InvoiceFromDate AND p_InvoiceToDate
   ),
@@ -66,7 +66,7 @@ BEGIN
       l.CustomerId                                                              AS FMSCustomerID,
       CAST(NULL AS STRING)                                                      AS OESCustomerID,
       'MFW DLBS'                                                                AS Type
-    FROM `project.dv.SAT_Label_Allocation_MF` l
+    FROM `{{ project_id }}.{{ dataset_id }}.dv.SAT_Label_Allocation_MF` l
     INNER JOIN DLBSHeader h
       ON  l.DLBSBatchId   = h.DLBSBatchId
       AND l.DLBSInvoiceNo = h.DeliveryRFInvoiceNo
@@ -87,7 +87,7 @@ BEGIN
       l.CustomerId                        AS FMSCustomerID,
       CAST(NULL AS STRING)                AS OESCustomerID,
       'MFW PLBS'                          AS Type
-    FROM `project.dv.SAT_Label_Allocation_MF` l
+    FROM `{{ project_id }}.{{ dataset_id }}.dv.SAT_Label_Allocation_MF` l
     INNER JOIN PLBSHeader h
       ON  l.PLBSBatchId   = h.PLBSBatchId
       AND l.PLBSInvoiceNo = h.PickupRFInvoiceNo
@@ -109,8 +109,8 @@ BEGIN
       m.CustomerId                                                              AS FMSCustomerID,
       CAST(NULL AS STRING)                                                      AS OESCustomerID,
       'MFW DLBS'                                                                AS Type
-    FROM `project.dv.LSAT_Label_Product_ServiceItem` l
-    INNER JOIN `project.dv.SAT_Label_Allocation_MF` m
+    FROM `{{ project_id }}.{{ dataset_id }}.dv.LSAT_Label_Product_ServiceItem` l
+    INNER JOIN `{{ project_id }}.{{ dataset_id }}.dv.SAT_Label_Allocation_MF` m
       ON  l.LabelNo   = m.LabelNo
       AND m.IsCurrent = 1
     INNER JOIN DLBSHeader h
@@ -133,8 +133,8 @@ BEGIN
       m.CustomerId                        AS FMSCustomerID,
       CAST(NULL AS STRING)                AS OESCustomerID,
       'MFW PLBS'                          AS Type
-    FROM `project.dv.LSAT_Label_Product_ServiceItem` l
-    INNER JOIN `project.dv.SAT_Label_Allocation_MF` m
+    FROM `{{ project_id }}.{{ dataset_id }}.dv.LSAT_Label_Product_ServiceItem` l
+    INNER JOIN `{{ project_id }}.{{ dataset_id }}.dv.SAT_Label_Allocation_MF` m
       ON  l.LabelNo   = m.LabelNo
       AND m.IsCurrent = 1
     INNER JOIN PLBSHeader h
@@ -163,23 +163,23 @@ BEGIN
       l.FMSCustomerID,
       l.OESCustomerID,
       'Legacy DLBS'                       AS Type
-    FROM `project.rpt.Fact_Interbranch` i
+    FROM `{{ project_id }}.{{ dataset_id }}.rpt.Fact_Interbranch` i
     INNER JOIN DLBSBatching b
       ON  i.CountryCode = b.CountryCode
       AND i.BatchId     = b.BatchId
-    LEFT JOIN `project.rpt.Dim_Label` l
+    LEFT JOIN `{{ project_id }}.{{ dataset_id }}.rpt.Dim_Label` l
       ON  i.LabelNo     = l.LabelNo
       AND l.CountryCode = i.CountryCode
     WHERE i.LabelNo NOT IN (
       SELECT LabelNo
-      FROM `project.dv.SAT_Label_Allocation_MF`
+      FROM `{{ project_id }}.{{ dataset_id }}.dv.SAT_Label_Allocation_MF`
       WHERE CountryCode = p_CountryCode
         AND IsCurrent   = 1
         AND (DLBSBatchId > 0 OR PLBSBatchId > 0)
     )
     AND i.LabelNo NOT IN (
       SELECT LabelNo
-      FROM `project.dv.LSAT_Label_Product_ServiceItem`
+      FROM `{{ project_id }}.{{ dataset_id }}.dv.LSAT_Label_Product_ServiceItem`
       WHERE CountryCode = p_CountryCode
         AND IsCurrent   = 1
         AND (DLBSBatchId > 0 OR PLBSBatchId > 0)

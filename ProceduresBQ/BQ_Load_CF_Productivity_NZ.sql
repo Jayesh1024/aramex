@@ -6,7 +6,7 @@
 --  19/08/2023  B. Woods      Routine Written
 
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `project.staging.Load_CF_Productivity_NZ`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.staging.Load_CF_Productivity_NZ`(
   IN p_ProcessId INT64
 )
 BEGIN
@@ -29,7 +29,7 @@ BEGIN
   -- -----------------------------------------------------------------------
   -- Early exit if no rows to process
   -- -----------------------------------------------------------------------
-  SET v_LastId = (SELECT IFNULL(MAX(ID), 0) FROM `project.staging.KPI_Labels_Stg`);
+  SET v_LastId = (SELECT IFNULL(MAX(ID), 0) FROM `{{ project_id }}.{{ dataset_id }}.staging.KPI_Labels_Stg`);
 
   IF v_LastId = 0 THEN
     CREATE TEMP TABLE Results AS SELECT 'Success - No rows to process' AS ExecutionResult;
@@ -41,7 +41,7 @@ BEGIN
   -- -----------------------------------------------------------------------
   SELECT CAST(LastValue AS DATETIME)
   INTO v_StartDate
-  FROM `project.staging.LoadControl`
+  FROM `{{ project_id }}.{{ dataset_id }}.staging.LoadControl`
   WHERE RecordSource = 'CF_Productivity_NZ';
 
   SET v_EndDate = DATETIME_ADD(v_StartDate, INTERVAL 1 DAY);
@@ -49,8 +49,8 @@ BEGIN
   -- -----------------------------------------------------------------------
   -- Truncate staging targets
   -- -----------------------------------------------------------------------
-  TRUNCATE TABLE `project.staging.CF_Productivity_Stg_NZ`;
-  TRUNCATE TABLE `project.staging.Fact_Scan_Stg2_NZ`;
+  TRUNCATE TABLE `{{ project_id }}.{{ dataset_id }}.staging.CF_Productivity_Stg_NZ`;
+  TRUNCATE TABLE `{{ project_id }}.{{ dataset_id }}.staging.Fact_Scan_Stg2_NZ`;
 
   SET v_Loaded = CURRENT_DATETIME();
 
@@ -60,7 +60,7 @@ BEGIN
     -- Load scan window into Fact_Scan_Stg2_NZ
     -- DROP/CREATE INDEX omitted — BQ manages clustering natively
     -- -----------------------------------------------------------------------
-    INSERT INTO `project.staging.Fact_Scan_Stg2_NZ`
+    INSERT INTO `{{ project_id }}.{{ dataset_id }}.staging.Fact_Scan_Stg2_NZ`
     (
       LabelNo, ScanDateTime, ScanDate,
       ScanType, ScanStatus,
@@ -74,7 +74,7 @@ BEGIN
       ScanType, ScanStatus,
       FranchiseeCode, CourierNumber,
       CountryName, Latitude, Longitude
-    FROM `project.dv.LNK_Scan`
+    FROM `{{ project_id }}.{{ dataset_id }}.dv.LNK_Scan`
     WHERE ScanDate >= v_StartDate
       AND ScanDate <  v_EndDate;
 
@@ -95,7 +95,7 @@ BEGIN
       -- ---------------------------------------------------------------------
       -- Deliveries for Day
       -- ---------------------------------------------------------------------
-      INSERT INTO `project.staging.CF_Productivity_Stg_NZ`
+      INSERT INTO `{{ project_id }}.{{ dataset_id }}.staging.CF_Productivity_Stg_NZ`
       (
         WorkDate, CountryCode, RF, CF,
         DeliveriesForDay,
@@ -111,8 +111,8 @@ BEGIN
         MAX(s.ScanDateTime)         AS LastDeliveryTime,
         MAX(s.Latitude)             AS LastDelivery_Latitude,
         MAX(s.Longitude)            AS LastDelivery_Longitude
-      FROM `project.staging.Fact_Scan_Stg2_NZ` s
-      LEFT JOIN `project.dbo.KPIExcludedLabels` ex
+      FROM `{{ project_id }}.{{ dataset_id }}.staging.Fact_Scan_Stg2_NZ` s
+      LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dbo.KPIExcludedLabels` ex
         ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix
        AND ex.CountryName          = s.CountryName
       WHERE s.ScanDate    = day_rec.day_date
@@ -124,12 +124,12 @@ BEGIN
       -- ---------------------------------------------------------------------
       -- First scan time
       -- ---------------------------------------------------------------------
-      INSERT INTO `project.staging.CF_Productivity_Stg_NZ`
+      INSERT INTO `{{ project_id }}.{{ dataset_id }}.staging.CF_Productivity_Stg_NZ`
       (WorkDate, CountryCode, RF, CF, FirstScanTime)
       SELECT
         day_rec.day_date, v_CountryCode, s.FranchiseeCode, s.CourierNumber,
         MIN(s.ScanDateTime) AS FirstScanTime
-      FROM `project.staging.Fact_Scan_Stg2_NZ` s
+      FROM `{{ project_id }}.{{ dataset_id }}.staging.Fact_Scan_Stg2_NZ` s
       WHERE s.ScanDate    = day_rec.day_date
         AND s.CountryName = v_CountryName
       GROUP BY s.FranchiseeCode, s.CourierNumber;
@@ -137,7 +137,7 @@ BEGIN
       -- ---------------------------------------------------------------------
       -- In-depot scan start time (B87 — NZ equivalent of CK1)
       -- ---------------------------------------------------------------------
-      INSERT INTO `project.staging.CF_Productivity_Stg_NZ`
+      INSERT INTO `{{ project_id }}.{{ dataset_id }}.staging.CF_Productivity_Stg_NZ`
       (
         WorkDate, CountryCode, RF, CF,
         ArrivalTime_AM, ArrivalTime_PM, ArrivalTime_TW,
@@ -162,7 +162,7 @@ BEGIN
             PARTITION BY s.FranchiseeCode, s.CourierNumber
             ORDER BY s.ScanDateTime
           ) AS NextScanTime
-        FROM `project.staging.Fact_Scan_Stg2_NZ` s
+        FROM `{{ project_id }}.{{ dataset_id }}.staging.Fact_Scan_Stg2_NZ` s
         WHERE s.ScanDate    = day_rec.day_date
           AND s.CountryName = v_CountryName
       ) s
@@ -172,7 +172,7 @@ BEGIN
       -- ---------------------------------------------------------------------
       -- In-depot scan finish time (B88 — NZ equivalent of CK2)
       -- ---------------------------------------------------------------------
-      INSERT INTO `project.staging.CF_Productivity_Stg_NZ`
+      INSERT INTO `{{ project_id }}.{{ dataset_id }}.staging.CF_Productivity_Stg_NZ`
       (
         WorkDate, CountryCode, RF, CF,
         DepartureTime_AM, DepartureTime_PM, DepartureTime_TW,
@@ -197,7 +197,7 @@ BEGIN
             PARTITION BY s.FranchiseeCode, s.CourierNumber
             ORDER BY s.ScanDateTime
           ) AS PreviousScanTime
-        FROM `project.staging.Fact_Scan_Stg2_NZ` s
+        FROM `{{ project_id }}.{{ dataset_id }}.staging.Fact_Scan_Stg2_NZ` s
         WHERE s.ScanDate    = day_rec.day_date
           AND s.CountryName = v_CountryName
       ) ss
@@ -207,7 +207,7 @@ BEGIN
       -- ---------------------------------------------------------------------
       -- Average time between stops (< 30 min)
       -- ---------------------------------------------------------------------
-      INSERT INTO `project.staging.CF_Productivity_Stg_NZ`
+      INSERT INTO `{{ project_id }}.{{ dataset_id }}.staging.CF_Productivity_Stg_NZ`
       (WorkDate, CountryCode, RF, CF, AvergeTimeBetweenStopsMinutes)
       SELECT
         day_rec.day_date, v_CountryCode, FranchiseeCode, CourierNumber,
@@ -220,8 +220,8 @@ BEGIN
             PARTITION BY s.FranchiseeCode, s.CourierNumber
             ORDER BY s.ScanDateTime
           ) AS NextScanTime
-        FROM `project.staging.Fact_Scan_Stg2_NZ` s
-        LEFT JOIN `project.dbo.KPIExcludedLabels` ex
+        FROM `{{ project_id }}.{{ dataset_id }}.staging.Fact_Scan_Stg2_NZ` s
+        LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dbo.KPIExcludedLabels` ex
           ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix
          AND ex.CountryName          = s.CountryName
         WHERE s.ScanDate    = day_rec.day_date
@@ -236,7 +236,7 @@ BEGIN
       -- ---------------------------------------------------------------------
       -- Average time between stops (all gaps)
       -- ---------------------------------------------------------------------
-      INSERT INTO `project.staging.CF_Productivity_Stg_NZ`
+      INSERT INTO `{{ project_id }}.{{ dataset_id }}.staging.CF_Productivity_Stg_NZ`
       (WorkDate, CountryCode, RF, CF, AvergeTimeBetweenStopsMinutes)
       SELECT
         day_rec.day_date, v_CountryCode, FranchiseeCode, CourierNumber,
@@ -249,8 +249,8 @@ BEGIN
             PARTITION BY s.FranchiseeCode, s.CourierNumber
             ORDER BY s.ScanDateTime
           ) AS NextScanTime
-        FROM `project.staging.Fact_Scan_Stg2_NZ` s
-        LEFT JOIN `project.dbo.KPIExcludedLabels` ex
+        FROM `{{ project_id }}.{{ dataset_id }}.staging.Fact_Scan_Stg2_NZ` s
+        LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dbo.KPIExcludedLabels` ex
           ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix
          AND ex.CountryName          = s.CountryName
         WHERE s.ScanDate    = day_rec.day_date
@@ -263,7 +263,7 @@ BEGIN
       -- ---------------------------------------------------------------------
       -- Break stops (gaps > 30 minutes)
       -- ---------------------------------------------------------------------
-      INSERT INTO `project.staging.CF_Productivity_Stg_NZ`
+      INSERT INTO `{{ project_id }}.{{ dataset_id }}.staging.CF_Productivity_Stg_NZ`
       (WorkDate, CountryCode, RF, CF, BreakStops)
       SELECT
         day_rec.day_date, v_CountryCode, FranchiseeCode, CourierNumber,
@@ -276,8 +276,8 @@ BEGIN
             PARTITION BY s.FranchiseeCode, s.CourierNumber
             ORDER BY s.ScanDateTime
           ) AS NextScanTime
-        FROM `project.staging.Fact_Scan_Stg2_NZ` s
-        LEFT JOIN `project.dbo.KPIExcludedLabels` ex
+        FROM `{{ project_id }}.{{ dataset_id }}.staging.Fact_Scan_Stg2_NZ` s
+        LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dbo.KPIExcludedLabels` ex
           ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix
          AND ex.CountryName          = s.CountryName
         WHERE s.ScanDate    = day_rec.day_date
@@ -291,7 +291,7 @@ BEGIN
       -- ---------------------------------------------------------------------
       -- Pickups for Day
       -- ---------------------------------------------------------------------
-      INSERT INTO `project.staging.CF_Productivity_Stg_NZ`
+      INSERT INTO `{{ project_id }}.{{ dataset_id }}.staging.CF_Productivity_Stg_NZ`
       (
         WorkDate, CountryCode, RF, CF,
         PickupsForDday,
@@ -309,11 +309,11 @@ BEGIN
         MAX(s.Latitude)                 AS LastPickup_Latitude,
         MAX(s.Longitude)                AS LastPickup_Longitude,
         COUNT(DISTINCT l.FMSCustomerID) AS ActiveCustomers
-      FROM `project.staging.Fact_Scan_Stg2_NZ` s
-      LEFT JOIN `project.dbo.KPIExcludedLabels` ex
+      FROM `{{ project_id }}.{{ dataset_id }}.staging.Fact_Scan_Stg2_NZ` s
+      LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dbo.KPIExcludedLabels` ex
         ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix
        AND ex.CountryName          = s.CountryName
-      LEFT JOIN `project.dbo.Dim_Label` l
+      LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dbo.Dim_Label` l
         ON s.LabelNo     = l.LabelNo
        AND s.CountryName = l.Country
       WHERE s.ScanDate    = day_rec.day_date
@@ -331,7 +331,7 @@ BEGIN
     -- Final load: aggregate staging into CF_Productivity_NZ
     -- Note: NZ target omits BreakStartTime/BreakFinishTime columns
     -- -----------------------------------------------------------------------
-    INSERT INTO `project.dbo.CF_Productivity_NZ`
+    INSERT INTO `{{ project_id }}.{{ dataset_id }}.dbo.CF_Productivity_NZ`
     (
       WorkDate, CountryCode, RF, CF,
       TerritoryNumber, OwnershipType,
@@ -389,13 +389,13 @@ BEGIN
       MIN(FirstPickup_Longitude)          AS FirstPickup_Longitude,
       MIN(LastPickup_Latitude)            AS LastPickup_Latitude,
       MIN(LastPickup_Longitude)           AS LastPickup_Longitude
-    FROM `project.staging.CF_Productivity_Stg_NZ`
+    FROM `{{ project_id }}.{{ dataset_id }}.staging.CF_Productivity_Stg_NZ`
     GROUP BY WorkDate, CountryCode, RF, CF;
 
     -- -----------------------------------------------------------------------
     -- Advance LoadControl
     -- -----------------------------------------------------------------------
-    UPDATE `project.staging.LoadControl`
+    UPDATE `{{ project_id }}.{{ dataset_id }}.staging.LoadControl`
     SET LastValue = CAST(v_EndDate AS STRING)
     WHERE RecordSource = 'CF_Productivity_NZ';
 
@@ -412,7 +412,7 @@ BEGIN
   -- -----------------------------------------------------------------------
   SET v_Ended = CURRENT_DATETIME();
 
-  CALL `project.staging.SaveLog`(
+  CALL `{{ project_id }}.{{ dataset_id }}.staging.SaveLog`(
     v_Component,
     p_ProcessId,
     v_Started,
