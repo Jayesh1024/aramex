@@ -7,37 +7,33 @@
 --	24/02/2020  P. Waldron		Add RFCode to the Staging.FMS_InvoiceLines_Stg Join 
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `dv.Load_LNK_InvoiceLine`(
-    IN p_ProcessID INT64,
-    IN p_RecordSource STRING
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LNK_InvoiceLine`(
+    IN p_ProcessID INT64
 )
 BEGIN
     DECLARE v_Loaded TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
-    DECLARE v_Component STRING DEFAULT 'dv.Load_LNK_InvoiceLine';
+    DECLARE v_Component STRING DEFAULT 'dv_Load_LNK_InvoiceLine';
     DECLARE v_Started TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
     DECLARE v_Result STRING DEFAULT 'Success';
     DECLARE v_ErrorMessage STRING;
     DECLARE v_Inserted INT64 DEFAULT 0;
     DECLARE v_Updated INT64 DEFAULT 0;
 
-    -- Handle default parameter value from T-SQL signature
-    IF p_RecordSource IS NULL THEN
-        SET p_RecordSource = 'FMS_InvoiceLines';
-    END IF;
+    -- Static RecordSource as per original T-SQL default value
+    DECLARE v_RecordSource STRING DEFAULT 'FMS_InvoiceLines';
 
     BEGIN
         -- A MERGE statement efficiently handles the "Insert if Not Exists" Link load pattern.
-        -- We replace T-SQL's CROSS APPLY with a JOIN on a subquery utilizing ROW_NUMBER() 
-        -- which is highly optimized for BigQuery's columnar engine.
-        MERGE INTO `dv.LNK_InvoiceLine` AS Tgt
+        -- Identifiers use the Jinja2 template for project/dataset and underscore schema naming.
+        MERGE INTO `{{ project_id }}.{{ target_dataset_id }}.dv_LNK_InvoiceLine` AS Tgt
         USING (
             SELECT
-                `dbo.GetHashKey`(CONCAT(CAST(dl.InvoiceNumber AS STRING), '^', dl.FranchiseeCode, '^', dl.CourierNumber, '^', dl.CustomerKey, '^', dl.ProductCode, '^', dl.Country)) AS InvoiceLine_HSK,
-                `dbo.GetHashKey`(CONCAT(CAST(dl.InvoiceNumber AS STRING), '^', dl.FranchiseeCode)) AS Invoice_HSK,
-                `dbo.GetHashKey`(dl.FranchiseeCode) AS FranchiseeCode_HSK,
-                `dbo.GetHashKey`(CONCAT(dl.FranchiseeCode, '^', dl.CourierNumber)) AS Courier_HSK,
-                `dbo.GetHashKey`(dl.CustomerKey) AS Customer_HSK,
-                `dbo.GetHashKey`(CONCAT(dl.Country, '^', dl.ProductCode)) AS Product_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(dl.InvoiceNumber AS STRING), '^', dl.FranchiseeCode, '^', dl.CourierNumber, '^', dl.CustomerKey, '^', dl.ProductCode, '^', dl.Country)) AS InvoiceLine_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(dl.InvoiceNumber AS STRING), '^', dl.FranchiseeCode)) AS Invoice_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(dl.FranchiseeCode) AS FranchiseeCode_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(dl.FranchiseeCode, '^', dl.CourierNumber)) AS Courier_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(dl.CustomerKey) AS Customer_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(dl.Country, '^', dl.ProductCode)) AS Product_HSK,
                 dl.InvoiceNumber,
                 dl.FranchiseeCode,
                 dl.CourierNumber,
@@ -52,14 +48,14 @@ BEGIN
                     cust.CustomerKey,
                     ps.Code AS ProductCode,
                     c.CountryName AS Country
-                FROM `Staging.FMS_InvoiceHead_Stg` AS ih
-                JOIN `Staging.FMS_InvoiceLines_Stg` AS il 
+                FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_FMS_InvoiceHead_Stg` AS ih
+                JOIN `{{ project_id }}.{{ target_dataset_id }}.Staging_FMS_InvoiceLines_Stg` AS il 
                     ON il.InvoiceNumber = ih.InvoiceNumber AND ih.RFCode = il.RFId
-                JOIN `dbo.Dim_Country` AS c 
+                JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS c 
                     ON c.CountryCode = il.NMId 
-                JOIN `Staging.Product_Stg` AS ps 
+                JOIN `{{ project_id }}.{{ target_dataset_id }}.Staging_Product_Stg` AS ps 
                     ON ps.ProductId = il.ProductId AND ps.Country = c.CountryName 
-                -- Replace CROSS APPLY with an equivalent window function pattern
+                -- Optimized subquery replacing CROSS APPLY
                 JOIN (
                     SELECT CustomerKey, CustomerID, RFId
                     FROM (
@@ -68,7 +64,7 @@ BEGIN
                             cs.CustomerID, 
                             cs.RFId,
                             ROW_NUMBER() OVER(PARTITION BY cs.CustomerID, cs.RFId ORDER BY cs.Active DESC) AS rn
-                        FROM `Staging.FMS_Customer_Stg` AS cs
+                        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_FMS_Customer_Stg` AS cs
                     )
                     WHERE rn = 1
                 ) AS cust 
@@ -110,11 +106,11 @@ BEGIN
                 Src.Country,
                 v_Loaded,
                 p_ProcessID,
-                p_RecordSource,
-                NULL -- Replaces the NULL as RecordSourceId from the T-SQL static SELECT
+                v_RecordSource,
+                NULL
             );
 
-        -- Capture the number of new records inserted
+        -- Capture total affected rows (Inserted)
         SET v_Inserted = @@row_count;
 
     EXCEPTION WHEN ERROR THEN
@@ -122,8 +118,8 @@ BEGIN
         SET v_ErrorMessage = @@error.message;
     END;
 
-    -- Final Log Call (Handles both Success and Failure metrics)
-    CALL `Staging.SaveLog`(
+    -- Final Log Call (Handles Success and Failure metrics)
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

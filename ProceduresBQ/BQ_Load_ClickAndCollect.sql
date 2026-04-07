@@ -7,11 +7,11 @@
 --
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `dbo.Load_ClickAndCollect`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dbo_Load_ClickAndCollect`(
     IN p_ProcessID INT64
 )
 BEGIN
-    DECLARE v_Component STRING DEFAULT 'dbo.Load_ClickAndCollect';
+    DECLARE v_Component STRING DEFAULT 'dbo_Load_ClickAndCollect';
     DECLARE v_Started TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
     DECLARE v_Result STRING DEFAULT 'Success';
     DECLARE v_ErrorMessage STRING;
@@ -19,10 +19,10 @@ BEGIN
     DECLARE v_Updated INT64 DEFAULT 0;
 
     BEGIN
-        -- Single MERGE statement replaces separate UPDATE and INSERT blocks
-        -- This minimizes slot usage and scans the source table only once
-        MERGE INTO `dbo.FWFastlabel_ClickAndCollect` AS Tgt
-        USING `Staging.FWFastlabel_ClickAndCollect_stg` AS Src
+        -- Single MERGE handles both updates and inserts, scanning the source table only once.
+        -- Identifiers use the Jinja2 template for project and dataset references.
+        MERGE INTO `{{ project_id }}.{{ target_dataset_id }}.dbo_FWFastlabel_ClickAndCollect` AS Tgt
+        USING `{{ project_id }}.{{ target_dataset_id }}.Staging_FWFastlabel_ClickAndCollect_stg` AS Src
         ON Tgt.Id = Src.Id
         WHEN MATCHED THEN
             UPDATE SET
@@ -80,15 +80,15 @@ BEGIN
         SET v_ErrorMessage = @@error.message;
     END;
 
-    -- Final Log Call (Handles both Success and Failure metrics)
-    CALL `Staging.SaveLog`(
+    -- Final Log Call (Handles both Success and Failure)
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,
         CURRENT_TIMESTAMP(),
         v_Result,
         v_ErrorMessage,
-        v_Inserted, -- In a single MERGE, v_Updated typically captures the total affected count
+        v_Inserted, 
         v_Updated,
         -1
     );

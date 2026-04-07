@@ -6,41 +6,38 @@
 --	19/11/2019  P. Waldron		Routine Written
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `dv.Load_LNK_Invoice_Label`(
-    IN p_ProcessID INT64,
-    IN p_RecordSource STRING
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LNK_Invoice_Label`(
+    IN p_ProcessID INT64
 )
 BEGIN
     DECLARE v_Loaded TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
-    DECLARE v_Component STRING DEFAULT 'dv.Load_LNK_Invoice_Label';
+    DECLARE v_Component STRING DEFAULT 'dv_Load_LNK_Invoice_Label';
     DECLARE v_Started TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
     DECLARE v_Result STRING DEFAULT 'Success';
     DECLARE v_ErrorMessage STRING;
     DECLARE v_Inserted INT64 DEFAULT 0;
     DECLARE v_Updated INT64 DEFAULT 0;
 
-    -- Handle default parameter value from T-SQL signature
-    IF p_RecordSource IS NULL THEN
-        SET p_RecordSource = 'FMS_InvoiceLines';
-    END IF;
+    -- Static RecordSource as per the original T-SQL default value
+    DECLARE v_RecordSource STRING DEFAULT 'FMS_InvoiceLines';
 
     BEGIN
-        -- A MERGE statement efficiently handles the "Insert if Not Exists" Link load pattern,
-        -- collapsing the multiple CTEs from the SQL Server version into a single optimized operation.
-        MERGE INTO `dv.LNK_Invoice_Label` AS Tgt
+        -- A MERGE statement handles the "Insert if Not Exists" Link load pattern.
+        -- Identifiers use the Jinja2 template and underscore schema naming.
+        MERGE INTO `{{ project_id }}.{{ target_dataset_id }}.dv_LNK_Invoice_Label` AS Tgt
         USING (
             SELECT DISTINCT
-                `dbo.GetHashKey`(CONCAT(CAST(stg.InvoiceNumber AS STRING), '^', stg.RFCode, '^', stg.Label)) AS Invoice_Label_HSK,
-                `dbo.GetHashKey`(CONCAT(CAST(stg.InvoiceNumber AS STRING), '^', stg.RFCode)) AS Invoice_HSK,
-                `dbo.GetHashKey`(stg.RFCode) AS FranchiseeCode_HSK,
-                `dbo.GetHashKey`(TRIM(stg.Label)) AS LabelNo_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(stg.InvoiceNumber AS STRING), '^', stg.RFCode, '^', stg.Label)) AS Invoice_Label_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(stg.InvoiceNumber AS STRING), '^', stg.RFCode)) AS Invoice_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(stg.RFCode) AS FranchiseeCode_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(TRIM(stg.Label)) AS LabelNo_HSK,
                 stg.InvoiceNumber,
                 stg.RFCode AS FranchiseeCode,
                 TRIM(stg.Label) AS LabelNo
-            FROM `Staging.FMS_InvoiceBooks_Stg` AS stg
+            FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_FMS_InvoiceBooks_Stg` AS stg
             WHERE EXISTS (
                 SELECT 1 
-                FROM `Staging.FMS_InvoiceHead_Stg` AS h 
+                FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_FMS_InvoiceHead_Stg` AS h 
                 WHERE h.InvoiceNumber = stg.InvoiceNumber 
                   AND h.RFCode = stg.RFCode
             )
@@ -70,8 +67,8 @@ BEGIN
                 Src.LabelNo,
                 v_Loaded,
                 p_ProcessID,
-                p_RecordSource,
-                NULL -- Replaces the NULL as RecordSourceId from the T-SQL static SELECT
+                v_RecordSource,
+                NULL
             );
 
         -- Capture the number of new records inserted
@@ -83,7 +80,7 @@ BEGIN
     END;
 
     -- Final Log Call (Handles both Success and Failure metrics)
-    CALL `Staging.SaveLog`(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

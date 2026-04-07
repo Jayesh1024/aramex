@@ -7,12 +7,11 @@
 --  17/07/2020  P. Waldron      Check for already existing LNK_Scan rows based on Scan_HSK
 --  12/10/2020  P. Waldron      Replace Joins to HUB_Label and HUB_Location with HSK calc 
 -- ==========================================================================================
-
-CREATE OR REPLACE PROCEDURE `Staging.Load_LNK_Scan_Stg`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.Staging_Load_LNK_Scan_Stg`(
     IN p_ProcessID INT64
 )
 BEGIN
-    -- 2. Variables & Parameters: DECLARE statements at the very top
+    -- 1. All DECLARE statements must be at the very top
     DECLARE v_Loaded TIMESTAMP;
     DECLARE v_BatchSize INT64 DEFAULT 500000;
     DECLARE v_StartID INT64 DEFAULT 1;
@@ -22,7 +21,7 @@ BEGIN
     DECLARE v_MinScanDate TIMESTAMP;
     DECLARE v_ABSMinDate TIMESTAMP;
 
-    DECLARE v_Component STRING DEFAULT 'Staging.Load_LNK_Scan_Stg';
+    DECLARE v_Component STRING DEFAULT 'Staging_Load_LNK_Scan_Stg';
     DECLARE v_Started TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
     DECLARE v_Ended TIMESTAMP;
     DECLARE v_Result STRING DEFAULT 'Success';
@@ -34,12 +33,12 @@ BEGIN
     SET v_ABSMinDate = TIMESTAMP_SUB(v_Started, INTERVAL 24 MONTH);
 
     BEGIN
-        -- Initial metadata gathering logic
+        -- Initial metadata gathering logic using Jinja2 templates
         SET (v_LastID, v_MinScanDate) = (
             SELECT AS STRUCT 
                 IFNULL(MAX(RowID), 0),
                 MIN(ScanDate)
-            FROM `Staging.Scans_Stg`
+            FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Scans_Stg`
             WHERE ScanDate >= v_ABSMinDate
         );
 
@@ -50,7 +49,8 @@ BEGIN
             SET v_Loaded = CURRENT_TIMESTAMP();
 
             -- Inner Logic: Insert into staging link table
-            INSERT INTO `Staging.LNK_Scan_Stg` (
+            -- All identifiers utilize Jinja2 template and underscore schema naming
+            INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.Staging_LNK_Scan_Stg` (
                 Scan_HSK, FranchiseeCode_HSK, Courier_HSK, LabelNo_HSK, Location_HSK, ScanStatus_HSK, 
                 FranchiseeCode, CourierNumber, LabelNo, Latitude, Longitude, ScanStatus, CountryName, ScanDate, ScanType,
                 RecordSource, RecordSourceId, Loaded, ProcessId, TrackAndTraceID, iLocate, `Signature`, UploadDate
@@ -62,7 +62,7 @@ BEGIN
             FROM 
             (
                 SELECT 
-                    `dbo.GetHashKey`(
+                    `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(
                         CONCAT(
                             Src.FranchiseeCode, '^',
                             Src.CourierNumber, '^',
@@ -83,8 +83,8 @@ BEGIN
                     SELECT 
                         rf.FranchiseeCode_HSK, 
                         cf.Courier_HSK, 
-                        `dbo.GetHashKey`(COALESCE(stg.LabelNo, 'Unknown')) AS LabelNo_HSK, 
-                        `dbo.GetHashKey`(CONCAT(CAST(COALESCE(stg.Latitude, 0) AS STRING), '/', CAST(COALESCE(stg.Longitude, 0) AS STRING))) AS [Location_HSK],
+                        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(COALESCE(stg.LabelNo, 'Unknown')) AS LabelNo_HSK, 
+                        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(COALESCE(stg.Latitude, 0) AS STRING), '/', CAST(COALESCE(stg.Longitude, 0) AS STRING))) AS [Location_HSK],
                         stat.ScanStatus_HSK,
                         COALESCE(rf.FranchiseeCode, stg.FranchiseeCode, 'Unk') AS FranchiseeCode,
                         COALESCE(cf.CourierNumber, stg.CourierNo, 'Unk') AS CourierNumber,
@@ -101,23 +101,24 @@ BEGIN
                         stg.iLocate,
                         stg.`Signature`,
                         stg.UploadDate
-                    FROM `Staging.Scans_Stg` as stg
-                    LEFT JOIN `dv.HUB_RF` AS rf 
+                    FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Scans_Stg` as stg
+                    LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_HUB_RF` AS rf 
                       ON rf.FranchiseeCode = stg.FranchiseeCode
-                    LEFT JOIN `dv.HUB_CF` AS cf
+                    LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_HUB_CF` AS cf
                       ON cf.RFCode = stg.FranchiseeCode AND cf.CourierNumber = stg.CourierNo
-                    LEFT JOIN `dv.HUB_ScanStatus` AS stat 
+                    LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_HUB_ScanStatus` AS stat 
                       ON stat.ScanStatus = stg.ScanStatus AND stat.CountryName = stg.CountryName
                     WHERE stg.RowID BETWEEN v_StartID AND v_EndID
                     AND stg.ScanDate >= v_ABSMinDate
                 ) Src
             ) new
             WHERE NOT EXISTS (
-                SELECT 1 FROM `dv.LNK_Scan` scan 
+                SELECT 1 FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LNK_Scan` scan 
                 WHERE scan.Scan_HSK = new.Scan_HSK
                 AND scan.ScanDate >= v_MinScanDate
             );
 
+            -- Accumulate total inserted rows from batching loop
             SET v_Inserted = v_Inserted + @@row_count;
             SET v_StartID = v_EndID + 1;
 
@@ -128,9 +129,9 @@ BEGIN
         SET v_ErrorMessage = @@error.message;
     END;
 
-    -- Final Log Call (Metadata & Logging)
+    -- Final Log Call (Handles both Success and Failure metrics)
     SET v_Ended = CURRENT_TIMESTAMP();
-    CALL `Staging.SaveLog`(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,
@@ -138,7 +139,7 @@ BEGIN
         v_Result,
         v_ErrorMessage,
         v_Inserted,
-        v_Updated, -- Updated remains 0 as per logic
+        v_Updated,
         -1
     );
 END;

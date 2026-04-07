@@ -7,13 +7,13 @@
 --
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `dv.Load_HUB_ZEN_Ticket`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_HUB_ZEN_Ticket`(
     IN p_ProcessID INT64,
     IN p_RecordSource STRING
 )
 BEGIN
     DECLARE v_Loaded TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
-    DECLARE v_Component STRING DEFAULT 'dv.Load_HUB_ZEN_Ticket';
+    DECLARE v_Component STRING DEFAULT 'dv_Load_HUB_ZEN_Ticket';
     DECLARE v_Started TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
     DECLARE v_Result STRING DEFAULT 'Success';
     DECLARE v_ErrorMessage STRING;
@@ -21,14 +21,14 @@ BEGIN
     DECLARE v_Updated INT64 DEFAULT 0;
 
     BEGIN
-        -- A MERGE statement efficiently handles the "Insert if Not Exists" Hub load pattern,
-        -- replacing the CTE, LEFT JOIN, and INSERT approach from SQL Server.
-        MERGE INTO `dv.HUB_ZEN_Ticket` AS Dest
+        -- A MERGE statement handles the Hub load pattern using Jinja2 templates for all identifiers.
+        -- p_RecordSource remains a dynamic input parameter.
+        MERGE INTO `{{ project_id }}.{{ target_dataset_id }}.dv_HUB_ZEN_Ticket` AS Dest
         USING (
             SELECT DISTINCT 
                 ZenDeskTicketId,
                 RTRIM(CAST(LabelNo AS STRING)) AS LabelNo
-            FROM `Staging.ZEN_Ticket_Stg`
+            FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_ZEN_Ticket_Stg`
         ) AS Src
         ON CAST(Dest.ZenDeskTicketId AS STRING) = RTRIM(CAST(Src.ZenDeskTicketId AS STRING))
         WHEN NOT MATCHED THEN
@@ -41,12 +41,11 @@ BEGIN
                 RecordSource
             )
             VALUES (
-                -- Assuming GetHashKey is migrated as a BigQuery UDF.
-                -- CONVERT(varchar(10), ...) translates to casting/substring in BigQuery.
-                `dbo.GetHashKey`(SUBSTR(CAST(Src.ZenDeskTicketId AS STRING), 1, 10)),
+                -- Assuming GetHashKey is migrated as a BigQuery UDF within the target project/dataset
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(SUBSTR(CAST(Src.ZenDeskTicketId AS STRING), 1, 10)),
                 Src.LabelNo,
                 Src.ZenDeskTicketId,
-                v_Started, -- The original T-SQL explicitly used @Started instead of @Loaded here
+                v_Started, 
                 p_ProcessID,
                 p_RecordSource
             );
@@ -60,7 +59,7 @@ BEGIN
     END;
 
     -- Final Log Call (Handles both Success and Failure metrics)
-    CALL `Staging.SaveLog`(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

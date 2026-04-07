@@ -6,13 +6,13 @@
 --	13/11/2018  P. Waldron		Routine Written
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `dv.Load_HUB_ScanStatus`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_HUB_ScanStatus`(
     IN p_ProcessID INT64,
     IN p_RecordSource STRING
 )
 BEGIN
     DECLARE v_Loaded TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
-    DECLARE v_Component STRING DEFAULT 'dv.Load_HUB_ScanStatus';
+    DECLARE v_Component STRING DEFAULT 'dv_Load_HUB_ScanStatus';
     DECLARE v_Started TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
     DECLARE v_Result STRING DEFAULT 'Success';
     DECLARE v_ErrorMessage STRING;
@@ -20,14 +20,13 @@ BEGIN
     DECLARE v_Updated INT64 DEFAULT 0;
 
     BEGIN
-        -- A MERGE statement efficiently handles the "Insert if Not Exists" Hub load pattern,
-        -- replacing the CTE and LEFT JOIN approach from SQL Server.
-        MERGE INTO `dv.HUB_ScanStatus` AS Dest
+        -- A MERGE statement handles the "Insert if Not Exists" logic using Jinja2 templates for paths.
+        MERGE INTO `{{ project_id }}.{{ target_dataset_id }}.dv_HUB_ScanStatus` AS Dest
         USING (
             SELECT DISTINCT 
                 IFNULL(RTRIM(CountryName), 'Unknown') AS CountryName, 
                 StatusCode AS ScanStatus 
-            FROM `Staging.ScanStatus_Stg`
+            FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_ScanStatus_Stg`
         ) AS Src
         ON Dest.CountryName = Src.CountryName 
            AND Dest.ScanStatus = Src.ScanStatus
@@ -41,9 +40,8 @@ BEGIN
                 RecordSource
             )
             VALUES (
-                -- Assuming GetHashKey is migrated as a BigQuery UDF. 
-                -- String concatenation uses CONCAT() instead of '+' in BigQuery.
-                `dbo.GetHashKey`(CONCAT(Src.CountryName, '^', Src.ScanStatus)),
+                -- UDF reference converted to Jinja2 path format
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(Src.CountryName, '^', Src.ScanStatus)),
                 Src.CountryName,
                 Src.ScanStatus,
                 v_Loaded,
@@ -60,7 +58,7 @@ BEGIN
     END;
 
     -- Final Log Call (Handles both Success and Failure metrics)
-    CALL `Staging.SaveLog`(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

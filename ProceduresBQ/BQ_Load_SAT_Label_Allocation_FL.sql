@@ -6,13 +6,12 @@
 --	25/07/2019  P. Waldron		Routine Written
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `dv.Load_SAT_Label_Allocation_FL`(
-    IN p_ProcessID INT64,
-    IN p_RecordSource STRING
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_SAT_Label_Allocation_FL`(
+    IN p_ProcessID INT64
 )
 BEGIN
-    -- DECLARE statements must be at the very top of the BEGIN...END block
-    DECLARE v_Component STRING DEFAULT 'dv.Load_SAT_Label_Allocation_FL';
+    -- 1. All DECLARE statements must be at the very top
+    DECLARE v_Component STRING DEFAULT 'dv_Load_SAT_Label_Allocation_FL';
     DECLARE v_Started TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
     DECLARE v_Result STRING DEFAULT 'Success';
     DECLARE v_ErrorMessage STRING;
@@ -23,20 +22,19 @@ BEGIN
     DECLARE v_DefaultValidFrom TIMESTAMP DEFAULT TIMESTAMP('1900-01-01');
     DECLARE v_DefaultValidTo TIMESTAMP DEFAULT TIMESTAMP('9999-12-31');
 
-    -- Handle default parameter value
-    SET p_RecordSource = IFNULL(p_RecordSource, 'FastLabel');
+    -- Static RecordSource as per original T-SQL default value
+    DECLARE v_RecordSource STRING DEFAULT 'FastLabel';
 
     BEGIN
-        -- STEP 1: Expire current records that have changed attributes
-        -- BigQuery does not support INSERT FROM MERGE OUTPUT, so we split SCD Type 2 logic
-        -- into an UPDATE to expire old versions and an INSERT for new versions.
-        UPDATE `dv.SAT_Label_Allocation_FL` AS Tgt
+        -- STEP 1: Identify and Expire current records that have changed attributes (SCD Type 2)
+        -- All identifiers use the Jinja2 template and underscore schema naming.
+        UPDATE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_FL` AS Tgt
         SET 
             IsCurrent = FALSE,
             ValidTo = v_Loaded
         FROM (
             SELECT 
-                `dbo.GetHashKey`(Stg.LabelNumber) AS LabelNo_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(Stg.LabelNumber) AS LabelNo_HSK,
                 Stg.LabelNumber,
                 Stg.CountryCode,
                 IFNULL(cty.CountryName, 'Unknown') AS Country,
@@ -44,8 +42,8 @@ BEGIN
                 Stg.LblColour, Stg.LblPrice, Stg.LblPrice1, Stg.Reference, Stg.Packaging,
                 Stg.Weight, Stg.WeightCubic, Stg.Length, Stg.Width, Stg.Height,
                 Stg.ManifestID, Stg.Town, Stg.PostCode, Stg.destRF, Stg.CreateDate, Stg.ConsignmentID
-            FROM `Staging.tblFastLabel_Consignment_stg` AS Stg
-            LEFT JOIN `dbo.Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
+            FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_tblFastLabel_Consignment_stg` AS Stg
+            LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
         ) AS Src
         WHERE Tgt.LabelNo_HSK = Src.LabelNo_HSK 
           AND Tgt.IsCurrent = TRUE
@@ -76,11 +74,11 @@ BEGIN
                 IFNULL(Tgt.ConsignmentID, -1) != IFNULL(Src.ConsignmentID, -1)
           );
 
+        -- Capture number of records expired
         SET v_Updated = @@row_count;
 
-        -- STEP 2: Insert New Records
-        -- This includes brand new keys and the new versions of the expired records above.
-        INSERT INTO `dv.SAT_Label_Allocation_FL` (
+        -- STEP 2: Insert New Records (Covers brand new keys and new versions of expired records)
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_FL` (
             LabelNo_HSK, LabelNo, CountryCode, Country, LabelPrinted, CustomerID, 
             ClientID, ConsumedByCustomerUserID, LblColour, LblPrice, LblPrice1, 
             Reference, Packaging, Weight, WeightCubic, Length, Width, Height, 
@@ -88,7 +86,7 @@ BEGIN
             Loaded, ProcessId, RecordSource, RecordSourceId, ValidFrom, ValidTo, IsCurrent
         )
         SELECT
-            `dbo.GetHashKey`(Src.LabelNumber),
+            `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(Src.LabelNumber),
             Src.LabelNumber,
             Src.CountryCode,
             Src.Country,
@@ -114,7 +112,7 @@ BEGIN
             Src.ConsignmentID,
             v_Loaded,
             p_ProcessID,
-            p_RecordSource,
+            v_RecordSource,
             Src.BookID,
             IF(Src.IsNewKey, v_DefaultValidFrom, v_Loaded),
             v_DefaultValidTo,
@@ -126,18 +124,19 @@ BEGIN
                 CASE WHEN Sat.LabelNo_HSK IS NULL THEN TRUE ELSE FALSE END AS IsNewKey,
                 CASE 
                     WHEN Sat.LabelNo_HSK IS NULL THEN TRUE -- New Business Key
-                    WHEN Sat.IsCurrent = FALSE AND Sat.ValidTo = v_Loaded THEN TRUE -- Key exists but was just expired
+                    WHEN Sat.IsCurrent = FALSE AND Sat.ValidTo = v_Loaded THEN TRUE -- Was just expired above
                     ELSE FALSE 
                 END AS ShouldInsert
-            FROM `Staging.tblFastLabel_Consignment_stg` AS Stg
-            LEFT JOIN `dbo.Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
-            LEFT JOIN `dv.SAT_Label_Allocation_FL` AS Sat 
+            FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_tblFastLabel_Consignment_stg` AS Stg
+            LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
+            LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_FL` AS Sat 
                 ON Sat.LabelNo = Stg.LabelNumber 
                 AND Sat.CountryCode = Stg.CountryCode
                 AND Sat.IsCurrent = TRUE
         ) AS Src
         WHERE Src.ShouldInsert = TRUE;
 
+        -- Capture total new version inserts
         SET v_Inserted = @@row_count;
 
     EXCEPTION WHEN ERROR THEN
@@ -145,8 +144,8 @@ BEGIN
         SET v_ErrorMessage = @@error.message;
     END;
 
-    -- Final Log Call (Handles both Success and Failure)
-    CALL `Staging.SaveLog`(
+    -- Final Log Call (Handles both Success and Failure metrics)
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

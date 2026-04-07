@@ -9,12 +9,12 @@
 --                              as Label allocation load. (Part of BI-265)
 --	05/02/2024	B. Woods		Added PickupRequest source as the second preference address
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `Staging.Load_Label_Address_Stg`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.Staging_Load_Label_Address_Stg`(
     IN p_ProcessID INT64
 )
 BEGIN
     -- 1. All DECLARE statements must be at the very top
-    DECLARE v_Component STRING DEFAULT 'Staging.Load_Label_Address_Stg';
+    DECLARE v_Component STRING DEFAULT 'Staging_Load_Label_Address_Stg';
     DECLARE v_Started TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
     DECLARE v_Ended TIMESTAMP;
     DECLARE v_Result STRING DEFAULT 'Success';
@@ -30,15 +30,13 @@ BEGIN
 
     BEGIN
 
-        /*
+        /* ==============================================================================
             fl_ConItem (MF)
-        */
+           ============================================================================== */
         SET v_Step = 'MyFastway';
         SET v_StartedSrc = CURRENT_TIMESTAMP();
         
-        -- To perfectly replicate T-SQL's CROSS APPLY and + operator NULL handling, 
-        -- we wrap the core logic in a subquery and use IFNULL() for concatenation.
-        INSERT INTO `Staging.Label_Address_Stg` (
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Address_Stg` (
             LabelNo, FromTo, Address_HSK, AddressLine1, AddressLine2, Town, State, PostCode, 
             CountryCode, CountryName, AddressKey, AddressLen, AddressSeq, RecordSource
         ) 
@@ -51,7 +49,7 @@ BEGIN
             SELECT 
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'MyFastway' AS RecordSource,
-                `dbo.GetHashKey`(
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),
@@ -79,31 +77,31 @@ BEGIN
                     Label AS LabelNo, 'From' AS FromTo, TRIM(FromStreetAddress) AS AddressLine1, 
                     CAST(NULL AS STRING) AS AddressLine2, TRIM(FromLocality) AS Town, 
                     CAST(NULL AS STRING) AS State, FromPostalCode AS Postcode, CAST(NULL AS INT64) AS CountryCode
-                FROM `Staging.fl_ConItem_Stg` 
+                FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_fl_ConItem_Stg` 
                 UNION ALL
                 SELECT 
                     Label AS LabelNo, 'To' AS FromTo, TRIM(ToStreetAddress) AS AddressLine1, 
                     CAST(NULL AS STRING) AS AddressLine2, TRIM(ToLocality) AS Town, 
                     CAST(NULL AS STRING) AS State, ToPostalCode AS Postcode, CountryId AS CountryCode
-                FROM `Staging.fl_ConItem_Stg`
+                FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_fl_ConItem_Stg`
             ) AS a
-            LEFT JOIN `Dim_Country` AS c ON c.CountryCode = a.CountryCode
+            LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
         ) AS h
-        WHERE NOT EXISTS (SELECT 1 FROM `Staging.Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
+        WHERE NOT EXISTS (SELECT 1 FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
         ORDER BY Address_HSK;
 
         SET v_InsertedSrc = @@row_count;
         SET v_EndedSrc = CURRENT_TIMESTAMP();
-        CALL `Staging.SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0);
+        CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0);
 
 
-        /*
+        /* ==============================================================================
            Pickup Requests for AU and NZ
-        */
+           ============================================================================== */
         SET v_Step = 'PickupRequest';
         SET v_StartedSrc = CURRENT_TIMESTAMP();
         
-        INSERT INTO `Staging.Label_Address_Stg` (
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Address_Stg` (
             LabelNo, FromTo, Address_HSK, AddressLine1, AddressLine2, Town, State, PostCode, 
             CountryCode, CountryName, AddressKey, AddressLen, AddressSeq, RecordSource
         ) 
@@ -116,7 +114,7 @@ BEGIN
             SELECT 
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'PickupRequest' AS RecordSource,
-                `dbo.GetHashKey`(
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),
@@ -148,7 +146,7 @@ BEGIN
                     CAST(NULL AS STRING) AS State,
                     TRIM(PickupPostcode) AS Postcode,
                     CAST(NULL AS STRING) AS CountryCode
-                FROM `Staging.PickupRequest_Stg`
+                FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_PickupRequest_Stg`
                 UNION ALL
                 SELECT 
                     LabelNumber AS LabelNo, 'To' AS FromTo,
@@ -158,25 +156,25 @@ BEGIN
                     CAST(NULL AS STRING) AS State,
                     TRIM(DeliveryPostcode) AS Postcode,
                     CountryCode AS CountryCode
-                FROM `Staging.PickupRequest_Stg` 
+                FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_PickupRequest_Stg` 
             ) AS a
-            LEFT JOIN `Dim_Country` AS c ON c.CountryCode = a.CountryCode
+            LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
         ) AS h
-        WHERE NOT EXISTS (SELECT 1 FROM `Staging.Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
+        WHERE NOT EXISTS (SELECT 1 FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
         ORDER BY Address_HSK; 
 
         SET v_InsertedSrc = @@row_count;
         SET v_EndedSrc = CURRENT_TIMESTAMP();
-        CALL `Staging.SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0);
+        CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0);
 
 
-        /*
+        /* ==============================================================================
             API_RF_AdHocLabel_AllocationHistory (DL)
-        */
+           ============================================================================== */
         SET v_Step = 'DynamicLabel';
         SET v_StartedSrc = CURRENT_TIMESTAMP();
         
-        INSERT INTO `Staging.Label_Address_Stg` (
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Address_Stg` (
             LabelNo, FromTo, Address_HSK, AddressLine1, AddressLine2, Town, State, PostCode, 
             CountryCode, CountryName, AddressKey, AddressLen, AddressSeq, RecordSource
         ) 
@@ -189,7 +187,7 @@ BEGIN
             SELECT 
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'DynamicLabel' AS RecordSource,
-                `dbo.GetHashKey`(
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),
@@ -221,7 +219,7 @@ BEGIN
                     CAST(NULL AS STRING) AS State,
                     TRIM(PickupPostcode) AS Postcode,
                     CAST(NULL AS STRING) AS CountryCode
-                FROM `Staging.API_RF_AdHocLabel_AllocationHistory_Stg`
+                FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_API_RF_AdHocLabel_AllocationHistory_Stg`
                 UNION ALL
                 SELECT 
                     LabelNumber AS LabelNo, 'To' AS FromTo,
@@ -231,25 +229,25 @@ BEGIN
                     CAST(NULL AS STRING) AS State,
                     TRIM(DeliveryPostcode) AS Postcode,
                     CountryCode AS CountryCode
-                FROM `Staging.API_RF_AdHocLabel_AllocationHistory_Stg` 
+                FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_API_RF_AdHocLabel_AllocationHistory_Stg` 
             ) AS a
-            LEFT JOIN `Dim_Country` AS c ON c.CountryCode = a.CountryCode
+            LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
         ) AS h
-        WHERE NOT EXISTS (SELECT 1 FROM `Staging.Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
+        WHERE NOT EXISTS (SELECT 1 FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
         ORDER BY Address_HSK; 
 
         SET v_InsertedSrc = @@row_count;
         SET v_EndedSrc = CURRENT_TIMESTAMP();
-        CALL `Staging.SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0);
+        CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0);
 
 
-        /*
+        /* ==============================================================================
             tblFastLabel_Consignment (FL)
-        */
+           ============================================================================== */
         SET v_Step = 'FastLabel';
         SET v_StartedSrc = CURRENT_TIMESTAMP();
         
-        INSERT INTO `Staging.Label_Address_Stg` (
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Address_Stg` (
             LabelNo, FromTo, Address_HSK, AddressLine1, AddressLine2, Town, State, PostCode, 
             CountryCode, CountryName, AddressKey, AddressLen, AddressSeq, RecordSource
         ) 
@@ -262,7 +260,7 @@ BEGIN
             SELECT 
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'FastLabel' AS RecordSource,
-                `dbo.GetHashKey`(
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),
@@ -294,25 +292,25 @@ BEGIN
                     TRIM(State) AS State,
                     TRIM(Postcode) AS Postcode,
                     CountryCode
-                FROM `Staging.tblFastLabel_Consignment_Stg`
+                FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_tblFastLabel_Consignment_Stg`
             ) AS a
-            LEFT JOIN `Dim_Country` AS c ON c.CountryCode = a.CountryCode
+            LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
         ) AS h
-        WHERE NOT EXISTS (SELECT 1 FROM `Staging.Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
+        WHERE NOT EXISTS (SELECT 1 FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
         ORDER BY Address_HSK;
 
         SET v_InsertedSrc = @@row_count;
         SET v_EndedSrc = CURRENT_TIMESTAMP();
-        CALL `Staging.SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0);
+        CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0);
 
 
-        /*
+        /* ==============================================================================
             ConsignmentItem (FLE)
-        */
+           ============================================================================== */
         SET v_Step = 'FastLabelEnterprise';
         SET v_StartedSrc = CURRENT_TIMESTAMP();
         
-        INSERT INTO `Staging.Label_Address_Stg` (
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Address_Stg` (
             LabelNo, FromTo, Address_HSK, AddressLine1, AddressLine2, Town, State, PostCode, 
             CountryCode, CountryName, AddressKey, AddressLen, AddressSeq, RecordSource
         ) 
@@ -325,7 +323,7 @@ BEGIN
             SELECT 
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'FastLabelEnterprise' AS RecordSource,
-                `dbo.GetHashKey`(
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),
@@ -368,25 +366,25 @@ BEGIN
                     CAST(NULL AS STRING) AS State,
                     TRIM(ReceiverPostcode) AS Postcode,
                     CAST(NULL AS STRING) AS CountryCode
-                FROM `Staging.ConsignmentItem_Stg` 
+                FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_ConsignmentItem_Stg` 
             ) AS a
-            LEFT JOIN `Dim_Country` AS c ON c.CountryCode = a.CountryCode
+            LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
         ) AS h
-        WHERE NOT EXISTS (SELECT 1 FROM `Staging.Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
+        WHERE NOT EXISTS (SELECT 1 FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
         ORDER BY Address_HSK;
 
         SET v_InsertedSrc = @@row_count;
         SET v_EndedSrc = CURRENT_TIMESTAMP();
-        CALL `Staging.SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0);
+        CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0);
 
 
-        /*
+        /* ==============================================================================
             HDManifests (IFS)
-        */
+           ============================================================================== */
         SET v_Step = 'HDManifests';
         SET v_StartedSrc = CURRENT_TIMESTAMP();
         
-        INSERT INTO `Staging.Label_Address_Stg` (
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Address_Stg` (
             LabelNo, FromTo, Address_HSK, AddressLine1, AddressLine2, Town, State, PostCode, 
             CountryCode, CountryName, AddressKey, AddressLen, AddressSeq, RecordSource
         ) 
@@ -399,7 +397,7 @@ BEGIN
             SELECT 
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'HDManifests' AS RecordSource,
-                `dbo.GetHashKey`(
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),
@@ -436,7 +434,7 @@ BEGIN
                         WHEN REGEXP_CONTAINS(SendAdd6, r'[0-9]') THEN SendAdd6 
                     END) AS STRING) AS Postcode, 
                     CollectionCountryCode AS CountryCode
-                FROM `Staging.HDManifests_Stg`
+                FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_HDManifests_Stg`
                 UNION ALL
                 SELECT 
                     LabelNo, 'To' AS FromTo,
@@ -451,25 +449,25 @@ BEGIN
                         WHEN REGEXP_CONTAINS(RecAdd6, r'[0-9]') THEN RecAdd6 
                     END) AS STRING) AS Postcode, 
                     DeliveryCountryCode AS CountryCode 
-                FROM `Staging.HDManifests_Stg`
+                FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_HDManifests_Stg`
             ) AS a
-            LEFT JOIN `Dim_Country` AS c ON c.CountryCode = a.CountryCode
+            LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
         ) AS h
-        WHERE NOT EXISTS (SELECT 1 FROM `Staging.Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
+        WHERE NOT EXISTS (SELECT 1 FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
         ORDER BY Address_HSK;
 
         SET v_InsertedSrc = @@row_count;
         SET v_EndedSrc = CURRENT_TIMESTAMP();
-        CALL `Staging.SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0);
+        CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0);
 
 
-        /*
+        /* ==============================================================================
             vw_Ebay_Labels (EBAY)
-        */ 
+           ============================================================================== */
         SET v_Step = 'EBAY';
         SET v_StartedSrc = CURRENT_TIMESTAMP();
         
-        INSERT INTO `Staging.Label_Address_Stg` (
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Address_Stg` (
             LabelNo, FromTo, Address_HSK, AddressLine1, AddressLine2, Town, State, PostCode, 
             CountryCode, CountryName, AddressKey, AddressLen, AddressSeq, RecordSource
         )
@@ -482,7 +480,7 @@ BEGIN
             SELECT
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'EBAY' AS RecordSource,
-                `dbo.GetHashKey`(
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),
@@ -514,7 +512,7 @@ BEGIN
                     CAST(NULL AS STRING) AS State,
                     C_Postcode AS PostCode,
                     C_CountryCode AS CountryCode
-                FROM `Staging.Ebay_Labels_Stg`
+                FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Ebay_Labels_Stg`
                 UNION ALL
                 SELECT 
                     LabelNumber AS LabelNo, 'To' AS FromTo,
@@ -524,25 +522,25 @@ BEGIN
                     CAST(NULL AS STRING) AS State,
                     DeliveryPostcode AS PostCode,
                     DeliveryCountry AS CountryCode
-                FROM `Staging.Ebay_Labels_Stg` 
+                FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Ebay_Labels_Stg` 
             ) AS a
-            LEFT JOIN `Dim_Country` AS c ON c.CountryCode = a.CountryCode
+            LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
         ) AS h
-        WHERE NOT EXISTS (SELECT 1 FROM `Staging.Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
+        WHERE NOT EXISTS (SELECT 1 FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
         ORDER BY Address_HSK;
 
         SET v_InsertedSrc = @@row_count;
         SET v_EndedSrc = CURRENT_TIMESTAMP();
-        CALL `Staging.SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0);
+        CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0);
 
 
-        /*
+        /* ==============================================================================
             tblOnlineEnquiry_RP (RP)
-        */
+           ============================================================================== */
         SET v_Step = 'ReceiverPays';
         SET v_StartedSrc = CURRENT_TIMESTAMP();
         
-        INSERT INTO `Staging.Label_Address_Stg` (
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Address_Stg` (
             LabelNo, FromTo, Address_HSK, AddressLine1, AddressLine2, Town, State, PostCode, 
             CountryCode, CountryName, AddressKey, AddressLen, AddressSeq, RecordSource
         )
@@ -555,7 +553,7 @@ BEGIN
             SELECT
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'ReceiverPays' AS RecordSource,
-                `dbo.GetHashKey`(
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),
@@ -587,7 +585,7 @@ BEGIN
                     CAST(NULL AS STRING) AS State,
                     Sender_Postcode AS PostCode,
                     CAST(NULL AS STRING) AS CountryCode
-                FROM `Staging.tblOnlineEnquiry_RP_Stg` 
+                FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_tblOnlineEnquiry_RP_Stg` 
                 UNION ALL
                 SELECT DISTINCT
                     label_number AS LabelNo, 'To' AS FromTo,
@@ -597,30 +595,20 @@ BEGIN
                     CAST(NULL AS STRING) AS State,
                     Receiver_Postcode AS PostCode,
                     CAST(NULL AS STRING) AS CountryCode
-                FROM `Staging.tblOnlineEnquiry_RP_Stg` 
+                FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_tblOnlineEnquiry_RP_Stg` 
             ) AS a
-            LEFT JOIN `Dim_Country` AS c ON c.CountryCode = a.CountryCode
+            LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
         ) AS h
-        WHERE NOT EXISTS (SELECT 1 FROM `Staging.Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
+        WHERE NOT EXISTS (SELECT 1 FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
         ORDER BY Address_HSK;
 
         SET v_InsertedSrc = @@row_count;
         SET v_EndedSrc = CURRENT_TIMESTAMP();
-        CALL `Staging.SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0);
-
-        /*
-            tblTasman_Consignment (TAS)
-            ... [Preserved Comment from Source] ...
-        */
-        
-        /*
-            API_Temando_RequestLabel (TMD)
-            ... [Preserved Comment from Source] ...
-        */
+        CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0);
 
         -- Record load metrics in log
         SET v_Result = 'Success';
-        SET v_Inserted = (SELECT COUNT(*) FROM `Staging.Label_Address_Stg`);
+        SET v_Inserted = (SELECT COUNT(*) FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Address_Stg`);
 
     EXCEPTION WHEN ERROR THEN
         SET v_Result = CONCAT('Failed - loading ', v_Step, ' data');
@@ -629,7 +617,7 @@ BEGIN
 
     -- Final Master Logging
     SET v_Ended = CURRENT_TIMESTAMP();
-    CALL `Staging.SaveLog`(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

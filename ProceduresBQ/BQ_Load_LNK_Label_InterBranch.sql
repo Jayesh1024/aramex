@@ -6,14 +6,12 @@
 --  15/08/2020  P. Waldron      Routine Written
 --  21/06/2022  B. Woods         Cloned
 -- ==========================================================================================
-
-CREATE OR REPLACE PROCEDURE `dv.Load_LNK_Label_InterBranch`(
-    IN p_ProcessID INT64,
-    IN p_RecordSource STRING
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LNK_Label_InterBranch`(
+    IN p_ProcessID INT64
 )
 BEGIN
-    -- All DECLARE statements must be at the very top of the BEGIN...END block
-    DECLARE v_Component STRING DEFAULT 'dv.Load_LNK_Label_InterBranch';
+    -- 1. All DECLARE statements must be at the very top of the BEGIN...END block
+    DECLARE v_Component STRING DEFAULT 'dv_Load_LNK_Label_InterBranch';
     DECLARE v_Started TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
     DECLARE v_Result STRING DEFAULT 'Success';
     DECLARE v_ErrorMessage STRING;
@@ -24,18 +22,16 @@ BEGIN
     DECLARE v_DefaultValidFrom TIMESTAMP DEFAULT TIMESTAMP('1900-01-01');
     DECLARE v_DefaultValidTo TIMESTAMP DEFAULT TIMESTAMP('9999-12-31');
 
-    -- Handle default parameter logic if p_RecordSource is passed as NULL
-    SET p_RecordSource = IFNULL(p_RecordSource, 'InterBranchAU');
+    -- Static RecordSource as per original T-SQL default logic
+    DECLARE v_RecordSource STRING DEFAULT 'InterBranchAU';
 
     BEGIN
         -- Using MERGE to handle the "Insert if Not Exists" logic in a single scan.
-        -- This replaces the INSERT...WHERE NOT EXISTS pattern for better slot efficiency.
-        MERGE INTO `dv.LNK_Label_InterBranch` AS Tgt
+        -- All table and function identifiers use Jinja2 templates and underscore schema naming.
+        MERGE INTO `{{ project_id }}.{{ target_dataset_id }}.dv_LNK_Label_InterBranch` AS Tgt
         USING (
             SELECT 
-                -- Hashing logic: BigQuery CONCAT replaces the '+' operator.
-                -- Assuming GetHashKey is migrated as a BigQuery UDF.
-                `dbo.GetHashKey`(
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(
                     CONCAT(
                         Country, '^', 
                         LabelNo, '^', 
@@ -44,13 +40,13 @@ BEGIN
                         InvoiceToRF
                     )
                 ) AS Label_InterBranch_HSK,
-                `dbo.GetHashKey`(CONCAT(Country, '^', LabelNo)) AS LabelNo_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(Country, '^', LabelNo)) AS LabelNo_HSK,
                 LabelNo,
                 Country,
                 InvoiceFromRF,
                 InvoiceToRF,
                 BatchId
-            FROM `Staging.Label_InterBranch_Stg`
+            FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_InterBranch_Stg`
         ) AS Src
         ON Tgt.Label_InterBranch_HSK = Src.Label_InterBranch_HSK
         WHEN NOT MATCHED THEN
@@ -77,11 +73,11 @@ BEGIN
                 Src.BatchId,
                 v_Loaded,
                 p_ProcessID,
-                p_RecordSource,
-                NULL -- Replaces the static NULL for RecordSourceID
+                v_RecordSource,
+                NULL 
             );
 
-        -- Capture total affected rows
+        -- Capture total affected rows (Inserted)
         SET v_Inserted = @@row_count;
 
     EXCEPTION WHEN ERROR THEN
@@ -89,8 +85,8 @@ BEGIN
         SET v_ErrorMessage = @@error.message;
     END;
 
-    -- Final Log Call (Handles both Success and Failure)
-    CALL `Staging.SaveLog`(
+    -- Final Log Call (Handles both Success and Failure metrics)
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

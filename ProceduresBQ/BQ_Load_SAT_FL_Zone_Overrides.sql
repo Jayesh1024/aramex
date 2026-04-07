@@ -6,41 +6,36 @@
 -- History:
 --	06/09/2024  B. Woods		Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `dv.Load_SAT_FL_Zone_Overrides`(
-    IN p_ProcessID INT64,
-    IN p_RecordSource STRING
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_SAT_FL_Zone_Overrides`(
+    IN p_ProcessID INT64
 )
 BEGIN
     -- 1. All DECLARE statements must be at the very top
     DECLARE v_Loaded TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
-    DECLARE v_Component STRING DEFAULT 'dv.Load_SAT_FL_Zone_Overrides';
+    DECLARE v_Component STRING DEFAULT 'dv_Load_SAT_FL_Zone_Overrides';
     DECLARE v_Started TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
     DECLARE v_Result STRING DEFAULT 'Success';
     DECLARE v_ErrorMessage STRING;
     DECLARE v_Inserted INT64 DEFAULT 0;
     DECLARE v_Updated INT64 DEFAULT 0;
     
+    -- Static RecordSource as per original T-SQL default logic
+    DECLARE v_RecordSource STRING DEFAULT '';
+    
     DECLARE v_Step STRING;
-    -- CHR(13) is the BigQuery equivalent of nchar(13) (Carriage Return)
-    DECLARE v_delim STRING DEFAULT CHR(13);
+    DECLARE v_delim STRING DEFAULT CHR(13); -- Carriage Return
 
-    -- Handle Default Parameters from T-SQL Signature
+    -- Handle Default p_ProcessID
     IF p_ProcessID IS NULL THEN
         SET p_ProcessID = -37;
-    END IF;
-    IF p_RecordSource IS NULL THEN
-        SET p_RecordSource = '';
     END IF;
 
     BEGIN
         -- Insert with UNION DISTINCT to match T-SQL's implicit distinct UNION
-        -- T-SQL CONCAT ignores NULLs. The pattern NULLIF(...)+@delim turns into NULL 
-        -- when empty, causing T-SQL CONCAT to skip it. 
-        -- BigQuery's CONCAT yields NULL if *any* argument is NULL. 
-        -- To perfectly replicate the T-SQL logic, we wrap the segments in IFNULL(..., '').
-        INSERT INTO `dv.SAT_FL_ServiceZoneOverride`
+        -- All table and function identifiers use Jinja2 templates and underscore schema naming.
+        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_FL_ServiceZoneOverride`
         SELECT
-            `dbo.GetHashKey`(
+            `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(
                 CONCAT(
                     'Satchel', v_delim,
                     IFNULL(CONCAT(NULLIF(CAST(OverrideId AS STRING), ''), v_delim), ''),
@@ -63,13 +58,13 @@ BEGIN
             UpdatedOn,
             UpdatedBy,
             v_Loaded,
-            p_RecordSource
-        FROM `Staging.fl_ServiceZoneSatchelOverride_Stg`
+            v_RecordSource
+        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_fl_ServiceZoneSatchelOverride_Stg`
         
         UNION DISTINCT
         
         SELECT
-            `dbo.GetHashKey`(
+            `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(
                 CONCAT(
                     'Weight', v_delim,
                     IFNULL(CONCAT(NULLIF(CAST(OverrideId AS STRING), ''), v_delim), ''),
@@ -92,8 +87,8 @@ BEGIN
             UpdatedOn,
             UpdatedBy,
             v_Loaded,
-            p_RecordSource
-        FROM `Staging.fl_ServiceZoneWeightOverride_Stg`;	 
+            v_RecordSource
+        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_fl_ServiceZoneWeightOverride_Stg`;	 
         
         SET v_Inserted = @@row_count;
 
@@ -103,7 +98,7 @@ BEGIN
     END;
 
     -- Final Log Call (Handles both Success and Failure metrics)
-    CALL `Staging.SaveLog`(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,
