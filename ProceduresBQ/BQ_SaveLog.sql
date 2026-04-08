@@ -12,9 +12,9 @@ CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.staging_SaveLo
   IN p_Ended        DATETIME,
   IN p_Result       STRING,
   IN p_ErrorMessage STRING,
-  IN p_Inserted     INT64,
-  IN p_Updated      INT64,
-  IN p_Errors       INT64
+  IN p_Inserted     INT64 DEFAULT -1,
+  IN p_Updated      INT64 DEFAULT -1,
+  IN p_Errors       INT64 DEFAULT -1
 )
 BEGIN
 
