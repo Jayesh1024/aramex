@@ -1,0 +1,49 @@
+2026-04-09 12:54:04  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 12:54:04  INFO        DDL Execution — BigQuery
+2026-04-09 12:54:04  INFO        Started      : 2026-04-09 12:54:04
+2026-04-09 12:54:04  INFO        Project      : searce-sandbox-da-delivery
+2026-04-09 12:54:04  INFO        BQ location  : US
+2026-04-09 12:54:04  INFO        SQL dir      : /Users/jhalak.jain/Desktop/Searce - Aramex/aramex/ProceduresBQ/Rendered BQ
+2026-04-09 12:54:04  INFO        Credentials  : /Users/jhalak.jain/.config/gcloud/application_default_credentials.json
+2026-04-09 12:54:04  INFO        SQL files    : 14
+2026-04-09 12:54:04  INFO        Max Workers  : 5
+2026-04-09 12:54:04  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 12:54:05  INFO      
+2026-04-09 12:54:05  INFO        Results
+2026-04-09 12:54:05  INFO      ────────────────────────────────────────────────────────────────────────
+2026-04-09 12:54:08  INFO      [SUCCESS] BQ_Load_HUB_Container.sql
+2026-04-09 12:54:08  INFO      [SUCCESS] BQ_Load_HUB_BLKContainerManifestContents.sql
+2026-04-09 12:54:08  INFO      [SUCCESS] BQ_Load_HUB_Customer.sql
+2026-04-09 12:54:08  ERROR     [FAILED]  BQ_Load_HUB_Invoice.sql
+2026-04-09 12:54:08  ERROR               400 Syntax error: Unexpected keyword ERROR at [75:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [75:5] Location: US Job ID: 0994a227-233c-4854-bdcb-9ca13413ff25
+2026-04-09 12:54:08  INFO      [SUCCESS] BQ_Load_HUB_Address.sql
+2026-04-09 12:54:08  INFO      [SUCCESS] BQ_Load_HUB_CF.sql
+2026-04-09 12:54:10  INFO      [SUCCESS] BQ_Load_HUB_RF.sql
+2026-04-09 12:54:10  INFO      [SUCCESS] BQ_Load_SAT_Label_Allocation_MF.sql
+2026-04-09 12:54:10  INFO      [SUCCESS] BQ_Load_HUB_Label.sql
+2026-04-09 12:54:10  INFO      [SUCCESS] BQ_Load_HUB_Product.sql
+2026-04-09 12:54:10  INFO      [SUCCESS] BQ_Load_Hub_Account.sql
+2026-04-09 12:54:11  ERROR     [FAILED]  BQ_Load_SAT_Label_Allocation_TAS.sql
+2026-04-09 12:54:11  ERROR               400 Syntax error: Unexpected "[" at [44:30]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name].; reason: invalidQuery, location: query, message: Syntax error: Unexpected "[" at [44:30]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name]. Location: US Job ID: b68c17c4-d76f-41b7-adac-4f4a0cba817b
+2026-04-09 12:54:11  ERROR     [FAILED]  BQ_Load_SAT_Label_Allocation_TMD.sql
+2026-04-09 12:54:11  ERROR               400 Syntax error: Unexpected "[" at [48:31]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name].; reason: invalidQuery, location: query, message: Syntax error: Unexpected "[" at [48:31]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name]. Location: US Job ID: 734a6e75-70ff-4bda-af16-9d25d6043aab
+2026-04-09 12:54:12  INFO      [SUCCESS] BQ_Load_SAT_Label_Allocation_RP.sql
+2026-04-09 12:54:12  INFO      
+2026-04-09 12:54:12  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 12:54:12  INFO        SUMMARY
+2026-04-09 12:54:12  INFO        Finished : 2026-04-09 12:54:12
+2026-04-09 12:54:12  INFO        Elapsed  : 0m 7s
+2026-04-09 12:54:12  INFO        Success  : 11
+2026-04-09 12:54:12  INFO        Failed   : 3
+2026-04-09 12:54:12  INFO        Total    : 14
+2026-04-09 12:54:12  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 12:54:12  INFO      
+2026-04-09 12:54:12  INFO        Failed files:
+2026-04-09 12:54:12  INFO          BQ_Load_HUB_Invoice.sql
+2026-04-09 12:54:12  INFO            400 Syntax error: Unexpected keyword ERROR at [75:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [75:5] Location: US Job ID: 0994a227-233c-4854-bdcb-9ca13413ff25
+2026-04-09 12:54:12  INFO          BQ_Load_SAT_Label_Allocation_TAS.sql
+2026-04-09 12:54:12  INFO            400 Syntax error: Unexpected "[" at [44:30]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name].; reason: invalidQuery, location: query, message: Syntax error: Unexpected "[" at [44:30]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name]. Location: US Job ID: b68c17c4-d76f-41b7-adac-4f4a0cba817b
+2026-04-09 12:54:12  INFO          BQ_Load_SAT_Label_Allocation_TMD.sql
+2026-04-09 12:54:12  INFO            400 Syntax error: Unexpected "[" at [48:31]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name].; reason: invalidQuery, location: query, message: Syntax error: Unexpected "[" at [48:31]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name]. Location: US Job ID: 734a6e75-70ff-4bda-af16-9d25d6043aab
+2026-04-09 12:54:12  INFO      
+2026-04-09 12:54:12  INFO      Full log saved to: logs/ddl_execution_20260409_125404.log

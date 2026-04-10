@@ -1,0 +1,55 @@
+2026-04-09 12:40:32  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 12:40:32  INFO        DDL Execution — BigQuery
+2026-04-09 12:40:32  INFO        Started      : 2026-04-09 12:40:32
+2026-04-09 12:40:32  INFO        Project      : searce-sandbox-da-delivery
+2026-04-09 12:40:32  INFO        BQ location  : US
+2026-04-09 12:40:32  INFO        SQL dir      : /Users/jhalak.jain/Desktop/Searce - Aramex/aramex/ProceduresBQ/Rendered BQ
+2026-04-09 12:40:32  INFO        Credentials  : /Users/jhalak.jain/.config/gcloud/application_default_credentials.json
+2026-04-09 12:40:32  INFO        SQL files    : 14
+2026-04-09 12:40:32  INFO        Max Workers  : 5
+2026-04-09 12:40:32  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 12:40:32  INFO      
+2026-04-09 12:40:32  INFO        Results
+2026-04-09 12:40:32  INFO      ────────────────────────────────────────────────────────────────────────
+2026-04-09 12:40:35  INFO      [SUCCESS] BQ_Load_HUB_BLKContainerManifestContents.sql
+2026-04-09 12:40:35  INFO      [SUCCESS] BQ_Load_HUB_Address.sql
+2026-04-09 12:40:35  INFO      [SUCCESS] BQ_Load_HUB_CF.sql
+2026-04-09 12:40:35  ERROR     [FAILED]  BQ_Load_HUB_Invoice.sql
+2026-04-09 12:40:35  ERROR               400 Syntax error: Unexpected keyword ERROR at [75:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [75:5] Location: US Job ID: acc2938c-d76d-4009-a08b-ecd7fb31e81d
+2026-04-09 12:40:35  INFO      [SUCCESS] BQ_Load_HUB_Customer.sql
+2026-04-09 12:40:37  INFO      [SUCCESS] BQ_Load_HUB_Label.sql
+2026-04-09 12:40:38  INFO      [SUCCESS] BQ_Load_HUB_RF.sql
+2026-04-09 12:40:38  ERROR     [FAILED]  BQ_Load_SAT_Label_Allocation_MF.sql
+2026-04-09 12:40:38  ERROR               400 Syntax error: Unexpected keyword ERROR at [144:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [144:5] Location: US Job ID: 91a10a62-beac-4ca9-bc65-40b8e2b00ec3
+2026-04-09 12:40:38  INFO      [SUCCESS] BQ_Load_Hub_Account.sql
+2026-04-09 12:40:38  INFO      [SUCCESS] BQ_Load_HUB_Product.sql
+2026-04-09 12:40:38  INFO      [SUCCESS] BQ_Load_HUB_Container.sql
+2026-04-09 12:40:38  ERROR     [FAILED]  BQ_Load_SAT_Label_Allocation_TAS.sql
+2026-04-09 12:40:38  ERROR               400 Syntax error: Unexpected "[" at [44:30]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name].; reason: invalidQuery, location: query, message: Syntax error: Unexpected "[" at [44:30]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name]. Location: US Job ID: 4f475478-70b6-4c7a-be08-46bd8988b8b5
+2026-04-09 12:40:38  ERROR     [FAILED]  BQ_Load_SAT_Label_Allocation_RP.sql
+2026-04-09 12:40:38  ERROR               400 Syntax error: Unexpected keyword ERROR at [119:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [119:5] Location: US Job ID: fff07879-7230-4eab-8598-c329bcb0a667
+2026-04-09 12:40:39  ERROR     [FAILED]  BQ_Load_SAT_Label_Allocation_TMD.sql
+2026-04-09 12:40:39  ERROR               400 Syntax error: Unexpected "[" at [48:31]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name].; reason: invalidQuery, location: query, message: Syntax error: Unexpected "[" at [48:31]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name]. Location: US Job ID: 59f05dd7-e8ab-46a0-8276-05695c81c5cb
+2026-04-09 12:40:39  INFO      
+2026-04-09 12:40:39  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 12:40:39  INFO        SUMMARY
+2026-04-09 12:40:39  INFO        Finished : 2026-04-09 12:40:39
+2026-04-09 12:40:39  INFO        Elapsed  : 0m 6s
+2026-04-09 12:40:39  INFO        Success  : 9
+2026-04-09 12:40:39  INFO        Failed   : 5
+2026-04-09 12:40:39  INFO        Total    : 14
+2026-04-09 12:40:39  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 12:40:39  INFO      
+2026-04-09 12:40:39  INFO        Failed files:
+2026-04-09 12:40:39  INFO          BQ_Load_HUB_Invoice.sql
+2026-04-09 12:40:39  INFO            400 Syntax error: Unexpected keyword ERROR at [75:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [75:5] Location: US Job ID: acc2938c-d76d-4009-a08b-ecd7fb31e81d
+2026-04-09 12:40:39  INFO          BQ_Load_SAT_Label_Allocation_MF.sql
+2026-04-09 12:40:39  INFO            400 Syntax error: Unexpected keyword ERROR at [144:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [144:5] Location: US Job ID: 91a10a62-beac-4ca9-bc65-40b8e2b00ec3
+2026-04-09 12:40:39  INFO          BQ_Load_SAT_Label_Allocation_TAS.sql
+2026-04-09 12:40:39  INFO            400 Syntax error: Unexpected "[" at [44:30]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name].; reason: invalidQuery, location: query, message: Syntax error: Unexpected "[" at [44:30]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name]. Location: US Job ID: 4f475478-70b6-4c7a-be08-46bd8988b8b5
+2026-04-09 12:40:39  INFO          BQ_Load_SAT_Label_Allocation_RP.sql
+2026-04-09 12:40:39  INFO            400 Syntax error: Unexpected keyword ERROR at [119:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [119:5] Location: US Job ID: fff07879-7230-4eab-8598-c329bcb0a667
+2026-04-09 12:40:39  INFO          BQ_Load_SAT_Label_Allocation_TMD.sql
+2026-04-09 12:40:39  INFO            400 Syntax error: Unexpected "[" at [48:31]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name].; reason: invalidQuery, location: query, message: Syntax error: Unexpected "[" at [48:31]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name]. Location: US Job ID: 59f05dd7-e8ab-46a0-8276-05695c81c5cb
+2026-04-09 12:40:39  INFO      
+2026-04-09 12:40:39  INFO      Full log saved to: logs/ddl_execution_20260409_124032.log

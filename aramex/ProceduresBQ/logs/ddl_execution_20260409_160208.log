@@ -1,0 +1,43 @@
+2026-04-09 16:02:08  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 16:02:08  INFO        DDL Execution — BigQuery
+2026-04-09 16:02:08  INFO        Started      : 2026-04-09 16:02:08
+2026-04-09 16:02:08  INFO        Project      : searce-sandbox-da-delivery
+2026-04-09 16:02:08  INFO        BQ location  : US
+2026-04-09 16:02:08  INFO        SQL dir      : /Users/jhalak.jain/Desktop/Searce - Aramex/aramex/ProceduresBQ/Rendered BQ
+2026-04-09 16:02:08  INFO        Credentials  : /Users/jhalak.jain/.config/gcloud/application_default_credentials.json
+2026-04-09 16:02:08  INFO        SQL files    : 14
+2026-04-09 16:02:08  INFO        Max Workers  : 5
+2026-04-09 16:02:08  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 16:02:09  INFO      
+2026-04-09 16:02:09  INFO        Results
+2026-04-09 16:02:09  INFO      ────────────────────────────────────────────────────────────────────────
+2026-04-09 16:02:12  INFO      [SUCCESS] BQ_Load_HUB_Container.sql
+2026-04-09 16:02:12  INFO      [SUCCESS] BQ_Load_HUB_BLKContainerManifestContents.sql
+2026-04-09 16:02:12  INFO      [SUCCESS] BQ_Load_HUB_CF.sql
+2026-04-09 16:02:12  INFO      [SUCCESS] BQ_Load_HUB_Customer.sql
+2026-04-09 16:02:12  INFO      [SUCCESS] BQ_Load_HUB_Address.sql
+2026-04-09 16:02:13  ERROR     [FAILED]  BQ_Load_HUB_Invoice.sql
+2026-04-09 16:02:13  ERROR               400 GET https://bigquery.googleapis.com/bigquery/v2/projects/searce-sandbox-da-delivery/queries/68863502-c9b1-48d7-a9d8-af5c45ff4e78?maxResults=0&location=US&prettyPrint=false: Error validating procedure body (add OPTIONS(strict_mode=false) to suppress): Query error: Not found: Table searce-sandbox-da-delivery:Aramex_oceania.dbo_dim_country was not found in location US at [20:5] Location: US Job ID: 68863502-c9b1-48d7-a9d8-af5c45ff4e78
+2026-04-09 16:02:14  INFO      [SUCCESS] BQ_Load_HUB_RF.sql
+2026-04-09 16:02:14  INFO      [SUCCESS] BQ_Load_HUB_Product.sql
+2026-04-09 16:02:14  INFO      [SUCCESS] BQ_Load_HUB_Label.sql
+2026-04-09 16:02:15  INFO      [SUCCESS] BQ_Load_Hub_Account.sql
+2026-04-09 16:02:15  INFO      [SUCCESS] BQ_Load_SAT_Label_Allocation_MF.sql
+2026-04-09 16:02:16  INFO      [SUCCESS] BQ_Load_SAT_Label_Allocation_RP.sql
+2026-04-09 16:02:16  INFO      [SUCCESS] BQ_Load_SAT_Label_Allocation_TMD.sql
+2026-04-09 16:02:16  INFO      [SUCCESS] BQ_Load_SAT_Label_Allocation_TAS.sql
+2026-04-09 16:02:16  INFO      
+2026-04-09 16:02:16  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 16:02:16  INFO        SUMMARY
+2026-04-09 16:02:16  INFO        Finished : 2026-04-09 16:02:16
+2026-04-09 16:02:16  INFO        Elapsed  : 0m 7s
+2026-04-09 16:02:16  INFO        Success  : 13
+2026-04-09 16:02:16  INFO        Failed   : 1
+2026-04-09 16:02:16  INFO        Total    : 14
+2026-04-09 16:02:16  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 16:02:16  INFO      
+2026-04-09 16:02:16  INFO        Failed files:
+2026-04-09 16:02:16  INFO          BQ_Load_HUB_Invoice.sql
+2026-04-09 16:02:16  INFO            400 GET https://bigquery.googleapis.com/bigquery/v2/projects/searce-sandbox-da-delivery/queries/68863502-c9b1-48d7-a9d8-af5c45ff4e78?maxResults=0&location=US&prettyPrint=false: Error validating procedure body (add OPTIONS(strict_mode=false) to suppress): Query error: Not found: Table searce-sandbox-da-delivery:Aramex_oceania.dbo_dim_country was not found in location US at [20:5] Location: US Job ID: 68863502-c9b1-48d7-a9d8-af5c45ff4e78
+2026-04-09 16:02:16  INFO      
+2026-04-09 16:02:16  INFO      Full log saved to: logs/ddl_execution_20260409_160208.log
