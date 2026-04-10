@@ -8,7 +8,7 @@ History:
 	05/03/2024	B. Woods		Changed to select labels from dv_LNK_Scan by TrackAndTraceID
 ========================================================================================== --#}
 
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id}}.Staging_Load_KPI_Labels_Stg`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.Staging_Load_KPI_Labels_Stg`(
     IN p_ProcessID INT64,
     IN p_SinceScanDate DATETIME,
     IN p_UntilScanDate DATETIME,
@@ -17,7 +17,9 @@ CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id}}.Staging_Load_KP
 BEGIN
     -- Variables Setup
     DECLARE v_Component STRING DEFAULT '{{ project_id }}.{{ target_dataset_id }}.Staging_Load_KPI_Labels_Stg';
-    DECLARE v_Started TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
+    
+    -- OPTION 2: Use DATETIME instead of TIMESTAMP
+    DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
     DECLARE v_Result STRING DEFAULT 'Success';
     DECLARE v_ErrorMessage STRING;
     DECLARE v_Inserted INT64 DEFAULT 0;
@@ -26,7 +28,7 @@ BEGIN
     DECLARE v_MaxID INT64;
     DECLARE v_LastID INT64;
 
-    -- Fetch bounds
+    -- Fetch bounds (Table naming rule applied: dv.LNK_Scan -> dv_LNK_Scan)
     SET v_MaxID = (SELECT MAX(TrackAndTraceID) FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LNK_Scan`);
     
     SET v_LastID = (
@@ -84,17 +86,17 @@ BEGIN
         SET v_ErrorMessage = @@error.message;
     END;
 
-    -- Record load metrics in log
+    -- Record load metrics in log (Option 2: Using DATETIME variables and CURRENT_DATETIME)
     CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,
-        CURRENT_TIMESTAMP(),
+        CURRENT_DATETIME(),
         v_Result,
         v_ErrorMessage,
         v_Inserted,
-        0,
-        IF(v_Result = 'Success', 0, -1)
+        -1,
+        -1
     );
 
 END;

@@ -1,11 +1,4 @@
-{#-- ==========================================================================================
-Routine:     dbo_Load_Payzone_Regions
-Description: Loads any labels into dbo_Payzone_Regions
-History:
-  13/05/2025  B. Woods        Routine Written
-========================================================================================== --#}
-
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id}}.dbo_Load_Payzone_Regions`(
+CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dbo_Load_Payzone_Regions`(
     IN p_ProcessID INT64
 )
 BEGIN
@@ -14,18 +7,20 @@ BEGIN
     -- Description: Upserts regions into dbo_Payzone_Regions using a MERGE statement
     -- ------------------------------------------------------------------------------------------
 
-    DECLARE v_Component STRING DEFAULT '{{ project_id }}.{{ target_dataset_id }}.dbo_Load_Payzone_Regions';
+    DECLARE v_Component STRING DEFAULT 'searce-sandbox-da-delivery.Aramex_oceania.dbo_Load_Payzone_Regions';
     DECLARE v_Step STRING DEFAULT 'Upsert';
-    DECLARE v_Started TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
-    DECLARE v_Ended TIMESTAMP;
+    
+    -- OPTION 2: Changed from TIMESTAMP to DATETIME
+    DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
+    DECLARE v_Ended DATETIME;
     DECLARE v_Result STRING DEFAULT 'Success';
     DECLARE v_ErrorMessage STRING DEFAULT NULL;
     DECLARE v_AffectedRows INT64 DEFAULT 0;
 
     BEGIN
         -- BigQuery MERGE performs the update and insert in one pass
-        MERGE INTO `{{ project_id }}.{{ target_dataset_id }}.dbo_Payzone_Regions` AS Tgt
-        USING `{{ project_id }}.{{ target_dataset_id }}.Staging_payzone_regions_stg` AS Src
+        MERGE INTO `searce-sandbox-da-delivery.Aramex_oceania.dbo_Payzone_Regions` AS Tgt
+        USING `searce-sandbox-da-delivery.Aramex_oceania.Staging_payzone_regions_stg` AS Src
         ON Tgt.id = Src.id
         
         WHEN MATCHED THEN
@@ -71,19 +66,20 @@ BEGIN
         SET v_ErrorMessage = @@error.message;
     END;
 
-    -- Final Log Call
-    SET v_Ended = CURRENT_TIMESTAMP();
+    -- OPTION 2: Changed from CURRENT_TIMESTAMP() to CURRENT_DATETIME()
+    SET v_Ended = CURRENT_DATETIME();
     
-    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
+    -- Final Log Call
+    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
-        v_Started,
-        v_Ended,
+        v_Started,      -- Now a DATETIME
+        v_Ended,        -- Now a DATETIME
         v_Result,
         v_ErrorMessage,
-        0,              -- Inserted (Combined into AffectedRows for MERGE)
+        -1,              -- Inserted (Combined into AffectedRows for MERGE)
         v_AffectedRows, -- Updated (Combined into AffectedRows for MERGE)
-        IF(v_Result = 'Success', 0, -1)
+        -1
     );
 
 END;

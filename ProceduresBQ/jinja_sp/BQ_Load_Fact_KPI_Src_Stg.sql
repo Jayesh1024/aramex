@@ -5,7 +5,7 @@ History:
   01/12/2022  B. Woods        Routine Written
 ========================================================================================== --#}
 
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id}}.Staging_Load_Fact_KPI_Src_Stg`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.Staging_Load_Fact_KPI_Src_Stg`(
     IN p_ProcessID INT64, 
     IN p_StartDateOverRide STRING, 
     IN p_EndDateOverRide STRING
@@ -14,8 +14,10 @@ BEGIN
     -- Core Variables
     DECLARE v_Component STRING DEFAULT '{{ project_id }}.{{ target_dataset_id }}.Staging_Load_Fact_KPI_Src_Stg';
     DECLARE v_Step STRING DEFAULT 'Initialization';
-    DECLARE v_Started TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
-    DECLARE v_Ended TIMESTAMP;
+    
+    -- OPTION 2: Changed from TIMESTAMP to DATETIME
+    DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
+    DECLARE v_Ended DATETIME;
     DECLARE v_Result STRING DEFAULT 'Success';
     DECLARE v_ErrorMessage STRING;
     DECLARE v_Inserted INT64 DEFAULT 0;
@@ -78,7 +80,7 @@ BEGIN
             MF.RealisedDate,
             MF.Zone,
             MF.CustomerId
-        FROM `{{ project_id }}.{{ target_dataset_id }}.Fact_Scan_Recent` R 
+        FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_Scan_Recent` R 
         JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` MF 
             ON MF.CountryCode = 1 
             AND MF.LabelNo = R.LabelNo 
@@ -92,10 +94,10 @@ BEGIN
         SET v_Inserted = @@row_count;
 
         -- Update Watermark / Last Loaded Date
-        CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_Set_LastValue`('Fact_KPI_Scan', 'ScanDateTime', CAST(v_EndDate AS STRING));
+        CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_Set_LastValue`('Fact_KPI_Scan', 'ScanDateTime', CAST(v_EndDate AS STRING),FALSE);
 
-        -- Log Part 1 Success
-        SET v_Ended = CURRENT_TIMESTAMP();
+        -- Log Part 1 Success (Option 2: Use DATETIME and CURRENT_DATETIME)
+        SET v_Ended = CURRENT_DATETIME();
         CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
             CONCAT(v_Component, '-Part1'),
             p_ProcessID,
@@ -104,15 +106,15 @@ BEGIN
             v_Result,
             v_ErrorMessage,
             v_Inserted,
-            0,
-            0
+            -1,
+            -1
         ); 
 
         -- ====================================================================
         -- Part 2: Query whole month for missing labels (due to late uploads)
         -- ====================================================================
         SET v_Step = 'Part2';
-        SET v_Started = CURRENT_TIMESTAMP();
+        SET v_Started = CURRENT_DATETIME();
         
         -- StartDate moves back to 30 days ago
         SET v_StartDate = DATETIME_SUB(v_Loaded, INTERVAL 30 DAY);
@@ -163,7 +165,7 @@ BEGIN
         SET v_Inserted = @@row_count;
 
         -- Log Part 2 Success
-        SET v_Ended = CURRENT_TIMESTAMP();
+        SET v_Ended = CURRENT_DATETIME();
         CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
             CONCAT(v_Component, '-Part2'),
             p_ProcessID,
@@ -172,8 +174,8 @@ BEGIN
             v_Result,
             v_ErrorMessage,
             v_Inserted,
-            0,
-            0
+            -1,
+            -1
         ); 
 
     EXCEPTION WHEN ERROR THEN
@@ -185,11 +187,11 @@ BEGIN
             CONCAT(v_Component, '-', v_Step),
             p_ProcessID,
             v_Started,
-            CURRENT_TIMESTAMP(),
+            CURRENT_DATETIME(),
             v_Result,
             v_ErrorMessage,
             v_Inserted,
-            0,
+            -1,
             -1
         );
     END;

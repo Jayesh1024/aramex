@@ -1,11 +1,4 @@
-{#-- ==========================================================================================
-Routine:     dv_Load_SAT_Label_PickupRequests
-Description: Loads relationships into LNK_RuralOnforwards 
-History:
-  17/01/2024  B. Woods        Routine Written
-========================================================================================== --#}
-
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id}}.dv_Load_SAT_Label_PickupRequests`(
+CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_SAT_Label_PickupRequests`(
     IN p_ProcessID INT64
 )
 BEGIN
@@ -14,19 +7,21 @@ BEGIN
     -- Description: Full refresh of dv_SAT_Label_PickupRequest from Staging
     -- ------------------------------------------------------------------------------------------
 
-    DECLARE v_Component STRING DEFAULT '{{ project_id }}.{{ target_dataset_id }}.dv_Load_SAT_Label_PickupRequests';
-    DECLARE v_Started TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
-    DECLARE v_Ended TIMESTAMP;
+    DECLARE v_Component STRING DEFAULT 'searce-sandbox-da-delivery.Aramex_oceania.dv_Load_SAT_Label_PickupRequests';
+    
+    -- OPTION 2: Use DATETIME instead of TIMESTAMP
+    DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
+    DECLARE v_Ended DATETIME;
     DECLARE v_Result STRING DEFAULT 'Success';
     DECLARE v_ErrorMessage STRING DEFAULT NULL;
     DECLARE v_Inserted INT64 DEFAULT 0;
 
     BEGIN
         -- 1. Truncate target table
-        TRUNCATE TABLE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_PickupRequest`;
+        TRUNCATE TABLE `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_PickupRequest`;
 
         -- 2. Insert transformed data
-        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_PickupRequest` (
+        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_PickupRequest` (
             PickupRequest_HSK, LabelNo_HSK, FranchiseeCode_HSK, Courier_HSK,
             CreateDateUtc, ShouldPrintLabel, PickupFranchiseeCode, PickupCourierNumber,
             LabelNo, Country, CollectionDate, CollectionCycle, PickupName, PickupPhone,
@@ -43,11 +38,11 @@ BEGIN
             IsPriority, Loaded, ProcessId, RecordSourceId, RecordSource
         )
         SELECT 
-            -- Hashing Logic using BigQuery native SHA256
-            UPPER(TO_HEX(SHA256(CONCAT(IFNULL(SUBSTR(Src.LabelNumber, 1, 12), ''), '^', IFNULL(CAST(Src.CountryCode AS STRING), ''), '^')))) AS PickupRequest_HSK,
-            UPPER(TO_HEX(SHA256(IFNULL(Src.LabelNumber, '')))) AS LabelNo_HSK,
-            UPPER(TO_HEX(SHA256(IFNULL(Src.PickupFranchiseeCode, '')))) AS FranchiseeCode_HSK,
-            UPPER(TO_HEX(SHA256(CONCAT(IFNULL(Src.PickupFranchiseeCode, ''), '^', IFNULL(Src.PickupCourierNumber, ''))))) AS Courier_HSK,
+            -- Hashing Logic (Using SHA256 directly for BYTES columns)
+            SHA256(CONCAT(IFNULL(SUBSTR(Src.LabelNumber, 1, 12), ''), '^', IFNULL(CAST(Src.CountryCode AS STRING), ''), '^')) AS PickupRequest_HSK,
+            SHA256(IFNULL(Src.LabelNumber, '')) AS LabelNo_HSK,
+            SHA256(IFNULL(Src.PickupFranchiseeCode, '')) AS FranchiseeCode_HSK,
+            SHA256(CONCAT(IFNULL(Src.PickupFranchiseeCode, ''), '^', IFNULL(Src.PickupCourierNumber, ''))) AS Courier_HSK,
             
             Src.CreateDateUtc, Src.ShouldPrintLabel, Src.PickupFranchiseeCode, Src.PickupCourierNumber,
             Src.LabelNumber, C.CountryName, Src.CollectionDate, Src.CollectionCycle, 
@@ -65,12 +60,12 @@ BEGIN
             Src.IsParcelConnectPickupLocation, Src.SecondaryLabelNumber, 
             Src.PickupSubDepotFranchiseeCode, Src.CubicWeight, Src.PickupCompany, 
             Src.DeliveryCompany, Src.IsPriority,
-            v_Started AS Loaded,
+            v_Started AS Loaded, -- Using the DATETIME variable
             p_ProcessID AS ProcessId,
             Src.ID AS RecordSourceID,
             'PickupRequest_Stg' AS RecordSource 
-        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_PickupRequest_Stg` AS Src
-        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS C 
+        FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_PickupRequest_Stg` AS Src
+        LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` AS C 
             ON C.CountryCode = Src.CountryCode
         WHERE Src.LabelNumber IS NOT NULL;
 
@@ -81,10 +76,10 @@ BEGIN
         SET v_ErrorMessage = @@error.message;
     END;
 
-    -- Final Log Call
-    SET v_Ended = CURRENT_TIMESTAMP();
+    -- Final Log Call (Option 2: Using DATETIME and CURRENT_DATETIME)
+    SET v_Ended = CURRENT_DATETIME();
     
-    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
+    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,
@@ -92,8 +87,8 @@ BEGIN
         v_Result,
         v_ErrorMessage,
         v_Inserted, 
-        0,          
-        IF(v_Result = 'Success', 0, -1)
+        -1,          
+        -1
     );
 
 END;

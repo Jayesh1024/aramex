@@ -1,17 +1,18 @@
 {#-- ==========================================================================================
-Routine:     Get_LastValue_Scans
+Routine:     Staging_Get_LastValue_Scans
 Description: Determines starting Date/ID for incremental loads.
 History:
   17/06/2019  P. Waldron / AI  Written and converted to BigQuery
 ========================================================================================== --#}
 
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id}}.Staging_Get_LastValue_Scans`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.Staging_Get_LastValue_Scans`(
     IN p_RecordSource STRING,
     IN p_CalcMethod STRING,
     INOUT p_EndDate DATETIME,
     IN p_MaxDays INT64
 )
 BEGIN
+    -- OPTION 2: Ensuring all internal variables are DATETIME
     DECLARE v_LastDate DATETIME;
     DECLARE v_LastId INT64;
     DECLARE v_Offset INT64;
@@ -20,8 +21,9 @@ BEGIN
     IF p_CalcMethod = 'ScanDate' THEN
         SET (v_LastId, v_LastDate) = (
             SELECT AS STRUCT 
-                MAX(RecordSourceId), 
-                MAX(CAST(ScanDate AS DATETIME)) 
+                -- Added COALESCE to handle empty tables gracefully
+                COALESCE(MAX(RecordSourceId), 0), 
+                COALESCE(MAX(CAST(ScanDate AS DATETIME)), DATETIME '1900-01-01 00:00:00') 
             FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LNK_Scan` 
             WHERE RecordSource = p_RecordSource
         );
@@ -57,11 +59,12 @@ BEGIN
     SET v_Offset = IF(p_CalcMethod = 'UploadDate', -1, 0);
 
     IF p_MaxDays > -99 THEN
+        -- OPTION 2: Using CURRENT_DATETIME() instead of CURRENT_TIMESTAMP()
         -- LEAST returns the minimum value among the arguments.
         SET p_EndDate = LEAST(
             DATETIME_ADD(v_LastDate, INTERVAL (p_MaxDays + v_Offset) DAY),
             DATETIME_ADD(CURRENT_DATETIME(), INTERVAL v_Offset DAY),
-            COALESCE(p_EndDate, DATETIME '9999-12-31')
+            COALESCE(p_EndDate, DATETIME '9999-12-31 23:59:59')
         );
     END IF;
 

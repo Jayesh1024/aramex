@@ -5,13 +5,15 @@ History:
   Converted from SQL Server to BigQuery
 ========================================================================================== --#}
 
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id}}.rpt_GetAgingbyDateNZ`(
-    IN p_ReportDate TIMESTAMP
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{sp_dataset_id }}.rpt_GetAgingbyDateNZ`(
+    -- OPTION 2: Use DATETIME instead of TIMESTAMP for consistency across reporting scripts
+    IN p_ReportDate DATETIME
 )
 BEGIN
     -- ------------------------------------------------------------------------------------------
     -- Routine:     GetAgingbyDateNZ
     -- Description: Calculates NZ Label Aging based on KPIMatrix and franchise-specific working days.
+    --              Uses ROW_NUMBER to bypass BigQuery's dynamic OFFSET limitation.
     -- ------------------------------------------------------------------------------------------
 
     WITH labels AS (
@@ -44,35 +46,46 @@ BEGIN
             AND (r.CountryCode = 6)              -- Filter for NZ
             AND (SUBSTR(k.LabelNo, 1, 1) <> '9') -- NZ specific Label prefix check
             AND k.LastScanStatus NOT IN ('ONF', 'RTS', 'FUT', 'RUD', 'N/A', 'CCP', 'BDS', 'O07')
-    )
+    ),
 
-    SELECT 
-        DestRF, 
-        DestCF, 
-        DueDate, 
-        COUNT(1) AS NumofLabels, 
-        p_ReportDate AS ReportDate 
-    FROM (
+    -- CTE 2: Calculate the Target Offset based on the KPI Matrix
+    target_offsets AS (
         SELECT 
-            l.*, 
-            (CASE WHEN PickupRF = DestRF THEN m.Days ELSE m.Days + 1 END) AS KPIDays,
-            -- Subquery to calculate the DueDate using franchise-specific exclusion dates
-            (SELECT Calendar_Date
-             FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Time` AS dt
-             LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIExcludedDates` AS ex 
-                ON dt.Calendar_Date = ex.Date 
-                AND ex.Franchise = l.DestRF  -- NZ Specific: Filter by Destination Franchise
-             WHERE dt.Calendar_Date >= l.PickupDate 
-               AND dt.week_day_flag = 'Y' 
-               AND ex.Comment IS NULL 
-             ORDER BY dt.Calendar_Date
-             LIMIT 1 OFFSET CAST(COALESCE((CASE WHEN PickupRF = DestRF THEN 1 ELSE m.Days + 1 END), 0) AS INT64)
-            ) AS DueDate
+            l.*,
+            CAST(COALESCE((CASE WHEN l.PickupRF = l.DestRF THEN 1 ELSE m.Days + 1 END), 0) AS INT64) AS TargetOffset
         FROM labels l
         LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIMatrix` m 
             ON l.PickupRF = m.PickupFranchise AND l.DestRF = m.DeliveryFranchise
-    ) AS final_set 
-    WHERE DueDate < DATE(p_ReportDate)  -- Final filtering of overdue records
-    GROUP BY DestRF, DestCF, DueDate;
+    ),
+
+    -- CTE 3: Generate ranking of valid working days per Label
+    calendar_ranking AS (
+        SELECT 
+            t.LabelNo,
+            dt.Calendar_Date,
+            -- Create an index for valid working days for each specific label/franchise
+            ROW_NUMBER() OVER(PARTITION BY t.LabelNo ORDER BY dt.Calendar_Date ASC) - 1 AS WorkingDayIndex
+        FROM target_offsets t
+        CROSS JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Time` dt
+        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIExcludedDates` ex 
+            ON dt.Calendar_Date = ex.Date 
+            AND ex.Franchise = t.DestRF  -- NZ Specific logic: Filter by Destination Franchise
+        WHERE dt.Calendar_Date >= t.PickupDate 
+          AND dt.week_day_flag = 'Y' 
+          AND ex.Comment IS NULL
+    )
+
+    -- Final Select: Match the calculated WorkingDayIndex to the TargetOffset
+    SELECT 
+        t.DestRF, 
+        t.DestCF, 
+        cr.Calendar_Date AS DueDate, 
+        COUNT(1) AS NumofLabels, 
+        p_ReportDate AS ReportDate 
+    FROM calendar_ranking cr
+    JOIN target_offsets t ON cr.LabelNo = t.LabelNo 
+    WHERE cr.WorkingDayIndex = t.TargetOffset
+      AND cr.Calendar_Date < DATE(p_ReportDate)  -- Final filtering of overdue records
+    GROUP BY t.DestRF, t.DestCF, DueDate;
 
 END;

@@ -9,14 +9,16 @@ History:
     29/04/2020  P. Waldron      Use ScanTypeOrder for FirstPscan and FirstDscan calcs
 ========================================================================================== --#}
 
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id}}.Staging_Load_Fact_Scan_KPI_Stg`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.Staging_Load_Fact_Scan_KPI_Stg`(
     IN p_ProcessID INT64
 )
 BEGIN
     -- System and Logging Variables
     DECLARE v_Component STRING DEFAULT '{{ project_id }}.{{ target_dataset_id }}.Staging_Load_Fact_Scan_KPI_Stg';
-    DECLARE v_Started TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
-    DECLARE v_Ended TIMESTAMP;
+    
+    -- OPTION 2: Use DATETIME and CURRENT_DATETIME()
+    DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
+    DECLARE v_Ended DATETIME;
     DECLARE v_Result STRING DEFAULT 'Success';
     DECLARE v_ErrorMessage STRING;
     DECLARE v_Inserted INT64 DEFAULT 0;
@@ -26,8 +28,11 @@ BEGIN
     DECLARE v_LastID INT64;
     DECLARE v_MinScanDate DATETIME DEFAULT DATETIME_SUB(CURRENT_DATETIME(), INTERVAL 1 YEAR);
 
-    -- Get Max ID to check if there is data to process
-    SET v_LastID = (SELECT COALESCE(MAX(ID), 0) FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_KPI_Labels_Stg`);
+    -- FIX: COALESCE type safety. Ensure ID is cast to INT64 to match the default 0
+    SET v_LastID = (
+        SELECT COALESCE(MAX(CAST(ID AS INT64)), 0) 
+        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_KPI_Labels_Stg`
+    );
 
     IF v_LastID = 0 THEN
         RETURN;
@@ -74,13 +79,15 @@ BEGIN
             (SELECT MAX(m.Days) FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIMatrix` m 
              WHERE m.PickupFranchise = FirstReceivedRF AND m.DeliveryFranchise = FirstStopRF) AS KPI,
              
-            -- SingleCycle
+            -- SingleCycle (Note: Cast to String for Coalesce Safety)
             (SELECT COUNT(DISTINCT sc.CFCode) FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_SingleCycleCF` sc 
-             WHERE sc.RFCode = COALESCE(FirstStopRF, FirstDeliveryRF) AND sc.CFCode = COALESCE(FirstStopCF, FirstDeliveryCF)) AS SingleCycle,
+             WHERE sc.RFCode = COALESCE(CAST(FirstStopRF AS STRING), CAST(FirstDeliveryRF AS STRING)) 
+               AND sc.CFCode = COALESCE(CAST(FirstStopCF AS STRING), CAST(FirstDeliveryCF AS STRING))) AS SingleCycle,
              
             -- SubDepot
             (SELECT COUNT(DISTINCT sd.SubDepotCode) FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_SubDepot` sd 
-             WHERE sd.DeedRF = COALESCE(FirstStopRF, FirstDeliveryRF) AND sd.CF = COALESCE(FirstStopCF, FirstDeliveryCF)) AS SubDepot,
+             WHERE sd.DeedRF = COALESCE(CAST(FirstStopRF AS STRING), CAST(FirstDeliveryRF AS STRING)) 
+               AND sd.CF = COALESCE(CAST(FirstStopCF AS STRING), CAST(FirstDeliveryCF AS STRING))) AS SubDepot,
              
             -- DeliveryDays
             (DATE_DIFF(DATE(FirstDeliveryDate), DATE(FirstReceivedDate), DAY) 
@@ -202,7 +209,7 @@ BEGIN
                     IF(KPIGroup='Stop' AND KPIGroupOrder = 1, ScanType, NULL) AS FirstStopScanType,
                     IF(KPIGroup='Stop' AND KPIGroupOrder = 1, ScanStatus, NULL) AS FirstStopScanStatus,
                     IF(KPIGroup='Stop' AND KPIGroupReverse = 1, ScanDate, NULL) AS LastStopDate,
-                    IF(KPIGroup='Stop' AND KPIGroupReverse = 1, FranchiseeCode, NULL) AS LastStopRF,
+                    IF(KPIGroup='Stop' AND IF(ScanReverse = 1, TRUE, FALSE), FranchiseeCode, NULL) AS LastStopRF,
                     IF(KPIGroup='Stop' AND KPIGroupReverse = 1, CourierNumber, NULL) AS LastStopCF,
                     IF(KPIGroup='Stop' AND KPIGroupReverse = 1, ScanType, NULL) AS LastStopScanType,
                     IF(KPIGroup='Stop' AND KPIGroupReverse = 1, ScanStatus, NULL) AS LastStopScanStatus,
@@ -256,8 +263,8 @@ BEGIN
         SET v_ErrorMessage = @@error.message;
     END;
 
-    -- Record load metrics in log
-    SET v_Ended = CURRENT_TIMESTAMP();
+    -- OPTION 2: Logging logic
+    SET v_Ended = CURRENT_DATETIME();
     CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
@@ -266,8 +273,8 @@ BEGIN
         v_Result,
         v_ErrorMessage,
         v_Inserted,
-        0,
-        IF(v_Result = 'Success', 0, -1)
+        -1,
+        -1
     );
 
 END;
