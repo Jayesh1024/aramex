@@ -1,0 +1,98 @@
+[
+  {
+    "sp_name": "dv_Load_HUB_Account",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" },
+      { "param_name": "p_RecordSource", "param_type": "STRING" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_HUB_Address",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_HUB_BLKContainerManifestContents",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" },
+      { "param_name": "p_RecordSource", "param_type": "STRING" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_HUB_CF",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" },
+      { "param_name": "p_RecordSource", "param_type": "STRING" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_HUB_Container",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" },
+      { "param_name": "p_RecordSource", "param_type": "STRING" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_HUB_Customer",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" },
+      { "param_name": "p_RecordSource", "param_type": "STRING" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_HUB_Invoice",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" },
+      { "param_name": "p_RecordSource", "param_type": "STRING" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_HUB_Label",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_HUB_Product",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" },
+      { "param_name": "p_RecordSource", "param_type": "STRING" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_HUB_RF",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" },
+      { "param_name": "p_RecordSource", "param_type": "STRING" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_SAT_Label_Allocation_MF",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" },
+      { "param_name": "p_RecordSource", "param_type": "STRING" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_SAT_Label_Allocation_RP",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" },
+      { "param_name": "p_RecordSource", "param_type": "STRING" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_SAT_Label_Allocation_TAS",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" },
+      { "param_name": "p_RecordSource", "param_type": "STRING" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_SAT_Label_Allocation_TMD",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" },
+      { "param_name": "p_RecordSource", "param_type": "STRING" }
+    ]
+  }
+]
