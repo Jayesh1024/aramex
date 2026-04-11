@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.rpt_GetDeliveryDate`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.rpt_GetDeliveryDate`(
   IN  p_ArrivalDate   DATETIME,
   IN  p_PickupRF      STRING,
   IN  p_Suburb        STRING,

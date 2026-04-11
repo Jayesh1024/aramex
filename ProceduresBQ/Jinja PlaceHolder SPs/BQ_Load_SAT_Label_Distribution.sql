@@ -7,7 +7,7 @@
 --  27/06/2019  P. Waldron      Refactor to use SAT_Label_Distribution instead of SAT_Label
 --  12/12/2019  P. Waldron      Add CustomerKey
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.dv_Load_SAT_Label_Distribution`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_SAT_Label_Distribution`(
   IN p_ProcessId    INT64,
   IN p_RecordSource STRING
 )
@@ -27,7 +27,7 @@ BEGIN
     -- -----------------------------------------------------------------------
     -- Step 1: MERGE logic (Expire old and Insert brand new)
     -- -----------------------------------------------------------------------
-    MERGE `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Distribution` AS Tgt
+    MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Distribution` AS Tgt
     USING (
       SELECT * FROM (
         SELECT
@@ -49,35 +49,13 @@ BEGIN
             PARTITION BY Stg.LabelNo, Stg.CountryCode
             ORDER BY Stg.Distribution_Date DESC
           )                                     AS RowNum
-<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_SAT_Label_Distribution.sql
         FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_LabelMaster_Stg` Stg
         LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` cty
-=======
-        FROM `{{ project_id }}.{{ dataset_id }}.staging_LabelMaster_Stg` Stg
-        LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Country` cty
->>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_SAT_Label_Distribution.sql
           ON cty.CountryCode = Stg.CountryCode
-        LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Distribution` Sat
+        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Distribution` Sat
           ON  Sat.LabelNo    = Stg.LabelNo
           AND Sat.CountryCode = Stg.CountryCode
           AND Sat.IsCurrent  = 1
-<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_SAT_Label_Distribution.sql
-=======
-        /*
-        OUTER APPLY (
-          SELECT TOP 1 CustomerKey
-          FROM `{{ project_id }}.{{ dataset_id }}.staging_CustomerLinks_Stg` lnk
-          WHERE lnk.RFCode      = Stg.Distribution_FranchiseeCode
-            AND lnk.CountryCode = Stg.CountryCode
-            AND (
-              (Stg.FMSCustomerID       IS NOT NULL AND Stg.FMSCustomerID       = lnk.FMSCustomerId)    OR
-              (Stg.OES_CustomerId      IS NOT NULL AND Stg.OES_CustomerID      = lnk.OESCustomerId)    OR
-              (Stg.Electronic_CustomerID IS NOT NULL AND Stg.Electronic_CustomerID = lnk.IFSCustomerCode
-                AND Stg.Electronic_CustomerType = lnk.IFSCustomerType)
-            )
-        ) ck
-        */
->>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_SAT_Label_Distribution.sql
       ) S
       WHERE RowNum = 1
     ) AS Src
@@ -128,7 +106,7 @@ BEGIN
     -- -----------------------------------------------------------------------
     -- Step 2: Insert new current versions for expired records
     -- -----------------------------------------------------------------------
-    INSERT INTO `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Distribution`
+    INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Distribution`
     (
       LabelNo_HSK, LabelNo, CountryCode, Country,
       Electronic_CustomerType, Electronic_CustomerID, Electronic_Reference,
@@ -156,26 +134,14 @@ BEGIN
             PARTITION BY Stg.LabelNo, Stg.CountryCode
             ORDER BY Stg.Distribution_Date DESC
           )                                     AS RowNum
-<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_SAT_Label_Distribution.sql
         FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_LabelMaster_Stg` Stg
         LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` cty
           ON cty.CountryCode = Stg.CountryCode
-=======
-        FROM `{{ project_id }}.{{ dataset_id }}.staging_LabelMaster_Stg` Stg
-        LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Country` cty
-          ON cty.CountryCode = Stg.CountryCode
-        LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Distribution` Sat
-          ON  Sat.LabelNo    = Stg.LabelNo
-          AND Sat.CountryCode = Stg.CountryCode
-          AND Sat.IsCurrent  = 0
-          AND Sat.ValidTo    = v_Loaded
->>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_SAT_Label_Distribution.sql
       ) S
       WHERE RowNum = 1
     )
     SELECT
       Sat.LabelNo_HSK,
-<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_SAT_Label_Distribution.sql
       Src.LabelNo, Src.CountryCode, Src.Country,
       Src.Electronic_CustomerType, Src.Electronic_CustomerID, Src.Electronic_Reference,
       Src.FastLabel_ConsignmentID, Src.FastLabel_DestinationRF, Src.Distribution_Date,
@@ -183,57 +149,15 @@ BEGIN
       v_Loaded, p_ProcessId, p_RecordSource,
       v_Loaded AS ValidFrom, DATETIME '9999-12-31 00:00:00' AS ValidTo, 1 AS IsCurrent
     FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Distribution` Sat
-=======
-      Src.LabelNo,
-      Src.CountryCode,
-      Src.Country,
-      Src.Electronic_CustomerType,
-      Src.Electronic_CustomerID,
-      Src.Electronic_Reference,
-      Src.FastLabel_ConsignmentID,
-      Src.FastLabel_DestinationRF,
-      Src.Distribution_Date,
-      Src.Distribution_FranchiseeCode,
-      Src.OESCustomerID,
-      Src.FMSCustomerID,
-      Src.FMSRfID,
-      v_Loaded,
-      p_ProcessId,
-      p_RecordSource,
-      v_Loaded                              AS ValidFrom,
-      DATETIME '9999-12-31 00:00:00'        AS ValidTo,
-      1                                     AS IsCurrent
-    FROM `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Distribution` Sat
->>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_SAT_Label_Distribution.sql
     INNER JOIN LatestSrc Src
       ON  Sat.LabelNo    = Src.LabelNo
       AND Sat.CountryCode = Src.CountryCode
     WHERE Sat.IsCurrent      = 0
       AND Sat.ValidTo        = v_Loaded;
 
-<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_SAT_Label_Distribution.sql
     -- Update counts for logging
     SET v_Updated = (SELECT COUNTIF(IsCurrent = 0 AND ValidTo = v_Loaded) FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Distribution` WHERE ProcessId = p_ProcessId);
     SET v_Inserted = (SELECT COUNTIF(IsCurrent = 1 AND ValidFrom = v_Loaded) FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Distribution` WHERE ProcessId = p_ProcessId);
-=======
-    -- -----------------------------------------------------------------------
-    -- Derive insert / update counts
-    -- Replaces PIVOT on IsCurrent — matches Load_SAT_RF / Load_SAT_Product
-    -- -----------------------------------------------------------------------
-    SET v_Updated = (
-      SELECT COUNTIF(IsCurrent = 0)
-      FROM `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Distribution`
-      WHERE ProcessId = p_ProcessId
-        AND ValidTo   = v_Loaded
-    );
-
-    SET v_Inserted = (
-      SELECT COUNTIF(IsCurrent = 1)
-      FROM `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Distribution`
-      WHERE ProcessId = p_ProcessId
-        AND ValidFrom = v_Loaded
-    );
->>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_SAT_Label_Distribution.sql
 
     SET v_Result = 'Success';
 
@@ -246,23 +170,8 @@ BEGIN
   -- -----------------------------------------------------------------------
   -- Record load metrics in log
   -- -----------------------------------------------------------------------
-<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_SAT_Label_Distribution.sql
   CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
     v_Component, p_ProcessId, v_Started, CURRENT_DATETIME(), v_Result, v_ErrorMessage, v_Inserted, v_Updated, -1
-=======
-  SET v_Ended = CURRENT_DATETIME();
-
-  CALL `{{ project_id }}.{{ dataset_id }}.staging_SaveLog`(
-    v_Component,
-    p_ProcessId,
-    v_Started,
-    v_Ended,
-    v_Result,
-    v_ErrorMessage,
-    v_Inserted,
-    v_Updated,
-    -1
->>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_SAT_Label_Distribution.sql
   );
 
 END;

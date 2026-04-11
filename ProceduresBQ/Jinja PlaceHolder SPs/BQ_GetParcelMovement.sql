@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.rpt_GetParcelMovement`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.rpt_GetParcelMovement`(
   IN p_CountryCode      INT64,
   IN p_InvoiceFromDate  DATE,
   IN p_InvoiceToDate    DATE
@@ -66,7 +66,7 @@ BEGIN
       l.CustomerId                                                              AS FMSCustomerID,
       CAST(NULL AS STRING)                                                      AS OESCustomerID,
       'MFW DLBS'                                                                AS Type
-    FROM `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Allocation_MF` l
+    FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` l
     INNER JOIN DLBSHeader h
       ON  l.DLBSBatchId   = h.DLBSBatchId
       AND l.DLBSInvoiceNo = h.DeliveryRFInvoiceNo
@@ -87,7 +87,7 @@ BEGIN
       l.CustomerId                        AS FMSCustomerID,
       CAST(NULL AS STRING)                AS OESCustomerID,
       'MFW PLBS'                          AS Type
-    FROM `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Allocation_MF` l
+    FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` l
     INNER JOIN PLBSHeader h
       ON  l.PLBSBatchId   = h.PLBSBatchId
       AND l.PLBSInvoiceNo = h.PickupRFInvoiceNo
@@ -109,8 +109,8 @@ BEGIN
       m.CustomerId                                                              AS FMSCustomerID,
       CAST(NULL AS STRING)                                                      AS OESCustomerID,
       'MFW DLBS'                                                                AS Type
-    FROM `{{ project_id }}.{{ dataset_id }}.dv_LSAT_Label_Product_ServiceItem` l
-    INNER JOIN `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Allocation_MF` m
+    FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_Label_Product_ServiceItem` l
+    INNER JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` m
       ON  l.LabelNo   = m.LabelNo
       AND m.IsCurrent = 1
     INNER JOIN DLBSHeader h
@@ -133,8 +133,8 @@ BEGIN
       m.CustomerId                        AS FMSCustomerID,
       CAST(NULL AS STRING)                AS OESCustomerID,
       'MFW PLBS'                          AS Type
-    FROM `{{ project_id }}.{{ dataset_id }}.dv_LSAT_Label_Product_ServiceItem` l
-    INNER JOIN `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Allocation_MF` m
+    FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_Label_Product_ServiceItem` l
+    INNER JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` m
       ON  l.LabelNo   = m.LabelNo
       AND m.IsCurrent = 1
     INNER JOIN PLBSHeader h
@@ -172,14 +172,14 @@ BEGIN
       AND l.CountryCode = i.CountryCode
     WHERE i.LabelNo NOT IN (
       SELECT LabelNo
-      FROM `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Allocation_MF`
+      FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF`
       WHERE CountryCode = p_CountryCode
         AND IsCurrent   = 1
         AND (DLBSBatchId > 0 OR PLBSBatchId > 0)
     )
     AND i.LabelNo NOT IN (
       SELECT LabelNo
-      FROM `{{ project_id }}.{{ dataset_id }}.dv_LSAT_Label_Product_ServiceItem`
+      FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_Label_Product_ServiceItem`
       WHERE CountryCode = p_CountryCode
         AND IsCurrent   = 1
         AND (DLBSBatchId > 0 OR PLBSBatchId > 0)

@@ -6,13 +6,8 @@
 --  02/02/2023  B. Woods      Routine Written
 --
 -- ==========================================================================================
-<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_FMS_RFBatchingPerformanceBonus2.sql
 CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dbo_Load_FMS_RFBatchingPerformanceBonus2`(
   IN p_ProcessId INT64 -- Changed BIGINT to INT64
-=======
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.dbo_Load_FMS_RFBatchingPerformanceBonus2`(
-  IN p_ProcessId BIGINT
->>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_FMS_RFBatchingPerformanceBonus2.sql
 )
 BEGIN
 
@@ -35,19 +30,12 @@ BEGIN
   -- Resolve DateBOM from LoadControl
   -- FIX: Changed SELECT INTO to SET variable = (SELECT ...)
   -- -----------------------------------------------------------------------
-<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_FMS_RFBatchingPerformanceBonus2.sql
   SET v_DateBOM = (
     SELECT CAST(LastValue AS DATE)
     FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_LoadControl`
     WHERE RecordSource = 'Fact_KPI_DPFM_Export'
     LIMIT 1
   );
-=======
-  SELECT CAST(LastValue AS DATE)
-  INTO v_DateBOM
-  FROM `{{ project_id }}.{{ dataset_id }}.staging_LoadControl`
-  WHERE RecordSource = 'Fact_KPI_DPFM_Export';
->>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_FMS_RFBatchingPerformanceBonus2.sql
 
   -- Default date window
   SET v_StartDate = LAST_DAY(DATE_SUB(v_DateBOM, INTERVAL 1 MONTH));
@@ -103,22 +91,12 @@ BEGIN
         Category,
         v_DateBOM                                                               AS DateBOM,
         CAST(ROUND(SUM(OnTimeDelivery) * 100.0 / SUM(NumofLabels), 0) AS INT64) AS PerformancePercentage
-<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_FMS_RFBatchingPerformanceBonus2.sql
       FROM `s{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_KPI_Delivery_Performance`
-=======
-      FROM `{{ project_id }}.{{ dataset_id }}.dbo_Fact_KPI_Delivery_Performance`
->>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_FMS_RFBatchingPerformanceBonus2.sql
       WHERE Category    = 'Interbranch'
         AND DeliveryDate BETWEEN v_StartDate AND v_EndDate
       GROUP BY CountryCode, PickupRF, DeliveryRF, Category
     ) t
-<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_FMS_RFBatchingPerformanceBonus2.sql
     LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIRate` r ON t.DateBOM = r.DateBOM
-=======
-    LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dbo_KPIRate` r ON t.DateBOM = r.DateBOM
-    -- WHERE PerformancePercentage >= COALESCE(r.Rate, 95)
-    -- WHERE PerformancePercentage >= 90
->>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_FMS_RFBatchingPerformanceBonus2.sql
 
     UNION ALL -- FIX: BigQuery requires ALL or DISTINCT
 
@@ -154,30 +132,17 @@ BEGIN
         Category,
         v_DateBOM                                                               AS DateBOM,
         CAST(ROUND(SUM(OnTimeDelivery) * 100.0 / SUM(NumofLabels), 0) AS INT64) AS PerformancePercentage
-      FROM `{{ project_id }}.{{ dataset_id }}.dbo_Fact_KPI_Delivery_Performance`
+      FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_KPI_Delivery_Performance`
       WHERE Category    = 'Interbranch'
         AND DeliveryDate BETWEEN v_StartDate AND v_EndDate
       GROUP BY CountryCode, DeliveryRF, Category
     ) t
-<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_FMS_RFBatchingPerformanceBonus2.sql
     LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIRate` r ON t.DateBOM = r.DateBOM;
-=======
-    LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dbo_KPIRate` r ON t.DateBOM = r.DateBOM;
-    -- WHERE PerformancePercentage >= COALESCE(r.Rate, 95)
-    -- WHERE PerformancePercentage >= 90
->>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_FMS_RFBatchingPerformanceBonus2.sql
 
     -- Capture Inserted Count
     SET v_Inserted = (SELECT COUNT(*) FROM Results);
     SET v_Result = 'Success';
 
-<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_FMS_RFBatchingPerformanceBonus2.sql
-=======
-    -- UPDATE `{{ project_id }}.{{ dataset_id }}.staging_LoadControl`
-    -- SET LastValue = CAST(DATE_ADD(v_DateBOM, INTERVAL 1 MONTH) AS STRING)
-    -- WHERE RecordSource = 'Fact_KPI_DPFM_Export';
-
->>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_FMS_RFBatchingPerformanceBonus2.sql
   EXCEPTION WHEN ERROR THEN
     SET v_Result       = CONCAT('Failed (', v_Step, ')');
     SET v_ErrorMessage = @@error.message;
@@ -188,22 +153,8 @@ BEGIN
   -- -----------------------------------------------------------------------
   /*
   SET v_Ended = CURRENT_DATETIME();
-<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_FMS_RFBatchingPerformanceBonus2.sql
   CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
     v_Component, p_ProcessId, v_Started, v_Ended, v_Result, v_ErrorMessage, v_Inserted, -1, -1
-=======
-
-  CALL `{{ project_id }}.{{ dataset_id }}.staging_SaveLog`(
-    v_Component,
-    p_ProcessId,
-    v_Started,
-    v_Ended,
-    v_Result,
-    v_ErrorMessage,
-    v_Inserted,
-    -1,
-    -1
->>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_FMS_RFBatchingPerformanceBonus2.sql
   );
   */
 

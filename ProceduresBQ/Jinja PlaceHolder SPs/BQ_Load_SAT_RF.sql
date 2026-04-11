@@ -5,7 +5,7 @@
 -- History:
 --	09/11/2018  P. Waldron		Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.dv_Load_SAT_RF`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_SAT_RF`(
   IN p_ProcessId    INT64,
   IN p_RecordSource STRING
 )
@@ -25,7 +25,7 @@ BEGIN
     -- -----------------------------------------------------------------------
     -- Step 1: Expire changed current records and Insert brand-new HSKs
     -- -----------------------------------------------------------------------
-    MERGE `{{ project_id }}.{{ dataset_id }}.dv_SAT_RF` AS Tgt
+    MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_RF` AS Tgt
     USING (
       SELECT DISTINCT
         -- Generate HSK as BYTES for the join and insert
@@ -53,13 +53,7 @@ BEGIN
         )                                          AS Address,
         IFNULL(Stg.CompanyOwnedRF,    0)           AS CompanyOwnedRF,
         IFNULL(Stg.UsingWebFMSBanking, 0)          AS UsingWebFMSBanking
-<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_SAT_RF.sql
       FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Franchisee_Stg` Stg
-=======
-      FROM `{{ project_id }}.{{ dataset_id }}.staging_Franchisee_Stg` Stg
-      LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dv_SAT_RF` Sat
-        ON Sat.FranchiseeCode = Stg.FranchiseeCode
->>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_SAT_RF.sql
     ) AS Src
     ON  Tgt.FranchiseeCode_HSK = Src.Calculated_HSK
     AND Tgt.IsCurrent          = 1
@@ -134,7 +128,7 @@ BEGIN
     -- -----------------------------------------------------------------------
     -- Step 2: Insert new current versions for records that were just expired
     -- -----------------------------------------------------------------------
-    INSERT INTO `{{ project_id }}.{{ dataset_id }}.dv_SAT_RF`
+    INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_RF`
     (
       FranchiseeCode_HSK,
       FranchiseeCode,
@@ -188,13 +182,8 @@ BEGIN
       v_Loaded                                   AS ValidFrom,
       DATETIME '9999-12-31 00:00:00'             AS ValidTo,
       1                                          AS IsCurrent
-<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_SAT_RF.sql
     FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_RF` Sat
     INNER JOIN `{{ project_id }}.{{ target_dataset_id }}.Staging_Franchisee_Stg` Stg
-=======
-    FROM `{{ project_id }}.{{ dataset_id }}.dv_SAT_RF` Sat
-    INNER JOIN `{{ project_id }}.{{ dataset_id }}.staging_Franchisee_Stg` Stg
->>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_SAT_RF.sql
       ON Sat.FranchiseeCode = Stg.FranchiseeCode
     WHERE Sat.IsCurrent  = 0
       AND Sat.ValidTo    = v_Loaded;
@@ -203,26 +192,16 @@ BEGIN
     -- Derive insert / update counts
     -- -----------------------------------------------------------------------
     SET v_Updated = (
-<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_SAT_RF.sql
       SELECT COUNT(1)
       FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_RF`
-=======
-      SELECT COUNTIF(IsCurrent = 0)
-      FROM `{{ project_id }}.{{ dataset_id }}.dv_SAT_RF`
->>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_SAT_RF.sql
       WHERE ProcessId = p_ProcessId
         AND ValidTo   = v_Loaded
         AND IsCurrent = 0
     );
 
     SET v_Inserted = (
-<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_SAT_RF.sql
       SELECT COUNT(1)
       FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_RF`
-=======
-      SELECT COUNTIF(IsCurrent = 1)
-      FROM `{{ project_id }}.{{ dataset_id }}.dv_SAT_RF`
->>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_SAT_RF.sql
       WHERE ProcessId = p_ProcessId
         AND ValidFrom = v_Loaded
         AND IsCurrent = 1
@@ -241,11 +220,7 @@ BEGIN
   -- -----------------------------------------------------------------------
   SET v_Ended = CURRENT_DATETIME();
 
-<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_SAT_RF.sql
   CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
-=======
-  CALL `{{ project_id }}.{{ dataset_id }}.staging_SaveLog`(
->>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_SAT_RF.sql
     v_Component,
     p_ProcessId,
     v_Started,
