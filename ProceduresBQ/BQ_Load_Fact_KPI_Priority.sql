@@ -6,7 +6,7 @@
 --  04/05/2023  B. Woods        Routine Written
 --
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dbo_Load_Fact_KPI_Priority`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.dbo_Load_Fact_KPI_Priority`(
   IN p_ProcessId INT64
 )
 BEGIN
@@ -29,9 +29,9 @@ BEGIN
     -- -----------------------------------------------------------------------
     -- Truncate and reload Priority labels
     -- -----------------------------------------------------------------------
-    TRUNCATE TABLE `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_KPI_Daily_Priority`;
+    TRUNCATE TABLE `{{ project_id }}.{{ dataset_id }}.dbo_Fact_KPI_Daily_Priority`;
 
-    INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_KPI_Daily_Priority`
+    INSERT INTO `{{ project_id }}.{{ dataset_id }}.dbo_Fact_KPI_Daily_Priority`
     (
       LabelNo,
       CountryCode,
@@ -120,8 +120,8 @@ BEGIN
       (
         SELECT ARRAY_AGG(dt.Calendar_Date ORDER BY dt.Calendar_Date)
                [SAFE_OFFSET(CAST(COALESCE(K.KPILEA, 0) AS INT64))]
-        FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Time` dt
-        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIExcludedDates` ex
+        FROM `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Time` dt
+        LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dbo_KPIExcludedDates` ex
           ON dt.Calendar_Date = ex.Date
          AND ex.Franchise     = MF.ToRf
         WHERE dt.Calendar_Date >= CAST(K.ActualDepartureDate AS DATE)
@@ -136,8 +136,8 @@ BEGIN
       (
         SELECT ARRAY_AGG(dt.Calendar_Date ORDER BY dt.Calendar_Date)
                [SAFE_OFFSET(CAST(COALESCE(K.KPIDelivery, 0) AS INT64))]
-        FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Time` dt
-        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIExcludedDates` ex
+        FROM `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Time` dt
+        LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dbo_KPIExcludedDates` ex
           ON dt.Calendar_Date = ex.Date
          AND ex.Franchise     = MF.ToRf
         WHERE dt.Calendar_Date >= CAST(K.ActualArrivalDate AS DATE)
@@ -152,8 +152,8 @@ BEGIN
       (
         SELECT ARRAY_AGG(dt.Calendar_Date ORDER BY dt.Calendar_Date)
                [SAFE_OFFSET(CAST(COALESCE(K.KPILEA, 0) + COALESCE(K.KPIDelivery, 0) AS INT64))]
-        FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Time` dt
-        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIExcludedDates` ex
+        FROM `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Time` dt
+        LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dbo_KPIExcludedDates` ex
           ON dt.Calendar_Date = ex.Date
          AND ex.Franchise     = MF.ToRf
         WHERE dt.Calendar_Date >= CAST(K.ActualDepartureDate AS DATE)
@@ -202,8 +202,8 @@ BEGIN
       MF.CustomerId,
       MF.ToLocality,
       MF.ToPostalCode
-    FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_KPI_Daily` K
-    LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` MF
+    FROM `{{ project_id }}.{{ dataset_id }}.dbo_Fact_KPI_Daily` K
+    LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Allocation_MF` MF
       ON  MF.LabelNo    = K.LabelNo
       AND MF.IsCurrent  = 1
       AND MF.CountryCode = K.CountryCode
@@ -214,7 +214,7 @@ BEGIN
     -- -----------------------------------------------------------------------
     SET v_Inserted = (
       SELECT COUNT(*)
-      FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_KPI_Daily_Priority`
+      FROM `{{ project_id }}.{{ dataset_id }}.dbo_Fact_KPI_Daily_Priority`
       WHERE ProcessId = p_ProcessId
     );
 
@@ -233,7 +233,7 @@ BEGIN
   SET v_Ended        = CURRENT_DATETIME();
   SET v_SubComponent = CONCAT(v_Component, ' (', v_Step, ')');
 
-  CALL `{{ project_id }}.{{ sp_dataset_id }}.staging_SaveLog`(
+  CALL `{{ project_id }}.{{ dataset_id }}.staging_SaveLog`(
     v_SubComponent,
     p_ProcessId,
     v_Started,

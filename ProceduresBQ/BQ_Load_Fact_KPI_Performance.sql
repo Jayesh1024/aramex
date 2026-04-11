@@ -6,7 +6,7 @@
 -- 30/01/2023   B. Woods        Routine Written
 --
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dbo_Load_Fact_KPI_Performance`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.dbo_Load_Fact_KPI_Performance`(
   IN p_ProcessId INT64
 )
 BEGIN
@@ -27,7 +27,7 @@ BEGIN
   -- -----------------------------------------------------------------------
   SELECT CAST(LastValue AS DATETIME)
   INTO v_EndDate
-  FROM `{{ project_id }}.{{ target_dataset_id }}.staging_LoadControl`
+  FROM `{{ project_id }}.{{ dataset_id }}.staging_LoadControl`
   WHERE RecordSource = 'Fact_KPI_Scan';
 
   -- StartDate = last day of the month prior to EndDate at 23:59:59
@@ -44,13 +44,13 @@ BEGIN
     -- Remove rows that will be recalculated
     -- Matches: DELETE WHERE DeliveryDate > @StartDate
     -- -----------------------------------------------------------------------
-    DELETE FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_KPI_Delivery_Performance`
+    DELETE FROM `{{ project_id }}.{{ dataset_id }}.dbo_Fact_KPI_Delivery_Performance`
     WHERE DeliveryDate > CAST(v_StartDate AS DATE);
 
     -- -----------------------------------------------------------------------
     -- Insert recalculated performance stats
     -- -----------------------------------------------------------------------
-    INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_KPI_Delivery_Performance`
+    INSERT INTO `{{ project_id }}.{{ dataset_id }}.dbo_Fact_KPI_Delivery_Performance`
     (
       CountryCode,
       PickupRF,
@@ -139,8 +139,8 @@ BEGIN
         -- → MAX() over the filtered window (latest business day on or before ActualAttemptedDate)
         (
           SELECT MAX(dt.Calendar_Date)
-          FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Time` dt
-          LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIExcludedDates` ex
+          FROM `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Time` dt
+          LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dbo_KPIExcludedDates` ex
             ON dt.Calendar_Date = ex.Date
            AND ex.Franchise     = CASE WHEN m.ToRf = '' THEN m.Zone ELSE m.ToRf END
           WHERE dt.Calendar_Date <= CAST(f.ActualAttemptedDate AS DATE)
@@ -148,8 +148,8 @@ BEGIN
             AND ex.Comment        IS NULL
         )                                                        AS ActualAttemptedDateAdjust
 
-      FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_KPI` f
-      INNER JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` m
+      FROM `{{ project_id }}.{{ dataset_id }}.dbo_Fact_KPI` f
+      INNER JOIN `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Allocation_MF` m
         ON  f.LabelNo    = m.LabelNo
         AND m.IsCurrent  = 1
       WHERE f.CountryCode          = 1
@@ -168,7 +168,7 @@ BEGIN
     -- -----------------------------------------------------------------------
     SET v_Inserted = (
       SELECT COUNT(*)
-      FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_KPI_Delivery_Performance`
+      FROM `{{ project_id }}.{{ dataset_id }}.dbo_Fact_KPI_Delivery_Performance`
       WHERE DeliveryDate > CAST(v_StartDate AS DATE)
         AND DeliveryDate <= CAST(v_EndDate AS DATE)
     );
@@ -186,7 +186,7 @@ BEGIN
   -- -----------------------------------------------------------------------
   SET v_Ended = CURRENT_DATETIME();
 
-  CALL `{{ project_id }}.{{ sp_dataset_id }}.staging_SaveLog`(
+  CALL `{{ project_id }}.{{ dataset_id }}.staging_SaveLog`(
     v_Component,
     p_ProcessId,
     v_Started,

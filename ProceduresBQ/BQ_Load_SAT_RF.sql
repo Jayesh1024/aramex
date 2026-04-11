@@ -6,7 +6,7 @@
 -- History:
 --	09/11/2018  P. Waldron		Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_SAT_RF`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.dv_Load_SAT_RF`(
   IN p_ProcessId    INT64,
   IN p_RecordSource STRING
 )
@@ -28,7 +28,7 @@ BEGIN
     -- BQ MERGE does not support EXCEPT in WHEN MATCHED predicate;
     -- explicit column inequality used instead
     -- -----------------------------------------------------------------------
-    MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_RF` AS Tgt
+    MERGE `{{ project_id }}.{{ dataset_id }}.dv_SAT_RF` AS Tgt
     USING (
       SELECT DISTINCT
         Sat.FranchiseeCode_HSK,
@@ -57,8 +57,8 @@ BEGIN
         )                                          AS Address,
         IFNULL(Stg.CompanyOwnedRF,    0)           AS CompanyOwnedRF,
         IFNULL(Stg.UsingWebFMSBanking, 0)          AS UsingWebFMSBanking
-      FROM `{{ project_id }}.{{ target_dataset_id }}.staging_Franchisee_Stg` Stg
-      LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_RF` Sat
+      FROM `{{ project_id }}.{{ dataset_id }}.staging_Franchisee_Stg` Stg
+      LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dv_SAT_RF` Sat
         ON Sat.FranchiseeCode = Stg.FranchiseeCode
     ) AS Src
     ON  Tgt.FranchiseeCode_HSK = Src.FranchiseeCode_HSK
@@ -137,7 +137,7 @@ BEGIN
     -- Selects rows just expired in Step 1 (ValidTo = v_Loaded, IsCurrent = 0)
     -- and re-joins to source to produce the new IsCurrent = 1 row
     -- -----------------------------------------------------------------------
-    INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_RF`
+    INSERT INTO `{{ project_id }}.{{ dataset_id }}.dv_SAT_RF`
     (
       FranchiseeCode_HSK,
       FranchiseeCode,
@@ -191,8 +191,8 @@ BEGIN
       v_Loaded                                   AS ValidFrom,
       DATETIME '9999-12-31 00:00:00'             AS ValidTo,
       1                                          AS IsCurrent
-    FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_RF` Sat
-    INNER JOIN `{{ project_id }}.{{ target_dataset_id }}.staging_Franchisee_Stg` Stg
+    FROM `{{ project_id }}.{{ dataset_id }}.dv_SAT_RF` Sat
+    INNER JOIN `{{ project_id }}.{{ dataset_id }}.staging_Franchisee_Stg` Stg
       ON Sat.FranchiseeCode = Stg.FranchiseeCode
     WHERE Sat.IsCurrent  = 0
       AND Sat.ValidTo    = v_Loaded
@@ -206,14 +206,14 @@ BEGIN
     -- -----------------------------------------------------------------------
     SET v_Updated = (
       SELECT COUNTIF(IsCurrent = 0)
-      FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_RF`
+      FROM `{{ project_id }}.{{ dataset_id }}.dv_SAT_RF`
       WHERE ProcessId = p_ProcessId
         AND ValidTo   = v_Loaded
     );
 
     SET v_Inserted = (
       SELECT COUNTIF(IsCurrent = 1)
-      FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_RF`
+      FROM `{{ project_id }}.{{ dataset_id }}.dv_SAT_RF`
       WHERE ProcessId = p_ProcessId
         AND ValidFrom = v_Loaded
     );
@@ -231,7 +231,7 @@ BEGIN
   -- -----------------------------------------------------------------------
   SET v_Ended = CURRENT_DATETIME();
 
-  CALL `{{ project_id }}.{{ sp_dataset_id }}.staging_SaveLog`(
+  CALL `{{ project_id }}.{{ dataset_id }}.staging_SaveLog`(
     v_Component,
     p_ProcessId,
     v_Started,

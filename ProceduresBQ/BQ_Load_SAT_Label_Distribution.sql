@@ -7,7 +7,7 @@
 --  27/06/2019  P. Waldron      Refactor to use SAT_Label_Distribution instead of SAT_Label
 --  12/12/2019  P. Waldron      Add CustomerKey
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_SAT_Label_Distribution`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.dv_Load_SAT_Label_Distribution`(
   IN p_ProcessId    INT64,
   IN p_RecordSource STRING
 )
@@ -29,7 +29,7 @@ BEGIN
     -- Source uses ROW_NUMBER() to take the latest Distribution_Date per
     -- LabelNo + CountryCode before merging — preserved from original
     -- -----------------------------------------------------------------------
-    MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Distribution` AS Tgt
+    MERGE `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Distribution` AS Tgt
     USING (
       SELECT * FROM (
         SELECT
@@ -52,17 +52,17 @@ BEGIN
             PARTITION BY Stg.LabelNo, Stg.CountryCode
             ORDER BY Stg.Distribution_Date DESC
           )                                     AS RowNum
-        FROM `{{ project_id }}.{{ target_dataset_id }}.staging_LabelMaster_Stg` Stg
-        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` cty
+        FROM `{{ project_id }}.{{ dataset_id }}.staging_LabelMaster_Stg` Stg
+        LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Country` cty
           ON cty.CountryCode = Stg.CountryCode
-        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Distribution` Sat
+        LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Distribution` Sat
           ON  Sat.LabelNo    = Stg.LabelNo
           AND Sat.CountryCode = Stg.CountryCode
           AND Sat.IsCurrent  = 1
         /*
         OUTER APPLY (
           SELECT TOP 1 CustomerKey
-          FROM `{{ project_id }}.{{ target_dataset_id }}.staging_CustomerLinks_Stg` lnk
+          FROM `{{ project_id }}.{{ dataset_id }}.staging_CustomerLinks_Stg` lnk
           WHERE lnk.RFCode      = Stg.Distribution_FranchiseeCode
             AND lnk.CountryCode = Stg.CountryCode
             AND (
@@ -155,7 +155,7 @@ BEGIN
     -- Re-joins expired rows (ValidTo = v_Loaded, IsCurrent = 0) back to
     -- deduplicated source to produce the new IsCurrent = 1 row
     -- -----------------------------------------------------------------------
-    INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Distribution`
+    INSERT INTO `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Distribution`
     (
       LabelNo_HSK,
       LabelNo,
@@ -200,10 +200,10 @@ BEGIN
             PARTITION BY Stg.LabelNo, Stg.CountryCode
             ORDER BY Stg.Distribution_Date DESC
           )                                     AS RowNum
-        FROM `{{ project_id }}.{{ target_dataset_id }}.staging_LabelMaster_Stg` Stg
-        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` cty
+        FROM `{{ project_id }}.{{ dataset_id }}.staging_LabelMaster_Stg` Stg
+        LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Country` cty
           ON cty.CountryCode = Stg.CountryCode
-        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Distribution` Sat
+        LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Distribution` Sat
           ON  Sat.LabelNo    = Stg.LabelNo
           AND Sat.CountryCode = Stg.CountryCode
           AND Sat.IsCurrent  = 0
@@ -232,7 +232,7 @@ BEGIN
       v_Loaded                              AS ValidFrom,
       DATETIME '9999-12-31 00:00:00'        AS ValidTo,
       1                                     AS IsCurrent
-    FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Distribution` Sat
+    FROM `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Distribution` Sat
     INNER JOIN LatestSrc Src
       ON  Sat.LabelNo    = Src.LabelNo
       AND Sat.CountryCode = Src.CountryCode
@@ -246,14 +246,14 @@ BEGIN
     -- -----------------------------------------------------------------------
     SET v_Updated = (
       SELECT COUNTIF(IsCurrent = 0)
-      FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Distribution`
+      FROM `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Distribution`
       WHERE ProcessId = p_ProcessId
         AND ValidTo   = v_Loaded
     );
 
     SET v_Inserted = (
       SELECT COUNTIF(IsCurrent = 1)
-      FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Distribution`
+      FROM `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Distribution`
       WHERE ProcessId = p_ProcessId
         AND ValidFrom = v_Loaded
     );
@@ -271,7 +271,7 @@ BEGIN
   -- -----------------------------------------------------------------------
   SET v_Ended = CURRENT_DATETIME();
 
-  CALL `{{ project_id }}.{{ sp_dataset_id }}.staging_SaveLog`(
+  CALL `{{ project_id }}.{{ dataset_id }}.staging_SaveLog`(
     v_Component,
     p_ProcessId,
     v_Started,
