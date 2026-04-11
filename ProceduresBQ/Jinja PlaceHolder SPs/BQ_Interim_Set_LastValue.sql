@@ -67,7 +67,7 @@ BEGIN
     WHERE RecordSource = p_RecordSource
   );
 
-  SET v_StagingTableFQN = CONCAT('`{{ project_id }}.{{ target_dataset_id }}.', v_StagingTable, '`');
+  SET v_StagingTableFQN = CONCAT('`{{ project_id }}.{{ dataset_id }}.', v_StagingTable, '`');
 
   -- Verify staging table exists via INFORMATION_SCHEMA
   SET v_TableExists = (

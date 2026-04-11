@@ -8,7 +8,7 @@
 --  14/02/2020  P. Waldron      Refactor for new KPI Groups
 --  10/02/2021  P. Waldron      Do partition elimination using @MinFirstScanDate 
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dbo_Load_Fact_Scan_KPI`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ dataset_id }}.dbo_Load_Fact_Scan_KPI`(
   IN p_ProcessId INT64
 )
 BEGIN
@@ -52,8 +52,13 @@ BEGIN
            )
       ELSE NULL
     END AS InsertId
+<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_Fact_Scan_KPI.sql
   FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Fact_Scan_KPI_Stg` AS Stg
   LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_Scan_KPI` AS Tgt
+=======
+  FROM `{{ project_id }}.{{ dataset_id }}.staging_Fact_Scan_KPI_Stg` AS Stg
+  LEFT JOIN `{{ project_id }}.{{ dataset_id }}.dbo_Fact_Scan_KPI` AS Tgt
+>>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_Fact_Scan_KPI.sql
     ON Tgt.LabelNo = Stg.LabelNo;
 
   -- Early exit if nothing to process
@@ -64,7 +69,11 @@ BEGIN
     SET v_Result = 'Success';
     SET v_Ended  = CURRENT_DATETIME();
     SET v_SubComponent = CONCAT(v_Component, ' (', v_Step, ')');
+<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_Fact_Scan_KPI.sql
     CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
+=======
+    CALL `{{ project_id }}.{{ dataset_id }}.staging_SaveLog`(
+>>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_Fact_Scan_KPI.sql
       v_SubComponent, p_ProcessId, v_Started, v_Ended,
       v_Result, v_ErrorMessage, v_MaxInsertId, v_MaxUpdateId, -1
     );
@@ -75,7 +84,11 @@ BEGIN
   SET v_Ended        = CURRENT_DATETIME();
   SET v_SubComponent = CONCAT(v_Component, ' (', v_Step, ')');
 
+<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_Fact_Scan_KPI.sql
   CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
+=======
+  CALL `{{ project_id }}.{{ dataset_id }}.staging_SaveLog`(
+>>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_Fact_Scan_KPI.sql
     v_SubComponent, p_ProcessId, v_Started, v_Ended,
     v_Result, v_ErrorMessage, v_MaxInsertId, v_MaxUpdateId, -1
   );
@@ -91,10 +104,14 @@ BEGIN
 
   BEGIN
 
-    MERGE `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_Scan_KPI` AS Tgt
+    MERGE `{{ project_id }}.{{ dataset_id }}.dbo_Fact_Scan_KPI` AS Tgt
     USING (
       SELECT Src.*
+<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_Fact_Scan_KPI.sql
       FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Fact_Scan_KPI_Stg` Src
+=======
+      FROM `{{ project_id }}.{{ dataset_id }}.staging_Fact_Scan_KPI_Stg` Src
+>>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_Fact_Scan_KPI.sql
       JOIN LabelsToProcess Sel ON Sel.LabelNo = Src.LabelNo
       WHERE Sel.UpdateId IS NOT NULL
     ) AS Src
@@ -322,7 +339,7 @@ BEGIN
 
     SET v_Updated = (
       SELECT COUNT(*)
-      FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_Scan_KPI`
+      FROM `{{ project_id }}.{{ dataset_id }}.dbo_Fact_Scan_KPI`
       WHERE ProcessId = p_ProcessId
         AND Updated   = v_Loaded
     );
@@ -331,7 +348,11 @@ BEGIN
     SET v_Ended        = CURRENT_DATETIME();
     SET v_SubComponent = CONCAT(v_Component, ' (All ', v_Step, ')');
 
+<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_Fact_Scan_KPI.sql
     CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
+=======
+    CALL `{{ project_id }}.{{ dataset_id }}.staging_SaveLog`(
+>>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_Fact_Scan_KPI.sql
       v_SubComponent, p_ProcessId, v_Started, v_Ended,
       v_Result, v_ErrorMessage, v_Inserted, v_Updated, -1
     );
@@ -341,7 +362,11 @@ BEGIN
     SET v_ErrorMessage = @@error.message;
     SET v_Ended        = CURRENT_DATETIME();
     SET v_SubComponent = CONCAT(v_Component, ' (', v_Step, ')');
+<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_Fact_Scan_KPI.sql
     CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
+=======
+    CALL `{{ project_id }}.{{ dataset_id }}.staging_SaveLog`(
+>>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_Fact_Scan_KPI.sql
       v_SubComponent, p_ProcessId, v_Started, v_Ended,
       v_Result, v_ErrorMessage, v_Inserted, v_Updated, -1
     );
@@ -359,7 +384,7 @@ BEGIN
 
   BEGIN
 
-    INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_Scan_KPI`
+    INSERT INTO `{{ project_id }}.{{ dataset_id }}.dbo_Fact_Scan_KPI`
     (
       LabelNo,
       FirstScanDate, FirstScanRF, FirstScanCF, FirstScanType, FirstScanStatus,
@@ -415,13 +440,17 @@ BEGIN
       Src.FirstImpactedDate, Src.FirstImpactedRF, Src.FirstImpactedCF, Src.FirstImpactedScanType, Src.FirstImpactedScanStatus,
       Src.FirstFutileDate, Src.FirstFutileRF, Src.FirstFutileCF, Src.FirstFutileScanType, Src.FirstFutileScanStatus,
       COALESCE(Src.FirstReceivedDate, Src.FirstScanDate) AS FirstReceivedOrFirstScanDate
+<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_Fact_Scan_KPI.sql
     FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Fact_Scan_KPI_Stg` Src
+=======
+    FROM `{{ project_id }}.{{ dataset_id }}.staging_Fact_Scan_KPI_Stg` Src
+>>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_Fact_Scan_KPI.sql
     JOIN LabelsToProcess Sel ON Sel.LabelNo = Src.LabelNo
     WHERE Sel.InsertId IS NOT NULL;
 
     SET v_Inserted = (
       SELECT COUNT(*)
-      FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_Scan_KPI`
+      FROM `{{ project_id }}.{{ dataset_id }}.dbo_Fact_Scan_KPI`
       WHERE ProcessId = p_ProcessId
         AND Created   = v_Loaded
     );
@@ -440,7 +469,11 @@ BEGIN
   SET v_Ended        = CURRENT_DATETIME();
   SET v_SubComponent = CONCAT(v_Component, ' (', v_Step, ')');
 
+<<<<<<< HEAD:ProceduresBQ/Jinja PlaceHolder SPs/BQ_Load_Fact_Scan_KPI.sql
   CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
+=======
+  CALL `{{ project_id }}.{{ dataset_id }}.staging_SaveLog`(
+>>>>>>> refs/remotes/origin/dev_manas:ProceduresBQ/BQ_Load_Fact_Scan_KPI.sql
     v_SubComponent,
     p_ProcessId,
     v_Started,
