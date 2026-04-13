@@ -5,8 +5,7 @@
 -- History:
 --  17/08/2020  P. Waldron      Routine Written
 -- ==========================================================================================
-
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_Label_Product_ServiceItem_Stg_Interim`(IN p_ProcessID INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_Label_Product_ServiceItem_Stg`(IN p_ProcessID INT64)
 BEGIN
   /*
   ** Routine: Load_LNK_Label_Product_ServiceItem
@@ -17,17 +16,18 @@ BEGIN
   DECLARE v_DefaultValidTo DATETIME DEFAULT '9999-12-31 23:59:59';
   DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
 
-  DECLARE v_Component STRING DEFAULT 'dv_Load_Label_Product_ServiceItem_Stg_Interim';
+  DECLARE v_Component STRING DEFAULT 'dv_Load_Label_Product_ServiceItem_Stg';
   DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
   DECLARE v_Ended DATETIME;
   DECLARE v_Result STRING;
   DECLARE v_ErrorMessage STRING DEFAULT NULL;
   DECLARE v_Inserted INT64 DEFAULT 0;
   DECLARE v_Updated INT64 DEFAULT 0;
+  DECLARE v_RecordSource STRING DEFAULT 'MyFastway';
 
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Product_ServiceItem_Stg_Interim`
+    INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_Product_ServiceItem_Stg`
     (
       Label_Product_ServiceItem_HSK,
       LabelNo_HSK,
@@ -76,10 +76,10 @@ BEGIN
       RecordSourceId
     )
     SELECT
-      TO_HEX(SHA256(CONCAT(Src.Country, '^', Src.LabelNo, '^', Src.ProductCode, '^', Src.ServiceItem))) AS Label_Product_ServiceItem_HSK,
-      TO_HEX(SHA256(CONCAT(Src.Country, '^', Src.LabelNo))) AS LabelNo_HSK,
-      TO_HEX(SHA256(CONCAT(Src.Country, '^', Src.ProductCode))) AS Product_HSK,
-      TO_HEX(SHA256(CONCAT(Src.Country, '^', Src.ServiceItem))) AS ServiceItem_HSK,
+      (SHA256(CONCAT(Src.Country, '^', Src.LabelNo, '^', Src.ProductCode, '^', Src.ServiceItem))) AS Label_Product_ServiceItem_HSK,
+      (SHA256(CONCAT(Src.Country, '^', Src.LabelNo))) AS LabelNo_HSK,
+      (SHA256(CONCAT(Src.Country, '^', Src.ProductCode))) AS Product_HSK,
+      (SHA256(CONCAT(Src.Country, '^', Src.ServiceItem))) AS ServiceItem_HSK,
       LabelNo,
       ConId,
       ConItemId,
@@ -119,8 +119,8 @@ BEGIN
       UpdatedOn,
       v_Loaded AS Loaded,
       p_ProcessID AS ProcessId,
-      p_RecordSource AS RecordSource,
-      CAST(ServiceItemId AS STRING) AS RecordSourceId
+      v_RecordSource AS RecordSource,
+      ServiceItemId AS RecordSourceId
     FROM (
       SELECT DISTINCT 
         Srv.Label AS LabelNo,
@@ -160,10 +160,10 @@ BEGIN
         ServicePriceDiscountFixed,
         ServicePriceDiscountPercent,
         UpdatedOn
-      FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_fl_ConItemSrv_Stg_Interim` AS Srv  
-      LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS cty ON cty.CountryCode = Srv.CountryId
-      LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.Staging_Product_Stg` AS Prod ON Srv.CountryId = Prod.CountryCode AND Srv.ProductId = Prod.ProductId
-      LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.Staging_fl_ServiceItem_Stg` AS SI ON Srv.CountryId = SI.CountryId AND Srv.ProductId = SI.ProductId AND Srv.ServiceItemId = SI.ServiceItemId 
+      FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_fl_ConItemSrv_Stg` AS Srv  
+      LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` AS cty ON cty.CountryCode = Srv.CountryId
+      LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.Staging_Product_Stg` AS Prod ON Srv.CountryId = Prod.CountryCode AND Srv.ProductId = Prod.ProductId
+      INNER JOIN `searce-sandbox-da-delivery.Aramex_oceania.Staging_fl_ServiceItem_Stg` AS SI ON Srv.CountryId = SI.CountryId AND Srv.ProductId = SI.ProductId AND Srv.ServiceItemId = SI.ServiceItemId 
     ) AS Src;
 
     SET v_Inserted = @@row_count;
@@ -176,7 +176,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
-  CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
+  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
     v_Component, 
     p_ProcessID, 
     v_Started, 

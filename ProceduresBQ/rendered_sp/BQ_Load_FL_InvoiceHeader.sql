@@ -5,7 +5,7 @@
 -- History:
 --  21/07/2025  B. Woods        Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_FL_InvoiceHeader`(IN p_ProcessId INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_FL_InvoiceHeader`(IN p_ProcessId INT64)
 BEGIN
   /*
   ** Routine: Load_FL_InvoiceHeader
@@ -20,11 +20,12 @@ BEGIN
   DECLARE v_ErrorMessage STRING DEFAULT NULL;
   DECLARE v_Inserted INT64 DEFAULT 0;
   DECLARE v_Updated INT64 DEFAULT 0;
+  DECLARE v_RecordSource STRING DEFAULT 'fl_InvoiceHeader';
 
   BEGIN
     -- MERGE Rule: Use single MERGE for SP containing both INSERT + UPDATE
-    MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_FL_InvoiceHeader` AS Tgt
-    USING `{{ project_id }}.{{ target_dataset_id }}.Staging_fl_InvoiceHeader_Stg` AS Src
+    MERGE `searce-sandbox-da-delivery.Aramex_oceania.dv_LSAT_FL_InvoiceHeader` AS Tgt
+    USING `searce-sandbox-da-delivery.Aramex_oceania.Staging_fl_InvoiceHeader_Stg` AS Src
     ON Tgt.InvoiceHeaderId = Src.InvoiceHeaderId
     WHEN MATCHED AND (
       Tgt.BatchId IS DISTINCT FROM Src.BatchId OR
@@ -93,13 +94,13 @@ BEGIN
       GroupTaxExempt = Src.GroupTaxExempt,
       Loaded = v_Loaded,
       ProcessId = p_ProcessId,
-      RecordSource = p_RecordSource
+      RecordSource = v_RecordSource
     WHEN NOT MATCHED THEN
       INSERT (
         InvoiceHeaderId, BatchId, RF, ParentRF, CountryId, CustomerId, ParentCustomerId, InvoiceNo, InvoiceDate, Price, Tax, Total, GroupPrice, GroupTax, GroupTotal, Released, RFLegalEntity, ParentRFLegalEntity, CFLegalEntity, Level, BankProcess, ParentInvoiceHeaderId, CFOverride, CFOverrideBasePriceCommPercent, CFOverrideExcessPriceCommPercent, SelectedUI, EnterpriseFastlabelType, DueDate, CloseDate, TotalPaid, CourierNumber, GroupTaxExempt, Loaded, ProcessId, RecordSource
       )
       VALUES (
-        Src.InvoiceHeaderId, Src.BatchId, Src.RF, Src.ParentRF, Src.CountryId, Src.CustomerId, Src.ParentCustomerId, Src.InvoiceNo, Src.InvoiceDate, Src.Price, Src.Tax, Src.Total, Src.GroupPrice, Src.GroupTax, Src.GroupTotal, Src.Released, Src.RFLegalEntity, Src.ParentRFLegalEntity, Src.CFLegalEntity, Src.Level, Src.BankProcess, Src.ParentInvoiceHeaderId, Src.CFOverride, Src.CFOverrideBasePriceCommPercent, Src.CFOverrideExcessPriceCommPercent, Src.SelectedUI, Src.EnterpriseFastlabelType, Src.DueDate, Src.CloseDate, Src.TotalPaid, Src.CourierNumber, Src.GroupTaxExempt, v_Loaded, p_ProcessId, p_RecordSource
+        Src.InvoiceHeaderId, Src.BatchId, Src.RF, Src.ParentRF, Src.CountryId, Src.CustomerId, Src.ParentCustomerId, Src.InvoiceNo, Src.InvoiceDate, Src.Price, Src.Tax, Src.Total, Src.GroupPrice, Src.GroupTax, Src.GroupTotal, Src.Released, Src.RFLegalEntity, Src.ParentRFLegalEntity, Src.CFLegalEntity, Src.Level, Src.BankProcess, Src.ParentInvoiceHeaderId, Src.CFOverride, Src.CFOverrideBasePriceCommPercent, Src.CFOverrideExcessPriceCommPercent, Src.SelectedUI, Src.EnterpriseFastlabelType, Src.DueDate, Src.CloseDate, Src.TotalPaid, Src.CourierNumber, Src.GroupTaxExempt, v_Loaded, p_ProcessId, v_RecordSource
       );
 
     -- When MERGE is used: @@row_count returns total rows affected (inserts + updates combined). 
@@ -114,7 +115,7 @@ BEGIN
 
   -- Logging Rule: Every translated SP MUST end with CALL Staging_SaveLog covering success and failure
   SET v_Ended = CURRENT_DATETIME();
-  CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
+  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
     v_Component,
     p_ProcessId,
     v_Started,

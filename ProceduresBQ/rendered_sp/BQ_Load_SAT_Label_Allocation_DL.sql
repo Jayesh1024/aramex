@@ -7,7 +7,7 @@
 --  07/11/2019  P. Waldron      Remove CountryName from Label_HSK 
 --  12/01/2024  B. Woods        Replaced MERGE with DELETE and INSERT
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_SAT_Label_Allocation_DL`(IN p_ProcessID INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_SAT_Label_Allocation_DL`(IN p_ProcessID INT64)
 BEGIN
   /*
   ** Routine: Load_SAT_Label_Allocation_DL
@@ -25,15 +25,16 @@ BEGIN
   DECLARE v_ErrorMessage STRING DEFAULT NULL;
   DECLARE v_Inserted INT64 DEFAULT 0;
   DECLARE v_Updated INT64 DEFAULT 0;
+  DECLARE v_RecordSource STRING DEFAULT 'DynamicLabel';
 
   BEGIN
     -- Use MERGE to handle the DELETE + INSERT pattern (Replace Current) in a single scan.
     -- v_Updated will contain the total rows affected. v_Inserted = 0 per CORE RULES.
     
-    MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_DL` AS Tgt
+    MERGE `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_DL` AS Tgt
     USING (
       SELECT DISTINCT 
-        TO_HEX(SHA256(CAST(Stg.LabelNumber AS STRING))) AS LabelNo_HSK,
+        (SHA256(CAST(Stg.LabelNumber AS STRING))) AS LabelNo_HSK,
         Stg.LabelNumber AS LabelNo,
         Stg.CountryCode,
         IFNULL(cty.CountryName, 'Unknown') AS Country,
@@ -55,8 +56,8 @@ BEGIN
         Stg.CubicWeight AS ParcelCubicWeight,
         Stg.GroupTransId,
         Stg.HistoryId AS RecordSourceId
-      FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_API_RF_AdHocLabel_AllocationHistory_Stg` AS Stg  
-      LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
+      FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_API_RF_AdHocLabel_AllocationHistory_Stg` AS Stg  
+      LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
     ) AS Src
     ON Tgt.LabelNo = Src.LabelNo AND Tgt.IsCurrent = 1
     WHEN MATCHED THEN
@@ -82,7 +83,7 @@ BEGIN
         GroupTransId = Src.GroupTransId,
         Loaded = v_Loaded,
         ProcessId = p_ProcessID,
-        RecordSource = p_RecordSource,
+        RecordSource = v_RecordSource,
         RecordSourceId = Src.RecordSourceId,
         ValidFrom = v_Loaded,
         ValidTo = v_DefaultValidTo,
@@ -100,7 +101,7 @@ BEGIN
         Src.LabelColour, Src.Price, Src.Reference, Src.CreateDateLocal, Src.OESCustomerID, 
         Src.FMSInvoiceID, Src.FMSProductID, Src.FKSource, Src.FKID, Src.ParcelLength, 
         Src.ParcelWidth, Src.ParcelHeight, Src.ParcelWeight, Src.ParcelCubicWeight, Src.GroupTransId, 
-        v_Loaded, p_ProcessID, p_RecordSource, Src.RecordSourceId, v_Loaded, v_DefaultValidTo, 1
+        v_Loaded, p_ProcessID, v_RecordSource, Src.RecordSourceId, v_Loaded, v_DefaultValidTo, 1
       );
 
     SET v_Updated = @@row_count;
@@ -112,8 +113,8 @@ BEGIN
   END;
 
   -- Record load metrics in log
-  SET v_Ended = CURRENT_TIMESTAMP();
-  CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
+  SET v_Ended = CURRENT_DATETIME();
+  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
     v_Component,
     p_ProcessID,
     v_Started,

@@ -6,7 +6,7 @@
 --  17/09/2020  P. Waldron      Routine Written
 --  21/06/2022  B. Woods         Cloned
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LSAT_Label_InterBranch`(IN p_ProcessID INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_LSAT_Label_InterBranch`(IN p_ProcessID INT64)
 BEGIN
   /*
   ** Routine: Load_LSAT_Label_InterBranch
@@ -25,10 +25,11 @@ BEGIN
   DECLARE v_ErrorMessage STRING DEFAULT NULL;
   DECLARE v_Inserted INT64 DEFAULT 0;
   DECLARE v_Updated INT64 DEFAULT 0;
+  DECLARE v_RecordSource STRING DEFAULT 'MyFastway';
 
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_Label_InterBranch` (
+    INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_LSAT_Label_InterBranch` (
       Label_InterBranch_HSK,
       LabelNo,
       CountryCode,
@@ -61,11 +62,11 @@ BEGIN
       Src.Price,
       v_Loaded AS Loaded,
       p_ProcessID AS ProcessId,
-      p_RecordSource AS RecordSource,
+      v_RecordSource AS RecordSource,
       Src.BatchId
     FROM (
       SELECT
-        TO_HEX(SHA256(CONCAT(
+        (SHA256(CONCAT(
           IFNULL(Country, ''), '^',
           IFNULL(LabelNo, ''), '^',
           IFNULL(CAST(BatchId AS STRING), ''), '^',
@@ -84,11 +85,11 @@ BEGIN
         DeliveryTime,
         Price,
         BatchId
-      FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_InterBranch_Stg`
+      FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_InterBranch_Stg`
     ) AS Src
     WHERE NOT EXISTS (
       SELECT 1 
-      FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_Label_InterBranch` AS Tgt
+      FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_LSAT_Label_InterBranch` AS Tgt
       WHERE Tgt.Label_InterBranch_HSK = Src.Label_InterBranch_HSK
     );
 
@@ -102,7 +103,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
-  CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
+  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
     v_Component,
     p_ProcessID,
     v_Started,

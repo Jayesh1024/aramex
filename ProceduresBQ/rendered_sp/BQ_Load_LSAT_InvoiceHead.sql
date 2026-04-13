@@ -7,7 +7,7 @@
 --
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LSAT_InvoiceHead`(IN p_ProcessID INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_LSAT_InvoiceHead`(IN p_ProcessID INT64)
 BEGIN
   /*
   ** Routine: Load_LSAT_InvoiceHead
@@ -24,10 +24,11 @@ BEGIN
   DECLARE v_ErrorMessage STRING DEFAULT NULL;
   DECLARE v_Inserted INT64 DEFAULT 0;
   DECLARE v_Updated INT64 DEFAULT 0;
+  DECLARE v_RecordSource STRING DEFAULT 'FMS_InvoiceHead';
 
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_InvoiceHead` (
+    INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_LSAT_InvoiceHead` (
       Invoice_HSK,
       FranchiseeCode_HSK,
       FranchiseeCode,
@@ -62,8 +63,8 @@ BEGIN
     )
     WITH InvoiceHeadStg AS (
       SELECT
-        TO_HEX(SHA256(CONCAT(CAST(InvoiceNumber AS STRING), '^', RFCode))) AS Invoice_HSK,
-        TO_HEX(SHA256(RFCode)) AS FranchiseeCode_HSK,
+        SHA256(CONCAT(CAST(InvoiceNumber AS STRING), '^', RFCode)) AS Invoice_HSK,
+        SHA256(RFCode) AS FranchiseeCode_HSK,
         RFCode AS FranchiseeCode,
         InvoiceNumber,
         EnteredDate,
@@ -90,7 +91,7 @@ BEGIN
         PurchaseOrderNumber,
         Comments,
         ExcludedFromBaseRate
-      FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_FMS_InvoiceHead_Stg`
+      FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_FMS_InvoiceHead_Stg`
     )
     SELECT
       Src.Invoice_HSK,
@@ -123,11 +124,11 @@ BEGIN
       Src.ExcludedFromBaseRate,
       v_Loaded AS Loaded,
       p_ProcessId AS ProcessId,
-      p_RecordSource
+      v_RecordSource
     FROM InvoiceHeadStg AS Src
     WHERE NOT EXISTS (
       SELECT 1 
-      FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_InvoiceHead` AS Tgt 
+      FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_LSAT_InvoiceHead` AS Tgt 
       WHERE Tgt.FranchiseeCode = Src.FranchiseeCode 
         AND Tgt.InvoiceNumber = Src.InvoiceNumber
     );
@@ -142,7 +143,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
-  CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
+  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
     v_Component, 
     p_ProcessID, 
     v_Started, 

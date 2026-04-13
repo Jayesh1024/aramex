@@ -124,7 +124,7 @@ BEGIN
         IsCurrent
       )
       VALUES (
-        TO_HEX(SHA256(CAST(Src.LabelNo AS STRING))),
+        (SHA256(CAST(Src.LabelNo AS STRING))),
         Src.LabelNo,
         Src.CountryCode,
         Src.Country,

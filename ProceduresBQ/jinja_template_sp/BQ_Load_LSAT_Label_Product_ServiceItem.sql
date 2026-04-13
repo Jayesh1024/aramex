@@ -5,7 +5,7 @@
 -- History:
 --  17/09/2020  P. Waldron      Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LSAT_Label_Product_ServiceItem`(IN p_ProcessID INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LSAT_Label_Product_ServiceItem`(IN p_ProcessID INT64)
 BEGIN
   /*
   ** Routine: Load_LSAT_Label_Product_ServiceItem
@@ -23,6 +23,7 @@ BEGIN
   DECLARE v_ErrorMessage STRING DEFAULT NULL;
   DECLARE v_Inserted INT64 DEFAULT 0;
   DECLARE v_Updated INT64 DEFAULT 0;
+  DECLARE v_RecordSource STRING DEFAULT 'MyFastway';
 
   BEGIN
     -- Using a single MERGE to handle SCD Type 2 logic (Expire + Insert)
@@ -33,7 +34,7 @@ BEGIN
         SELECT 
           *,
           -- Hash key calculation consistent with original logic
-          TO_HEX(SHA256(CONCAT(IFNULL(Country, ''), '^', IFNULL(LabelNo, ''), '^', IFNULL(ProductCode, ''), '^', IFNULL(ServiceItem, '')))) AS Calc_HSK
+          SHA256(CONCAT(IFNULL(Country, ''), '^', IFNULL(LabelNo, ''), '^', IFNULL(ProductCode, ''), '^', IFNULL(ServiceItem, ''))) AS Calc_HSK
         FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Product_ServiceItem_Stg`
       ),
       -- Identify changes compared to current records
@@ -57,7 +58,7 @@ BEGIN
             T.ServicePriceDiscountPercent != S.ServicePriceDiscountPercent OR T.UpdatedOn != S.UpdatedOn
           )) AS HasChanged
         FROM StagingData S
-        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_Label_Product_ServiceItem` T ON S.Calc_HSK = T.Label_Product_ServiceItem_HSK AND T.IsCurrent = 1
+        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_Label_Product_ServiceItem` T ON S.Calc_HSK = CAST(T.Label_Product_ServiceItem_HSK AS BYTES) AND T.IsCurrent = 1
       )
       -- Rows to expire existing current record
       SELECT *, 'EXPIRE' AS MergeAction FROM DetectedChanges WHERE HasChanged = TRUE
@@ -66,8 +67,8 @@ BEGIN
       SELECT *, 'INSERT' AS MergeAction FROM DetectedChanges WHERE Tgt_HSK IS NULL OR HasChanged = TRUE
     ) AS Src
     -- Join condition ensures 'INSERT' actions never match, forcing NOT MATCHED branch
-    ON Tgt.Label_Product_ServiceItem_HSK = Src.Calc_HSK 
-       AND Tgt.IsCurrent = 1 
+    ON CAST(Tgt.Label_Product_ServiceItem_HSK AS BYTES) = Src.Calc_HSK
+       AND Tgt.IsCurrent = 1
        AND Src.MergeAction = 'EXPIRE'
     
     WHEN MATCHED THEN
@@ -96,7 +97,7 @@ BEGIN
         Src.PLBSBatchId, Src.PLBSInvoiceNo, Src.PLBSInvoiceDate, Src.PLBSPrice, Src.PLBSTax,
         Src.PLBSTotal, Src.BareProfileId, Src.ServicePrice, Src.ServicePriceComm, Src.ServicePriceCommPercent,
         Src.ServicePriceDiscountFixed, Src.ServicePriceDiscountPercent, Src.UpdatedOn,
-        v_Loaded, p_ProcessID, p_RecordSource, CAST(Src.ConId AS STRING), 
+        v_Loaded, p_ProcessID, v_RecordSource, Src.ConId, 
         IF(Src.Tgt_HSK IS NULL, v_DefaultValidFrom, v_Loaded), v_DefaultValidTo, 1
       );
 

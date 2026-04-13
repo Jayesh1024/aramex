@@ -7,7 +7,7 @@
 --  13/02/2020  P. Waldron      Add [IFSCustomerType] column to [SAL_Customer] table
 --  12/03/2021  B. Woods		Fixed bug causing duplicate rows to be loaded  (ticket BI-70)
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_SAL_Customer`(IN p_ProcessID INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_SAL_Customer`(IN p_ProcessID INT64)
 BEGIN
   /*
   ** Routine: Load_SAL_Customer 
@@ -22,6 +22,7 @@ BEGIN
   DECLARE v_ErrorMessage STRING DEFAULT NULL;
   DECLARE v_Inserted INT64 DEFAULT 0;
   DECLARE v_Updated INT64 DEFAULT 0;
+  DECLARE v_RecordSource STRING DEFAULT 'CustomerLinks';
 
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
@@ -51,7 +52,7 @@ BEGIN
         SELECT 
           Stg.*, 
           Cty.CountryName, 
-          TO_HEX(SHA256(CAST(CustomerKey AS STRING))) AS Customer_HSK
+          (SHA256(CAST(CustomerKey AS STRING))) AS Customer_HSK
         FROM (
           SELECT CustomerKey, CountryCode, CAST(FMSCustomerID AS STRING) AS CustomerId, 'FMS' AS CustomerType, IFSCustomerType, RFCode FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_CustomerLinks_Stg` WHERE FMSCustomerID IS NOT NULL 
           UNION DISTINCT
@@ -72,7 +73,7 @@ BEGIN
       ) 
     )
     SELECT
-      TO_HEX(SHA256(CAST(CustomerKey AS STRING))) AS CustomerKey_HSK,
+      (SHA256(CAST(CustomerKey AS STRING))) AS CustomerKey_HSK,
       RTRIM(CustomerKey) AS CustomerKey,
       RFCode,
       CustomerType,
@@ -81,7 +82,7 @@ BEGIN
       CountryName,
       v_Loaded AS Loaded,
       p_ProcessID AS ProcessID,
-      p_RecordSource AS RecordSource,
+      v_RecordSource AS RecordSource,
       NULL AS RecordSourceId
     FROM NewBusinessKeys
     ORDER BY CustomerKey;

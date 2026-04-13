@@ -5,7 +5,7 @@
 -- History:
 --  17/08/2020  P. Waldron      Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_Product_ServiceCon_Stg`(IN p_ProcessID INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_Product_ServiceCon_Stg`(IN p_ProcessID INT64)
 BEGIN
   /*
   ** Routine: Load_Product_ServiceCon_Stg
@@ -23,10 +23,11 @@ BEGIN
   DECLARE v_ErrorMessage STRING DEFAULT NULL;
   DECLARE v_Inserted INT64 DEFAULT 0;
   DECLARE v_Updated INT64 DEFAULT 0;
+  DECLARE v_RecordSource STRING DEFAULT 'MyFastway';
 
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.Staging_Product_ServiceCon_Stg` (
+    INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_Product_ServiceCon_Stg` (
       Product_ServiceCon_HSK,
       Product_HSK,
       ConId,
@@ -66,8 +67,8 @@ BEGIN
       RecordSourceId
     )
     SELECT
-      TO_HEX(SHA256(CONCAT(Src.Country, '^', CAST(Src.ConId AS STRING), '^', Src.ProductCode, '^', CAST(Src.ServiceItemId AS STRING)))) AS Product_ServiceCon_HSK,
-      TO_HEX(SHA256(CONCAT(Src.Country, '^', Src.ProductCode))) AS Product_HSK,
+      (SHA256(CONCAT(Src.Country, '^', CAST(Src.ConId AS STRING), '^', Src.ProductCode, '^', CAST(Src.ServiceItemId AS STRING)))) AS Product_ServiceCon_HSK,
+      (SHA256(CONCAT(Src.Country, '^', Src.ProductCode))) AS Product_HSK,
       Src.ConId,
       Src.Country,
       Src.ProductCode,
@@ -101,7 +102,7 @@ BEGIN
       Src.ServicePriceComm,
       Src.UpdatedOn,
       p_ProcessID AS ProcessID,
-      p_RecordSource AS RecordSource,
+      v_RecordSource AS RecordSource,
       Src.ConId AS RecordSourceId
     FROM (
       SELECT DISTINCT 
@@ -137,9 +138,9 @@ BEGIN
         Srv.ServicePriceCommPercent,
         Srv.ServicePriceComm,
         Srv.UpdatedOn
-      FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_fl_ConSrv_Stg` AS Srv  
-      LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS cty ON cty.CountryCode = Srv.CountryId
-      LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.Staging_Product_Stg` AS Prod ON Srv.CountryId = Prod.CountryCode AND Srv.ProductId = Prod.ProductId
+      FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_fl_ConSrv_Stg` AS Srv  
+      LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` AS cty ON cty.CountryCode = Srv.CountryId
+      LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.Staging_Product_Stg` AS Prod ON Srv.CountryId = Prod.CountryCode AND Srv.ProductId = Prod.ProductId
     ) AS Src;
 
     SET v_Inserted = @@row_count;
@@ -152,7 +153,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
-  CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
+  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
     v_Component, 
     p_ProcessID, 
     v_Started, 

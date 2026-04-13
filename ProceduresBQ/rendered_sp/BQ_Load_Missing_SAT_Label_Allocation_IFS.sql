@@ -4,7 +4,7 @@
 -- History:
 --  25/07/2019  B. Woods      Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_Missing_SAT_Label_Allocation_IFS`(IN p_ProcessID INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_Missing_SAT_Label_Allocation_IFS`(IN p_ProcessID INT64)
 BEGIN
   /*
   ** Routine: Load_Missing_SAT_Label_Allocation_IFS
@@ -22,10 +22,11 @@ BEGIN
   DECLARE v_ErrorMessage STRING DEFAULT NULL;
   DECLARE v_Inserted INT64 DEFAULT 0;
   DECLARE v_Updated INT64 DEFAULT 0;
+  DECLARE v_RecordSource STRING DEFAULT 'IFS';
 
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_IFS` (
+    INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_IFS` (
       LabelNo_HSK,
       LabelNo,
       CountryCode,
@@ -55,7 +56,7 @@ BEGIN
       UniqueParcelIdentifier
     )
     SELECT
-      TO_HEX(SHA256(CAST(Stg.LabelNo AS STRING))) AS Label_HSK,
+      (SHA256(CAST(Stg.LabelNo AS STRING))) AS Label_HSK,
       Stg.LabelNo,
       Stg.CountryCode,
       cty.CountryName,
@@ -76,15 +77,15 @@ BEGIN
       Stg.RecordId,
       v_Loaded AS Loaded,
       p_ProcessID AS ProcessId,
-      p_RecordSource AS RecordSource,
+      v_RecordSource AS RecordSource,
       Stg.RecordId AS RecordSourceId,
       v_Loaded AS ValidFrom,
       v_DefaultValidTo AS ValidTo,
       1 AS IsCurrent,
       Stg.UniqueParcelIdentifier
-    FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_HDManifests_Stg` AS Stg
-    LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_IFS` AS Tgt ON Stg.RecordId = Tgt.RecordID
-    LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
+    FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_HDManifests_Stg` AS Stg
+    LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_IFS` AS Tgt ON Stg.RecordId = Tgt.RecordID
+    LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
     WHERE Tgt.RecordId IS NULL;
 
     SET v_Inserted = @@row_count;
@@ -97,7 +98,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
-  CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
+  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
     v_Component,
     p_ProcessID,
     v_Started,

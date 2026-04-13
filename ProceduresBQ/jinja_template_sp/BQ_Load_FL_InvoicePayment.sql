@@ -6,7 +6,7 @@
 --  21/07/2025  B. Woods        Routine Written
 --
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_FL_InvoicePayment`(IN p_ProcessId INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_FL_InvoicePayment`(IN p_ProcessId INT64)
 BEGIN
   /*
   ** Routine: Load_FL_InvoicePayment
@@ -21,6 +21,7 @@ BEGIN
   DECLARE v_ErrorMessage STRING DEFAULT NULL;
   DECLARE v_Inserted INT64 DEFAULT 0;
   DECLARE v_Updated INT64 DEFAULT 0;
+  DECLARE v_RecordSource STRING DEFAULT 'fl_InvoicePayment';
 
   BEGIN
     -- MERGE Rule: Use single MERGE for Insert + Update logic
@@ -46,7 +47,7 @@ BEGIN
       UpdatedBy = Src.UpdatedBy,
       Loaded = v_Loaded,
       ProcessId = p_ProcessId,
-      RecordSource = p_RecordSource
+      RecordSource = v_RecordSource
     WHEN NOT MATCHED THEN
       INSERT (
         InvoicePaymentId,
@@ -72,7 +73,7 @@ BEGIN
         Src.UpdatedBy,
         v_Loaded,
         p_ProcessId,
-        p_RecordSource
+        v_RecordSource
       );
 
     -- When MERGE is used: @@row_count returns total rows affected (inserts + updates combined). 

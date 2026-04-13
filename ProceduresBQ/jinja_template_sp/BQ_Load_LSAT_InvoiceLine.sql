@@ -6,7 +6,7 @@
 --	27/12/2019  P. Waldron		Routine Written
 --	24/03/2019  P. Waldron		Add EnteredDate to dv_LSAT_InvoiceLine
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LSAT_InvoiceLine`(IN p_ProcessID INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LSAT_InvoiceLine`(IN p_ProcessID INT64)
 BEGIN
   /*
   ** Routine: Load_LSAT_InvoiceLine
@@ -22,6 +22,7 @@ BEGIN
   DECLARE v_ErrorMessage STRING DEFAULT NULL;
   DECLARE v_Inserted INT64 DEFAULT 0;
   DECLARE v_Updated INT64 DEFAULT 0;
+  DECLARE v_RecordSource STRING DEFAULT 'FMS_InvoiceLines';
 
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
@@ -88,12 +89,12 @@ BEGIN
     ),
     NewInvoiceLines AS (
       SELECT 
-        TO_HEX(SHA256(CONCAT(CAST(InvoiceNumber AS STRING), '^', FranchiseeCode, '^', CourierNumber, '^', CustomerKey, '^', ProductCode, '^', Country))) AS InvoiceLine_HSK,
-        TO_HEX(SHA256(CONCAT(CAST(InvoiceNumber AS STRING), '^', FranchiseeCode))) AS Invoice_HSK,
-        TO_HEX(SHA256(FranchiseeCode)) AS FranchiseeCode_HSK,
-        TO_HEX(SHA256(CONCAT(FranchiseeCode, '^', CourierNumber))) AS Courier_HSK,
-        TO_HEX(SHA256(CustomerKey)) AS Customer_HSK,
-        TO_HEX(SHA256(CONCAT(Country, '^', ProductCode))) AS Product_HSK,
+        SHA256(CONCAT(CAST(InvoiceNumber AS STRING), '^', FranchiseeCode, '^', CourierNumber, '^', CustomerKey, '^', ProductCode, '^', Country)) AS InvoiceLine_HSK,
+        SHA256(CONCAT(CAST(InvoiceNumber AS STRING), '^', FranchiseeCode)) AS Invoice_HSK,
+        SHA256(FranchiseeCode) AS FranchiseeCode_HSK,
+        SHA256(CONCAT(FranchiseeCode, '^', CourierNumber)) AS Courier_HSK,
+        SHA256(CustomerKey) AS Customer_HSK,
+        SHA256(CONCAT(Country, '^', ProductCode)) AS Product_HSK,
         InvoiceNumber,
         FranchiseeCode,
         CourierNumber,
@@ -113,7 +114,7 @@ BEGIN
         LineType
       FROM RawData AS Src
       WHERE NOT EXISTS (
-        SELECT 1 FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_InvoiceLine` AS Tgt WHERE Tgt.InvoiceLine_HSK = TO_HEX(SHA256(CONCAT(CAST(Src.InvoiceNumber AS STRING), '^', Src.FranchiseeCode, '^', Src.CourierNumber, '^', Src.CustomerKey, '^', Src.ProductCode, '^', Src.Country)))
+        SELECT 1 FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_InvoiceLine` AS Tgt WHERE Tgt.InvoiceLine_HSK = SHA256(CONCAT(CAST(Src.InvoiceNumber AS STRING), '^', Src.FranchiseeCode, '^', Src.CourierNumber, '^', Src.CustomerKey, '^', Src.ProductCode, '^', Src.Country))
       )
     )
     SELECT
@@ -142,7 +143,7 @@ BEGIN
       LineType,
       v_Loaded AS Loaded,
       p_ProcessId AS ProcessId,
-      p_RecordSource
+      v_RecordSource
     FROM NewInvoiceLines;
 
     SET v_Inserted = @@row_count;
