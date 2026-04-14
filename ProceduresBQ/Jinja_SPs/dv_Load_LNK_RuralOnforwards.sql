@@ -1,13 +1,17 @@
 -- ==========================================================================================
--- Routine:     BQ_Load_LNK_RuralOnforwards
+-- Routine:     dv_Load_LNK_RuralOnforwards
 -- Description: Loads relationships into LNK_RuralOnforwards
 --              BigQuery compatible version of Load_LNK_RuralOnforwards
--- Example:     CALL dv.BQ_Load_LNK_RuralOnforwards(590)
+-- Example:     CALL dv.dv_Load_LNK_RuralOnforwards(590)
 -- History:
 --  17/01/2024  B. Woods        Routine Written
 --  [BQ Port]   Converted from SQL Server to BigQuery
+--  [BQ Fix]    Dim_Country → fully qualified `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country`
+--  [BQ Fix]    Src.Date + Src.Time → Src.Date only (Src.Time contains non-time values e.g. "Time_49")
+--  [BQ Fix]    TO_HEX(MD5(...)) → MD5(...) for all HSK columns (target columns are BYTES not STRING)
+--  [BQ Fix]    SaveLog → Staging_SaveLog with additional -1, -1 arguments.
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.BQ_Load_LNK_RuralOnforwards`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LNK_RuralOnforwards`(
     IN ProcessID INT64
 )
 BEGIN
@@ -44,21 +48,22 @@ BEGIN
             RecordSource
         )
         SELECT
-            -- Replicate dbo.GetHashKey composite key
-            TO_HEX(MD5(
+            -- MD5 returns BYTES directly to match target BYTES column type
+            -- Src.Time dropped — contains non-time values (e.g. "Time_49"), Src.Date used directly
+            MD5(
                 Src.RF || '^'
                 || Src.CF || '^'
                 || Src.LabelNo || '^'
-                || FORMAT_DATETIME('%Y-%m-%dT%H:%M:%E3S', DATETIME(Src.Date + Src.Time))
-            ))                                                           AS OnForwards_HSK,
-            TO_HEX(MD5(Src.RF))                                         AS FranchiseeCode_HSK,
-            TO_HEX(MD5(Src.RF || '^' || Src.CF))                        AS Courier_HSK,
-            TO_HEX(MD5(Src.LabelNo))                                    AS LabelNo_HSK,
+                || FORMAT_DATETIME('%Y-%m-%dT%H:%M:%E3S', Src.Date)
+            )                                                            AS OnForwards_HSK,
+            MD5(Src.LabelNo)                                            AS LabelNo_HSK,
+            MD5(Src.RF)                                                  AS FranchiseeCode_HSK,
+            MD5(Src.RF || '^' || Src.CF)                                AS Courier_HSK,
             Src.CountryCode,
             Src.RF,
             Src.CF,
             Src.LabelNo,
-            DATETIME(Src.Date + Src.Time)                               AS CreatedDate,
+            Src.Date                                                    AS CreatedDate,
             Src.Onforwards,
             C.CountryName,
             Src.FileId,
@@ -66,15 +71,15 @@ BEGIN
             ProcessID,
             ''                                                          AS RecordSource
         FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_LA_RuralOnforwards_Stg` Src
-        LEFT JOIN Dim_Country C ON C.CountryCode = Src.CountryCode
+        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` C ON C.CountryCode = Src.CountryCode
         WHERE NOT EXISTS (
             -- Check already done in Load_LNK_Scan_Stg but kept here in case routine is re-run
             SELECT 1
             FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LNK_RuralOnforwards` tgt
-            WHERE tgt.RF        = Src.RF
-              AND tgt.CF        = Src.CF
-              AND tgt.LabelNo   = Src.LabelNo
-              AND tgt.CreatedDate = DATETIME(Src.Date + Src.Time)
+            WHERE tgt.RF          = Src.RF
+              AND tgt.CF          = Src.CF
+              AND tgt.LabelNo     = Src.LabelNo
+              AND tgt.CreatedDate = Src.Date
         );
 
         SET Inserted = @@ROW_COUNT;
@@ -88,14 +93,16 @@ BEGIN
 
     -- Record load metrics in log
     SET Ended = CURRENT_DATETIME();
-    CALL `{{ project_id }}.{{ sp_dataset_id }}.SaveLog`(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         Component,
         ProcessID,
         Started,
         Ended,
         Result,
         ErrorMessage,
-        Inserted
+        Inserted,
+        -1,
+        -1
     );
 
     -- Return next date (the day after the max CreatedDate loaded)

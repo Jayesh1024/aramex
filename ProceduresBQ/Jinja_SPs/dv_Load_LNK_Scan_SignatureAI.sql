@@ -1,16 +1,16 @@
 -- ==========================================================================================
--- Routine:     BQ_Load_LNK_Scan_SignatureAI
+-- Routine:     dv_Load_LNK_Scan_SignatureAI
 -- Description: Loads attributes into LNK_Scan_SignatureAI
 --              BigQuery compatible version of Load_LNK_Scan_SignatureAI
 --              Note: Temp table replaced with CTE / subquery approach.
 --                    UPDATE ... FROM replaced with MERGE (BQ requires MERGE for UPDATE with JOIN).
 --                    EXCEPT-based change detection preserved in MERGE WHEN MATCHED condition.
--- Example:     CALL dv.BQ_Load_LNK_Scan_SignatureAI(123, 'TTSignatureAI')
+-- Example:     CALL dv.dv_Load_LNK_Scan_SignatureAI(123, 'TTSignatureAI')
 -- History:
 --  08/04/2025  B. Woods        Cloned
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.BQ_Load_LNK_Scan_SignatureAI`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LNK_Scan_SignatureAI`(
     IN ProcessID  INT64,
     IN RecordSource STRING
 )
@@ -53,16 +53,16 @@ BEGIN
         ON Tgt.TrackAndTraceId = Src.TrackAndTraceId
         WHEN MATCHED AND (
             -- Replicate EXCEPT change-detection: update only when at least one column differs
-            IFNULL(Tgt.AILabel,            '') <> IFNULL(Src.AILabel,            '')
-         OR IFNULL(CAST(Tgt.AIScore AS STRING), '') <> IFNULL(CAST(Src.AIScore AS STRING), '')
-         OR IFNULL(Tgt.AIVersion,          '') <> IFNULL(Src.AIVersion,          '')
-         OR IFNULL(Tgt.UserLabel,          '') <> IFNULL(Src.UserLabel,          '')
-         OR IFNULL(Tgt.ValidatedByUsername,'') <> IFNULL(Src.ValidatedByUsername,'')
-         OR IFNULL(CAST(Tgt.CourierNo AS STRING), '') <> IFNULL(CAST(Src.CourierNo AS STRING), '')
-         OR IFNULL(Tgt.FranchiseeCode,     '') <> IFNULL(Src.FranchiseeCode,     '')
-         OR IFNULL(CAST(Tgt.ScanDate AS STRING), '') <> IFNULL(CAST(Src.ScanDate AS STRING), '')
-         OR IFNULL(CAST(Tgt.LastUpdatedOn AS STRING), '') <> IFNULL(CAST(Src.LastUpdatedOn AS STRING), '')
-         OR IFNULL(Tgt.TrainingLabel,      '') <> IFNULL(Src.TrainingLabel,      '')
+            IFNULL(CAST(Tgt.AILabel AS STRING), '')             <> IFNULL(CAST(Src.AILabel AS STRING), '')
+         OR IFNULL(CAST(Tgt.AIScore AS STRING), '')             <> IFNULL(CAST(Src.AIScore AS STRING), '')
+         OR IFNULL(CAST(Tgt.AIVersion AS STRING), '')           <> IFNULL(CAST(Src.AIVersion AS STRING), '')
+         OR IFNULL(CAST(Tgt.UserLabel AS STRING), '')           <> IFNULL(CAST(Src.UserLabel AS STRING), '')
+         OR IFNULL(CAST(Tgt.ValidatedByUsername AS STRING), '') <> IFNULL(CAST(Src.ValidatedByUsername AS STRING), '')
+         OR IFNULL(CAST(Tgt.CourierNo AS STRING), '')           <> IFNULL(CAST(Src.CourierNo AS STRING), '')
+         OR IFNULL(CAST(Tgt.FranchiseeCode AS STRING), '')      <> IFNULL(CAST(Src.FranchiseeCode AS STRING), '')
+         OR IFNULL(CAST(Tgt.ScanDate AS STRING), '')            <> IFNULL(CAST(Src.ScanDate AS STRING), '')
+         OR IFNULL(CAST(Tgt.LastUpdatedOn AS STRING), '')       <> IFNULL(CAST(Src.LastUpdatedOn AS STRING), '')
+         OR IFNULL(CAST(Tgt.TrainingLabel AS STRING), '')       <> IFNULL(CAST(Src.TrainingLabel AS STRING), '')
         )
         THEN UPDATE SET
              Tgt.TrackAndTraceId     = Src.TrackAndTraceId
@@ -135,7 +135,7 @@ BEGIN
 
     -- Record load metrics in log
     SET Ended = CURRENT_DATETIME();
-    CALL `{{ project_id }}.{{ sp_dataset_id }}.SaveLog`(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         Component,
         ProcessID,
         Started,
@@ -143,7 +143,8 @@ BEGIN
         Result,
         ErrorMessage,
         Inserted,
-        Updated
+        Updated,
+        -1
     );
 
 END;

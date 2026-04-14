@@ -1,13 +1,13 @@
 -- ==========================================================================================
--- Routine:     BQ_Load_LNK_Label_Product_ServiceItem
+-- Routine:     dv_Load_LNK_Label_Product_ServiceItem
 -- Description: Loads LNK_Label_Product_ServiceItem from Staging.fl_ConItemSrv_Stg
 --              BigQuery compatible version of Load_LNK_Label_Product_ServiceItem
--- Example:     CALL dv.BQ_Load_LNK_Label_Product_ServiceItem(659, 'MyFastway')
+-- Example:     CALL dv.dv_Load_LNK_Label_Product_ServiceItem(659, 'MyFastway')
 -- History:
 --  15/08/2020  P. Waldron      Routine Written
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.BQ_Load_LNK_Label_Product_ServiceItem`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LNK_Label_Product_ServiceItem`(
     IN ProcessID INT64,
     IN RecordSource STRING
 )
@@ -74,14 +74,16 @@ BEGIN
 
     -- Record load metrics in log
     SET Ended = CURRENT_DATETIME();
-    CALL `{{ project_id }}.{{ sp_dataset_id }}.SaveLog`(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         Component,
         ProcessID,
         Started,
         Ended,
         Result,
         ErrorMessage,
-        Inserted
+        Inserted,
+        -1,
+        -1
     );
 
 END;

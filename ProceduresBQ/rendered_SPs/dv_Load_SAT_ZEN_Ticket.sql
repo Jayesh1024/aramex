@@ -1,16 +1,16 @@
 -- ==========================================================================================
--- Routine:     BQ_Load_SAT_ZEN_Ticket
--- Description: Loads SAT_ZEN_Ticket from `{{ project_id }}.{{ target_dataset_id }}.Staging_ZEN_Ticket_Stg`
+-- Routine:     dv_Load_SAT_ZEN_Ticket
+-- Description: Loads SAT_ZEN_Ticket from `searce-sandbox-da-delivery.Aramex_oceania.Staging_ZEN_Ticket_Stg`
 --              BigQuery compatible version of Load_SAT_ZEN_Ticket
 --              Note: WITH (TABLOCK) hints removed.
 --                    UPDATE ... FROM replaced with MERGE (BQ requires MERGE for UPDATE with JOIN).
 --                    dbo.GetHashKey replaced with TO_HEX(MD5(...)).
--- Example:     CALL dv.BQ_Load_SAT_ZEN_Ticket(-29, 'ZENLog')
+-- Example:     CALL dv.dv_Load_SAT_ZEN_Ticket(-29, 'ZENLog')
 -- History:
 --  13/04/2024  B. Woods        Routine Written
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.BQ_Load_SAT_ZEN_Ticket`(
+CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_SAT_ZEN_Ticket`(
     IN ProcessID    INT64,
     IN RecordSource STRING
 )
@@ -31,9 +31,9 @@ BEGIN
         -- -----------------------------------------------------------------------
         -- STEP 1: Insert new rows (ZenDeskTicketId not yet in target)
         -- -----------------------------------------------------------------------
-        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_ZEN_Ticket`
+        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_ZEN_Ticket`
         SELECT
-            TO_HEX(MD5(CAST(ZenDeskTicketId AS STRING))) AS ZenTicket_HSK,
+            MD5(CAST(ZenDeskTicketId AS STRING)) AS ZenTicket_HSK,
             ZenDeskTicketId,
             TRIM(LabelNo)   AS LabelNo,
             Subject,
@@ -57,11 +57,11 @@ BEGIN
                 Src.Issue,
                 Src.Solved,
                 Src.SysLastUpdatedUtc
-            FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_ZEN_Ticket_Stg` AS Src
+            FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_ZEN_Ticket_Stg` AS Src
             WHERE NOT EXISTS (
                 SELECT 1
-                FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_ZEN_Ticket` AS Dest
-                WHERE Dest.ZenDeskTicketId = TRIM(CAST(Src.ZenDeskTicketId AS STRING))
+                FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_ZEN_Ticket` AS Dest
+                WHERE Dest.ZenDeskTicketId = Src.ZenDeskTicketId
             )
         );
 
@@ -72,7 +72,7 @@ BEGIN
         -- STEP 2: Update existing rows (ZenDeskTicketId already in target)
         -- Replaces UPDATE ... FROM using MERGE
         -- -----------------------------------------------------------------------
-        MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_ZEN_Ticket` AS Tgt
+        MERGE `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_ZEN_Ticket` AS Tgt
         USING (
             SELECT DISTINCT
                 Src.ZenDeskTicketId,
@@ -84,11 +84,11 @@ BEGIN
                 Src.Issue,
                 Src.Solved,
                 Src.SysLastUpdatedUtc
-            FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_ZEN_Ticket_Stg` AS Src
+            FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_ZEN_Ticket_Stg` AS Src
             WHERE EXISTS (
                 SELECT 1
-                FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_ZEN_Ticket` AS Dest
-                WHERE Dest.ZenDeskTicketId = TRIM(CAST(Src.ZenDeskTicketId AS STRING))
+                FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_ZEN_Ticket` AS Dest
+                WHERE Dest.ZenDeskTicketId = Src.ZenDeskTicketId
             )
         ) AS Src
         ON Tgt.ZenDeskTicketId = Src.ZenDeskTicketId
@@ -117,7 +117,7 @@ BEGIN
     -- Record load metrics in log
     SET Result = 'Success';
     SET Ended  = CURRENT_DATETIME();
-    CALL `{{ project_id }}.{{ sp_dataset_id }}.SaveLog`(
+    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
         Component,
         ProcessID,
         Started,
@@ -125,7 +125,8 @@ BEGIN
         Result,
         ErrorMessage,
         Inserted,
-        Updated
+        Updated,
+        -1
     );
 
 END;

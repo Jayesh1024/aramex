@@ -1,5 +1,5 @@
 -- ==========================================================================================
--- Routine:     BQ_Load_Scans_Stg
+-- Routine:     staging_Load_Scans_Stg
 -- Description: Combines scan data into one table for loading into `{{ project_id }}.{{ target_dataset_id }}.Staging_LNK_Scan_Stg`
 --              BigQuery compatible version of Load_Scans_Stg
 --              Note: WITH (TABLOCK) removed.
@@ -7,13 +7,13 @@
 --                    CONVERT(varchar,@LastId) replaced with CAST(... AS STRING).
 --                    LEFT() on @Result replaced with STARTS_WITH().
 --                    IIF replaced with IF.
--- Example:     CALL Staging.BQ_Load_Scans_Stg(123)
+-- Example:     CALL Staging.staging_Load_Scans_Stg(123)
 -- History:
 --  18/07/2020  P. Waldron      Routine Written
 --  17/12/2020  B. Woods        Updated to insert rows from new TrackAndTrace_Stg source table
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.BQ_Load_Scans_Stg`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.staging_Load_Scans_Stg`(
     IN ProcessID INT64
 )
 BEGIN
@@ -115,14 +115,16 @@ BEGIN
 
     -- Record load metrics in log
     SET Ended = CURRENT_DATETIME();
-    CALL `{{ project_id }}.{{ sp_dataset_id }}.SaveLog`(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         Component,
         ProcessID,
         Started,
         Ended,
         Result,
         ErrorMessage,
-        Inserted
+        Inserted,
+        -1,
+        -1
     );
 
 END;

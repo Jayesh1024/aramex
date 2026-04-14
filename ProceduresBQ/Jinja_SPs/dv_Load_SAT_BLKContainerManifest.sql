@@ -1,15 +1,15 @@
 -- ==========================================================================================
--- Routine:     BQ_Load_SAT_BLKContainerManifest
+-- Routine:     dv_Load_SAT_BLKContainerManifest
 -- Description: Loads SAT_BLKContainerManifest from `{{ project_id }}.{{ target_dataset_id }}.Staging_BLK_ContainerManifest_Stg`
 --              BigQuery compatible version of Load_SAT_BLKContainerManifest
 --              Note: TRUNCATE + INSERT pattern preserved.
 --                    WITH (TABLOCK) hint removed (not supported in BQ).
--- Example:     CALL dv.BQ_Load_SAT_BLKContainerManifest(-2, 'BLK_ManifestID')
+-- Example:     CALL dv.dv_Load_SAT_BLKContainerManifest(-2, 'BLK_ManifestID')
 -- History:
 --  30/05/2024  B. Woods        Routine Written
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.BQ_Load_SAT_BLKContainerManifest`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_SAT_BLKContainerManifest`(
     IN ProcessID    INT64,
     IN RecordSource STRING
 )
@@ -63,14 +63,16 @@ BEGIN
     -- Record load metrics in log
     SET Result = 'Success';
     SET Ended  = CURRENT_DATETIME();
-    CALL `{{ project_id }}.{{ sp_dataset_id }}.SaveLog`(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         Component,
         ProcessID,
         Started,
         Ended,
         Result,
         ErrorMessage,
-        Inserted
+        Inserted,
+        -1,
+        -1
     );
 
 END;

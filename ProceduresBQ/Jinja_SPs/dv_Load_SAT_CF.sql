@@ -1,14 +1,18 @@
 -- ==========================================================================================
--- Routine:     BQ_Load_SAT_CF (courier franchisee)
+-- Routine:     dv_Load_SAT_CF (courier franchisee)
 -- Description: Loads attributes into SAT_CF
 --              BigQuery compatible version of Load_SAT_CF
--- Example:     CALL dv.BQ_Load_SAT_CF(123, 'Fastway')
+-- Example:     CALL dv.dv_Load_SAT_CF(123, 'Fastway')
 -- History:
 --  25/10/2018  P. Waldron      Routine Written
 --  28/07/2021  B. Woods        Added column [CourierGroup]
 --  [BQ Port]   Converted from SQL Server to BigQuery
+--  [BQ Fix]    dbo.FormatAddress(a,b,c,d) replaced with ARRAY_TO_STRING/UNNEST/NULLIF logic.
+--  [BQ Fix]    TO_HEX(MD5(...)) → MD5(...) for Courier_HSK (target column is BYTES not STRING).
+--  [BQ Fix]    MERGE source deduplicated with ROW_NUMBER() to avoid "multiple source rows"
+--              error when staging has duplicate RFCode/CourierNumber combinations.
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.BQ_Load_SAT_CF`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_SAT_CF`(
     IN ProcessID    INT64,
     IN RecordSource STRING
 )
@@ -22,10 +26,9 @@ BEGIN
     -- Replaced with:
     --   STEP 1: MERGE to expire changed current rows (IsCurrent=0, ValidTo=Loaded)
     --   STEP 2: INSERT new rows (IsCurrent=1)
-    -- dbo.GetHashKey replaced with TO_HEX(MD5(...)).
+    -- dbo.GetHashKey replaced with MD5(...) (BYTES).
     -- RTRIM → TRIM. SYSDATETIME() → CURRENT_DATETIME().
-    -- dbo.FormatAddress → user-defined function call preserved as-is
-    --   (must exist as BQ UDF or be replaced with equivalent CONCAT logic).
+    -- dbo.FormatAddress → ARRAY_TO_STRING/UNNEST/NULLIF logic.
     -- BEGIN TRANSACTION / COMMIT / ROLLBACK removed.
     -- WITH (NOLOCK) removed.
 
@@ -36,25 +39,59 @@ BEGIN
         -- -----------------------------------------------------------------------
         MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_CF` AS Tgt
         USING (
-            SELECT DISTINCT
-                Sat.Courier_HSK,
-                Stg.RFCode,
-                Stg.CourierNumber,
-                TRIM(Stg.Name)                              AS Name,
-                TRIM(Stg.ShortName)                         AS ShortName,
-                TRIM(Stg.CFName)                            AS CFName,
-                dbo.FormatAddress(Stg.Address1, Stg.Address2, Stg.Address3, Stg.Address4) AS Address,
-                TRIM(Stg.EmailAddress)                      AS EmailAddress,
-                TRIM(Stg.PhoneNumber)                       AS PhoneNumber,
-                TRIM(Stg.Mobile)                            AS MobileNumber,
-                Stg.BlackbayRouteId,
-                TRIM(Stg.CourierGroup)                      AS CourierGroup,
-                TRIM(Stg.CFOwnershipModel)                  AS CFOwnershipModel,
-                Stg.Inactive,
-                TRIM(Stg.ParcelConnectCFTerritory)          AS ParcelConnectCFTerritory
-            FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Courier_Stg` Stg
-            LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_CF` Sat
-                ON Sat.RFCode = Stg.RFCode AND Sat.CourierNumber = Stg.CourierNumber
+            SELECT
+                Courier_HSK,
+                RFCode,
+                CourierNumber,
+                Name,
+                ShortName,
+                CFName,
+                Address,
+                EmailAddress,
+                PhoneNumber,
+                MobileNumber,
+                BlackbayRouteId,
+                CourierGroup,
+                CFOwnershipModel,
+                Inactive,
+                ParcelConnectCFTerritory
+            FROM (
+                SELECT
+                    Sat.Courier_HSK,
+                    Stg.RFCode,
+                    Stg.CourierNumber,
+                    TRIM(Stg.Name)                              AS Name,
+                    TRIM(Stg.ShortName)                         AS ShortName,
+                    TRIM(Stg.CFName)                            AS CFName,
+                    TRIM(ARRAY_TO_STRING(
+                        ARRAY(
+                            SELECT part FROM UNNEST([
+                                NULLIF(TRIM(Stg.Address1), ''),
+                                NULLIF(TRIM(Stg.Address2), ''),
+                                NULLIF(TRIM(Stg.Address3), ''),
+                                NULLIF(TRIM(Stg.Address4), '')
+                            ]) AS part
+                            WHERE part IS NOT NULL
+                        ), ', '
+                    ))                                          AS Address,
+                    TRIM(Stg.EmailAddress)                      AS EmailAddress,
+                    TRIM(Stg.PhoneNumber)                       AS PhoneNumber,
+                    TRIM(Stg.Mobile)                            AS MobileNumber,
+                    Stg.BlackbayRouteId,
+                    TRIM(Stg.CourierGroup)                      AS CourierGroup,
+                    TRIM(Stg.CFOwnershipModel)                  AS CFOwnershipModel,
+                    Stg.Inactive,
+                    TRIM(Stg.ParcelConnectCFTerritory)          AS ParcelConnectCFTerritory,
+                    -- Deduplicate: keep one row per Courier_HSK
+                    ROW_NUMBER() OVER (
+                        PARTITION BY IFNULL(Sat.Courier_HSK, MD5(Stg.RFCode || '^' || Stg.CourierNumber))
+                        ORDER BY Stg.RFCode, Stg.CourierNumber
+                    ) AS rn
+                FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Courier_Stg` Stg
+                LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_CF` Sat
+                    ON Sat.RFCode = Stg.RFCode AND Sat.CourierNumber = Stg.CourierNumber
+            )
+            WHERE rn = 1
         ) AS Src
         ON  Tgt.Courier_HSK = Src.Courier_HSK
         AND Tgt.IsCurrent   = 1
@@ -107,14 +144,24 @@ BEGIN
             IsCurrent
         )
         SELECT
-            -- dbo.GetHashKey → TO_HEX(MD5(...))
-            IFNULL(Sat.Courier_HSK, TO_HEX(MD5(Stg.RFCode || '^' || Stg.CourierNumber))) AS Courier_HSK,
+            -- MD5 returns BYTES to match target BYTES column type; TO_HEX removed
+            IFNULL(Sat.Courier_HSK, MD5(Stg.RFCode || '^' || Stg.CourierNumber)) AS Courier_HSK,
             Stg.RFCode,
             Stg.CourierNumber,
             TRIM(Stg.Name)                              AS Name,
             TRIM(Stg.ShortName)                         AS ShortName,
             TRIM(Stg.CFName)                            AS CFName,
-            dbo.FormatAddress(Stg.Address1, Stg.Address2, Stg.Address3, Stg.Address4) AS Address,
+            TRIM(ARRAY_TO_STRING(
+                ARRAY(
+                    SELECT part FROM UNNEST([
+                        NULLIF(TRIM(Stg.Address1), ''),
+                        NULLIF(TRIM(Stg.Address2), ''),
+                        NULLIF(TRIM(Stg.Address3), ''),
+                        NULLIF(TRIM(Stg.Address4), '')
+                    ]) AS part
+                    WHERE part IS NOT NULL
+                ), ', '
+            ))                                          AS Address,
             TRIM(Stg.EmailAddress)                      AS EmailAddress,
             TRIM(Stg.PhoneNumber)                       AS PhoneNumber,
             TRIM(Stg.Mobile)                            AS MobileNumber,
@@ -129,18 +176,26 @@ BEGIN
             DefaultValidFrom                            AS ValidFrom,
             DefaultValidTo                              AS ValidTo,
             1                                           AS IsCurrent
-        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Courier_Stg` Stg
+        FROM (
+            SELECT *,
+                ROW_NUMBER() OVER (
+                    PARTITION BY RFCode, CourierNumber
+                    ORDER BY RFCode, CourierNumber
+                ) AS rn
+            FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Courier_Stg`
+        ) Stg
         LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_CF` Sat
             ON Sat.RFCode = Stg.RFCode AND Sat.CourierNumber = Stg.CourierNumber
-        WHERE NOT EXISTS (
+        WHERE Stg.rn = 1
+          AND NOT EXISTS (
             SELECT 1 FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_CF` Tgt
-            WHERE Tgt.Courier_HSK = IFNULL(Sat.Courier_HSK, TO_HEX(MD5(Stg.RFCode || '^' || Stg.CourierNumber)))
+            WHERE Tgt.Courier_HSK = IFNULL(Sat.Courier_HSK, MD5(Stg.RFCode || '^' || Stg.CourierNumber))
               AND Tgt.IsCurrent   = 1
         );
 
     EXCEPTION WHEN ERROR THEN
         -- Original returned failure result; BQ surfaces exception to caller
-        RAISE USING MESSAGE = 'BQ_Load_SAT_CF failed: ' || @@error.message;
+        RAISE USING MESSAGE = 'dv_Load_SAT_CF failed: ' || @@error.message;
     END;
 
 END;

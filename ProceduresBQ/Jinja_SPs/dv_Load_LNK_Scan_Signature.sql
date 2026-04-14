@@ -1,15 +1,15 @@
 -- ==========================================================================================
--- Routine:     BQ_Load_LNK_Scan_Signature
+-- Routine:     dv_Load_LNK_Scan_Signature
 -- Description: Loads relationships into LNK_Scan_Signature.
 --              BigQuery compatible version of Load_LNK_Scan_Signature
 --              Note: Batch loop removed - BigQuery handles large inserts natively.
--- Example:     CALL dv.BQ_Load_LNK_Scan_Signature(590)
+-- Example:     CALL dv.dv_Load_LNK_Scan_Signature(590)
 -- History:
 --  20/11/2018  P. Waldron      Routine Written
 --  20/12/2019  P. Waldron      Replace check of LNK_Scan_Err with check of LNK_Scan
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.BQ_Load_LNK_Scan_Signature`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LNK_Scan_Signature`(
     IN ProcessID INT64
 )
 BEGIN
@@ -58,14 +58,16 @@ BEGIN
     -- Record load metrics in log
     SET Result = 'Success';
     SET Ended  = CURRENT_DATETIME();
-    CALL `{{ project_id }}.{{ sp_dataset_id }}.SaveLog`(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         Component,
         ProcessID,
         Started,
         Ended,
         Result,
         ErrorMessage,
-        Inserted
+        Inserted,
+        -1,
+        -1
     );
 
 END;

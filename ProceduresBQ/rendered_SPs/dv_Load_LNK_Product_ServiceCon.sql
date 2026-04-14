@@ -1,13 +1,13 @@
 -- ==========================================================================================
--- Routine:     BQ_Load_LNK_Product_ServiceCon
--- Description: Loads LNK_Product_ServiceCon from `{{ project_id }}.{{ target_dataset_id }}.Staging_Product_ServiceCon_Stg`
+-- Routine:     dv_Load_LNK_Product_ServiceCon
+-- Description: Loads LNK_Product_ServiceCon from `searce-sandbox-da-delivery.Aramex_oceania.Staging_Product_ServiceCon_Stg`
 --              BigQuery compatible version of Load_LNK_Product_ServiceCon
--- Example:     CALL dv.BQ_Load_LNK_Product_ServiceCon(659, 'MyFastway')
+-- Example:     CALL dv.dv_Load_LNK_Product_ServiceCon(659, 'MyFastway')
 -- History:
 --  15/08/2020  P. Waldron      Routine Written
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.BQ_Load_LNK_Product_ServiceCon`(
+CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_LNK_Product_ServiceCon`(
     IN ProcessID INT64,
     IN RecordSource STRING
 )
@@ -28,7 +28,7 @@ BEGIN
     BEGIN
 
         -- Insert new records that don't already exist in the target
-        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_LNK_Product_ServiceCon`
+        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_LNK_Product_ServiceCon`
         (
             Product_ServiceCon_HSK,
             Product_HSK,
@@ -61,14 +61,14 @@ BEGIN
             ProcessID     AS ProcessID,
             Stg.RecordSource,
             Stg.RecordSourceId
-        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Product_ServiceCon_Stg` AS Stg
-        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.Staging_fl_ServiceItem_Stg` AS SI
+        FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Product_ServiceCon_Stg` AS Stg
+        LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.Staging_fl_ServiceItem_Stg` AS SI
             ON  Stg.CountryId    = SI.CountryId
             AND Stg.ProductId    = SI.ProductId
             AND Stg.ServiceItemId = SI.ServiceItemId
         WHERE NOT EXISTS (
             SELECT 1
-            FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LNK_Product_ServiceCon` AS Tgt
+            FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_LNK_Product_ServiceCon` AS Tgt
             WHERE Tgt.Product_ServiceCon_HSK = Stg.Product_ServiceCon_HSK
         );
 
@@ -83,14 +83,16 @@ BEGIN
 
     -- Record load metrics in log
     SET Ended = CURRENT_DATETIME();
-    CALL `{{ project_id }}.{{ sp_dataset_id }}.SaveLog`(
+    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
         Component,
         ProcessID,
         Started,
         Ended,
         Result,
         ErrorMessage,
-        Inserted
+        Inserted,
+        -1,
+        -1
     );
 
 END;

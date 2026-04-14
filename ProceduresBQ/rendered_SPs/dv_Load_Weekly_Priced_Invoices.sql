@@ -1,16 +1,16 @@
 -- ==========================================================================================
--- Routine:     BQ_Load_Weekly_Priced_Invoices
+-- Routine:     dv_Load_Weekly_Priced_Invoices
 -- Description: Checks API_RF_AdHocLabel_AllocationHistory_Stg for any price or FMSInvoiceID
 --              changes occurring during the previous week.
 --              BigQuery compatible version of Load_Weekly_Priced_Invoices
 --              Note: UPDATE ... FROM replaced with MERGE (BQ requires MERGE for UPDATE with JOIN).
 --                    SET ANSI_WARNINGS OFF removed (not applicable in BQ).
--- Example:     CALL dv.BQ_Load_Weekly_Priced_Invoices(649, <lastID>)
+-- Example:     CALL dv.dv_Load_Weekly_Priced_Invoices(649, <lastID>)
 -- History:
 --  13/07/2021  B. Woods        Routine Written
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.BQ_Load_Weekly_Priced_Invoices`(
+CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_Weekly_Priced_Invoices`(
     IN ProcessID INT64,
     IN LastID    INT64
 )
@@ -36,13 +36,13 @@ BEGIN
     -- UPDATE: replicate UPDATE ... FROM ... INNER JOIN using MERGE
     -- Updates Price and FMSInvoiceID on current rows that meet change criteria
     -- -----------------------------------------------------------------------
-    MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_DL` AS DL
+    MERGE `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_DL` AS DL
     USING (
         SELECT
             H.HistoryID,
             H.PriceSoldAtExGST,
             H.FMSInvoiceID
-        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_API_RF_AdHocLabel_AllocationHistory_Stg` H
+        FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_API_RF_AdHocLabel_AllocationHistory_Stg` H
     ) AS H
     ON  DL.RecordSourceId = H.HistoryID
     AND DL.IsCurrent      = 1
@@ -61,7 +61,7 @@ BEGIN
     SET Ended        = CURRENT_DATETIME();
     SET SubComponent = Component || ' (' || Step || ')';
 
-    CALL `{{ project_id }}.{{ sp_dataset_id }}.SaveLog`(
+    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
         SubComponent,
         ProcessID,
         Started,
@@ -69,7 +69,9 @@ BEGIN
         Result,
         ErrorMessage,
         0,
-        Updated
+        Updated,
+        -1
+        
     );
 
 END;

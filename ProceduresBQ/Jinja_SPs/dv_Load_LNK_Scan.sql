@@ -1,17 +1,20 @@
 -- ==========================================================================================
--- Routine:     BQ_Load_LNK_Scan
+-- Routine:     dv_Load_LNK_Scan
 -- Description: Loads relationships into LNK_Scan.
 --              BigQuery compatible version of Load_LNK_Scan
 --              Note: Batch WHILE loop removed - BigQuery handles large inserts natively.
 --                    dbo.GetHashKey replaced with TO_HEX(MD5(...)).
 --                    FORMAT() and RAISERROR removed (not supported in BQ).
--- Example:     CALL dv.BQ_Load_LNK_Scan(590)
+-- Example:     CALL dv.dv_Load_LNK_Scan(590)
 -- History:
 --  20/11/2018  P. Waldron      Routine Written
 --  20/12/2019  P. Waldron      Replace check of LNK_Scan_Err with check of LNK_Scan
 --  [BQ Port]   Converted from SQL Server to BigQuery
+--  [BQ Fix]    TO_HEX(MD5(...)) → MD5(...) in all COALESCE fallbacks
+--              (HSK columns are BYTES; COALESCE cannot mix BYTES and STRING)
+--  [BQ Fix]    SaveLog → Staging_SaveLog with additional -1, -1 arguments.
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.BQ_Load_LNK_Scan`(
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LNK_Scan`(
     IN ProcessID INT64
 )
 BEGIN
@@ -54,12 +57,13 @@ BEGIN
         )
         SELECT
             Scan_HSK,
-            -- Replicate COALESCE(col, dbo.GetHashKey(...)) fallback pattern
-            COALESCE(FranchiseeCode_HSK, TO_HEX(MD5(FranchiseeCode)))                              AS FranchiseeCode_HSK,
-            COALESCE(Courier_HSK,        TO_HEX(MD5(FranchiseeCode || '^' || CourierNumber)))       AS Courier_HSK,
-            COALESCE(LabelNo_HSK,        TO_HEX(MD5(LabelNo)))                                     AS LabelNo_HSK,
-            COALESCE(Location_HSK,       TO_HEX(MD5(CAST(Latitude AS STRING) || '^' || CAST(Longitude AS STRING)))) AS Location_HSK,
-            COALESCE(ScanStatus_HSK,     TO_HEX(MD5(ScanStatus || '^' || CountryName)))            AS ScanStatus_HSK,
+            -- MD5 returns BYTES to match target BYTES column type
+            -- COALESCE requires both args to be same type (BYTES); TO_HEX removed
+            COALESCE(FranchiseeCode_HSK, MD5(FranchiseeCode))                                          AS FranchiseeCode_HSK,
+            COALESCE(Courier_HSK,        MD5(FranchiseeCode || '^' || CourierNumber))                  AS Courier_HSK,
+            COALESCE(LabelNo_HSK,        MD5(LabelNo))                                                 AS LabelNo_HSK,
+            COALESCE(Location_HSK,       MD5(CAST(Latitude AS STRING) || '^' || CAST(Longitude AS STRING))) AS Location_HSK,
+            COALESCE(ScanStatus_HSK,     MD5(ScanStatus || '^' || CountryName))                        AS ScanStatus_HSK,
             FranchiseeCode,
             CourierNumber,
             LabelNo,
@@ -91,14 +95,16 @@ BEGIN
     -- Record load metrics in log
     SET Result = 'Success';
     SET Ended  = CURRENT_DATETIME();
-    CALL `{{ project_id }}.{{ sp_dataset_id }}.SaveLog`(
+    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
         Component,
         ProcessID,
         Started,
         Ended,
         Result,
         ErrorMessage,
-        Inserted
+        Inserted,
+        -1,
+        -1
     );
 
 END;

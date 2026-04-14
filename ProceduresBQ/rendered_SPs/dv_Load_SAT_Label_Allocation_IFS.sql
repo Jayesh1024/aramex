@@ -1,6 +1,6 @@
 -- ==========================================================================================
--- Routine:     BQ_Load_SAT_Label_Allocation_IFS
--- Description: Loads attributes into SAT_Label_Allocation_IFS from `{{ project_id }}.{{ target_dataset_id }}.Staging_HDManifests_Stg`
+-- Routine:     dv_Load_SAT_Label_Allocation_IFS
+-- Description: Loads attributes into SAT_Label_Allocation_IFS from `searce-sandbox-da-delivery.Aramex_oceania.Staging_HDManifests_Stg`
 --              BigQuery compatible version of Load_SAT_Label_Allocation_IFS
 --              Note: MERGE with OUTPUT $action not supported in BQ.
 --                    Replaced with:
@@ -9,12 +9,12 @@
 --                    Audit table format preserved exactly.
 --                    PIVOT replaced with conditional aggregation.
 --                    dbo.GetHashKey replaced with TO_HEX(MD5(...)).
--- Example:     CALL dv.BQ_Load_SAT_Label_Allocation_IFS(153, 'IFS')
+-- Example:     CALL dv.dv_Load_SAT_Label_Allocation_IFS(153, 'IFS')
 -- History:
 --  25/07/2019  P. Waldron      Routine Written
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.BQ_Load_SAT_Label_Allocation_IFS`(
+CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_SAT_Label_Allocation_IFS`(
     IN ProcessID    INT64,
     IN RecordSource STRING
 )
@@ -37,10 +37,10 @@ BEGIN
         -- -----------------------------------------------------------------------
         -- STEP 1: Expire changed current rows (IsCurrent=0, ValidTo=Loaded)
         -- -----------------------------------------------------------------------
-        MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_IFS` AS Tgt
+        MERGE `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_IFS` AS Tgt
         USING (
             SELECT DISTINCT
-                Sat.LabelNo_HSK,
+                MD5(Stg.LabelNo) AS LabelNo_HSK,
                 Stg.LabelNo,
                 Stg.CountryCode,
                 IFNULL(cty.CountryName, 'Unknown') AS Country,
@@ -60,33 +60,29 @@ BEGIN
                 Stg.DateInserted,
                 Stg.RecordId,
                 Stg.UniqueParcelIdentifier
-            FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_HDManifests_Stg` Stg
-            LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` cty ON cty.CountryCode = Stg.CountryCode
-            LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_IFS` Sat ON Sat.LabelNo = Stg.LabelNo
+            FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_HDManifests_Stg` Stg
+            LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` cty ON cty.CountryCode = Stg.CountryCode
         ) AS Src
         ON  Tgt.LabelNo_HSK = Src.LabelNo_HSK
         AND Tgt.IsCurrent   = 1
         WHEN MATCHED AND (
-            -- Replicate EXCEPT change detection
-            IFNULL(Tgt.LabelNo,                         '') <> IFNULL(Src.LabelNo,                         '')
-         OR IFNULL(Tgt.CountryCode,                     '') <> IFNULL(Src.CountryCode,                     '')
-         OR IFNULL(Tgt.Country,                         '') <> IFNULL(Src.Country,                         '')
-         OR IFNULL(CAST(Tgt.ManifestId AS STRING),       '') <> IFNULL(CAST(Src.ManifestId AS STRING),       '')
-         OR IFNULL(CAST(Tgt.ConDate AS STRING),           '') <> IFNULL(CAST(Src.ConDate AS STRING),           '')
-         OR IFNULL(CAST(Tgt.ClientId AS STRING),          '') <> IFNULL(CAST(Src.ClientId AS STRING),          '')
-         OR IFNULL(CAST(Tgt.CustomerID AS STRING),        '') <> IFNULL(CAST(Src.CustomerID AS STRING),        '')
-         OR IFNULL(Tgt.DeliveryCountryCode,              '') <> IFNULL(Src.DeliveryCountryCode,              '')
-         OR IFNULL(Tgt.CollectionCountryCode,            '') <> IFNULL(Src.CollectionCountryCode,            '')
-         OR IFNULL(Tgt.DeliveryRF,                       '') <> IFNULL(Src.DeliveryRF,                       '')
-         OR IFNULL(Tgt.CollectionRF,                     '') <> IFNULL(Src.CollectionRF,                     '')
-         OR IFNULL(CAST(Tgt.Quantity AS STRING),          '') <> IFNULL(CAST(Src.Quantity AS STRING),          '')
-         OR IFNULL(CAST(Tgt.Weight AS STRING),            '') <> IFNULL(CAST(Src.Weight AS STRING),            '')
-         OR IFNULL(CAST(Tgt.Width AS STRING),             '') <> IFNULL(CAST(Src.Width AS STRING),             '')
-         OR IFNULL(CAST(Tgt.Length AS STRING),            '') <> IFNULL(CAST(Src.Length AS STRING),            '')
-         OR IFNULL(CAST(Tgt.Height AS STRING),            '') <> IFNULL(CAST(Src.Height AS STRING),            '')
-         OR IFNULL(CAST(Tgt.DateInserted AS STRING),      '') <> IFNULL(CAST(Src.DateInserted AS STRING),      '')
-         OR IFNULL(CAST(Tgt.RecordId AS STRING),          '') <> IFNULL(CAST(Src.RecordId AS STRING),          '')
-         OR IFNULL(Tgt.UniqueParcelIdentifier,            '') <> IFNULL(Src.UniqueParcelIdentifier,            '')
+            -- Replicate EXCEPT change detection with proper BigQuery type casting
+               IFNULL(CAST(Tgt.ManifestId AS STRING), '')            <> IFNULL(CAST(Src.ManifestId AS STRING), '')
+            OR IFNULL(CAST(Tgt.ConDate AS STRING), '')               <> IFNULL(CAST(Src.ConDate AS STRING), '')
+            OR IFNULL(CAST(Tgt.ClientId AS STRING), '')              <> IFNULL(CAST(Src.ClientId AS STRING), '')
+            OR IFNULL(CAST(Tgt.CustomerID AS STRING), '')            <> IFNULL(CAST(Src.CustomerID AS STRING), '')
+            OR IFNULL(CAST(Tgt.DeliveryCountryCode AS STRING), '')   <> IFNULL(CAST(Src.DeliveryCountryCode AS STRING), '')
+            OR IFNULL(CAST(Tgt.CollectionCountryCode AS STRING), '') <> IFNULL(CAST(Src.CollectionCountryCode AS STRING), '')
+            OR IFNULL(CAST(Tgt.DeliveryRF AS STRING), '')            <> IFNULL(CAST(Src.DeliveryRF AS STRING), '')
+            OR IFNULL(CAST(Tgt.CollectionRF AS STRING), '')          <> IFNULL(CAST(Src.CollectionRF AS STRING), '')
+            OR IFNULL(CAST(Tgt.Quantity AS STRING), '')              <> IFNULL(CAST(Src.Quantity AS STRING), '')
+            OR IFNULL(CAST(Tgt.Weight AS STRING), '')                <> IFNULL(CAST(Src.Weight AS STRING), '')
+            OR IFNULL(CAST(Tgt.Width AS STRING), '')                 <> IFNULL(CAST(Src.Width AS STRING), '')
+            OR IFNULL(CAST(Tgt.Length AS STRING), '')                <> IFNULL(CAST(Src.Length AS STRING), '')
+            OR IFNULL(CAST(Tgt.Height AS STRING), '')                <> IFNULL(CAST(Src.Height AS STRING), '')
+            OR IFNULL(CAST(Tgt.DateInserted AS STRING), '')          <> IFNULL(CAST(Src.DateInserted AS STRING), '')
+            OR IFNULL(CAST(Tgt.RecordId AS STRING), '')              <> IFNULL(CAST(Src.RecordId AS STRING), '')
+            OR IFNULL(CAST(Tgt.UniqueParcelIdentifier AS STRING), '')<> IFNULL(CAST(Src.UniqueParcelIdentifier AS STRING), '')
         )
         THEN UPDATE SET
             IsCurrent = 0,
@@ -97,7 +93,7 @@ BEGIN
         -- -----------------------------------------------------------------------
         -- STEP 2: Insert new rows for unmatched source records
         -- -----------------------------------------------------------------------
-        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_IFS`
+        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_IFS`
         (
             LabelNo_HSK,
             LabelNo,
@@ -128,7 +124,7 @@ BEGIN
             UniqueParcelIdentifier
         )
         SELECT DISTINCT
-            IFNULL(Sat.LabelNo_HSK, TO_HEX(MD5(Stg.LabelNo))) AS LabelNo_HSK,
+            MD5(Stg.LabelNo) AS LabelNo_HSK,
             Stg.LabelNo,
             Stg.CountryCode,
             IFNULL(cty.CountryName, 'Unknown') AS Country,
@@ -147,21 +143,20 @@ BEGIN
             Stg.Height,
             Stg.DateInserted,
             Stg.RecordId,
-            Loaded          AS Loaded,
-            ProcessID       AS ProcessId,
+            Loaded,
+            ProcessID,
             RecordSource,
-            Stg.RecordId    AS RecordSourceId,
-            DefaultValidFrom AS ValidFrom,
-            DefaultValidTo  AS ValidTo,
-            1               AS IsCurrent,
+            Stg.RecordId,
+            DefaultValidFrom,
+            DefaultValidTo,
+            1,
             Stg.UniqueParcelIdentifier
-        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_HDManifests_Stg` Stg
-        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` cty ON cty.CountryCode = Stg.CountryCode
-        LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_IFS` Sat ON Sat.LabelNo = Stg.LabelNo
+        FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_HDManifests_Stg` Stg
+        LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` cty ON cty.CountryCode = Stg.CountryCode
         WHERE NOT EXISTS (
             SELECT 1
-            FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_IFS` AS Tgt
-            WHERE Tgt.LabelNo_HSK = IFNULL(Sat.LabelNo_HSK, TO_HEX(MD5(Stg.LabelNo)))
+            FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_IFS` AS Tgt
+            WHERE Tgt.LabelNo_HSK = MD5(Stg.LabelNo)
               AND Tgt.IsCurrent   = 1
         );
 
@@ -175,21 +170,21 @@ BEGIN
     END;
 
     -- -----------------------------------------------------------------------
-    -- Audit counts: replicate PIVOT(IsCurrent in [0],[1]) pattern
+    -- Audit counts based on current ProcessID
     -- -----------------------------------------------------------------------
     SET Updated = (
         SELECT IFNULL(COUNTIF(IsCurrent = 0), 0)
-        FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_IFS`
-        WHERE ProcessId = ProcessID
+        FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_IFS`
+        WHERE ProcessId = ProcessID AND ValidTo = Loaded
     );
     SET Inserted = (
         SELECT IFNULL(COUNTIF(IsCurrent = 1), 0)
-        FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_IFS`
-        WHERE ProcessId = ProcessID
+        FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_IFS`
+        WHERE ProcessId = ProcessID AND Loaded = Loaded
     );
 
     SET Ended = CURRENT_DATETIME();
-    CALL `{{ project_id }}.{{ sp_dataset_id }}.SaveLog`(
+    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
         Component,
         ProcessID,
         Started,
@@ -197,7 +192,8 @@ BEGIN
         Result,
         ErrorMessage,
         Inserted,
-        Updated
+        Updated,
+        -1
     );
 
 END;
