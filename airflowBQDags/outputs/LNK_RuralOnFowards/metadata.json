@@ -1,0 +1,130 @@
+{
+  "Package\\Load LA_RuraOnForwards": {
+    "task_metadata": {
+      "Package\\Load LA_RuraOnForwards\\Data Flow Task": {
+        "task_metadata": {
+          "task_dependency_map": {
+            "Package\\Load LA_RuraOnForwards\\Data Flow Task\\Get Error Details.Outputs[Error Columns]": [
+              "Package\\Load LA_RuraOnForwards\\Data Flow Task\\Save Error.Inputs[OLE DB Destination Input]"
+            ],
+            "Package\\Load LA_RuraOnForwards\\Data Flow Task\\LA_RuralOnFowards (Bulk Load).Outputs[OLE DB Destination Error Output]": [
+              "Package\\Load LA_RuraOnForwards\\Data Flow Task\\Label_Onforwards_Stg.Inputs[OLE DB Destination Input]"
+            ],
+            "Package\\Load LA_RuraOnForwards\\Data Flow Task\\Label_Onforwards_Stg.Outputs[OLE DB Destination Error Output]": [
+              "Package\\Load LA_RuraOnForwards\\Data Flow Task\\Get Error Details.Inputs[Input 0]"
+            ],
+            "Package\\Load LA_RuraOnForwards\\Data Flow Task\\LA_RuralOnforwards.Outputs[OLE DB Source Output]": [
+              "Package\\Load LA_RuraOnForwards\\Data Flow Task\\LA_RuralOnFowards (Bulk Load).Inputs[OLE DB Destination Input]"
+            ]
+          },
+          "exec_order": {
+            "Package\\Load LA_RuraOnForwards\\Data Flow Task\\Get Error Details.Outputs[Error Columns]": 1,
+            "Package\\Load LA_RuraOnForwards\\Data Flow Task\\Label_Onforwards_Stg.Outputs[OLE DB Destination Error Output]": 1,
+            "Package\\Load LA_RuraOnForwards\\Data Flow Task\\LA_RuralOnforwards.Outputs[OLE DB Source Output]": 1,
+            "Package\\Load LA_RuraOnForwards\\Data Flow Task\\LA_RuralOnFowards (Bulk Load).Outputs[OLE DB Destination Error Output]": 1,
+            "Package\\Load LA_RuraOnForwards\\Data Flow Task\\Save Error.Inputs[OLE DB Destination Input]": 2,
+            "Package\\Load LA_RuraOnForwards\\Data Flow Task\\Get Error Details.Inputs[Input 0]": 2,
+            "Package\\Load LA_RuraOnForwards\\Data Flow Task\\LA_RuralOnFowards (Bulk Load).Inputs[OLE DB Destination Input]": 2,
+            "Package\\Load LA_RuraOnForwards\\Data Flow Task\\Label_Onforwards_Stg.Inputs[OLE DB Destination Input]": 2
+          },
+          "per_component_data": {
+            "Package\\Load LA_RuraOnForwards\\Data Flow Task\\Label_Onforwards_Stg": {
+              "component_type": "Microsoft.OLEDBDestination",
+              "component_info": {
+                "table_name": "LA_RuralOnforwards_Stg",
+                "schema_name": "Staging"
+              }
+            },
+            "Package\\Load LA_RuraOnForwards\\Data Flow Task\\LA_RuralOnforwards": {
+              "component_type": "Microsoft.OLEDBSource",
+              "component_info": {
+                "sql_command": null,
+                "schema_name": "dbo",
+                "table_name": "LA_RuralOnforwards"
+              }
+            },
+            "Package\\Load LA_RuraOnForwards\\Data Flow Task\\LA_RuralOnFowards (Bulk Load)": {
+              "component_type": "Microsoft.OLEDBDestination",
+              "component_info": {
+                "table_name": "LA_RuralOnforwards_Stg",
+                "schema_name": "Staging"
+              }
+            },
+            "Package\\Load LA_RuraOnForwards\\Data Flow Task\\Save Error": {
+              "component_type": "Microsoft.OLEDBDestination",
+              "component_info": {
+                "table_name": "SourceData_Err",
+                "schema_name": "Staging"
+              }
+            }
+          }
+        },
+        "task_type": "Microsoft.Pipeline"
+      },
+      "Package\\Load LA_RuraOnForwards\\Execute SQL Task": {
+        "task_metadata": {
+          "query": "\nEXEC [dv].[Load_LNK_RuralOnforwards]\n\n\n",
+          "param_map": {},
+          "result_set": {
+            "NextDate": null,
+            "null": null
+          }
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Load LA_RuraOnForwards\\Get LastDate (LA_RuralOnforwards)": {
+        "task_metadata": {
+          "query": "Exec [Staging].[Get_LastValue] ?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "RecordSource14",
+              "direction": "Input"
+            }
+          },
+          "result_set": {
+            "LastValue": null,
+            "null": null
+          }
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Load LA_RuraOnForwards\\Set LastDate": {
+        "task_metadata": {
+          "query": "Exec [Staging].[Set_LastValue] ?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "RecordSource14",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Load LA_RuraOnForwards\\Truncate Staging Tables": {
+        "task_metadata": {
+          "query": "TRUNCATE TABLE [Staging].[LA_RuralOnforwards_Stg];\n",
+          "param_map": {},
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  },
+  "Package\\Sequence Container": {
+    "task_metadata": {
+      "Package\\Sequence Container\\Get ProcessID": {
+        "task_metadata": {
+          "query": "SELECT ProcessID =  MAX(ProcessID) FROM Staging.LoadLog",
+          "param_map": {},
+          "result_set": {
+            "ProcessID": null
+          }
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  }
+}

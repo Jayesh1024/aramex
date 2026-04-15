@@ -1,0 +1,77 @@
+{
+  "Package\\Final": {
+    "executables": {
+      "Package\\Final\\(ZENLog)": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Final\\Load HUB_Zen_Tickets",
+          "Package\\Final\\Load SAT_Zen_Tickets"
+        ]
+      },
+      "Package\\Final\\Load HUB_Zen_Tickets": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Final\\(ZENLog)"
+        ],
+        "upstream_dependencies": []
+      },
+      "Package\\Final\\Load SAT_Zen_Tickets": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Final\\(ZENLog)"
+        ],
+        "upstream_dependencies": []
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [],
+    "upstream_dependencies": [
+      "Package\\Staging"
+    ]
+  },
+  "Package\\Staging": {
+    "executables": {
+      "Package\\Staging\\Get Last Run Date (ZENLog)": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging\\Load Zen_Ticket_Stg"
+        ],
+        "upstream_dependencies": [
+          "Package\\Staging\\Truncate ZEN_Ticket_Stg"
+        ],
+        "referred_stored_proc": [
+          "[Staging].[Get_LastValue]"
+        ]
+      },
+      "Package\\Staging\\Get ProcessID": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging\\Truncate ZEN_Ticket_Stg"
+        ],
+        "upstream_dependencies": []
+      },
+      "Package\\Staging\\Load Zen_Ticket_Stg": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Staging\\Get Last Run Date (ZENLog)"
+        ]
+      },
+      "Package\\Staging\\Truncate ZEN_Ticket_Stg": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging\\Get Last Run Date (ZENLog)"
+        ],
+        "upstream_dependencies": [
+          "Package\\Staging\\Get ProcessID"
+        ]
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [
+      "Package\\Final"
+    ],
+    "upstream_dependencies": []
+  }
+}

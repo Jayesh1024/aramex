@@ -1,0 +1,72 @@
+{
+  "Package\\Load LA_RuraOnForwards": {
+    "executables": {
+      "Package\\Load LA_RuraOnForwards\\Data Flow Task": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [
+          "Package\\Load LA_RuraOnForwards\\Execute SQL Task"
+        ],
+        "upstream_dependencies": [
+          "Package\\Load LA_RuraOnForwards\\Get LastDate (LA_RuralOnforwards)"
+        ]
+      },
+      "Package\\Load LA_RuraOnForwards\\Execute SQL Task": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Load LA_RuraOnForwards\\Set LastDate"
+        ],
+        "upstream_dependencies": [
+          "Package\\Load LA_RuraOnForwards\\Data Flow Task"
+        ]
+      },
+      "Package\\Load LA_RuraOnForwards\\Get LastDate (LA_RuralOnforwards)": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Load LA_RuraOnForwards\\Data Flow Task"
+        ],
+        "upstream_dependencies": [
+          "Package\\Load LA_RuraOnForwards\\Truncate Staging Tables"
+        ],
+        "referred_stored_proc": [
+          "[Staging].[Get_LastValue]"
+        ]
+      },
+      "Package\\Load LA_RuraOnForwards\\Set LastDate": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Load LA_RuraOnForwards\\Execute SQL Task"
+        ],
+        "referred_stored_proc": [
+          "[Staging].[Set_LastValue]"
+        ]
+      },
+      "Package\\Load LA_RuraOnForwards\\Truncate Staging Tables": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Load LA_RuraOnForwards\\Get LastDate (LA_RuralOnforwards)"
+        ],
+        "upstream_dependencies": []
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [],
+    "upstream_dependencies": [
+      "Package\\Sequence Container"
+    ]
+  },
+  "Package\\Sequence Container": {
+    "executables": {
+      "Package\\Sequence Container\\Get ProcessID": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": []
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [
+      "Package\\Load LA_RuraOnForwards"
+    ],
+    "upstream_dependencies": []
+  }
+}

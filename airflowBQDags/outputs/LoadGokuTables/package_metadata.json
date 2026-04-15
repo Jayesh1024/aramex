@@ -1,0 +1,274 @@
+{
+  "package_name": "LoadGokuTables",
+  "executables": {
+    "Package\\Check if Secondary": {
+      "task_metadata": {
+        "query": "declare @IsPrimary bit;\n\nSELECT @IsPrimary = sys.fn_hadr_is_primary_replica ( 'OnlineEnquiries_NEW' )\n\nIF @IsPrimary != 1 RAISERROR('Error - Connected to Secondary. Cannot run Change Tracking queries',11,9);\n",
+        "param_map": {},
+        "result_set": {}
+      },
+      "task_type": "Microsoft.ExecuteSQLTask"
+    },
+    "Package\\ClickAndCollect Table": {
+      "task_metadata": {
+        "Package\\ClickAndCollect Table\\Get ClickAndConnect": {
+          "task_metadata": {
+            "task_dependency_map": {
+              "Package\\ClickAndCollect Table\\Get ClickAndConnect\\Get ClickAndConnect changes": [
+                "Package\\ClickAndCollect Table\\Get ClickAndConnect\\Put ClickAndConnect"
+              ]
+            },
+            "exec_order": {
+              "Package\\ClickAndCollect Table\\Get ClickAndConnect\\Get ClickAndConnect changes": 1,
+              "Package\\ClickAndCollect Table\\Get ClickAndConnect\\Put ClickAndConnect": 2
+            },
+            "per_component_data": {
+              "Package\\ClickAndCollect Table\\Get ClickAndConnect\\Get ClickAndConnect changes": {
+                "component_type": "Microsoft.OLEDBSource",
+                "component_info": {
+                  "sql_command": "DECLARE @synchronization_version bigint = ?;\n                      DECLARE @minimumVersion  bigint;\n                      DECLARE @IsReload bit = ?;\n\n                      SET @minimumVersion  = CHANGE_TRACKING_MIN_VALID_VERSION(OBJECT_ID('dbo.FWFastlabel_ClickAndCollect'))\n\n                      IF (@synchronization_version < @minimumVersion AND @IsReload  = 0)  RAISERROR('ERROR - Synchronization version invalid', 11, 11);\n\n                      SELECT \n                            Cng.[Id]\n                            ,Cng.[SYS_CHANGE_VERSION]\n                            ,Cng.[SYS_CHANGE_OPERATION]\n                            ,[Label]\n                            ,[ToContactName]\n                            ,[ToStreetAddress]\n                            ,[ToLocality]\n                            ,[ToStateOrProvince]\n                            ,[ToPostalCode]\n                            ,[ToCountry]\n                            ,[ToPhoneNumber]\n                            ,[ToEmail]\n                            ,[WeightDead]\n                            ,[WeightCubic]\n                            ,[Length]\n                            ,[Width]\n                            ,[Height]\n                            ,[FromRf]\n                            ,[FromStreetAddress]\n                            ,[FromLocality]\n                            ,[FromStateOrProvince]\n                            ,[FromPostalCode]\n                            ,[FromCountry]\n                            ,[FromPhoneNumber]\n                            ,[FromEmail]\n                            ,[CreatedOn]\n                            ,[CreatedBy]\n                            ,[Processed]\n                            ,[ProcessedOn]\n                        FROM CHANGETABLE (CHANGES FWFastlabel_ClickAndCollect, @synchronization_version) Cng \t\n                        LEFT JOIN [OnlineEnquiries_NEW].[dbo].[FWFastlabel_ClickAndCollect] AS CNC ON Cng.ID = CNC.Id\n                        WHERE @IsReload = 0\n\n                        UNION\n                        SELECT\n                            [Id]\n                            ,@minimumVersion AS [SYS_CHANGE_VERSION]\n                            ,'I' AS [SYS_CHANGE_OPERATION]\n                            ,[Label]\n                            ,[ToContactName]\n                            ,[ToStreetAddress]\n                            ,[ToLocality]\n                            ,[ToStateOrProvince]\n                            ,[ToPostalCode]\n                            ,[ToCountry]\n                            ,[ToPhoneNumber]\n                            ,[ToEmail]\n                            ,[WeightDead]\n                            ,[WeightCubic]\n                            ,[Length]\n                            ,[Width]\n                            ,[Height]\n                            ,[FromRf]\n                            ,[FromStreetAddress]\n                            ,[FromLocality]\n                            ,[FromStateOrProvince]\n                            ,[FromPostalCode]\n                            ,[FromCountry]\n                            ,[FromPhoneNumber]\n                            ,[FromEmail]\n                            ,[CreatedOn]\n                            ,[CreatedBy]\n                            ,[Processed]\n                            ,[ProcessedOn]\n                        FROM [OnlineEnquiries_NEW].[dbo].[FWFastlabel_ClickAndCollect] AS CNC\n                        WHERE @IsReload = 1",
+                  "connection_names": [
+                    "Project.ConnectionManagers[GOKU.OnlineEnquiries_NEW]"
+                  ],
+                  "inline_positional_params": true,
+                  "inline_positional_params_mapping": {
+                    "param_1": "LastVersion",
+                    "param_2": "(unresolved:{D9E7E928-98CB-4255-9769-16B4D62E2EEF})"
+                  },
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": [
+                      "LastVersion"
+                    ]
+                  }
+                }
+              },
+              "Package\\ClickAndCollect Table\\Get ClickAndConnect\\Put ClickAndConnect": {
+                "component_type": "Microsoft.OLEDBDestination",
+                "component_info": {
+                  "table_name": "FWFastlabel_ClickAndCollect_Stg",
+                  "schema_name": "Staging",
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": []
+                  }
+                }
+              }
+            }
+          },
+          "task_type": "Microsoft.Pipeline"
+        },
+        "Package\\ClickAndCollect Table\\Load Target Table": {
+          "task_metadata": {
+            "query": "exec Load_ClickAndCollect",
+            "param_map": {},
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\ClickAndCollect Table\\Truncate FWFastlabel_ClickAndCollect_Stg": {
+          "task_metadata": {
+            "query": "TRUNCATE TABLE [Staging].[FWFastlabel_ClickAndCollect_Stg];\n\nEXEC [dbo].[MaintainIndexes] @Operation = 'DISABLE', @SchemaName = 'Staging', @TableName = 'FWFastlabel_ClickAndCollect_Stg';",
+            "param_map": {},
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        }
+      },
+      "task_type": "STOCK:SEQUENCE"
+    },
+    "Package\\Get Last CT Version": {
+      "task_metadata": {
+        "query": "\nSELECT LastValue = LastSyncVersion \nFROM [Staging].[LoadControl_ChangeTracking]\nWHERE TargetName = 'Payzone'",
+        "param_map": {},
+        "result_set": {
+          "LastValue": {
+            "variable_name": "LastVersion",
+            "result_type": "ResultSetType_SingleRow"
+          }
+        }
+      },
+      "task_type": "Microsoft.ExecuteSQLTask"
+    },
+    "Package\\Get Next CT Version": {
+      "task_metadata": {
+        "query": "\nSELECT NextValue = CHANGE_TRACKING_CURRENT_VERSION()",
+        "param_map": {},
+        "result_set": {
+          "NextValue": {
+            "variable_name": "NextVersion",
+            "result_type": "ResultSetType_SingleRow"
+          }
+        }
+      },
+      "task_type": "Microsoft.ExecuteSQLTask"
+    },
+    "Package\\Payzone_agents": {
+      "task_metadata": {
+        "Package\\Payzone_agents\\Load Target Table": {
+          "task_metadata": {
+            "query": "exec Load_Payzone_Agents",
+            "param_map": {},
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Payzone_agents\\payzone_agents": {
+          "task_metadata": {
+            "task_dependency_map": {
+              "Package\\Payzone_agents\\payzone_agents\\Get Payzone Agents": [
+                "Package\\Payzone_agents\\payzone_agents\\Put Payzone Agents"
+              ]
+            },
+            "exec_order": {
+              "Package\\Payzone_agents\\payzone_agents\\Get Payzone Agents": 1,
+              "Package\\Payzone_agents\\payzone_agents\\Put Payzone Agents": 2
+            },
+            "per_component_data": {
+              "Package\\Payzone_agents\\payzone_agents\\Get Payzone Agents": {
+                "component_type": "Microsoft.OLEDBSource",
+                "component_info": {
+                  "sql_command": "DECLARE @synchronization_version bigint = ?;\nDECLARE @minimumVersion bigint; \nDECLARE @IsReload bit = ?;\n\nSET @minimumVersion  = CHANGE_TRACKING_MIN_VALID_VERSION(OBJECT_ID('dbo.payzone_agents'))\n\nIF (@synchronization_version < @minimumVersion  AND @IsReload  = 0 )  RAISERROR('ERROR - Synchronization version invalid', 11, 11);\n\nSELECT Src.[id]\n      ,[region_id]\n      ,[courier_no]\n      ,[store_identifier]\n      ,[store_name]\n      ,[store_address1]\n      ,[store_latitude]\n      ,[store_longitude]\n      ,[store_address2]\n      ,[store_town]\n      ,[store_county]\n      ,[store_active]\n      ,[is_test]\n      ,[Postcode]\n      ,[MyLocateCode]\n      ,[ApplicationFormReceived]\n      ,[SignedAgreementReceived]\n      ,[InsuranceCertificateSupplied]\n      ,[TradingHours]\n      ,[PhoneNo]\n      ,[NotificationSent]\n      ,[CreatedBy]\n      ,[CreatedByCountry]\n      ,[UserId]\n      ,[ApplicationId]\n      ,[Hubbed]\n      ,[AllowFwClickAndCollect]\n      ,[MaxWeightDead]\n      ,[DimensionCombinedMax]\n      ,[store_state]\n      ,[SYS_CHANGE_VERSION]\n      ,[SYS_CHANGE_OPERATION]\n  FROM CHANGETABLE (CHANGES payzone_agents, @synchronization_version) Cng \t\n  LEFT JOIN [OnlineEnquiries_NEW].[dbo].[payzone_agents] AS Src ON Cng.ID = Src.Id\n  WHERE @IsReload = 0\n\nUNION\nSELECT [id]\n      ,[region_id]\n      ,[courier_no]\n      ,[store_identifier]\n      ,[store_name]\n      ,[store_address1]\n      ,[store_latitude]\n      ,[store_longitude]\n      ,[store_address2]\n      ,[store_town]\n      ,[store_county]\n      ,[store_active]\n      ,[is_test]\n      ,[Postcode]\n      ,[MyLocateCode]\n      ,[ApplicationFormReceived]\n      ,[SignedAgreementReceived]\n      ,[InsuranceCertificateSupplied]\n      ,[TradingHours]\n      ,[PhoneNo]\n      ,[NotificationSent]\n      ,[CreatedBy]\n      ,[CreatedByCountry]\n      ,[UserId]\n      ,[ApplicationId]\n      ,[Hubbed]\n      ,[AllowFwClickAndCollect]\n      ,[MaxWeightDead]\n      ,[DimensionCombinedMax]\n      ,[store_state]\n      , @minimumVersion AS [SYS_CHANGE_VERSION]\n      ,'I' AS [SYS_CHANGE_OPERATION]\n  FROM [OnlineEnquiries_NEW].[dbo].[payzone_agents] AS Src\n  WHERE @IsReload = 1",
+                  "connection_names": [
+                    "Project.ConnectionManagers[GOKU.OnlineEnquiries_NEW]"
+                  ],
+                  "inline_positional_params": true,
+                  "inline_positional_params_mapping": {
+                    "param_1": "LastVersion",
+                    "param_2": "(unresolved:{D9E7E928-98CB-4255-9769-16B4D62E2EEF})"
+                  },
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": [
+                      "LastVersion"
+                    ]
+                  }
+                }
+              },
+              "Package\\Payzone_agents\\payzone_agents\\Put Payzone Agents": {
+                "component_type": "Microsoft.OLEDBDestination",
+                "component_info": {
+                  "table_name": "payzone_agents_stg",
+                  "schema_name": "Staging",
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": []
+                  }
+                }
+              }
+            }
+          },
+          "task_type": "Microsoft.Pipeline"
+        },
+        "Package\\Payzone_agents\\Truncate payzone_agents_stg": {
+          "task_metadata": {
+            "query": "TRUNCATE TABLE [Staging].[payzone_agents_stg];\n",
+            "param_map": {},
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        }
+      },
+      "task_type": "STOCK:SEQUENCE"
+    },
+    "Package\\Payzone_regions": {
+      "task_metadata": {
+        "Package\\Payzone_regions\\Load Target Table": {
+          "task_metadata": {
+            "query": "exec Load_Payzone_Regions",
+            "param_map": {},
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Payzone_regions\\payzone_regions": {
+          "task_metadata": {
+            "task_dependency_map": {
+              "Package\\Payzone_regions\\payzone_regions\\Get Payzone Regions": [
+                "Package\\Payzone_regions\\payzone_regions\\Put Payzone Regions"
+              ]
+            },
+            "exec_order": {
+              "Package\\Payzone_regions\\payzone_regions\\Get Payzone Regions": 1,
+              "Package\\Payzone_regions\\payzone_regions\\Put Payzone Regions": 2
+            },
+            "per_component_data": {
+              "Package\\Payzone_regions\\payzone_regions\\Get Payzone Regions": {
+                "component_type": "Microsoft.OLEDBSource",
+                "component_info": {
+                  "sql_command": "DECLARE @synchronization_version bigint = ?;\nDECLARE @minimumVersion bigint; \nDECLARE @IsReload bit = ?;\n\nSET @minimumVersion  = CHANGE_TRACKING_MIN_VALID_VERSION(OBJECT_ID('dbo.payzone_regions'))\n\nIF (@synchronization_version < @minimumVersion  AND @IsReload  = 0 ) RAISERROR('ERROR - Synchronization version invalid', 11, 11);\n\nSELECT Src.[id]\n      ,[franchisee_code]\n      ,[region_company_name]\n      ,[region_company_phone]\n      ,[region_address]\n      ,[region_company_email]\n      ,[secondary_franchisee_codes]\n      ,[CountryId]\n      ,[SYS_CHANGE_VERSION]\n      ,[SYS_CHANGE_OPERATION]\n  FROM CHANGETABLE (CHANGES payzone_regions, @synchronization_version) Cng \t\n  LEFT JOIN [OnlineEnquiries_NEW].[dbo].[payzone_regions] AS Src ON Cng.ID = Src.Id\n  WHERE @IsReload = 0\n\n  UNION\n  SELECT [id]\n      ,[franchisee_code]\n      ,[region_company_name]\n      ,[region_company_phone]\n      ,[region_address]\n      ,[region_company_email]\n      ,[secondary_franchisee_codes]\n      ,[CountryId]\n      ,@minimumVersion AS [SYS_CHANGE_VERSION]\n      ,'I' AS [SYS_CHANGE_OPERATION]\n  FROM [OnlineEnquiries_NEW].[dbo].[payzone_regions] AS Src\n  WHERE @IsReload = 1",
+                  "connection_names": [
+                    "Project.ConnectionManagers[GOKU.OnlineEnquiries_NEW]"
+                  ],
+                  "inline_positional_params": true,
+                  "inline_positional_params_mapping": {
+                    "param_1": "LastVersion",
+                    "param_2": "(unresolved:{D9E7E928-98CB-4255-9769-16B4D62E2EEF})"
+                  },
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": [
+                      "LastVersion"
+                    ]
+                  }
+                }
+              },
+              "Package\\Payzone_regions\\payzone_regions\\Put Payzone Regions": {
+                "component_type": "Microsoft.OLEDBDestination",
+                "component_info": {
+                  "table_name": "payzone_regions_stg",
+                  "schema_name": "Staging",
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": []
+                  }
+                }
+              }
+            }
+          },
+          "task_type": "Microsoft.Pipeline"
+        },
+        "Package\\Payzone_regions\\Truncate payzone_regions_stg": {
+          "task_metadata": {
+            "query": "TRUNCATE TABLE [Staging].[payzone_regions_stg]\n",
+            "param_map": {},
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        }
+      },
+      "task_type": "STOCK:SEQUENCE"
+    },
+    "Package\\Set Next CT_Version": {
+      "task_metadata": {
+        "query": "declare @NextVersion bigint = ?;\n\n\nif @NextVersion IS NOT NULL\nBEGIN\n UPDATE  [FastwayDW].[Staging].[LoadControl_ChangeTracking] \n SET LastSyncVersion = @NextVersion \n WHERE TargetName = 'payzone'\nEND",
+        "param_map": {
+          "param_0": {
+            "variable_name": "NextVersion",
+            "direction": "Input"
+          }
+        },
+        "result_set": {}
+      },
+      "task_type": "Microsoft.ExecuteSQLTask"
+    }
+  }
+}

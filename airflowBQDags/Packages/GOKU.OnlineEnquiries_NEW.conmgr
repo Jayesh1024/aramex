@@ -1,0 +1,20 @@
+﻿<?xml version="1.0"?>
+<DTS:ConnectionManager xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:ObjectName="GOKU.OnlineEnquiries_NEW"
+  DTS:DTSID="{002B0EB8-6CF6-4438-B06C-0F0FBFD8A4CD}"
+  DTS:CreationName="OLEDB">
+  <DTS:PropertyExpression
+    DTS:Name="ConnectionString">@[$Project::GOKUConnectionString]</DTS:PropertyExpression>
+  <DTS:PropertyExpression
+    DTS:Name="ServerName">@[$Project::GOKUServerName]</DTS:PropertyExpression>
+  <DTS:ObjectData>
+    <DTS:ConnectionManager
+      DTS:ConnectRetryCount="1"
+      DTS:ConnectRetryInterval="5"
+      DTS:ConnectionString="Data Source=UATGOKU;User ID=DW_UAT;Initial Catalog=OnlineEnquiries_NEW;Provider=SQLOLEDB.1;Persist Security Info=True;Application Name=SSIS-FastwayDW-{002B0EB8-6CF6-4438-B06C-0F0FBFD8A4CD}UATGOKU.OnlineEnquiries_NEW.DW_UAT;Auto Translate=False;">
+      <DTS:Password
+        DTS:Name="Password"
+        Sensitive="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAASHO3JnZBlEOO8g4PK9rI1gAAAAACAAAAAAAQZgAAAAEAACAAAACGORgAMJejvg1yNR85Hq8caFUwrbmJJS3UiAsDhnlEGAAAAAAOgAAAAAIAACAAAACqwf/u46+UsvU1rshixh7AXkRAy9O12kfkJDIEb6p1KYAAAACWUxSGiZNU9+5ecDPv4g1Fz41X35nA2B9ZIQibkAXJ4UcedQVxeBGviwCa26T2DCuL5qQECu4Dz00zcPnObxH5an4LJ+1MMvyUXGQi/lw32uEPCRQx/iTjCFdAYIF+V8nBYgl9jKLjijce1G4VlEiRHE/ZfrwAMo+ZpynnosqeQEAAAAC7e7EbSTVzflsk3KGP7vXJ/sh2/+GlT1apDI9gYmZ8Wu74lEOU9c7CtgzCZ9Bb5HdCDAVOLF21nIGvKbMc5cpv</DTS:Password>
+    </DTS:ConnectionManager>
+  </DTS:ObjectData>
+</DTS:ConnectionManager>

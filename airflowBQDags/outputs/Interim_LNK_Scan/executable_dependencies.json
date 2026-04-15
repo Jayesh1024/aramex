@@ -1,0 +1,211 @@
+{
+  "Package\\Final": {
+    "executables": {
+      "Package\\Final\\Defrag HUB_Location Indexes": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Final\\Load LNK"
+        ],
+        "upstream_dependencies": [
+          "Package\\Final\\Load HUB_Location"
+        ]
+      },
+      "Package\\Final\\Load HUB_Location": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Final\\Defrag HUB_Location Indexes"
+        ],
+        "upstream_dependencies": [],
+        "referred_stored_proc": [
+          "[dv].[Load_HUB_Location]"
+        ]
+      },
+      "Package\\Final\\Load LNK": {
+        "executables": {
+          "Package\\Final\\Load LNK\\Defrag LNK_Scan Indexes": {
+            "type": "Microsoft.ExecuteSQLTask",
+            "downstream_dependencies": [],
+            "upstream_dependencies": [
+              "Package\\Final\\Load LNK\\Load LNK_Scan"
+            ]
+          },
+          "Package\\Final\\Load LNK\\Interim Load_Scans_Stg": {
+            "type": "Microsoft.ExecuteSQLTask",
+            "downstream_dependencies": [
+              "Package\\Final\\Load LNK\\Load LNK_Scan_Stg"
+            ],
+            "upstream_dependencies": [
+              "Package\\Final\\Load LNK\\Truncate Staging Tables"
+            ],
+            "referred_stored_proc": []
+          },
+          "Package\\Final\\Load LNK\\Load LNK_Scan": {
+            "type": "Microsoft.ExecuteSQLTask",
+            "downstream_dependencies": [
+              "Package\\Final\\Load LNK\\Defrag LNK_Scan Indexes",
+              "Package\\Final\\Load LNK\\Load LNK_Scan_Signatures"
+            ],
+            "upstream_dependencies": [
+              "Package\\Final\\Load LNK\\Load LNK_Scan_Stg"
+            ],
+            "referred_stored_proc": [
+              "[dv].[Load_LNK_Scan]"
+            ]
+          },
+          "Package\\Final\\Load LNK\\Load LNK_Scan_Signatures": {
+            "type": "Microsoft.ExecuteSQLTask",
+            "downstream_dependencies": [
+              "Package\\Final\\Load LNK\\Set Last ID (TrackAndTraceID) Now in Interim_Fact_Scan_KPI"
+            ],
+            "upstream_dependencies": [
+              "Package\\Final\\Load LNK\\Load LNK_Scan"
+            ],
+            "referred_stored_proc": [
+              "[dv].[Load_LNK_Scan_Signature]"
+            ]
+          },
+          "Package\\Final\\Load LNK\\Load LNK_Scan_Stg": {
+            "type": "Microsoft.ExecuteSQLTask",
+            "downstream_dependencies": [
+              "Package\\Final\\Load LNK\\Load LNK_Scan"
+            ],
+            "upstream_dependencies": [
+              "Package\\Final\\Load LNK\\Interim Load_Scans_Stg"
+            ],
+            "referred_stored_proc": [
+              "[Staging].[Load_LNK_Scan_Stg]"
+            ]
+          },
+          "Package\\Final\\Load LNK\\Set Last ID (TrackAndTraceID) Now in Interim_Fact_Scan_KPI": {
+            "type": "Microsoft.ExecuteSQLTask",
+            "downstream_dependencies": [],
+            "upstream_dependencies": [
+              "Package\\Final\\Load LNK\\Load LNK_Scan_Signatures"
+            ],
+            "referred_stored_proc": [
+              "[InterimStaging].[Interim_Set_LastValue]"
+            ]
+          },
+          "Package\\Final\\Load LNK\\Truncate Staging Tables": {
+            "type": "Microsoft.ExecuteSQLTask",
+            "downstream_dependencies": [
+              "Package\\Final\\Load LNK\\Interim Load_Scans_Stg"
+            ],
+            "upstream_dependencies": []
+          }
+        },
+        "type": "STOCK:SEQUENCE",
+        "downstream_dependencies": [
+          "Package\\Final\\Load SignatureAI"
+        ],
+        "upstream_dependencies": [
+          "Package\\Final\\Defrag HUB_Location Indexes"
+        ]
+      },
+      "Package\\Final\\Load SignatureAI": {
+        "executables": {
+          "Package\\Final\\Load SignatureAI\\Load LNK_SignatureAI": {
+            "type": "Microsoft.ExecuteSQLTask",
+            "downstream_dependencies": [
+              "Package\\Final\\Load SignatureAI\\Set Last ID (SignatureAI)"
+            ],
+            "upstream_dependencies": []
+          },
+          "Package\\Final\\Load SignatureAI\\Set Last ID (SignatureAI)": {
+            "type": "Microsoft.ExecuteSQLTask",
+            "downstream_dependencies": [],
+            "upstream_dependencies": [
+              "Package\\Final\\Load SignatureAI\\Load LNK_SignatureAI"
+            ],
+            "referred_stored_proc": [
+              "[InterimStaging].[Interim_Set_LastValue]"
+            ]
+          }
+        },
+        "type": "STOCK:SEQUENCE",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Final\\Load LNK"
+        ]
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [],
+    "upstream_dependencies": [
+      "Package\\Staging"
+    ]
+  },
+  "Package\\Staging": {
+    "executables": {
+      "Package\\Staging\\Defrag TrackAndTrace_stg Indexes": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Staging\\Load TrackAndTrace_Stg"
+        ]
+      },
+      "Package\\Staging\\Get Last Date (SignatureAI)": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging\\Load TrackAndTrace SignatureAI"
+        ],
+        "upstream_dependencies": [
+          "Package\\Staging\\Truncate Staging tables"
+        ],
+        "referred_stored_proc": [
+          "[Staging].[Get_LastValue]"
+        ]
+      },
+      "Package\\Staging\\Get Last ID (TrackAndTraceID)": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging\\Load TrackAndTrace_Stg"
+        ],
+        "upstream_dependencies": [
+          "Package\\Staging\\Truncate Staging tables"
+        ],
+        "referred_stored_proc": [
+          "[Staging].[Get_LastValue]"
+        ]
+      },
+      "Package\\Staging\\Get ProcessID": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging\\Truncate Staging tables"
+        ],
+        "upstream_dependencies": []
+      },
+      "Package\\Staging\\Load TrackAndTrace SignatureAI": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Staging\\Get Last Date (SignatureAI)"
+        ]
+      },
+      "Package\\Staging\\Load TrackAndTrace_Stg": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [
+          "Package\\Staging\\Defrag TrackAndTrace_stg Indexes"
+        ],
+        "upstream_dependencies": [
+          "Package\\Staging\\Get Last ID (TrackAndTraceID)"
+        ]
+      },
+      "Package\\Staging\\Truncate Staging tables": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging\\Get Last ID (TrackAndTraceID)",
+          "Package\\Staging\\Get Last Date (SignatureAI)"
+        ],
+        "upstream_dependencies": [
+          "Package\\Staging\\Get ProcessID"
+        ]
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [
+      "Package\\Final"
+    ],
+    "upstream_dependencies": []
+  }
+}

@@ -5,3 +5,4 @@ python run_ddls.py \
     --location europe-west2 \
     --max-workers 20 \
     --log-dir LogFolder/logs
+

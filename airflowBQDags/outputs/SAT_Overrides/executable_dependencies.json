@@ -1,0 +1,110 @@
+{
+  "Package\\Customer Overrides - Final": {
+    "executables": {
+      "Package\\Customer Overrides - Final\\Load SAT_CustomerPriceOverride": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": []
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [],
+    "upstream_dependencies": [
+      "Package\\Customer Overrides - Staging"
+    ]
+  },
+  "Package\\Customer Overrides - Staging": {
+    "executables": {
+      "Package\\Customer Overrides - Staging\\Load Customer Price Overrides": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Customer Overrides - Staging\\Truncate Customer Overrides"
+        ]
+      },
+      "Package\\Customer Overrides - Staging\\Truncate Customer Overrides": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Customer Overrides - Staging\\Load Customer Price Overrides"
+        ],
+        "upstream_dependencies": []
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [
+      "Package\\Customer Overrides - Final"
+    ],
+    "upstream_dependencies": []
+  },
+  "Package\\Zones Overrides - Final": {
+    "executables": {
+      "Package\\Zones Overrides - Final\\Load SAT Zone Overrides": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Zones Overrides - Final\\Load SAT Zones"
+        ],
+        "referred_stored_proc": [
+          "[dv].[Load_SAT_FL_Zone_Overrides]"
+        ]
+      },
+      "Package\\Zones Overrides - Final\\Load SAT Zones": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Zones Overrides - Final\\Load SAT Zone Overrides"
+        ],
+        "upstream_dependencies": []
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [],
+    "upstream_dependencies": [
+      "Package\\Zones Overrides- Staging"
+    ]
+  },
+  "Package\\Zones Overrides- Staging": {
+    "executables": {
+      "Package\\Zones Overrides- Staging\\Load fl_Zones": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Zones Overrides- Staging\\Truncate Zones"
+        ]
+      },
+      "Package\\Zones Overrides- Staging\\Load Zone Satchel Overiides": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Zones Overrides- Staging\\Truncate Zone Overrides"
+        ]
+      },
+      "Package\\Zones Overrides- Staging\\Load Zone Weight Overiides": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Zones Overrides- Staging\\Truncate Zone Overrides"
+        ]
+      },
+      "Package\\Zones Overrides- Staging\\Truncate Zone Overrides": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Zones Overrides- Staging\\Load Zone Satchel Overiides",
+          "Package\\Zones Overrides- Staging\\Load Zone Weight Overiides"
+        ],
+        "upstream_dependencies": []
+      },
+      "Package\\Zones Overrides- Staging\\Truncate Zones": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Zones Overrides- Staging\\Load fl_Zones"
+        ],
+        "upstream_dependencies": []
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [
+      "Package\\Zones Overrides - Final"
+    ],
+    "upstream_dependencies": []
+  }
+}

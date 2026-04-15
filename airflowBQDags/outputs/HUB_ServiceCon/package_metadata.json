@@ -1,0 +1,192 @@
+{
+  "package_name": "HUB_ServiceCon",
+  "executables": {
+    "Package\\Final": {
+      "task_metadata": {
+        "Package\\Final\\Load HUB_ServiceCon": {
+          "task_metadata": {
+            "query": "SET DEADLOCK_PRIORITY 6;  --HIGH + 1\n\nExec [dv].[Load_LNK_Product_ServiceCon] ?,?",
+            "param_map": {
+              "param_0": {
+                "variable_name": "ProcessId",
+                "direction": "Input"
+              },
+              "param_1": {
+                "variable_name": "RecordSource13",
+                "direction": "Input"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Final\\Load SAT_ServiceCon": {
+          "task_metadata": {
+            "query": "Exec [dv].[Load_LSAT_Product_ServiceCon] ?,?",
+            "param_map": {
+              "param_0": {
+                "variable_name": "ProcessId",
+                "direction": "Input"
+              },
+              "param_1": {
+                "variable_name": "RecordSource13",
+                "direction": "Input"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Final\\Truncate LNK_Product_ServiceCon": {
+          "task_metadata": {
+            "query": "TRUNCATE TABLE [dv].[LNK_Product_ServiceCon] ;\n\n",
+            "param_map": {},
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Final\\Truncate LSAT_Product_ServiceCon": {
+          "task_metadata": {
+            "query": "TRUNCATE TABLE [dv].[LSAT_Product_ServiceCon]\n",
+            "param_map": {},
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        }
+      },
+      "task_type": "STOCK:SEQUENCE"
+    },
+    "Package\\Staging": {
+      "task_metadata": {
+        "Package\\Staging\\Load fl_ConSrv_Stg": {
+          "task_metadata": {
+            "task_dependency_map": {
+              "Package\\Staging\\Load fl_ConSrv_Stg\\Get Error Details": [
+                "Package\\Staging\\Load fl_ConSrv_Stg\\Save Error"
+              ],
+              "Package\\Staging\\Load fl_ConSrv_Stg\\fl_ConSrv_Stg (Bulk Insert)": [
+                "Package\\Staging\\Load fl_ConSrv_Stg\\fl_ConSrv _Stg"
+              ],
+              "Package\\Staging\\Load fl_ConSrv_Stg\\fl_ConSrv _Stg": [
+                "Package\\Staging\\Load fl_ConSrv_Stg\\Get Error Details"
+              ],
+              "Package\\Staging\\Load fl_ConSrv_Stg\\fl_ConSrv (Fastway)": [
+                "Package\\Staging\\Load fl_ConSrv_Stg\\fl_ConSrv_Stg (Bulk Insert)"
+              ]
+            },
+            "exec_order": {
+              "Package\\Staging\\Load fl_ConSrv_Stg\\fl_ConSrv (Fastway)": 1,
+              "Package\\Staging\\Load fl_ConSrv_Stg\\fl_ConSrv_Stg (Bulk Insert)": 2,
+              "Package\\Staging\\Load fl_ConSrv_Stg\\fl_ConSrv _Stg": 3,
+              "Package\\Staging\\Load fl_ConSrv_Stg\\Get Error Details": 4,
+              "Package\\Staging\\Load fl_ConSrv_Stg\\Save Error": 5
+            },
+            "per_component_data": {
+              "Package\\Staging\\Load fl_ConSrv_Stg\\fl_ConSrv (Fastway)": {
+                "component_type": "Microsoft.OLEDBSource",
+                "component_info": {
+                  "sql_command": "DECLARE @startDate2 datetime  = DATEADD(DAY, -14, GETDATE());\nDECLARE  @ConId bigint\n\nSELECT TOP 1 @ConId = ConId\nFROM [FWFastlabel].dbo.fl_Con (NOLOCK)\nWHERE CreatedOn >= @StartDate2\nORDER BY CreatedOn\n\n\nSELECT cs.[ConId]\n,con.[CountryId]\n,con.[CreatedOn]\n,cs.[ProductId]\n,cs.[ServiceItemId]\n,cs.[FMSInvoiceNo]\n,cs.[FMSInvoiceDate]\n,cs.[Price]\n,cs.[Tax]\n,cs.[Total]\n,cs.[PickUpPrice]\n,cs.[DeliveryPrice]\n,cs.[DLBSBatchId]\n,cs.[DLBSInvoiceDate]\n,cs.[DLBSInvoiceNo]\n,cs.[DLBSPrice]\n,cs.[DLBSTax]\n,cs.[DLBSTotal]\n,cs.[PLBSBatchId]\n,cs.[PLBSInvoiceDate]\n,cs.[PLBSInvoiceNo]\n,cs.[PLBSPrice]\n,cs.[PLBSTax]\n,cs.[PLBSTotal]\n,cs.[ServicePrice]\n,cs.[ServicePriceDiscountPercent]\n,cs.[ServicePriceDiscountFixed]\n,cs.[ServicePriceCommPercent]\n,cs.[ServicePriceComm]\n,cs.[UpdatedOn]\nFROM [FWFastlabel].[dbo].[fl_ConSrv] cs WITH (NOLOCK)\nINNER JOIN [FWFastlabel].[dbo].[fl_Con] con WITH (NOLOCK) on con.ConId = cs.ConId\nWHERE con.ConId >= @ConId",
+                  "connection_names": [
+                    "Project.ConnectionManagers[KRILLIN_Fastway]"
+                  ],
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": []
+                  }
+                }
+              },
+              "Package\\Staging\\Load fl_ConSrv_Stg\\fl_ConSrv _Stg": {
+                "component_type": "Microsoft.OLEDBDestination",
+                "component_info": {
+                  "table_name": "fl_ConSrv_Stg",
+                  "schema_name": "Staging",
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": []
+                  }
+                }
+              },
+              "Package\\Staging\\Load fl_ConSrv_Stg\\fl_ConSrv_Stg (Bulk Insert)": {
+                "component_type": "Microsoft.OLEDBDestination",
+                "component_info": {
+                  "table_name": "fl_ConSrv_Stg",
+                  "schema_name": "Staging",
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": []
+                  }
+                }
+              },
+              "Package\\Staging\\Load fl_ConSrv_Stg\\Save Error": {
+                "component_type": "Microsoft.OLEDBDestination",
+                "component_info": {
+                  "table_name": "SourceData_Err",
+                  "schema_name": "Staging",
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": []
+                  }
+                }
+              }
+            }
+          },
+          "task_type": "Microsoft.Pipeline"
+        },
+        "Package\\Staging\\Load_LSAT_Product_ServiceCon": {
+          "task_metadata": {
+            "query": "Exec [dv].[Load_Product_ServiceCon_Stg]  ?,?",
+            "param_map": {
+              "param_0": {
+                "variable_name": "ProcessId",
+                "direction": "Input"
+              },
+              "param_1": {
+                "variable_name": "RecordSource13",
+                "direction": "Input"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Staging\\Rebuild Indexes 13": {
+          "task_metadata": {
+            "query": "EXEC [dbo].[MaintainIndexes] @Operation = 'REBUILD', @SchemaName = 'Staging', @TableName = 'fl_ConSrv_Stg';",
+            "param_map": {},
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Staging\\Truncate fl_ConSrv_Stg": {
+          "task_metadata": {
+            "query": "TRUNCATE TABLE [Staging].[fl_ConSrv_Stg];\n\nEXEC [dbo].[MaintainIndexes] @Operation = 'DISABLE', @SchemaName = 'Staging', @TableName = 'fl_ConSrv_Stg';",
+            "param_map": {},
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Staging\\Truncate Product_ServiceCon_Stg": {
+          "task_metadata": {
+            "query": "TRUNCATE TABLE [Staging].[Product_ServiceCon_Stg];",
+            "param_map": {},
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        }
+      },
+      "task_type": "STOCK:SEQUENCE"
+    }
+  }
+}

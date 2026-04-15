@@ -1,0 +1,5 @@
+package_name,dataflow_executable_ref_id,referred_server_name,referred_database_name,referred_schema_name,referred_table_name,destination_server_name,destination_database_name,destination_schema_name,destination_table_name
+SAT_Overrides,Package\Customer Overrides - Staging\Load Customer Price Overrides,KRILLIN,Fastway,dbo,fl_PriceListCustomerOverride,CUBE,FastwayDW,Staging,fl_PriceListCustomerOverride_Stg
+SAT_Overrides,Package\Zones Overrides- Staging\Load fl_Zones,KRILLIN,Fastway,dbo,fl_Zones,CUBE,FastwayDW,Staging,fl_Zones_Stg
+SAT_Overrides,Package\Zones Overrides- Staging\Load Zone Satchel Overiides,KRILLIN,Fastway,dbo,fl_ServiceZoneSatchelOverrides,CUBE,FastwayDW,Staging,fl_ServiceZoneSatchelOverride_Stg
+SAT_Overrides,Package\Zones Overrides- Staging\Load Zone Weight Overiides,KRILLIN,Fastway,dbo,fl_ServiceZoneWeightOverrides,CUBE,FastwayDW,Staging,fl_ServiceZoneWeightOverride_Stg
