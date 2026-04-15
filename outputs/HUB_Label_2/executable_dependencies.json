@@ -1,0 +1,96 @@
+{
+  "Package\\Final": {
+    "executables": {
+      "Package\\Final\\Load LNK_Label_InterBranch": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Final\\Load LSAT_Label_InterBranch"
+        ],
+        "upstream_dependencies": [],
+        "referred_stored_proc": [
+          "[dv].[Load_LNK_Label_InterBranch]"
+        ]
+      },
+      "Package\\Final\\Load LSAT_Label_InterBranch": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Final\\Load LNK_Label_InterBranch"
+        ],
+        "referred_stored_proc": [
+          "[dv].[Load_LSAT_Label_InterBranch]"
+        ]
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [],
+    "upstream_dependencies": [
+      "Package\\Staging 2"
+    ]
+  },
+  "Package\\Monthly Miscellaneous": {
+    "executables": {
+      "Package\\Monthly Miscellaneous\\Maintain DLBS RFBatching": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Monthly Miscellaneous\\Truncate DLBS RF Batching"
+        ]
+      },
+      "Package\\Monthly Miscellaneous\\Truncate DLBS RF Batching": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Monthly Miscellaneous\\Maintain DLBS RFBatching"
+        ],
+        "upstream_dependencies": []
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [],
+    "upstream_dependencies": []
+  },
+  "Package\\Staging 2": {
+    "executables": {
+      "Package\\Staging 2\\Get LastId (InterBranch)": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging 2\\Load Label_Interbranch_Stg"
+        ],
+        "upstream_dependencies": [
+          "Package\\Staging 2\\Truncate Label_Interbranch_Stg"
+        ],
+        "referred_stored_proc": [
+          "[Staging].[Get_LastValue]"
+        ]
+      },
+      "Package\\Staging 2\\Load Label_Interbranch_Stg": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [
+          "Package\\Staging 2\\Set LastValue (InterBranch)"
+        ],
+        "upstream_dependencies": [
+          "Package\\Staging 2\\Get LastId (InterBranch)"
+        ]
+      },
+      "Package\\Staging 2\\Set LastValue (InterBranch)": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Staging 2\\Load Label_Interbranch_Stg"
+        ]
+      },
+      "Package\\Staging 2\\Truncate Label_Interbranch_Stg": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging 2\\Get LastId (InterBranch)"
+        ],
+        "upstream_dependencies": []
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [
+      "Package\\Final"
+    ],
+    "upstream_dependencies": []
+  }
+}

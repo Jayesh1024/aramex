@@ -1,0 +1,16 @@
+package_name,dataflow_executable_ref_id,referred_server_name,referred_database_name,referred_schema_name,referred_table_name,destination_server_name,destination_database_name,destination_schema_name,destination_table_name
+HUB_Customer,Package\Final\Load SAT_Customer_OES,CUBE,FastwayDW,Staging,tblCustomer_Stg,CUBE,FastwayDW,dv,SAT_Customer_OES
+HUB_Customer,Package\Staging\Load CustomerLinks_Stg,KRILLIN,Fastway,dbo,IFSCustomers,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Customer,Package\Staging\Load CustomerLinks_Stg,KRILLIN,Fastway,dbo,IFSCustomers,CUBE,FastwayDW,Staging,CustomerLinks_Stg
+HUB_Customer,Package\Staging\Load CustomerLinks_Stg,KRILLIN,Fastway,dbo,FMS_Customer,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Customer,Package\Staging\Load CustomerLinks_Stg,KRILLIN,Fastway,dbo,FMS_Customer,CUBE,FastwayDW,Staging,CustomerLinks_Stg
+HUB_Customer,Package\Staging\Load CustomerLinks_Stg,KRILLIN,Fastway,dbo,DLS_CustomerLinks,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Customer,Package\Staging\Load CustomerLinks_Stg,KRILLIN,Fastway,dbo,DLS_CustomerLinks,CUBE,FastwayDW,Staging,CustomerLinks_Stg
+HUB_Customer,Package\Staging\Load FMS_Customer_Stg,KRILLIN,Fastway,dbo,FMS_Customer,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Customer,Package\Staging\Load FMS_Customer_Stg,KRILLIN,Fastway,dbo,FMS_Customer,CUBE,FastwayDW,Staging,FMS_Customer_Stg
+HUB_Customer,Package\Staging\Load FMS_Customer_Stg,KRILLIN,Fastway,dbo,FMS_LookUpTableDetail,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Customer,Package\Staging\Load FMS_Customer_Stg,KRILLIN,Fastway,dbo,FMS_LookUpTableDetail,CUBE,FastwayDW,Staging,FMS_Customer_Stg
+HUB_Customer,Package\Staging\Load IFSCustomers_Stg,KRILLIN,Fastway,dbo,IFSCustomers,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Customer,Package\Staging\Load IFSCustomers_Stg,KRILLIN,Fastway,dbo,IFSCustomers,CUBE,FastwayDW,Staging,IFSCustomers_Stg
+HUB_Customer,Package\Staging\Load tblCustomer_Stg,GOKU,OnlineEnquiries_NEW,dbo,tblCustomer,CUBE,FastwayDW,Staging,tblCustomer_Stg
+HUB_Customer,Package\Staging\Load tblCustomer_Stg,GOKU,OnlineEnquiries_NEW,dbo,tblCustomer,CUBE,FastwayDW,Staging,SourceData_Err

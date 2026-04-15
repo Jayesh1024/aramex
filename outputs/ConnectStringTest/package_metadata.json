@@ -1,0 +1,61 @@
+{
+  "package_name": "ConnectStringTest",
+  "executables": {
+    "Package\\Execute SQL Task": {
+      "task_metadata": {
+        "query": "TRUNCATE TABLE [Staging].[tblCustomer_Stg];\n",
+        "param_map": {},
+        "result_set": {}
+      },
+      "task_type": "Microsoft.ExecuteSQLTask"
+    },
+    "Package\\Load tblCustomer_stg": {
+      "task_metadata": {
+        "task_dependency_map": {
+          "Package\\Load tblCustomer_stg\\tblCustomer data (OnlineEnquiries_NEW)": [
+            "Package\\Load tblCustomer_stg\\tblCustomer_Stg (Bulk Insert)"
+          ]
+        },
+        "exec_order": {
+          "Package\\Load tblCustomer_stg\\tblCustomer data (OnlineEnquiries_NEW)": 1,
+          "Package\\Load tblCustomer_stg\\tblCustomer_Stg (Bulk Insert)": 2
+        },
+        "per_component_data": {
+          "Package\\Load tblCustomer_stg\\tblCustomer data (OnlineEnquiries_NEW)": {
+            "component_type": "Microsoft.OLEDBSource",
+            "component_info": {
+              "sql_command": null,
+              "connection_names": [
+                "Project.ConnectionManagers[TEST_GOKU OnlineEnquiries_NEW]"
+              ],
+              "schema_name": "dbo",
+              "table_name": "tblCustomer",
+              "variables_used": {
+                "open_rowset_variable": null,
+                "sql_command_variable": null,
+                "open_rowset_variable_qualified": null,
+                "sql_command_variable_qualified": null,
+                "variables_used_distinct": []
+              }
+            }
+          },
+          "Package\\Load tblCustomer_stg\\tblCustomer_Stg (Bulk Insert)": {
+            "component_type": "Microsoft.OLEDBDestination",
+            "component_info": {
+              "table_name": "tblCustomer_Stg",
+              "schema_name": "Staging",
+              "variables_used": {
+                "open_rowset_variable": null,
+                "sql_command_variable": null,
+                "open_rowset_variable_qualified": null,
+                "sql_command_variable_qualified": null,
+                "variables_used_distinct": []
+              }
+            }
+          }
+        }
+      },
+      "task_type": "Microsoft.Pipeline"
+    }
+  }
+}

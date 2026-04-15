@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<DTS:ConnectionManager xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:ObjectName="P1_KRILLIN FastwayW"
+  DTS:DTSID="{E203F6FA-DFBF-49BA-823D-91B26A266AA5}"
+  DTS:CreationName="OLEDB">
+  <DTS:ObjectData>
+    <DTS:ConnectionManager
+      DTS:ConnectionString="Data Source=AXKSQ19P1\KRILLIN;Initial Catalog=Fastway;Provider=SQLNCLI11.1;Integrated Security=SSPI;Auto Translate=False;Application Name=SSIS-{E203F6FA-DFBF-49BA-823D-91B26A266AA5}P1_KRILLIN FastwayW;" />
+  </DTS:ObjectData>
+</DTS:ConnectionManager>

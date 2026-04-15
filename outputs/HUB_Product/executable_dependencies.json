@@ -1,0 +1,122 @@
+{
+  "Package\\Final": {
+    "executables": {
+      "Package\\Final\\Load HUB_Product": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [],
+        "referred_stored_proc": [
+          "[dv].[Load_HUB_Product]"
+        ]
+      },
+      "Package\\Final\\Load SAT_Product": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [],
+        "referred_stored_proc": [
+          "[dv].[Load_SAT_Product]"
+        ]
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [],
+    "upstream_dependencies": [
+      "Package\\Staging"
+    ]
+  },
+  "Package\\Final 2": {
+    "executables": {
+      "Package\\Final 2\\Load SAT_CustomerCommisionOverride": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [],
+        "referred_stored_proc": [
+          "[dv].[Load_SAT_CustomerCommissionOverride]"
+        ]
+      },
+      "Package\\Final 2\\Load SAT_STK_RFProduct": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [],
+        "referred_stored_proc": [
+          "[dv].[Load_SAT_STK_RFProducts]"
+        ]
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [],
+    "upstream_dependencies": [
+      "Package\\Staging 2",
+      "Package\\Staging 3"
+    ]
+  },
+  "Package\\Staging": {
+    "executables": {
+      "Package\\Staging\\Load Product_Stg": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Staging\\Truncate Prroduct_Stg"
+        ]
+      },
+      "Package\\Staging\\Truncate Prroduct_Stg": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging\\Load Product_Stg"
+        ],
+        "upstream_dependencies": []
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [
+      "Package\\Final"
+    ],
+    "upstream_dependencies": []
+  },
+  "Package\\Staging 2": {
+    "executables": {
+      "Package\\Staging 2\\Load STK_RFPrroduct_Stg": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Staging 2\\Truncate STK_RFPrroduct_Stg"
+        ]
+      },
+      "Package\\Staging 2\\Truncate STK_RFPrroduct_Stg": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging 2\\Load STK_RFPrroduct_Stg"
+        ],
+        "upstream_dependencies": []
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [
+      "Package\\Final 2"
+    ],
+    "upstream_dependencies": []
+  },
+  "Package\\Staging 3": {
+    "executables": {
+      "Package\\Staging 3\\Load FMS_CustomerCommisionOverride": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Staging 3\\Truncate FMS_CustomerCommisionOverride"
+        ]
+      },
+      "Package\\Staging 3\\Truncate FMS_CustomerCommisionOverride": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging 3\\Load FMS_CustomerCommisionOverride"
+        ],
+        "upstream_dependencies": []
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [
+      "Package\\Final 2"
+    ],
+    "upstream_dependencies": []
+  }
+}

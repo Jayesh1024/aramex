@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<DTS:ConnectionManager xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:ObjectName="CUBE.FastwayDW"
+  DTS:DTSID="{66292261-9521-45A6-ACCA-54377A482A00}"
+  DTS:CreationName="OLEDB">
+  <DTS:PropertyExpression
+    DTS:Name="ConnectionString">@[$Project::DWConnectionString]</DTS:PropertyExpression>
+  <DTS:PropertyExpression
+    DTS:Name="ServerName">@[$Project::DWServerName]</DTS:PropertyExpression>
+  <DTS:ObjectData>
+    <DTS:ConnectionManager
+      DTS:ConnectRetryCount="1"
+      DTS:ConnectRetryInterval="5"
+      DTS:ConnectionString="Data Source=AU01UATDB01VS;User ID=DW_UAT;Initial Catalog=FastwayDW;Provider=SQLNCLI11.1;Auto Translate=False;">
+      <DTS:Password
+        DTS:Name="PWD"
+        Sensitive="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAnohEZn8+FEOcyc6LYAP4jAAAAAACAAAAAAAQZgAAAAEAACAAAAD+mZ7EgWLTKWyhcBkdXP5fInEe3b3mRNs2KnwejhNgRwAAAAAOgAAAAAIAACAAAAAQ3UXbQwetDBOssWuFIkywFKaAocflRiENjnQptjesCXAAAADDayBPHXD+pLsNcmdVIM6+kosUVZfzATunc3cDqd8p93ZzczdE+9umcGdhWHLg9QtTxRb6c23Ep3AFX3cycWyRuaKPBYDGYf36KP10sgrGUvYTb8/JdiOln93m0E0MCC9FnMjvYsvGIOQm0WEAUnnmQAAAAFcO58lIYTEsWRlyltbItoCuHxHSWDXnXLyTF0Vpoh26xgbkKpDVXvXbwwjhVVmM3tD0R5dZ2dKSjfD6kkZS/vU=</DTS:Password>
+    </DTS:ConnectionManager>
+  </DTS:ObjectData>
+</DTS:ConnectionManager>

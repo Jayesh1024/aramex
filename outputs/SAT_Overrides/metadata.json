@@ -1,0 +1,221 @@
+{
+  "Package\\Customer Overrides - Final": {
+    "task_metadata": {
+      "Package\\Customer Overrides - Final\\Load SAT_CustomerPriceOverride": {
+        "task_metadata": {
+          "query": "EXEC [dv].[Load_SAT_FL_PriceListCustomerOverride]  ?,?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            },
+            "param_1": {
+              "variable_name": "RecordSource",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  },
+  "Package\\Customer Overrides - Staging": {
+    "task_metadata": {
+      "Package\\Customer Overrides - Staging\\Load Customer Price Overrides": {
+        "task_metadata": {
+          "task_dependency_map": {
+            "Package\\Customer Overrides - Staging\\Load Customer Price Overrides\\OLE DB Source.Outputs[OLE DB Source Output]": [
+              "Package\\Customer Overrides - Staging\\Load Customer Price Overrides\\OLE DB Destination.Inputs[OLE DB Destination Input]"
+            ]
+          },
+          "exec_order": {
+            "Package\\Customer Overrides - Staging\\Load Customer Price Overrides\\OLE DB Source.Outputs[OLE DB Source Output]": 1,
+            "Package\\Customer Overrides - Staging\\Load Customer Price Overrides\\OLE DB Destination.Inputs[OLE DB Destination Input]": 2
+          },
+          "per_component_data": {
+            "Package\\Customer Overrides - Staging\\Load Customer Price Overrides\\OLE DB Destination": {
+              "component_type": "Microsoft.OLEDBDestination",
+              "component_info": {
+                "table_name": "fl_PriceListCustomerOverride_Stg",
+                "schema_name": "Staging"
+              }
+            },
+            "Package\\Customer Overrides - Staging\\Load Customer Price Overrides\\OLE DB Source": {
+              "component_type": "Microsoft.OLEDBSource",
+              "component_info": {
+                "sql_command": null,
+                "schema_name": "dbo",
+                "table_name": "fl_PriceListCustomerOverride"
+              }
+            }
+          }
+        },
+        "task_type": "Microsoft.Pipeline"
+      },
+      "Package\\Customer Overrides - Staging\\Truncate Customer Overrides": {
+        "task_metadata": {
+          "query": "TRUNCATE TABLE Staging.fl_PriceListCustomerOverride_Stg;\nTRUNCATE TABLE [dv].[SAT_FL_PriceListCustomerOverride];",
+          "param_map": {},
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  },
+  "Package\\Zones Overrides - Final": {
+    "task_metadata": {
+      "Package\\Zones Overrides - Final\\Load SAT Zone Overrides": {
+        "task_metadata": {
+          "query": "Exec [dv].[Load_SAT_FL_Zone_Overrides] ?,?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            },
+            "param_1": {
+              "variable_name": "RecordSource",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Zones Overrides - Final\\Load SAT Zones": {
+        "task_metadata": {
+          "query": "[dv].[Load_SAT_FL_Zones]  ?,?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            },
+            "param_1": {
+              "variable_name": "RecordSource",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  },
+  "Package\\Zones Overrides- Staging": {
+    "task_metadata": {
+      "Package\\Zones Overrides- Staging\\Load fl_Zones": {
+        "task_metadata": {
+          "task_dependency_map": {
+            "Package\\Zones Overrides- Staging\\Load fl_Zones\\Load fl_Zones.Outputs[OLE DB Source Output]": [
+              "Package\\Zones Overrides- Staging\\Load fl_Zones\\Load fl_Zones_Stg.Inputs[OLE DB Destination Input]"
+            ]
+          },
+          "exec_order": {
+            "Package\\Zones Overrides- Staging\\Load fl_Zones\\Load fl_Zones.Outputs[OLE DB Source Output]": 1,
+            "Package\\Zones Overrides- Staging\\Load fl_Zones\\Load fl_Zones_Stg.Inputs[OLE DB Destination Input]": 2
+          },
+          "per_component_data": {
+            "Package\\Zones Overrides- Staging\\Load fl_Zones\\Load fl_Zones": {
+              "component_type": "Microsoft.OLEDBSource",
+              "component_info": {
+                "sql_command": null,
+                "schema_name": "dbo",
+                "table_name": "fl_Zones"
+              }
+            },
+            "Package\\Zones Overrides- Staging\\Load fl_Zones\\Load fl_Zones_Stg": {
+              "component_type": "Microsoft.OLEDBDestination",
+              "component_info": {
+                "table_name": "fl_Zones_Stg",
+                "schema_name": "Staging"
+              }
+            }
+          }
+        },
+        "task_type": "Microsoft.Pipeline"
+      },
+      "Package\\Zones Overrides- Staging\\Load Zone Satchel Overiides": {
+        "task_metadata": {
+          "task_dependency_map": {
+            "Package\\Zones Overrides- Staging\\Load Zone Satchel Overiides\\OLE DB Source.Outputs[OLE DB Source Output]": [
+              "Package\\Zones Overrides- Staging\\Load Zone Satchel Overiides\\OLE DB Destination.Inputs[OLE DB Destination Input]"
+            ]
+          },
+          "exec_order": {
+            "Package\\Zones Overrides- Staging\\Load Zone Satchel Overiides\\OLE DB Source.Outputs[OLE DB Source Output]": 1,
+            "Package\\Zones Overrides- Staging\\Load Zone Satchel Overiides\\OLE DB Destination.Inputs[OLE DB Destination Input]": 2
+          },
+          "per_component_data": {
+            "Package\\Zones Overrides- Staging\\Load Zone Satchel Overiides\\OLE DB Destination": {
+              "component_type": "Microsoft.OLEDBDestination",
+              "component_info": {
+                "table_name": "fl_ServiceZoneSatchelOverride_Stg",
+                "schema_name": "Staging"
+              }
+            },
+            "Package\\Zones Overrides- Staging\\Load Zone Satchel Overiides\\OLE DB Source": {
+              "component_type": "Microsoft.OLEDBSource",
+              "component_info": {
+                "sql_command": null,
+                "schema_name": "dbo",
+                "table_name": "fl_ServiceZoneSatchelOverrides"
+              }
+            }
+          }
+        },
+        "task_type": "Microsoft.Pipeline"
+      },
+      "Package\\Zones Overrides- Staging\\Load Zone Weight Overiides": {
+        "task_metadata": {
+          "task_dependency_map": {
+            "Package\\Zones Overrides- Staging\\Load Zone Weight Overiides\\Get fl_ServiceZoneWeightOverrides.Outputs[OLE DB Source Output]": [
+              "Package\\Zones Overrides- Staging\\Load Zone Weight Overiides\\Load fl_ServiceZoneWeightOverrides_Stg.Inputs[OLE DB Destination Input]"
+            ]
+          },
+          "exec_order": {
+            "Package\\Zones Overrides- Staging\\Load Zone Weight Overiides\\Get fl_ServiceZoneWeightOverrides.Outputs[OLE DB Source Output]": 1,
+            "Package\\Zones Overrides- Staging\\Load Zone Weight Overiides\\Load fl_ServiceZoneWeightOverrides_Stg.Inputs[OLE DB Destination Input]": 2
+          },
+          "per_component_data": {
+            "Package\\Zones Overrides- Staging\\Load Zone Weight Overiides\\Get fl_ServiceZoneWeightOverrides": {
+              "component_type": "Microsoft.OLEDBSource",
+              "component_info": {
+                "sql_command": null,
+                "schema_name": "dbo",
+                "table_name": "fl_ServiceZoneWeightOverrides"
+              }
+            },
+            "Package\\Zones Overrides- Staging\\Load Zone Weight Overiides\\Load fl_ServiceZoneWeightOverrides_Stg": {
+              "component_type": "Microsoft.OLEDBDestination",
+              "component_info": {
+                "table_name": "fl_ServiceZoneWeightOverride_Stg",
+                "schema_name": "Staging"
+              }
+            }
+          }
+        },
+        "task_type": "Microsoft.Pipeline"
+      },
+      "Package\\Zones Overrides- Staging\\Truncate Zone Overrides": {
+        "task_metadata": {
+          "query": "TRUNCATE TABLE Staging.fl_ServiceZoneSatchelOverride_Stg;\nTRUNCATE TABLE Staging.fl_ServiceZoneWeightOverride_Stg;\nTRUNCATE TABLE  [dv].[SAT_FL_ServiceZoneOverride];\n",
+          "param_map": {},
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Zones Overrides- Staging\\Truncate Zones": {
+        "task_metadata": {
+          "query": "TRUNCATE TABLE [Staging].[fl_Zones_Stg];\nTRUNCATE TABLE [dv].[SAT_FL_Zones];\nTRUNCATE TABLE [dv].[SAT_FL_ServiceZoneOverride];",
+          "param_map": {},
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  }
+}

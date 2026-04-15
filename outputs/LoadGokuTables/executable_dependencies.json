@@ -1,0 +1,140 @@
+{
+  "Package\\Check if Secondary": {
+    "type": "Microsoft.ExecuteSQLTask",
+    "downstream_dependencies": [
+      "Package\\Get Last CT Version"
+    ],
+    "upstream_dependencies": []
+  },
+  "Package\\ClickAndCollect Table": {
+    "executables": {
+      "Package\\ClickAndCollect Table\\Get ClickAndConnect": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [
+          "Package\\ClickAndCollect Table\\Load Target Table"
+        ],
+        "upstream_dependencies": [
+          "Package\\ClickAndCollect Table\\Truncate FWFastlabel_ClickAndCollect_Stg"
+        ]
+      },
+      "Package\\ClickAndCollect Table\\Load Target Table": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\ClickAndCollect Table\\Get ClickAndConnect"
+        ]
+      },
+      "Package\\ClickAndCollect Table\\Truncate FWFastlabel_ClickAndCollect_Stg": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\ClickAndCollect Table\\Get ClickAndConnect"
+        ],
+        "upstream_dependencies": []
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [
+      "Package\\Set Next CT_Version"
+    ],
+    "upstream_dependencies": [
+      "Package\\Get Next CT Version"
+    ]
+  },
+  "Package\\Get Last CT Version": {
+    "type": "Microsoft.ExecuteSQLTask",
+    "downstream_dependencies": [
+      "Package\\Get Next CT Version"
+    ],
+    "upstream_dependencies": [
+      "Package\\Check if Secondary"
+    ]
+  },
+  "Package\\Get Next CT Version": {
+    "type": "Microsoft.ExecuteSQLTask",
+    "downstream_dependencies": [
+      "Package\\Payzone_regions",
+      "Package\\ClickAndCollect Table",
+      "Package\\Payzone_agents"
+    ],
+    "upstream_dependencies": [
+      "Package\\Get Last CT Version"
+    ]
+  },
+  "Package\\Payzone_agents": {
+    "executables": {
+      "Package\\Payzone_agents\\Load Target Table": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Payzone_agents\\payzone_agents"
+        ]
+      },
+      "Package\\Payzone_agents\\payzone_agents": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [
+          "Package\\Payzone_agents\\Load Target Table"
+        ],
+        "upstream_dependencies": [
+          "Package\\Payzone_agents\\Truncate payzone_agents_stg"
+        ]
+      },
+      "Package\\Payzone_agents\\Truncate payzone_agents_stg": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Payzone_agents\\payzone_agents"
+        ],
+        "upstream_dependencies": []
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [
+      "Package\\Set Next CT_Version"
+    ],
+    "upstream_dependencies": [
+      "Package\\Get Next CT Version"
+    ]
+  },
+  "Package\\Payzone_regions": {
+    "executables": {
+      "Package\\Payzone_regions\\Load Target Table": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Payzone_regions\\payzone_regions"
+        ]
+      },
+      "Package\\Payzone_regions\\payzone_regions": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [
+          "Package\\Payzone_regions\\Load Target Table"
+        ],
+        "upstream_dependencies": [
+          "Package\\Payzone_regions\\Truncate payzone_regions_stg"
+        ]
+      },
+      "Package\\Payzone_regions\\Truncate payzone_regions_stg": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Payzone_regions\\payzone_regions"
+        ],
+        "upstream_dependencies": []
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [
+      "Package\\Set Next CT_Version"
+    ],
+    "upstream_dependencies": [
+      "Package\\Get Next CT Version"
+    ]
+  },
+  "Package\\Set Next CT_Version": {
+    "type": "Microsoft.ExecuteSQLTask",
+    "downstream_dependencies": [],
+    "upstream_dependencies": [
+      "Package\\Payzone_regions",
+      "Package\\ClickAndCollect Table",
+      "Package\\Payzone_agents"
+    ]
+  }
+}

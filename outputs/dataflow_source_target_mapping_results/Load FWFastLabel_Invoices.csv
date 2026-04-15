@@ -1,0 +1,5 @@
+package_name,dataflow_executable_ref_id,referred_server_name,referred_database_name,referred_schema_name,referred_table_name,destination_server_name,destination_database_name,destination_schema_name,destination_table_name
+Package1,Package\Staging\Load fl_InvoiceHeader_Stg,KRILLIN,FWFastLabel,dbo,fl_InvoiceHeader,CUBE,FastwayDW,Staging,SourceData_Err
+Package1,Package\Staging\Load fl_InvoiceHeader_Stg,KRILLIN,FWFastLabel,dbo,fl_InvoiceHeader,CUBE,FastwayDW,Staging,fl_InvoiceHeader_Stg
+Package1,Package\Staging\Load fl_InvoicePayment_Stg,KRILLIN,FWFastlabel,dbo,fl_InvoicePayment,CUBE,FastwayDW,Staging,SourceData_Err
+Package1,Package\Staging\Load fl_InvoicePayment_Stg,KRILLIN,FWFastlabel,dbo,fl_InvoicePayment,CUBE,FastwayDW,Staging,fl_InvoicePayment_Stg

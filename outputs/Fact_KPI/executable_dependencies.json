@@ -1,0 +1,87 @@
+{
+  "Package\\Final": {
+    "executables": {
+      "Package\\Final\\Load Fact KPI Labels": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Final\\Load Fact_KPI_Priority"
+        ],
+        "upstream_dependencies": [],
+        "referred_stored_proc": [
+          "[dbo].[Load_Fact_KPI_Daily]"
+        ]
+      },
+      "Package\\Final\\Load Fact KPI Performance": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Final\\Load Fact_KPI_Priority"
+        ],
+        "referred_stored_proc": [
+          "[dbo].[Load_Fact_KPI_Performance]"
+        ]
+      },
+      "Package\\Final\\Load Fact_KPI_Priority": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Final\\Load Fact KPI Performance"
+        ],
+        "upstream_dependencies": [
+          "Package\\Final\\Load Fact KPI Labels"
+        ]
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [],
+    "upstream_dependencies": [
+      "Package\\Staging"
+    ]
+  },
+  "Package\\Staging": {
+    "executables": {
+      "Package\\Staging\\Defrag Indexes": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Staging\\Load Fact_KPI_Daily_Stg"
+        ]
+      },
+      "Package\\Staging\\Load Fact_KPI_Daily_Stg": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging\\Defrag Indexes"
+        ],
+        "upstream_dependencies": [
+          "Package\\Staging\\Load KPI_Labels_Src_Stg"
+        ],
+        "referred_stored_proc": [
+          "[Staging].[Load_Fact_KPI_Daily_Stg]"
+        ]
+      },
+      "Package\\Staging\\Load KPI_Labels_Src_Stg": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging\\Load Fact_KPI_Daily_Stg"
+        ],
+        "upstream_dependencies": [
+          "Package\\Staging\\Truncate KPI Staging Tables"
+        ],
+        "referred_stored_proc": [
+          "[Staging].[Load_Fact_KPI_Src_Stg]"
+        ]
+      },
+      "Package\\Staging\\Truncate KPI Staging Tables": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging\\Load KPI_Labels_Src_Stg"
+        ],
+        "upstream_dependencies": []
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [
+      "Package\\Final"
+    ],
+    "upstream_dependencies": []
+  }
+}

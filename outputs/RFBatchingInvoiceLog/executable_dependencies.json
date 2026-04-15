@@ -1,0 +1,39 @@
+{
+  "Package\\Final": {
+    "executables": {
+      "Package\\Final\\Load  LNK_RFBatchingInvoiceLog": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [],
+        "upstream_dependencies": []
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [],
+    "upstream_dependencies": [
+      "Package\\Staging"
+    ]
+  },
+  "Package\\Staging": {
+    "executables": {
+      "Package\\Staging\\Load RFBatchingInvoice_Stg": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Staging\\Truncate RFBatchingInvoiceLog_Stg"
+        ]
+      },
+      "Package\\Staging\\Truncate RFBatchingInvoiceLog_Stg": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging\\Load RFBatchingInvoice_Stg"
+        ],
+        "upstream_dependencies": []
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [
+      "Package\\Final"
+    ],
+    "upstream_dependencies": []
+  }
+}

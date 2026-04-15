@@ -1,0 +1,57 @@
+{
+  "Package\\Copy Table": {
+    "type": "Microsoft.Pipeline",
+    "downstream_dependencies": [],
+    "upstream_dependencies": []
+  },
+  "Package\\Data Flow Task": {
+    "type": "Microsoft.Pipeline",
+    "downstream_dependencies": [],
+    "upstream_dependencies": []
+  },
+  "Package\\FMS_UndTcktInvoice_Load": {
+    "type": "Microsoft.Pipeline",
+    "downstream_dependencies": [],
+    "upstream_dependencies": []
+  },
+  "Package\\Load FMS_InvoiceHead": {
+    "type": "Microsoft.Pipeline",
+    "downstream_dependencies": [],
+    "upstream_dependencies": []
+  },
+  "Package\\Sequence Container": {
+    "executables": {
+      "Package\\Sequence Container\\Get Next ID": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Sequence Container\\Load iLocate"
+        ],
+        "upstream_dependencies": []
+      },
+      "Package\\Sequence Container\\Load iLocate": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [
+          "Package\\Sequence Container\\Update LNK_Scan"
+        ],
+        "upstream_dependencies": [
+          "Package\\Sequence Container\\Get Next ID"
+        ]
+      },
+      "Package\\Sequence Container\\Truncate Stg": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": []
+      },
+      "Package\\Sequence Container\\Update LNK_Scan": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Sequence Container\\Load iLocate"
+        ]
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [],
+    "upstream_dependencies": []
+  }
+}

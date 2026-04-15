@@ -1,0 +1,216 @@
+{
+  "package_name": "HUB_BLKContainerManifest",
+  "executables": {
+    "Package\\Final": {
+      "task_metadata": {
+        "Package\\Final\\Load HUB_BLKContainerManifestLabel": {
+          "task_metadata": {
+            "query": "EXEC [dv].[Load_HUB_BLKContainerManifestContents] ?,?",
+            "param_map": {
+              "param_0": {
+                "variable_name": "ProcessId",
+                "direction": "Input"
+              },
+              "param_1": {
+                "variable_name": "RecordSource",
+                "direction": "Input"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Final\\Load SAT_BLKContainerManifest": {
+          "task_metadata": {
+            "query": "EXEC [dv].[Load_SAT_BLKContainerManifest] ?,?",
+            "param_map": {
+              "param_0": {
+                "variable_name": "ProcessId",
+                "direction": "Input"
+              },
+              "param_1": {
+                "variable_name": "RecordSource",
+                "direction": "Input"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Final\\Load SAT_BLKContainerManifestContent": {
+          "task_metadata": {
+            "query": "EXEC [dv].[Load_SAT_BLKContainerManifestContents] ?,?",
+            "param_map": {
+              "param_0": {
+                "variable_name": "ProcessId",
+                "direction": "Input"
+              },
+              "param_1": {
+                "variable_name": "RecordSource",
+                "direction": "Input"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Final\\Update LoadControl LastScanDate (BLK_ManifestID)": {
+          "task_metadata": {
+            "query": "DECLARE @Source varchar(50) = ?;\nDECLARE @LastScanDate datetime;\n\nSELECT @LastScanDate = MAX([ScanDate]) From [Staging].[BLK_ContainerManifestContents_Stg]\n\nUPDATE [Staging].[LoadControl] \nSET LastValue = CONVERT(varchar(30), @LastScanDate)\nWHERE [RecordSource] = @Source ",
+            "param_map": {
+              "param_0": {
+                "variable_name": "RecordSource",
+                "direction": "Input"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        }
+      },
+      "task_type": "STOCK:SEQUENCE"
+    },
+    "Package\\Get ProcessID": {
+      "task_metadata": {
+        "query": "SELECT ProcessID =  MIN(ProcessID) - 1 FROM Staging.LoadLog \nWHERE ProcessID < -99999",
+        "param_map": {},
+        "result_set": {
+          "ProcessID": {
+            "variable_name": "ProcessId",
+            "result_type": "ResultSetType_SingleRow"
+          }
+        }
+      },
+      "task_type": "Microsoft.ExecuteSQLTask"
+    },
+    "Package\\Staging": {
+      "task_metadata": {
+        "Package\\Staging\\Get Last ContainerContents LastScanDate": {
+          "task_metadata": {
+            "query": "Exec [Staging].[Get_LastValue] ?",
+            "param_map": {
+              "param_0": {
+                "variable_name": "RecordSource",
+                "direction": "Input"
+              }
+            },
+            "result_set": {
+              "LastValue": {
+                "variable_name": "LastScanDate",
+                "result_type": "ResultSetType_SingleRow"
+              }
+            }
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Staging\\Load ContainerContents": {
+          "task_metadata": {
+            "task_dependency_map": {
+              "Package\\Staging\\Load ContainerContents\\OLE DB Source": [
+                "Package\\Staging\\Load ContainerContents\\OLE DB Destination"
+              ]
+            },
+            "exec_order": {
+              "Package\\Staging\\Load ContainerContents\\OLE DB Source": 1,
+              "Package\\Staging\\Load ContainerContents\\OLE DB Destination": 2
+            },
+            "per_component_data": {
+              "Package\\Staging\\Load ContainerContents\\OLE DB Destination": {
+                "component_type": "Microsoft.OLEDBDestination",
+                "component_info": {
+                  "table_name": "BLK_ContainerManifestContents_Stg",
+                  "schema_name": "Staging",
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": []
+                  }
+                }
+              },
+              "Package\\Staging\\Load ContainerContents\\OLE DB Source": {
+                "component_type": "Microsoft.OLEDBSource",
+                "component_info": {
+                  "sql_command": "DECLARE @LastScanDate varchar(50) = ?;\n--CONVERT(Datetime,'2023-05-01T00:00:00');\n\nSELECT TOP 200000\n       MC.[ContainerManifestId]\n      ,[LabelNo]\n      ,[ScanDate]\n      ,[ScanUserId]\n      ,MC.[Destination]\n      ,[MixedManifestId]\n      ,[Weight]\n      ,[CF]\n  FROM [Fastway].[dbo].[BLK_ContainerManifestContents] MC \n JOIN [Fastway].[dbo].[BLK_ContainerManifest] M ON M.ContainerManifestId = MC.ContainerManifestId\nWHERE [ScanDate] > @LastScanDate",
+                  "connection_names": [
+                    "Project.ConnectionManagers[KRILLIN_Fastway]"
+                  ],
+                  "inline_positional_params": true,
+                  "inline_positional_params_mapping": {
+                    "param_1": "LastScanDate"
+                  },
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": [
+                      "LastScanDate"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "task_type": "Microsoft.Pipeline"
+        },
+        "Package\\Staging\\Load ContainerManifest": {
+          "task_metadata": {
+            "task_dependency_map": {
+              "Package\\Staging\\Load ContainerManifest\\OLE DB Source": [
+                "Package\\Staging\\Load ContainerManifest\\OLE DB Destination"
+              ]
+            },
+            "exec_order": {
+              "Package\\Staging\\Load ContainerManifest\\OLE DB Source": 1,
+              "Package\\Staging\\Load ContainerManifest\\OLE DB Destination": 2
+            },
+            "per_component_data": {
+              "Package\\Staging\\Load ContainerManifest\\OLE DB Destination": {
+                "component_type": "Microsoft.OLEDBDestination",
+                "component_info": {
+                  "table_name": "BLK_ContainerManifest_Stg",
+                  "schema_name": "Staging",
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": []
+                  }
+                }
+              },
+              "Package\\Staging\\Load ContainerManifest\\OLE DB Source": {
+                "component_type": "Microsoft.OLEDBSource",
+                "component_info": {
+                  "sql_command": "SELECT [ContainerManifestId]\n      ,[ContainerId]\n      ,[ContainerBarcode]\n      ,[Location]\n      ,[Destination]\n      ,[TotalParcels]\n      ,[Status]\n      ,[ActionDate]\n      ,[IsMixed]\n      ,[MixedUnknownDest]\n      ,[CurrentLocation]\n      ,[CountryCode]\n      ,[Sortation]\n      ,[SortationStatus]\n      ,[SortationOpen]\n      ,[SortationClosed]\n  FROM [Fastway].[dbo].[BLK_ContainerManifest]",
+                  "connection_names": [
+                    "Project.ConnectionManagers[KRILLIN_Fastway]"
+                  ],
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": []
+                  }
+                }
+              }
+            }
+          },
+          "task_type": "Microsoft.Pipeline"
+        },
+        "Package\\Staging\\Truncate BLK_Manifest_Stg": {
+          "task_metadata": {
+            "query": "TRUNCATE TABLE [Staging].[BLK_ContainerManifest_Stg];\nTRUNCATE TABLE [Staging]. [BLK_ContainerManifestContents_Stg];",
+            "param_map": {},
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        }
+      },
+      "task_type": "STOCK:SEQUENCE"
+    }
+  }
+}

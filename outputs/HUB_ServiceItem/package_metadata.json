@@ -1,0 +1,103 @@
+{
+  "package_name": "HUB_ServiceItem",
+  "executables": {
+    "Package\\Final": {
+      "task_metadata": {
+        "Package\\Final\\Load HUB_ServiceItem": {
+          "task_metadata": {
+            "query": "Exec [dv].[Load_HUB_ServiceItem] ?,?",
+            "param_map": {
+              "param_0": {
+                "variable_name": "ProcessId",
+                "direction": "Input"
+              },
+              "param_1": {
+                "variable_name": "RecordSource",
+                "direction": "Input"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Final\\Load SAT_ServiceItem": {
+          "task_metadata": {
+            "query": "Exec [dv].[Load_SAT_ServiceItem] ?,?",
+            "param_map": {
+              "param_0": {
+                "variable_name": "ProcessId",
+                "direction": "Input"
+              },
+              "param_1": {
+                "variable_name": "RecordSource",
+                "direction": "Input"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        }
+      },
+      "task_type": "STOCK:SEQUENCE"
+    },
+    "Package\\Staging": {
+      "task_metadata": {
+        "Package\\Staging\\Load fl_ServiceItem_Stg": {
+          "task_metadata": {
+            "task_dependency_map": {
+              "Package\\Staging\\Load fl_ServiceItem_Stg\\fl_ServiceItem (Fastway)": [
+                "Package\\Staging\\Load fl_ServiceItem_Stg\\Load fl_ServiceItem_Stg"
+              ]
+            },
+            "exec_order": {
+              "Package\\Staging\\Load fl_ServiceItem_Stg\\fl_ServiceItem (Fastway)": 1,
+              "Package\\Staging\\Load fl_ServiceItem_Stg\\Load fl_ServiceItem_Stg": 2
+            },
+            "per_component_data": {
+              "Package\\Staging\\Load fl_ServiceItem_Stg\\fl_ServiceItem (Fastway)": {
+                "component_type": "Microsoft.OLEDBSource",
+                "component_info": {
+                  "sql_command": "SELECT\n    [ServiceItemId]\n    ,[ServiceId]\n    ,[CountryId]\n    ,[Rf]\n    ,[PriceList]\n    ,[ProductId]\n    ,[Description]\n    ,[DisplayValue]\n    ,[DisplayText]\n    ,[DisplaySelected]\n    ,[Percentage]\n    ,[Price]\n    ,[PickupAmount]\n    ,[ServiceCommission]\n    ,[ReadOnly]\n    ,[DisplayForm]\n    ,[DisplaySummmary]\n    ,[ChargeLevel]\n    ,[IsDefault]\n    ,[ServiceType]\n    ,[TriggerPoint]\nFROM [Fastway].[dbo].[fl_ServiceItem]  WITH (NOLOCK)",
+                  "connection_names": [
+                    "Project.ConnectionManagers[KRILLIN_Fastway]"
+                  ],
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": []
+                  }
+                }
+              },
+              "Package\\Staging\\Load fl_ServiceItem_Stg\\Load fl_ServiceItem_Stg": {
+                "component_type": "Microsoft.OLEDBDestination",
+                "component_info": {
+                  "table_name": "fl_ServiceItem_Stg",
+                  "schema_name": "Staging",
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": []
+                  }
+                }
+              }
+            }
+          },
+          "task_type": "Microsoft.Pipeline"
+        },
+        "Package\\Staging\\Truncate fl_ServiceItem_Stg": {
+          "task_metadata": {
+            "query": "TRUNCATE TABLE [Staging].[fl_ServiceItem_Stg];",
+            "param_map": {},
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        }
+      },
+      "task_type": "STOCK:SEQUENCE"
+    }
+  }
+}

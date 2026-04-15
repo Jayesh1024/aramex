@@ -1,0 +1,2033 @@
+{
+  "package_name": "HUB_Label",
+  "executables": {
+    "Package\\Final (Load HUB)": {
+      "task_metadata": {
+        "Package\\Final (Load HUB)\\Defrag HUB_Label Indexes": {
+          "task_metadata": {
+            "query": "EXEC [dbo].[MaintainIndexes] @Operation = 'DEFRAG', @SchemaName = 'dv', @TableName = 'HUB_Label';",
+            "param_map": {},
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Final (Load HUB)\\Load HUB_Label": {
+          "task_metadata": {
+            "query": "Exec ? = [dv].[Load_HUB_Label] ?",
+            "param_map": {
+              "param_0": {
+                "variable_name": "ReturnCode",
+                "direction": "ReturnValue"
+              },
+              "param_1": {
+                "variable_name": "ProcessId",
+                "direction": "Input"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        }
+      },
+      "task_type": "STOCK:SEQUENCE"
+    },
+    "Package\\Final (Load SAT_Allocation)": {
+      "task_metadata": {
+        "Package\\Final (Load SAT_Allocation)\\Load SAT_Label_Allocation": {
+          "task_metadata": {
+            "query": "Exec ? = [dv].[Load_SAT_Label_Allocation] ?",
+            "param_map": {
+              "param_0": {
+                "variable_name": "ReturnCode2",
+                "direction": "ReturnValue"
+              },
+              "param_1": {
+                "variable_name": "ProcessId",
+                "direction": "Input"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Final (Load SAT_Allocation)\\Load SAT_Label_Allocation_Stg": {
+          "task_metadata": {
+            "query": "Exec ? = [Staging].[Load_SAT_Label_Allocation_Stg] ?",
+            "param_map": {
+              "param_0": {
+                "variable_name": "ReturnCode2",
+                "direction": "ReturnValue"
+              },
+              "param_1": {
+                "variable_name": "ProcessId",
+                "direction": "Input"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Final (Load SAT_Allocation)\\Truncate SAT_Label_Allocation_Stg": {
+          "task_metadata": {
+            "query": "TRUNCATE TABLE [Staging].[SAT_Label_Allocation_Stg]",
+            "param_map": {},
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        }
+      },
+      "task_type": "STOCK:SEQUENCE"
+    },
+    "Package\\Final (Load SAT_Distribution)": {
+      "task_metadata": {
+        "Package\\Final (Load SAT_Distribution)\\Load SAT_Label_Distribution": {
+          "task_metadata": {
+            "query": "Exec ? = [dv].[Load_SAT_Label_Distribution] ?,?",
+            "param_map": {
+              "param_1": {
+                "variable_name": "ProcessId",
+                "direction": "Input"
+              },
+              "param_2": {
+                "variable_name": "RecordSource1",
+                "direction": "Input"
+              },
+              "param_0": {
+                "variable_name": "ReturnCode1",
+                "direction": "ReturnValue"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Final (Load SAT_Distribution)\\Set LastDate (LabelMaster)": {
+          "task_metadata": {
+            "query": "Exec [Staging].[Set_LastValue] ?",
+            "param_map": {
+              "param_0": {
+                "variable_name": "RecordSource1",
+                "direction": "Input"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        }
+      },
+      "task_type": "STOCK:SEQUENCE"
+    },
+    "Package\\Final (Load SAT_Label_Allocation_*)": {
+      "task_metadata": {
+        "Package\\Final (Load SAT_Label_Allocation_*)\\Group 1": {
+          "task_metadata": {
+            "Package\\Final (Load SAT_Label_Allocation_*)\\Group 1\\Load SAT_Label_Allocation_DL": {
+              "task_metadata": {
+                "query": "Exec ? = [dv].[Load_SAT_Label_Allocation_DL] ?,?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "ReturnCode2",
+                    "direction": "ReturnValue"
+                  },
+                  "param_1": {
+                    "variable_name": "ProcessId",
+                    "direction": "Input"
+                  },
+                  "param_2": {
+                    "variable_name": "RecordSource2",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Final (Load SAT_Label_Allocation_*)\\Group 1\\Load SAT_Label_Allocation_EBAY": {
+              "task_metadata": {
+                "query": "Exec ? = [dv].[Load_SAT_Label_Allocation_EBAY] ?,?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "ReturnCode10",
+                    "direction": "ReturnValue"
+                  },
+                  "param_1": {
+                    "variable_name": "ProcessId",
+                    "direction": "Input"
+                  },
+                  "param_2": {
+                    "variable_name": "RecordSource10",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Final (Load SAT_Label_Allocation_*)\\Group 1\\Load SAT_Label_Allocation_FLE": {
+              "task_metadata": {
+                "query": "Exec ? = [dv].[Load_SAT_Label_Allocation_FLE] ?,?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "ReturnCode6",
+                    "direction": "ReturnValue"
+                  },
+                  "param_1": {
+                    "variable_name": "ProcessId",
+                    "direction": "Input"
+                  },
+                  "param_2": {
+                    "variable_name": "RecordSource6",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Final (Load SAT_Label_Allocation_*)\\Group 1\\Set LastDate (DynamicLabel)": {
+              "task_metadata": {
+                "query": "Exec [Staging].[Set_LastValue] ?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "RecordSource2",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Final (Load SAT_Label_Allocation_*)\\Group 1\\Set LastDate (EBAY)": {
+              "task_metadata": {
+                "query": "Exec [Staging].[Set_LastValue] ?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "RecordSource10",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Final (Load SAT_Label_Allocation_*)\\Group 1\\Set LastDate (FastLabelEnterprise)": {
+              "task_metadata": {
+                "query": "Exec [Staging].[Set_LastValue] ?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "RecordSource6",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            }
+          },
+          "task_type": "STOCK:SEQUENCE"
+        },
+        "Package\\Final (Load SAT_Label_Allocation_*)\\Group 2": {
+          "task_metadata": {
+            "Package\\Final (Load SAT_Label_Allocation_*)\\Group 2\\Load SAT_Label_Allocation_IFS": {
+              "task_metadata": {
+                "query": "Exec ? = [dv].[Load_SAT_Label_Allocation_IFS] ?,?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "ReturnCode5",
+                    "direction": "ReturnValue"
+                  },
+                  "param_1": {
+                    "variable_name": "ProcessId",
+                    "direction": "Input"
+                  },
+                  "param_2": {
+                    "variable_name": "RecordSource5",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Final (Load SAT_Label_Allocation_*)\\Group 2\\Load SAT_Label_Allocation_MF": {
+              "task_metadata": {
+                "query": "Exec ? = [dv].[Load_SAT_Label_Allocation_MF] ?,?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "ReturnCode4",
+                    "direction": "ReturnValue"
+                  },
+                  "param_1": {
+                    "variable_name": "ProcessId",
+                    "direction": "Input"
+                  },
+                  "param_2": {
+                    "variable_name": "RecordSource4",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Final (Load SAT_Label_Allocation_*)\\Group 2\\Load SAT_Label_Pickup_Requests": {
+              "task_metadata": {
+                "query": "\nEXEC  ? = [dv].[Load_SAT_Label_PickupRequests] ?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "ReturnCode16",
+                    "direction": "ReturnValue"
+                  },
+                  "param_1": {
+                    "variable_name": "ProcessId",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Final (Load SAT_Label_Allocation_*)\\Group 2\\Set LastDate (MyFastway)": {
+              "task_metadata": {
+                "query": "Exec [Staging].[Set_LastValue] ?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "RecordSource4",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Final (Load SAT_Label_Allocation_*)\\Group 2\\Set LastID (IFS)": {
+              "task_metadata": {
+                "query": "Exec [Staging].[Set_LastValue] ?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "RecordSource5",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            }
+          },
+          "task_type": "STOCK:SEQUENCE"
+        },
+        "Package\\Final (Load SAT_Label_Allocation_*)\\Group 3": {
+          "task_metadata": {
+            "Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Load SAT_Label_Allocation_FL": {
+              "task_metadata": {
+                "query": "Exec ? = [dv].[Load_SAT_Label_Allocation_FL] ?,?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "ReturnCode3",
+                    "direction": "ReturnValue"
+                  },
+                  "param_1": {
+                    "variable_name": "ProcessId",
+                    "direction": "Input"
+                  },
+                  "param_2": {
+                    "variable_name": "RecordSource3",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Load SAT_Label_Allocation_RP": {
+              "task_metadata": {
+                "query": "Exec ? = [dv].[Load_SAT_Label_Allocation_RP] ?,?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "ReturnCode8",
+                    "direction": "ReturnValue"
+                  },
+                  "param_1": {
+                    "variable_name": "ProcessId",
+                    "direction": "Input"
+                  },
+                  "param_2": {
+                    "variable_name": "RecordSource8",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Load SAT_Label_Allocation_TMD": {
+              "task_metadata": {
+                "query": "Exec ? = [dv].[Load_SAT_Label_Allocation_TMD] ?,?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "ReturnCode7",
+                    "direction": "ReturnValue"
+                  },
+                  "param_1": {
+                    "variable_name": "ProcessId",
+                    "direction": "Input"
+                  },
+                  "param_2": {
+                    "variable_name": "RecordSource7",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Set LastDate (FastLabel)": {
+              "task_metadata": {
+                "query": "Exec [Staging].[Set_LastValue] ?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "RecordSource3",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Set LastDate (ReceiverPays)": {
+              "task_metadata": {
+                "query": "Exec [Staging].[Set_LastValue] ?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "RecordSource8",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Set LastDate (Temando)": {
+              "task_metadata": {
+                "query": "Exec [Staging].[Set_LastValue] ?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "RecordSource7",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            }
+          },
+          "task_type": "STOCK:SEQUENCE"
+        }
+      },
+      "task_type": "STOCK:SEQUENCE"
+    },
+    "Package\\HUB_Address": {
+      "task_metadata": {
+        "task_metadata": "some-metadata",
+        "task_type": "Microsoft.ExecutePackageTask"
+      },
+      "task_type": "Microsoft.ExecutePackageTask"
+    },
+    "Package\\LNK_Label_Product_ServiceItem": {
+      "task_metadata": {
+        "task_metadata": "some-metadata",
+        "task_type": "Microsoft.ExecutePackageTask"
+      },
+      "task_type": "Microsoft.ExecutePackageTask"
+    },
+    "Package\\Staging": {
+      "task_metadata": {
+        "Package\\Staging\\Source1 (LabelMaster)": {
+          "task_metadata": {
+            "Package\\Staging\\Source1 (LabelMaster)\\Get LastDate (LabelMaster)": {
+              "task_metadata": {
+                "query": "Exec [Staging].[Get_LastValue] ?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "RecordSource1",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {
+                  "LastValue": {
+                    "variable_name": "LastDate1",
+                    "result_type": "ResultSetType_SingleRow"
+                  }
+                }
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg": {
+              "task_metadata": {
+                "task_dependency_map": {
+                  "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\Get Error Details": [
+                    "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\Save Error"
+                  ],
+                  "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster_Stg": [
+                    "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\Get Error Details"
+                  ],
+                  "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster_Stg (Bulk Insert)": [
+                    "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster_Stg"
+                  ],
+                  "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster data (FastwayReports)": [
+                    "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster_Stg (Bulk Insert)"
+                  ]
+                },
+                "exec_order": {
+                  "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster data (FastwayReports)": 1,
+                  "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster_Stg (Bulk Insert)": 2,
+                  "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster_Stg": 3,
+                  "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\Get Error Details": 4,
+                  "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\Save Error": 5
+                },
+                "per_component_data": {
+                  "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster data (FastwayReports)": {
+                    "component_type": "Microsoft.OLEDBSource",
+                    "component_info": {
+                      "sql_command": "DECLARE @startDate AS Datetime = ?; \nSET @startDate = DATEADD(DD,-1,@startDate)\n\nSET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;\n\nWITH Scan AS (\n    SELECT LabelNo, max(UploadDate) as UploadDate\n    FROM [FastwayReports].[dbo].[TrackAndTraceDataP] WITH (NOLOCK)\n    WHERE UploadDate > @startDate \n    AND ScanDate >= DATEADD(Month,-1,GETDATE())\n    AND CountryCode IN (1,6,11,24)\n    GROUP BY LabelNo\n)\n\nSELECT \n       Label.[LabelNo]\n      ,[CountryCode]\n      ,[Electronic_CustomerType]\n      ,[Electronic_CustomerID]\n      ,[Electronic_Reference]\n      ,[FastLabel_ConsignmentID]\n      ,[FastLabel_DestinationRF]\n      ,[Distribution_Date]\n      ,[Distribution_FranchiseeCode]\n      ,[KPI_PickupOK]\n      ,[KPI_DeliveryOK]\n      ,[KPI_LatePickup]\n      ,[KPI_LateDelivery]\n      ,[KPI_DelRF]\n      ,[KPI_PicRF]\n      ,[FMSCustomerID]\n      ,[FMSRfID]\n      ,[OES_CustomerId]\n      ,[KPI_ExpectedDelivery]\n      ,[KPI_ExceptionScan]\n      ,[PrintedOn]\n      ,[EbayClickCollect]\n      ,[HasSubscriptions]\n      ,Scan.[UploadDate]\nFROM [FastwayReports].[dbo].[LabelMaster] AS Label\nJOIN Scan ON Scan.LabelNo = Label.LabelNo \nWHERE CountryCode IN (1,6,11,24) ;",
+                      "connection_names": [
+                        "Project.ConnectionManagers[VEGETA_FastwayReports]"
+                      ],
+                      "inline_positional_params": true,
+                      "inline_positional_params_mapping": {
+                        "param_1": "LastDate1"
+                      },
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": "SourceDataQuery1",
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": "User::SourceDataQuery1",
+                        "variables_used_distinct": [
+                          "LastDate1",
+                          "SourceDataQuery1"
+                        ]
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster_Stg": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "LabelMaster_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster_Stg (Bulk Insert)": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "LabelMaster_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\Save Error": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "SourceData_Err",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  }
+                }
+              },
+              "task_type": "Microsoft.Pipeline"
+            },
+            "Package\\Staging\\Source1 (LabelMaster)\\Rebuild Indexes 1": {
+              "task_metadata": {
+                "query": "EXEC [dbo].[MaintainIndexes] @Operation = 'REBUILD', @SchemaName = 'Staging', @TableName = 'LabelMaster_Stg';",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Staging\\Source1 (LabelMaster)\\Truncate LabelMaster_Stg": {
+              "task_metadata": {
+                "query": "TRUNCATE TABLE [Staging].[LabelMaster_Stg];\n\nEXEC [dbo].[MaintainIndexes] @Operation = 'DISABLE', @SchemaName = 'Staging', @TableName = 'LabelMaster_Stg';",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            }
+          },
+          "task_type": "STOCK:SEQUENCE"
+        },
+        "Package\\Staging\\Source10 (EBAY) _EBAY": {
+          "task_metadata": {
+            "Package\\Staging\\Source10 (EBAY) _EBAY\\Get LastID (EBAY)": {
+              "task_metadata": {
+                "query": "Exec [Staging].[Get_LastValue] ?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "RecordSource10",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {
+                  "LastValue": {
+                    "variable_name": "LastID10",
+                    "result_type": "ResultSetType_SingleRow"
+                  }
+                }
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Staging\\Source10 (EBAY) _EBAY\\Load Ebay_labels_Stg": {
+              "task_metadata": {
+                "task_dependency_map": {
+                  "Package\\Staging\\Source10 (EBAY) _EBAY\\Load Ebay_labels_Stg\\Get Error Details": [
+                    "Package\\Staging\\Source10 (EBAY) _EBAY\\Load Ebay_labels_Stg\\Save Error"
+                  ],
+                  "Package\\Staging\\Source10 (EBAY) _EBAY\\Load Ebay_labels_Stg\\Ebay_Labels_Stg (Bulk Insert)": [
+                    "Package\\Staging\\Source10 (EBAY) _EBAY\\Load Ebay_labels_Stg\\Ebay_Labels_Stg"
+                  ],
+                  "Package\\Staging\\Source10 (EBAY) _EBAY\\Load Ebay_labels_Stg\\Ebay_Labels_Stg": [
+                    "Package\\Staging\\Source10 (EBAY) _EBAY\\Load Ebay_labels_Stg\\Get Error Details"
+                  ],
+                  "Package\\Staging\\Source10 (EBAY) _EBAY\\Load Ebay_labels_Stg\\vw_ebay_labels (OnlineEnquiries_NEW)": [
+                    "Package\\Staging\\Source10 (EBAY) _EBAY\\Load Ebay_labels_Stg\\Ebay_Labels_Stg (Bulk Insert)"
+                  ]
+                },
+                "exec_order": {
+                  "Package\\Staging\\Source10 (EBAY) _EBAY\\Load Ebay_labels_Stg\\vw_ebay_labels (OnlineEnquiries_NEW)": 1,
+                  "Package\\Staging\\Source10 (EBAY) _EBAY\\Load Ebay_labels_Stg\\Ebay_Labels_Stg (Bulk Insert)": 2,
+                  "Package\\Staging\\Source10 (EBAY) _EBAY\\Load Ebay_labels_Stg\\Ebay_Labels_Stg": 3,
+                  "Package\\Staging\\Source10 (EBAY) _EBAY\\Load Ebay_labels_Stg\\Get Error Details": 4,
+                  "Package\\Staging\\Source10 (EBAY) _EBAY\\Load Ebay_labels_Stg\\Save Error": 5
+                },
+                "per_component_data": {
+                  "Package\\Staging\\Source10 (EBAY) _EBAY\\Load Ebay_labels_Stg\\Ebay_Labels_Stg": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "Ebay_Labels_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source10 (EBAY) _EBAY\\Load Ebay_labels_Stg\\Ebay_Labels_Stg (Bulk Insert)": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "Ebay_Labels_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source10 (EBAY) _EBAY\\Load Ebay_labels_Stg\\Save Error": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "SourceData_Err",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source10 (EBAY) _EBAY\\Load Ebay_labels_Stg\\vw_ebay_labels (OnlineEnquiries_NEW)": {
+                    "component_type": "Microsoft.OLEDBSource",
+                    "component_info": {
+                      "sql_command": "DECLARE @startID int = ?\n\nSET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;\n\nSELECT \n\tID, \n\tLabelNumber, \n\tLabelColour, \n\tAccountId, \n\tEbayUserID, \n\tCreatedDateUTC, \n\tFirstName, LastName, B_CompanyName, Phoneno, EmailAddress, \n\tB_Address1, B_Address2, B_Town, B_Postcode, B_CountryCode, B_RF, \n\tC_CompanyName, C_Address1, C_Address2, C_Town, C_Postcode, C_CountryCode, C_RF, Phoneno_Mobile, \n\tSP_Instruction1, SP_Instruction2, SP_Instruction3, Status, \n\tOrderClosedDateUTC, NoOfItems, P_Date, EbayCreateDate, IsDeeded, IsSignatureRequired, ItemType,\n\tDeliveryCompanyName, DeliveryName, \n\tDeliveryPhone, DeliveryPhone1, \n\tDeliveryStreet, DeliveryStreet1, \n\tDeliveryCity, DeliveryPostcode, DeliveryCountry, \n\tDeliveryRF, DeliveryEmail, \n\tDelivery_SP1, Delivery_SP2, Delivery_SP3,\n\tLabelCost, ItemLabelCost, TotalLabelCost, TotalReplacementPckCost, GST_Number, TotalValue\nFROM [OnlineEnquiries_NEW].[dbo].[vw_ebay_labels]\n--WHERE ID > @startID",
+                      "connection_names": [
+                        "Project.ConnectionManagers[GOKU.OnlineEnquiries_NEW]"
+                      ],
+                      "inline_positional_params": true,
+                      "inline_positional_params_mapping": {
+                        "param_1": "LastID10"
+                      },
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": [
+                          "LastID10"
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "task_type": "Microsoft.Pipeline"
+            },
+            "Package\\Staging\\Source10 (EBAY) _EBAY\\Rebuild Indexes 10": {
+              "task_metadata": {
+                "query": "EXEC [dbo].[MaintainIndexes] @Operation = 'REBUILD', @SchemaName = 'Staging', @TableName = 'Ebay_labels_Stg';",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Staging\\Source10 (EBAY) _EBAY\\Truncate Ebay_labels_Stg": {
+              "task_metadata": {
+                "query": "TRUNCATE TABLE [Staging].[Ebay_labels_Stg];\n\nEXEC [dbo].[MaintainIndexes] @Operation = 'DISABLE', @SchemaName = 'Staging', @TableName = 'Ebay_labels_Stg';",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            }
+          },
+          "task_type": "STOCK:SEQUENCE"
+        },
+        "Package\\Staging\\Source11 (MyFastwaySrv) _MF 2": {
+          "task_metadata": {
+            "Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Get LastDate (MyFastway)": {
+              "task_metadata": {
+                "query": "Exec [Staging].[Get_LastValue] ?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "RecordSource11",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {
+                  "LastValue": {
+                    "variable_name": "LastDate4",
+                    "result_type": "ResultSetType_SingleRow"
+                  }
+                }
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Load fl_ConItemSrv_Stg": {
+              "task_metadata": {
+                "task_dependency_map": {
+                  "Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Load fl_ConItemSrv_Stg\\Get Error Details": [
+                    "Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Load fl_ConItemSrv_Stg\\Save Error"
+                  ],
+                  "Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Load fl_ConItemSrv_Stg\\fl_ConItemSrv _Stg": [
+                    "Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Load fl_ConItemSrv_Stg\\Get Error Details"
+                  ],
+                  "Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Load fl_ConItemSrv_Stg\\fl_ConItemSrv _Stg (Bulk Insert)": [
+                    "Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Load fl_ConItemSrv_Stg\\fl_ConItemSrv _Stg"
+                  ],
+                  "Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Load fl_ConItemSrv_Stg\\fl_ConItemSrv (Fastway)": [
+                    "Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Load fl_ConItemSrv_Stg\\fl_ConItemSrv _Stg (Bulk Insert)"
+                  ]
+                },
+                "exec_order": {
+                  "Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Load fl_ConItemSrv_Stg\\fl_ConItemSrv (Fastway)": 1,
+                  "Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Load fl_ConItemSrv_Stg\\fl_ConItemSrv _Stg (Bulk Insert)": 2,
+                  "Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Load fl_ConItemSrv_Stg\\fl_ConItemSrv _Stg": 3,
+                  "Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Load fl_ConItemSrv_Stg\\Get Error Details": 4,
+                  "Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Load fl_ConItemSrv_Stg\\Save Error": 5
+                },
+                "per_component_data": {
+                  "Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Load fl_ConItemSrv_Stg\\fl_ConItemSrv (Fastway)": {
+                    "component_type": "Microsoft.OLEDBSource",
+                    "component_info": {
+                      "sql_command": "DECLARE @startDate datetime = ?;\nDECLARE @startDate2 datetime;\nDECLARE  @ConId bigint;\n\nSET @startDate2  = DATEADD(DAY, -30,GETDATE());\n\nSELECT TOP 1 @ConId = ConId\nFROM [FWFastlabel].dbo.fl_Con (NOLOCK)\nWHERE CreatedOn >= @StartDate2\nORDER BY CreatedOn\n\nSELECT ci.[Label]\n      ,cis.[ConId]\n      ,cis.[ConItemId]\n      ,ci.[LineNo]\n      ,ci.[CountryId]\n      ,con.[CreatedOn]\n      ,cis.[ProductId]\n      ,cis.[ServiceItemId]\n      ,cis.[FMSInvoiceNo]\n      ,cis.[FMSInvoiceDate]\n      ,cis.[Price]\n      ,cis.[Tax]\n      \n,cis.[Total]\n      ,cis.[PickUpPrice]\n      ,cis.[DeliveryPrice]\n    ,cis.[DLBSBatchId]\n    ,cis.[DLBSInvoiceDate]\n    ,cis.[DLBSInvoiceNo]\n    ,cis.[DLBSPrice]\n    ,cis.[DLBSTax]\n    ,cis.[DLBSTotal]\n    ,cis.[PLBSBatchId]\n    ,cis.[PLBSInvoiceDate]\n    ,cis.[PLBSInvoiceNo]\n    ,cis.[PLBSPrice]\n    ,cis.[PLBSTax]\n    ,cis.[PLBSTotal]\n    ,cis.[BareProfileId]\n    ,cis.[ServicePrice]\n    ,cis.[ServicePriceComm]\n    ,cis.[ServicePriceCommPercent]\n    ,cis.[ServicePriceDiscountFixed]\n    ,cis.[ServicePriceDiscountPercent]\n    ,cis.[UpdatedOn]\n  FROM  [FWFastlabel].[dbo].[fl_ConItemSrv] cis with (NOLOCK) \n  INNER JOIN [FWFastlabel].[dbo].[fl_Con] con with (NOLOCK) on con.ConId = cis.ConId\n  INNER JOIN [FWFastlabel].[dbo].[fl_ConItem] ci with (NOLOCK) on ci.ConId = cis.ConId AND ci.ConItemId = cis.[ConItemId]\nWHERE con.ConId >= @ConId",
+                      "connection_names": [
+                        "Project.ConnectionManagers[KRILLIN_Fastway]"
+                      ],
+                      "inline_positional_params": true,
+                      "inline_positional_params_mapping": {
+                        "param_1": "LastDate4"
+                      },
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": [
+                          "LastDate4"
+                        ]
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Load fl_ConItemSrv_Stg\\fl_ConItemSrv _Stg": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "fl_ConItemSrv_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Load fl_ConItemSrv_Stg\\fl_ConItemSrv _Stg (Bulk Insert)": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "fl_ConItemSrv_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Load fl_ConItemSrv_Stg\\Save Error": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "SourceData_Err",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  }
+                }
+              },
+              "task_type": "Microsoft.Pipeline"
+            },
+            "Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Rebuild Indexes 11": {
+              "task_metadata": {
+                "query": "EXEC [dbo].[MaintainIndexes] @Operation = 'REBUILD', @SchemaName = 'Staging', @TableName = 'fl_ConItemSrv_Stg';",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Truncate fl_ConItemSrv_Stg": {
+              "task_metadata": {
+                "query": "TRUNCATE TABLE [Staging].[fl_ConItemSrv_Stg];\n\nEXEC [dbo].[MaintainIndexes] @Operation = 'DISABLE', @SchemaName = 'Staging', @TableName = 'fl_ConItemSrv_Stg';",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            }
+          },
+          "task_type": "STOCK:SEQUENCE"
+        },
+        "Package\\Staging\\Source13 (PickupRequests)": {
+          "task_metadata": {
+            "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (AU)": {
+              "task_metadata": {
+                "task_dependency_map": {
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (AU)\\Get Error Details": [
+                    "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (AU)\\Save Error"
+                  ],
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (AU)\\Load Pickup Requests AU (Bulk Load)": [
+                    "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (AU)\\PickupRequests_Stg"
+                  ],
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (AU)\\PickupRequests_Stg": [
+                    "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (AU)\\Get Error Details"
+                  ],
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (AU)\\Load Pickup Requests AU": [
+                    "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (AU)\\Load Pickup Requests AU (Bulk Load)"
+                  ]
+                },
+                "exec_order": {
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (AU)\\Load Pickup Requests AU": 1,
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (AU)\\Load Pickup Requests AU (Bulk Load)": 2,
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (AU)\\PickupRequests_Stg": 3,
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (AU)\\Get Error Details": 4,
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (AU)\\Save Error": 5
+                },
+                "per_component_data": {
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (AU)\\Load Pickup Requests AU": {
+                    "component_type": "Microsoft.OLEDBSource",
+                    "component_info": {
+                      "sql_command": "DECLARE @startDate datetime = DATEADD(DAY,-60,getdate())\nDECLARE @NextID INT;\n\nSELECT TOP 1 @NextID = ID  FROM [FastwayGlobal_1].[PickupDashboard].[PickupRequest]\n  WHERE [CreateDateUtc] > @startDate\n ORDER BY [CreateDateUtc] \n\nSELECT [Id]\n\n      ,[CreateDateUtc]\n      ,[ShouldPrintLabel]\n      ,[PickupFranchiseeCode]\n      ,[PickupCourierNumber]\n      ,[LabelNumber]\n      ,[CollectionDate]\n      ,[CollectionCycle]\n      ,[PickupAddress1]\n      ,[PickupAddress2]\n      ,[PickupSuburb]\n      ,[PickupPostcode]\n      ,[PickupName]\n      ,[PickupPhone]\n      ,[PickupEmail]\n      ,[DeliveryAddress1]\n      ,[DeliveryAddress2]\n      ,[DeliverySuburb]\n      ,[DeliveryPostcode]\n      ,[DeliveryName]\n      ,[DeliveryPhone]\n      ,[DeliveryEmail]\n      ,[IsMessageSent]\n      ,[Weight]\n      ,[Width]\n      ,[Height]\n      ,[Length]\n      ,[RequestingCustomerName]\n      ,[CountryCode]\n      ,[IsPrinted]\n      ,[IsComplete]\n      ,[ConsolidationGroupId]\n      ,[CourierMessageResult]\n      ,[ConsolidationDateUtc]\n      ,[PickupSpecialInstructions]\n      ,[DeliverySpecialInstructions]\n      ,[HhcMessageId]\n      ,[HasCourierRejected]\n      ,[IsRegularCollection]\n      ,[RequestingCustomerOesId]\n      ,[IsCancelled]\n      ,[CancellationReason]\n      ,[CancellationTitle]\n      ,[FutileScanDate]\n      ,[NotReadyScanDate]\n      ,[PickupScanDate]\n      ,[MessageSentDateUtc]\n      ,[CourierMessageResultText]\n      ,[RejectionReason]\n      ,[RejectionDate]\n      ,[InternalStatus]\n      ,[DidNotAssignCourierDuringCreation]\n      ,[IsReturnService]\n      ,[IsParcelConnectPickupLocation]\n      ,[SecondaryLabelNumber]\n      ,[PickupSubDepotFranchiseeCode]\n      ,[CubicWeight]\n      ,[PickupCompany]\n      ,[DeliveryCompany]\n      ,[IsPriority]\n  FROM [FastwayGlobal_1].[PickupDashboard].[PickupRequest]\n  WHERE [ID] >= @NextID",
+                      "connection_names": [
+                        "Project.ConnectionManagers[GOKU.OnlineEnquiries_NEW]"
+                      ],
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (AU)\\Load Pickup Requests AU (Bulk Load)": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "PickupRequest_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (AU)\\PickupRequests_Stg": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "PickupRequest_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (AU)\\Save Error": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "SourceData_Err",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  }
+                }
+              },
+              "task_type": "Microsoft.Pipeline"
+            },
+            "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (NZ)": {
+              "task_metadata": {
+                "task_dependency_map": {
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (NZ)\\Get Error Details": [
+                    "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (NZ)\\Save Error"
+                  ],
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (NZ)\\Load Pickup Requests NZ (Bulk Load)": [
+                    "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (NZ)\\PickupRequests_Stg"
+                  ],
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (NZ)\\PickupRequests_Stg": [
+                    "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (NZ)\\Get Error Details"
+                  ],
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (NZ)\\Load Pickup Requests NZ": [
+                    "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (NZ)\\Load Pickup Requests NZ (Bulk Load)"
+                  ]
+                },
+                "exec_order": {
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (NZ)\\Load Pickup Requests NZ": 1,
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (NZ)\\Load Pickup Requests NZ (Bulk Load)": 2,
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (NZ)\\PickupRequests_Stg": 3,
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (NZ)\\Get Error Details": 4,
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (NZ)\\Save Error": 5
+                },
+                "per_component_data": {
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (NZ)\\Load Pickup Requests NZ": {
+                    "component_type": "Microsoft.OLEDBSource",
+                    "component_info": {
+                      "sql_command": "DECLARE @startDate datetime = DATEADD(DAY,-60,getdate())\nDECLARE @NextID INT;\n\nSELECT TOP 1 @NextID = ID  FROM [FastwayGlobal_6].[PickupDashboard].[PickupRequest]\n  WHERE [CreateDateUtc] > @startDate\n ORDER BY [CreateDateUtc] \n\nSELECT [Id]\n\n      ,[CreateDateUtc]\n      ,[ShouldPrintLabel]\n      ,[PickupFranchiseeCode]\n      ,[PickupCourierNumber]\n      ,[LabelNumber]\n      ,[CollectionDate]\n      ,[CollectionCycle]\n      ,[PickupAddress1]\n      ,[PickupAddress2]\n      ,[PickupSuburb]\n      ,[PickupPostcode]\n      ,[PickupName]\n      ,[PickupPhone]\n      ,[PickupEmail]\n      ,[DeliveryAddress1]\n      ,[DeliveryAddress2]\n      ,[DeliverySuburb]\n      ,[DeliveryPostcode]\n      ,[DeliveryName]\n      ,[DeliveryPhone]\n      ,[DeliveryEmail]\n      ,[IsMessageSent]\n      ,[Weight]\n      ,[Width]\n      ,[Height]\n      ,[Length]\n      ,[RequestingCustomerName]\n      ,[CountryCode]\n      ,[IsPrinted]\n      ,[IsComplete]\n      ,[ConsolidationGroupId]\n      ,[CourierMessageResult]\n      ,[ConsolidationDateUtc]\n      ,[PickupSpecialInstructions]\n      ,[DeliverySpecialInstructions]\n      ,[HhcMessageId]\n      ,[HasCourierRejected]\n      ,[IsRegularCollection]\n      ,[RequestingCustomerOesId]\n      ,[IsCancelled]\n      ,[CancellationReason]\n      ,[CancellationTitle]\n      ,[FutileScanDate]\n      ,[NotReadyScanDate]\n      ,[PickupScanDate]\n      ,[MessageSentDateUtc]\n      ,[CourierMessageResultText]\n      ,[RejectionReason]\n      ,[RejectionDate]\n      ,[InternalStatus]\n      ,[DidNotAssignCourierDuringCreation]\n      ,[IsReturnService]\n      ,[IsParcelConnectPickupLocation]\n      ,[SecondaryLabelNumber]\n      ,[PickupSubDepotFranchiseeCode]\n      ,[CubicWeight]\n      ,[PickupCompany]\n      ,[DeliveryCompany]\n      ,[IsPriority]\n  FROM [FastwayGlobal_6].[PickupDashboard].[PickupRequest]\n  WHERE [ID] >= @NextID",
+                      "connection_names": [
+                        "Project.ConnectionManagers[GOKU.OnlineEnquiries_NEW]"
+                      ],
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (NZ)\\Load Pickup Requests NZ (Bulk Load)": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "PickupRequest_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (NZ)\\PickupRequests_Stg": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "PickupRequest_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (NZ)\\Save Error": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "SourceData_Err",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  }
+                }
+              },
+              "task_type": "Microsoft.Pipeline"
+            },
+            "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (SA)": {
+              "task_metadata": {
+                "task_dependency_map": {
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (SA)\\Get Error Details": [
+                    "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (SA)\\Save Error"
+                  ],
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (SA)\\Load Pickup Requests SA (Bulk Load)": [
+                    "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (SA)\\PickupRequests_Stg"
+                  ],
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (SA)\\PickupRequests_Stg": [
+                    "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (SA)\\Get Error Details"
+                  ],
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (SA)\\Load Pickup Requests SA": [
+                    "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (SA)\\Load Pickup Requests SA (Bulk Load)"
+                  ]
+                },
+                "exec_order": {
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (SA)\\Load Pickup Requests SA": 1,
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (SA)\\Load Pickup Requests SA (Bulk Load)": 2,
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (SA)\\PickupRequests_Stg": 3,
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (SA)\\Get Error Details": 4,
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (SA)\\Save Error": 5
+                },
+                "per_component_data": {
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (SA)\\Load Pickup Requests SA": {
+                    "component_type": "Microsoft.OLEDBSource",
+                    "component_info": {
+                      "sql_command": "DECLARE @startDate datetime = DATEADD(DAY,-60,getdate())\nDECLARE @NextID INT;\n\nSELECT TOP 1 @NextID = ID  FROM [FastwayGlobal_24].[PickupDashboard].[PickupRequest]\n  WHERE [CreateDateUtc] > @startDate\n ORDER BY [CreateDateUtc] \n\nSELECT [Id]\n\n      ,[CreateDateUtc]\n      ,[ShouldPrintLabel]\n      ,[PickupFranchiseeCode]\n      ,[PickupCourierNumber]\n      ,[LabelNumber]\n      ,[CollectionDate]\n      ,[CollectionCycle]\n      ,[PickupAddress1]\n      ,[PickupAddress2]\n      ,[PickupSuburb]\n      ,[PickupPostcode]\n      ,[PickupName]\n      ,[PickupPhone]\n      ,[PickupEmail]\n      ,[DeliveryAddress1]\n      ,[DeliveryAddress2]\n      ,[DeliverySuburb]\n      ,[DeliveryPostcode]\n      ,[DeliveryName]\n      ,[DeliveryPhone]\n      ,[DeliveryEmail]\n      ,[IsMessageSent]\n      ,[Weight]\n      ,[Width]\n      ,[Height]\n      ,[Length]\n      ,[RequestingCustomerName]\n      ,[CountryCode]\n      ,[IsPrinted]\n      ,[IsComplete]\n      ,[ConsolidationGroupId]\n      ,[CourierMessageResult]\n      ,[ConsolidationDateUtc]\n      ,[PickupSpecialInstructions]\n      ,[DeliverySpecialInstructions]\n      ,[HhcMessageId]\n      ,[HasCourierRejected]\n      ,[IsRegularCollection]\n      ,[RequestingCustomerOesId]\n      ,[IsCancelled]\n      ,[CancellationReason]\n      ,[CancellationTitle]\n      ,[FutileScanDate]\n      ,[NotReadyScanDate]\n      ,[PickupScanDate]\n      ,[MessageSentDateUtc]\n      ,[CourierMessageResultText]\n      ,[RejectionReason]\n      ,[RejectionDate]\n      ,[InternalStatus]\n      ,[DidNotAssignCourierDuringCreation]\n      ,[IsReturnService]\n      ,[IsParcelConnectPickupLocation]\n      ,[SecondaryLabelNumber]\n      ,[PickupSubDepotFranchiseeCode]\n      ,[CubicWeight]\n      ,[PickupCompany]\n      ,[DeliveryCompany]\n      ,[IsPriority]\n  FROM [FastwayGlobal_24].[PickupDashboard].[PickupRequest]\n  WHERE [ID] >= @NextID",
+                      "connection_names": [
+                        "Project.ConnectionManagers[GOKU.OnlineEnquiries_NEW]"
+                      ],
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (SA)\\Load Pickup Requests SA (Bulk Load)": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "PickupRequest_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (SA)\\PickupRequests_Stg": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "PickupRequest_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (SA)\\Save Error": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "SourceData_Err",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  }
+                }
+              },
+              "task_type": "Microsoft.Pipeline"
+            },
+            "Package\\Staging\\Source13 (PickupRequests)\\Truncate Staging Tables": {
+              "task_metadata": {
+                "query": "TRUNCATE TABLE [Staging].[PickupRequest_Stg];\n",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            }
+          },
+          "task_type": "STOCK:SEQUENCE"
+        },
+        "Package\\Staging\\Source2 (DynamicLabel) _DL": {
+          "task_metadata": {
+            "Package\\Staging\\Source2 (DynamicLabel) _DL\\Get LastId (DynamicLabel)": {
+              "task_metadata": {
+                "query": "Exec [Staging].[Get_LastValue] ?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "RecordSource2",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {
+                  "LastValue": {
+                    "variable_name": "LastId2",
+                    "result_type": "ResultSetType_SingleRow"
+                  }
+                }
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Staging\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg": {
+              "task_metadata": {
+                "task_dependency_map": {
+                  "Package\\Staging\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\Get Error Details": [
+                    "Package\\Staging\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\Save Error"
+                  ],
+                  "Package\\Staging\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\API_RF_AdHocLabel_AllocationHistory": [
+                    "Package\\Staging\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\Get Error Details"
+                  ],
+                  "Package\\Staging\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\API_RF_AdHocLabel_AllocationHistory (Bulk Insert)": [
+                    "Package\\Staging\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\API_RF_AdHocLabel_AllocationHistory"
+                  ],
+                  "Package\\Staging\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\Load API_RF_AdHocLabel_AllocationHistory data (OnlineEnquiries_NEW)": [
+                    "Package\\Staging\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\API_RF_AdHocLabel_AllocationHistory (Bulk Insert)"
+                  ]
+                },
+                "exec_order": {
+                  "Package\\Staging\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\Load API_RF_AdHocLabel_AllocationHistory data (OnlineEnquiries_NEW)": 1,
+                  "Package\\Staging\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\API_RF_AdHocLabel_AllocationHistory (Bulk Insert)": 2,
+                  "Package\\Staging\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\API_RF_AdHocLabel_AllocationHistory": 3,
+                  "Package\\Staging\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\Get Error Details": 4,
+                  "Package\\Staging\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\Save Error": 5
+                },
+                "per_component_data": {
+                  "Package\\Staging\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\API_RF_AdHocLabel_AllocationHistory": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "API_RF_AdHocLabel_AllocationHistory_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\API_RF_AdHocLabel_AllocationHistory (Bulk Insert)": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "API_RF_AdHocLabel_AllocationHistory_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\Load API_RF_AdHocLabel_AllocationHistory data (OnlineEnquiries_NEW)": {
+                    "component_type": "Microsoft.OLEDBSource",
+                    "component_info": {
+                      "sql_command": "DECLARE @LastID INT = ?;\n\nSET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;\n\nSELECT\n       [HistoryID]\n      ,[SystemID]\n      ,[LabelColour]\n      ,[LabelNumber]\n      ,[CountryCode]\n      ,[Franchise]\n      ,[PriceSoldAtExGST]\n      ,[DateAllocatedUTC]\n      ,[ExternalReference]\n      ,[CustomerID]\n      ,[FKID]\n      ,[FKSource]\n      ,[FMSInvoiceID]\n      ,[FMSProductID]\n      ,[AllocatedByCustomer]\n      ,[CustomerUniqueID]\n      ,[PickupTown]\n      ,[PickupPostcode]\n      ,[DeliveryTown]\n      ,[DeliveryPostcode]\n      ,[Weight]\n      ,[DateAllocatedRelativeToRF]\n      ,[DeletedLabel]\n      ,[DeliveryAddr1]\n      ,[DeliveryAddr2]\n      ,[PickupAddr1]\n      ,[PickupAddr2]\n      ,[GroupTransId]\n      ,[DeliveryPhoneNo]\n      ,[LengthInCm]\n      ,[WidthInCm]\n      ,[HeightInCm]\n      ,[CubicWeight]\nFROM [OnlineEnquiries_NEW].[dbo].[API_RF_AdHocLabel_AllocationHistory]\nWHERE [HistoryID] > @LastID",
+                      "connection_names": [
+                        "Project.ConnectionManagers[GOKU.OnlineEnquiries_NEW]"
+                      ],
+                      "inline_positional_params": true,
+                      "inline_positional_params_mapping": {
+                        "param_1": "LastId2"
+                      },
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": "SourceDataQuery2",
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": "User::SourceDataQuery2",
+                        "variables_used_distinct": [
+                          "LastId2",
+                          "SourceDataQuery2"
+                        ]
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\Save Error": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "SourceData_Err",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  }
+                }
+              },
+              "task_type": "Microsoft.Pipeline"
+            },
+            "Package\\Staging\\Source2 (DynamicLabel) _DL\\Rebuild Indexes 2": {
+              "task_metadata": {
+                "query": "EXEC [dbo].[MaintainIndexes] @Operation = 'REBUILD', @SchemaName = 'Staging', @TableName = 'API_RF_AdHocLabel_AllocationHistory_Stg';",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Staging\\Source2 (DynamicLabel) _DL\\Truncate API_RF_AdHocLabel_AllocationHistory_Stg": {
+              "task_metadata": {
+                "query": "TRUNCATE TABLE [Staging].[API_RF_AdHocLabel_AllocationHistory_Stg];\n\nEXEC [dbo].[MaintainIndexes] @Operation = 'DISABLE', @SchemaName = 'Staging', @TableName = 'API_RF_AdHocLabel_AllocationHistory_Stg';",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            }
+          },
+          "task_type": "STOCK:SEQUENCE"
+        },
+        "Package\\Staging\\Source3 (FastLabel) _FL": {
+          "task_metadata": {
+            "Package\\Staging\\Source3 (FastLabel) _FL\\Get LastDate (FastLabel)": {
+              "task_metadata": {
+                "query": "Exec [Staging].[Get_LastValue] ?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "RecordSource3",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {
+                  "LastValue": {
+                    "variable_name": "LastDate3",
+                    "result_type": "ResultSetType_SingleRow"
+                  }
+                }
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Staging\\Source3 (FastLabel) _FL\\Load tblFastLabel_Consignment_Stg": {
+              "task_metadata": {
+                "task_dependency_map": {
+                  "Package\\Staging\\Source3 (FastLabel) _FL\\Load tblFastLabel_Consignment_Stg\\Get Error Details": [
+                    "Package\\Staging\\Source3 (FastLabel) _FL\\Load tblFastLabel_Consignment_Stg\\Save Error"
+                  ],
+                  "Package\\Staging\\Source3 (FastLabel) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment_Stg (Bulk Insert)": [
+                    "Package\\Staging\\Source3 (FastLabel) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment_Stg"
+                  ],
+                  "Package\\Staging\\Source3 (FastLabel) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment_Stg": [
+                    "Package\\Staging\\Source3 (FastLabel) _FL\\Load tblFastLabel_Consignment_Stg\\Get Error Details"
+                  ],
+                  "Package\\Staging\\Source3 (FastLabel) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment (OnlineEnquiries_NEW)": [
+                    "Package\\Staging\\Source3 (FastLabel) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment_Stg (Bulk Insert)"
+                  ]
+                },
+                "exec_order": {
+                  "Package\\Staging\\Source3 (FastLabel) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment (OnlineEnquiries_NEW)": 1,
+                  "Package\\Staging\\Source3 (FastLabel) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment_Stg (Bulk Insert)": 2,
+                  "Package\\Staging\\Source3 (FastLabel) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment_Stg": 3,
+                  "Package\\Staging\\Source3 (FastLabel) _FL\\Load tblFastLabel_Consignment_Stg\\Get Error Details": 4,
+                  "Package\\Staging\\Source3 (FastLabel) _FL\\Load tblFastLabel_Consignment_Stg\\Save Error": 5
+                },
+                "per_component_data": {
+                  "Package\\Staging\\Source3 (FastLabel) _FL\\Load tblFastLabel_Consignment_Stg\\Save Error": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "SourceData_Err",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source3 (FastLabel) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment (OnlineEnquiries_NEW)": {
+                    "component_type": "Microsoft.OLEDBSource",
+                    "component_info": {
+                      "sql_command": "DECLARE @startDate datetime = ?\nSET @startDate = DATEADD(DD,-1,@startDate)\n--SET @StartDate = '2022-06-01T00:00:00'\n\nSET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;\n\nSELECT \n\td.LabelNumber, \n\td.CountryCode, \n\td.CreateDate, \n\td.LabelPrinted, \n\td.CustomerID, \n\td.ClientID, \n\td.ConsumedByCustomerUserID, \n\td.LblColour, \n\td.LblPrice, \n\td.LblPrice1,\n\ti.Reference, \n\ti.Packaging, \n\ti.Weight, \n\ti.WeightCubic, \n\ti.Length, \n\ti.Width, \n\ti.Height, \n\tb.ManifestID, \n\tb.Address1,\n\tb.Address2,\n\tb.Town, \n\tb.PostCode, \n\tb.State, \n\tb.destRF,\n\td.BookID,\n                  d.DateConsumed,\n                  i.ConsignmentID\nFROM [OnlineEnquiries_NEW].[dbo].[tblFastLabel_Book_Detail] d\nLEFT JOIN [OnlineEnquiries_NEW].[dbo].[tblFastLabel_Consignment_Items] i on d.AppliedToItemID = i.ItemID\nLEFT JOIN [OnlineEnquiries_NEW].[dbo].[tblFastLabel_Consignment] b on i.ConsignmentID = b.ConsignmentID\nWHERE d.CreateDate > @startDate OR d.DateConsumed > @startDate;",
+                      "connection_names": [
+                        "Project.ConnectionManagers[GOKU.OnlineEnquiries_NEW]"
+                      ],
+                      "inline_positional_params": true,
+                      "inline_positional_params_mapping": {
+                        "param_1": "LastDate3"
+                      },
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": [
+                          "LastDate3"
+                        ]
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source3 (FastLabel) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment_Stg": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "tblFastLabel_Consignment_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source3 (FastLabel) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment_Stg (Bulk Insert)": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "tblFastLabel_Consignment_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  }
+                }
+              },
+              "task_type": "Microsoft.Pipeline"
+            },
+            "Package\\Staging\\Source3 (FastLabel) _FL\\Rebuild Indexes 3": {
+              "task_metadata": {
+                "query": "EXEC [dbo].[MaintainIndexes] @Operation = 'REBUILD', @SchemaName = 'Staging', @TableName = 'tblFastLabel_Consignment_Stg';",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Staging\\Source3 (FastLabel) _FL\\Truncate tblFastLabel_Consignment_Stg": {
+              "task_metadata": {
+                "query": "TRUNCATE TABLE [Staging].[tblFastLabel_Consignment_Stg];\n\nEXEC [dbo].[MaintainIndexes] @Operation = 'DISABLE', @SchemaName = 'Staging', @TableName = 'tblFastLabel_Consignment_Stg';",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            }
+          },
+          "task_type": "STOCK:SEQUENCE"
+        },
+        "Package\\Staging\\Source4 (MyFastway) _MF": {
+          "task_metadata": {
+            "Package\\Staging\\Source4 (MyFastway) _MF\\Get LastDate (MyFastway)": {
+              "task_metadata": {
+                "query": "Exec [Staging].[Get_LastValue] ?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "RecordSource4",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {
+                  "LastValue": {
+                    "variable_name": "LastDate4",
+                    "result_type": "ResultSetType_SingleRow"
+                  }
+                }
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Staging\\Source4 (MyFastway) _MF\\Load fl_ConItem_Stg": {
+              "task_metadata": {
+                "task_dependency_map": {
+                  "Package\\Staging\\Source4 (MyFastway) _MF\\Load fl_ConItem_Stg\\Get Error Details": [
+                    "Package\\Staging\\Source4 (MyFastway) _MF\\Load fl_ConItem_Stg\\Save Error"
+                  ],
+                  "Package\\Staging\\Source4 (MyFastway) _MF\\Load fl_ConItem_Stg\\fl_ConItem _Stg": [
+                    "Package\\Staging\\Source4 (MyFastway) _MF\\Load fl_ConItem_Stg\\Get Error Details"
+                  ],
+                  "Package\\Staging\\Source4 (MyFastway) _MF\\Load fl_ConItem_Stg\\fl_ConItem _Stg (Bulk Insert)": [
+                    "Package\\Staging\\Source4 (MyFastway) _MF\\Load fl_ConItem_Stg\\fl_ConItem _Stg"
+                  ],
+                  "Package\\Staging\\Source4 (MyFastway) _MF\\Load fl_ConItem_Stg\\fl_ConItem (Fastway)": [
+                    "Package\\Staging\\Source4 (MyFastway) _MF\\Load fl_ConItem_Stg\\fl_ConItem _Stg (Bulk Insert)"
+                  ]
+                },
+                "exec_order": {
+                  "Package\\Staging\\Source4 (MyFastway) _MF\\Load fl_ConItem_Stg\\fl_ConItem (Fastway)": 1,
+                  "Package\\Staging\\Source4 (MyFastway) _MF\\Load fl_ConItem_Stg\\fl_ConItem _Stg (Bulk Insert)": 2,
+                  "Package\\Staging\\Source4 (MyFastway) _MF\\Load fl_ConItem_Stg\\fl_ConItem _Stg": 3,
+                  "Package\\Staging\\Source4 (MyFastway) _MF\\Load fl_ConItem_Stg\\Get Error Details": 4,
+                  "Package\\Staging\\Source4 (MyFastway) _MF\\Load fl_ConItem_Stg\\Save Error": 5
+                },
+                "per_component_data": {
+                  "Package\\Staging\\Source4 (MyFastway) _MF\\Load fl_ConItem_Stg\\fl_ConItem (Fastway)": {
+                    "component_type": "Microsoft.OLEDBSource",
+                    "component_info": {
+                      "sql_command": "DECLARE @startDate datetime = ?;\nDECLARE @startDate2 datetime;\nDECLARE  @ConId bigint;\n\nSET @startDate2  = DATEADD(DAY, -60,GETDATE());\n\nSELECT TOP 1 @ConId = ConId\nFROM [FWFastlabel].dbo.fl_Con (NOLOCK)\nWHERE CreatedOn >= @StartDate2\nORDER BY CreatedOn\n\nSELECT\nci.[Label],\ncon.ConId,\nci.ConItemId,\nci.[LineNo],\ncon.CountryId,\ncon.CreatedOn,\ncon.CustomerId,\nci.FromRf,\nci.FromCf,\nci.ToRf,\nci.ToCf,\nci.FMSInvoiceNo,\nci.FMSInvoiceDate,\ncis.Reference,\ncis.Quantity,\ncis.ProductId,\ncis.WeightDead,\ncis.WeightCubic,\ncis.WeightPriced,\ncis.Width,\ncis.Length,\ncis.Height,\ncon.FromBusinessName,\ncon.FromContactName,\ncon.FromStreetAddress,\ncon.FromLocality,\ncon.FromStateOrProvince,\ncon.FromPostalCode,\ncon.FromCountry,\ncon.FromPhoneNumber,\ncon.FromEmail,\ncon.FromLat,\ncon.FromLng,\ncon.ToBusinessName,\ncon.ToContactName,\ncon.ToStreetAddress,\ncon.ToLocality,\ncon.ToStateOrProvince,\ncon.ToPostalCode,\ncon.ToCountry,\ncon.ToPhoneNumber,\ncon.ToEmail,\ncon.ToLat,\ncon.ToLng,\ncon.RealisedDate,\nci.BasePrice,\nci.ExcessPrice,\nci.PickUpPriceTotal,\nci.DeliveryPriceTotal,\nci.BasePriceComm,\nci.ExcessPriceComm,\nci.BasePriceDiscounted,\nci.ExcessPriceDiscounted,\nci.ItemPrice,\nci.ServicePrice,\nci.PLBSBatchId,\nci.PLBSInvoiceNo,\nci.PLBSInvoiceDate,\nci.PLBSPrice,\nci.PLBSTax,\nci.PLBSTotal,\nci.DLBSBatchId,\nci.DLBSInvoiceNo,\nci.DLBSInvoiceDate,\nci.DLBSPrice,\nci.DLBSTax,\nci.DLBSTotal,\nci.LineHaulPrice,\nci.LineHaulTax,\nci.LineHaulTotal,\nci.[Zone],\ncis.SatchelSize,\ncis.WeightPriceTypeId,\nci.SubDepot,\nci.ToRfSubDepotCode,\nci.BareProfileId,\ncon.UpdatedOn as ConUpdatedOn,\nci.UpdatedOn as ConItemUpdatedOn,\ncis.Price AS ItemSumPrice,\ncis.Tax AS ItemSumTax,\ncis.Total AS ItemSumTotal,\ncis.PackageTypeId AS ItemSumPackageTypeId,\nci.LabelExternal\n--cis.DescriptionOfGoods as ItemSumDescriptionOfGoods,\n--cis.DeclaredValue,\n--cis.HSCodeInternal,\n--cis.HSCodeExternal\nFROM [FWFastlabel].[dbo].[fl_Con] con with (NOLOCK) \nJOIN [FWFastlabel].[dbo].[fl_ConItemSum] cis with (NOLOCK) on cis.ConId = con.ConId\nJOIN [FWFastlabel].[dbo].[fl_ConItem] ci with (NOLOCK) on ci.ConId = cis.ConId and ci.[LineNo] = cis.[LineNo]\nWHERE con.ConId >= @ConId",
+                      "connection_names": [
+                        "Project.ConnectionManagers[KRILLIN_Fastway]"
+                      ],
+                      "inline_positional_params": true,
+                      "inline_positional_params_mapping": {
+                        "param_1": "LastDate4"
+                      },
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": [
+                          "LastDate4"
+                        ]
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source4 (MyFastway) _MF\\Load fl_ConItem_Stg\\fl_ConItem _Stg": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "fl_ConItem_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source4 (MyFastway) _MF\\Load fl_ConItem_Stg\\fl_ConItem _Stg (Bulk Insert)": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "fl_ConItem_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source4 (MyFastway) _MF\\Load fl_ConItem_Stg\\Save Error": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "SourceData_Err",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  }
+                }
+              },
+              "task_type": "Microsoft.Pipeline"
+            },
+            "Package\\Staging\\Source4 (MyFastway) _MF\\Rebuild Indexes 4": {
+              "task_metadata": {
+                "query": "EXEC [dbo].[MaintainIndexes] @Operation = 'REBUILD', @SchemaName = 'Staging', @TableName = 'fl_ConItem_Stg';",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Staging\\Source4 (MyFastway) _MF\\Truncate fl_ConItem_Stg": {
+              "task_metadata": {
+                "query": "TRUNCATE TABLE [Staging].[fl_ConItem_Stg];\n\nEXEC [dbo].[MaintainIndexes] @Operation = 'DISABLE', @SchemaName = 'Staging', @TableName = 'fl_ConItem_Stg';",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            }
+          },
+          "task_type": "STOCK:SEQUENCE"
+        },
+        "Package\\Staging\\Source5 (HDManifest) _IFS": {
+          "task_metadata": {
+            "Package\\Staging\\Source5 (HDManifest) _IFS\\Get LastID(IFS)": {
+              "task_metadata": {
+                "query": "Exec [Staging].[Get_LastValue] ?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "RecordSource5",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {
+                  "LastValue": {
+                    "variable_name": "LastID6",
+                    "result_type": "ResultSetType_SingleRow"
+                  }
+                }
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Staging\\Source5 (HDManifest) _IFS\\Load HDManifests_Stg": {
+              "task_metadata": {
+                "task_dependency_map": {
+                  "Package\\Staging\\Source5 (HDManifest) _IFS\\Load HDManifests_Stg\\Get Error Details": [
+                    "Package\\Staging\\Source5 (HDManifest) _IFS\\Load HDManifests_Stg\\Save Error"
+                  ],
+                  "Package\\Staging\\Source5 (HDManifest) _IFS\\Load HDManifests_Stg\\HDManifests_Stg": [
+                    "Package\\Staging\\Source5 (HDManifest) _IFS\\Load HDManifests_Stg\\Get Error Details"
+                  ],
+                  "Package\\Staging\\Source5 (HDManifest) _IFS\\Load HDManifests_Stg\\HDManifests_Stg (Bulk Insert)": [
+                    "Package\\Staging\\Source5 (HDManifest) _IFS\\Load HDManifests_Stg\\HDManifests_Stg"
+                  ],
+                  "Package\\Staging\\Source5 (HDManifest) _IFS\\Load HDManifests_Stg\\HDManifests (FWFastLabel)": [
+                    "Package\\Staging\\Source5 (HDManifest) _IFS\\Load HDManifests_Stg\\HDManifests_Stg (Bulk Insert)"
+                  ]
+                },
+                "exec_order": {
+                  "Package\\Staging\\Source5 (HDManifest) _IFS\\Load HDManifests_Stg\\HDManifests (FWFastLabel)": 1,
+                  "Package\\Staging\\Source5 (HDManifest) _IFS\\Load HDManifests_Stg\\HDManifests_Stg (Bulk Insert)": 2,
+                  "Package\\Staging\\Source5 (HDManifest) _IFS\\Load HDManifests_Stg\\HDManifests_Stg": 3,
+                  "Package\\Staging\\Source5 (HDManifest) _IFS\\Load HDManifests_Stg\\Get Error Details": 4,
+                  "Package\\Staging\\Source5 (HDManifest) _IFS\\Load HDManifests_Stg\\Save Error": 5
+                },
+                "per_component_data": {
+                  "Package\\Staging\\Source5 (HDManifest) _IFS\\Load HDManifests_Stg\\HDManifests (FWFastLabel)": {
+                    "component_type": "Microsoft.OLEDBSource",
+                    "component_info": {
+                      "sql_command": "DECLARE @NextID int = ?\n--SET @StartDate = '2022-06-01T00:00:00'\n\n\nSELECT \n    LabelNo, \n    CountryCode, \n    DateInserted, \n    ConDate, \n    SendAdd1, SendAdd2, SendAdd3, SendAdd4, SendAdd5, SendAdd6,\n    RecAdd1, RecAdd2, RecAdd3, RecAdd4, RecAdd5, RecAdd6,\n    CollectionPostCode, CollectionCountryCode, \n    DeliveryPostCode, DeliveryCountryCode,\n    ManifestId, \n    ClientId, \n    CustomerID, \n    Quantity, \n    Weight, \n    Width, \n    Length, \n    Height, \n    CollectionRF, \n    DeliveryRF, \n    RecordId,\n    UniqueParcelIdentifier\nFROM [Fastway].[dbo].[HDManifests] WITH (READPAST, INDEX = RecordId)\nWHERE RecordId >= @NextID ;",
+                      "connection_names": [
+                        "Project.ConnectionManagers[KRILLIN_Fastway]"
+                      ],
+                      "inline_positional_params": true,
+                      "inline_positional_params_mapping": {
+                        "param_1": "LastID6"
+                      },
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": [
+                          "LastID6"
+                        ]
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source5 (HDManifest) _IFS\\Load HDManifests_Stg\\HDManifests_Stg": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "HDManifests_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source5 (HDManifest) _IFS\\Load HDManifests_Stg\\HDManifests_Stg (Bulk Insert)": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "HDManifests_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source5 (HDManifest) _IFS\\Load HDManifests_Stg\\Save Error": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "SourceData_Err",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  }
+                }
+              },
+              "task_type": "Microsoft.Pipeline"
+            },
+            "Package\\Staging\\Source5 (HDManifest) _IFS\\Rebuild Indexes 5": {
+              "task_metadata": {
+                "query": "EXEC [dbo].[MaintainIndexes] @Operation = 'REBUILD', @SchemaName = 'Staging', @TableName = 'HDManifests_Stg';",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Staging\\Source5 (HDManifest) _IFS\\Truncate HDManifests_Stg": {
+              "task_metadata": {
+                "query": "TRUNCATE TABLE [Staging].[HDManifests_Stg];\n\nEXEC [dbo].[MaintainIndexes] @Operation = 'DISABLE', @SchemaName = 'Staging', @TableName = 'HDManifests_Stg';",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            }
+          },
+          "task_type": "STOCK:SEQUENCE"
+        },
+        "Package\\Staging\\Source6 (FastLabelEnterprise) _FLE": {
+          "task_metadata": {
+            "Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Get LastDate (FastLabelEnterprise)": {
+              "task_metadata": {
+                "query": "Exec [Staging].[Get_LastValue] ?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "RecordSource6",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {
+                  "LastValue": {
+                    "variable_name": "LastDate6",
+                    "result_type": "ResultSetType_SingleRow"
+                  }
+                }
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Load ConsignmentItem_Stg": {
+              "task_metadata": {
+                "task_dependency_map": {
+                  "Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Load ConsignmentItem_Stg\\Get Error Details": [
+                    "Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Load ConsignmentItem_Stg\\Save Error"
+                  ],
+                  "Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem_Stg": [
+                    "Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Load ConsignmentItem_Stg\\Get Error Details"
+                  ],
+                  "Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem_Stg (Bulk Insert)": [
+                    "Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem_Stg"
+                  ],
+                  "Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem (FastLabelServer)": [
+                    "Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem_Stg (Bulk Insert)"
+                  ]
+                },
+                "exec_order": {
+                  "Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem (FastLabelServer)": 1,
+                  "Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem_Stg (Bulk Insert)": 2,
+                  "Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem_Stg": 3,
+                  "Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Load ConsignmentItem_Stg\\Get Error Details": 4,
+                  "Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Load ConsignmentItem_Stg\\Save Error": 5
+                },
+                "per_component_data": {
+                  "Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem (FastLabelServer)": {
+                    "component_type": "Microsoft.OLEDBSource",
+                    "component_info": {
+                      "sql_command": "DECLARE @startDate datetime = ?\n\nSET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;\n\nSELECT \n       cl.LabelNumber,\n       cl.CountryId,\n       cm.WebCustomerId,\n       c.CustomerId,\n       c.ReceiverContactName,\n       c.ReceiverCompanyName,\n       c.ReceiverAddress1,\n       c.ReceiverAddress2,\n       c.ReceiverSuburb,\n       c.ReceiverCity,\n       c.ReceiverPostcode,\n       c.SpecialInstructions,\n       c.ReceiverPhone,\n       c.ReceiverEmail,\n       cl.PrintedOn, \n       ci.Reference,\n       c.DestinationRF,\n       c.ManifestId,\n       c.Price,\n       cl.InvoiceNo,\n       c.ItemCount,\n       cl.CreatedOn,\n       ci.WeightCubic,\n       ci.WeightDead,\n       ci.Width,\n       ci.Length,\n       ci.Height,\n       cl.Colour,\n       cl.ConsignmentItemId\nFROM FastLabelServer.dbo.Consignment c \nJOIN FastLabelServer.dbo.ConsignmentItem ci on c.CountryId = ci.CountryId and c.CustomerId = ci.CustomerId and c.Id = ci.ConsignmentId\nJOIN FastLabelServer.dbo.ConsignmentLabel cl on ci.CountryId = cl.CountryId and ci.CustomerId = cl.CustomerId and ci.Id = cl.ConsignmentItemId\nLEFT JOIN FastLabelServer.dbo.CustomerMap cm on c.CountryId = cm.CountryId and c.CustomerId = cm.CustomerId \nWHERE cl.CreatedOn >@startDate ;",
+                      "connection_names": [
+                        "Project.ConnectionManagers[KRILLIN_Fastway]"
+                      ],
+                      "inline_positional_params": true,
+                      "inline_positional_params_mapping": {
+                        "param_1": "LastDate6"
+                      },
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": [
+                          "LastDate6"
+                        ]
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem_Stg": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "ConsignmentItem_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem_Stg (Bulk Insert)": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "ConsignmentItem_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Load ConsignmentItem_Stg\\Save Error": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "SourceData_Err",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  }
+                }
+              },
+              "task_type": "Microsoft.Pipeline"
+            },
+            "Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Rebuild Indexes 6": {
+              "task_metadata": {
+                "query": "EXEC [dbo].[MaintainIndexes] @Operation = 'REBUILD', @SchemaName = 'Staging', @TableName = 'ConsignmentItem_Stg';",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Truncate ConsignmentItem_Stg": {
+              "task_metadata": {
+                "query": "TRUNCATE TABLE [Staging].[ConsignmentItem_Stg];",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            }
+          },
+          "task_type": "STOCK:SEQUENCE"
+        },
+        "Package\\Staging\\Source7 (Temando) _TMD": {
+          "task_metadata": {
+            "Package\\Staging\\Source7 (Temando) _TMD\\Get LastId (Temando)": {
+              "task_metadata": {
+                "query": "Exec [Staging].[Get_LastValue] ?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "RecordSource7",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {
+                  "LastValue": {
+                    "variable_name": "LastId7",
+                    "result_type": "ResultSetType_SingleRow"
+                  }
+                }
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Staging\\Source7 (Temando) _TMD\\Load API_Temando_RequestLabel_Stg": {
+              "task_metadata": {
+                "task_dependency_map": {
+                  "Package\\Staging\\Source7 (Temando) _TMD\\Load API_Temando_RequestLabel_Stg\\Get Error Details": [
+                    "Package\\Staging\\Source7 (Temando) _TMD\\Load API_Temando_RequestLabel_Stg\\Save Error"
+                  ],
+                  "Package\\Staging\\Source7 (Temando) _TMD\\Load API_Temando_RequestLabel_Stg\\API_Temando_RequestLabel": [
+                    "Package\\Staging\\Source7 (Temando) _TMD\\Load API_Temando_RequestLabel_Stg\\Get Error Details"
+                  ],
+                  "Package\\Staging\\Source7 (Temando) _TMD\\Load API_Temando_RequestLabel_Stg\\API_Temando_RequestLabel (Bulk Insert)": [
+                    "Package\\Staging\\Source7 (Temando) _TMD\\Load API_Temando_RequestLabel_Stg\\API_Temando_RequestLabel"
+                  ],
+                  "Package\\Staging\\Source7 (Temando) _TMD\\Load API_Temando_RequestLabel_Stg\\Load API_Temando_RequestLabel data (OnlineEnquiries_NEW)": [
+                    "Package\\Staging\\Source7 (Temando) _TMD\\Load API_Temando_RequestLabel_Stg\\API_Temando_RequestLabel (Bulk Insert)"
+                  ]
+                },
+                "exec_order": {
+                  "Package\\Staging\\Source7 (Temando) _TMD\\Load API_Temando_RequestLabel_Stg\\Load API_Temando_RequestLabel data (OnlineEnquiries_NEW)": 1,
+                  "Package\\Staging\\Source7 (Temando) _TMD\\Load API_Temando_RequestLabel_Stg\\API_Temando_RequestLabel (Bulk Insert)": 2,
+                  "Package\\Staging\\Source7 (Temando) _TMD\\Load API_Temando_RequestLabel_Stg\\API_Temando_RequestLabel": 3,
+                  "Package\\Staging\\Source7 (Temando) _TMD\\Load API_Temando_RequestLabel_Stg\\Get Error Details": 4,
+                  "Package\\Staging\\Source7 (Temando) _TMD\\Load API_Temando_RequestLabel_Stg\\Save Error": 5
+                },
+                "per_component_data": {
+                  "Package\\Staging\\Source7 (Temando) _TMD\\Load API_Temando_RequestLabel_Stg\\API_Temando_RequestLabel": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "API_Temando_RequestLabel_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source7 (Temando) _TMD\\Load API_Temando_RequestLabel_Stg\\API_Temando_RequestLabel (Bulk Insert)": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "API_Temando_RequestLabel_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source7 (Temando) _TMD\\Load API_Temando_RequestLabel_Stg\\Load API_Temando_RequestLabel data (OnlineEnquiries_NEW)": {
+                    "component_type": "Microsoft.OLEDBSource",
+                    "component_info": {
+                      "sql_command": "DECLARE @LastID INT = ?;\n\nSET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;\n\nSELECT\n    globalRequestID,  createDateLocal, createDateUTC, requestID, readyDate,\n    originCountry, originContactName, originCompany, originStreet, originSuburb, originState, originPostcode, originPhone1, originPhone2, originFax, originEmail, originRF,\n    destinationContactName, destinationCompany, destinationStreet, destinationSuburb, destinationState, destinationPostcode, destinationFax, destinationEmail, destinationRF,\n    specialInstructions, parcelWeight, parcelLength, parcelWidth, parcelHeight, parcelDescriptioN, Label_Colour, Label_Type, result_LabelNumber, result_Cost\nFROM [OnlineEnquiries_NEW].[dbo].[API_Temando_RequestLabel]\nWHERE [globalRequestID] > @LastID;",
+                      "connection_names": [
+                        "Project.ConnectionManagers[GOKU.OnlineEnquiries_NEW]"
+                      ],
+                      "inline_positional_params": true,
+                      "inline_positional_params_mapping": {
+                        "param_1": "LastId7"
+                      },
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": "SourceDataQuery2",
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": "User::SourceDataQuery2",
+                        "variables_used_distinct": [
+                          "LastId7",
+                          "SourceDataQuery2"
+                        ]
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source7 (Temando) _TMD\\Load API_Temando_RequestLabel_Stg\\Save Error": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "SourceData_Err",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  }
+                }
+              },
+              "task_type": "Microsoft.Pipeline"
+            },
+            "Package\\Staging\\Source7 (Temando) _TMD\\Rebuild Indexes 7": {
+              "task_metadata": {
+                "query": "EXEC [dbo].[MaintainIndexes] @Operation = 'REBUILD', @SchemaName = 'Staging', @TableName = 'API_Temando_RequestLabel_Stg';",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Staging\\Source7 (Temando) _TMD\\Truncate API_Temando_RequestLabel_Stg": {
+              "task_metadata": {
+                "query": "TRUNCATE TABLE [Staging].[API_Temando_RequestLabel_Stg];\n\nEXEC [dbo].[MaintainIndexes] @Operation = 'DISABLE', @SchemaName = 'Staging', @TableName = 'API_Temando_RequestLabel_Stg';",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            }
+          },
+          "task_type": "STOCK:SEQUENCE"
+        },
+        "Package\\Staging\\Source8 (ReceiverPays) _RP": {
+          "task_metadata": {
+            "Package\\Staging\\Source8 (ReceiverPays) _RP\\Get LastID  (ReceiverPays)": {
+              "task_metadata": {
+                "query": "Exec [Staging].[Get_LastValue] ?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "RecordSource8",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {
+                  "LastValue": {
+                    "variable_name": "LastID8",
+                    "result_type": "ResultSetType_SingleRow"
+                  }
+                }
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Staging\\Source8 (ReceiverPays) _RP\\Load tblOnlineEnquiry_RP_Stg": {
+              "task_metadata": {
+                "task_dependency_map": {
+                  "Package\\Staging\\Source8 (ReceiverPays) _RP\\Load tblOnlineEnquiry_RP_Stg\\Get Error Details": [
+                    "Package\\Staging\\Source8 (ReceiverPays) _RP\\Load tblOnlineEnquiry_RP_Stg\\Save Error"
+                  ],
+                  "Package\\Staging\\Source8 (ReceiverPays) _RP\\Load tblOnlineEnquiry_RP_Stg\\tblOnlineEnquiry_RP_Stg (Bulk Insert)": [
+                    "Package\\Staging\\Source8 (ReceiverPays) _RP\\Load tblOnlineEnquiry_RP_Stg\\tblOnlineEnquiry_RP_Stg"
+                  ],
+                  "Package\\Staging\\Source8 (ReceiverPays) _RP\\Load tblOnlineEnquiry_RP_Stg\\tblOnlineEnquiry_RP_Stg": [
+                    "Package\\Staging\\Source8 (ReceiverPays) _RP\\Load tblOnlineEnquiry_RP_Stg\\Get Error Details"
+                  ],
+                  "Package\\Staging\\Source8 (ReceiverPays) _RP\\Load tblOnlineEnquiry_RP_Stg\\tblOnlineEnquiry_RP (OnlineEnquiries_NEW)": [
+                    "Package\\Staging\\Source8 (ReceiverPays) _RP\\Load tblOnlineEnquiry_RP_Stg\\tblOnlineEnquiry_RP_Stg (Bulk Insert)"
+                  ]
+                },
+                "exec_order": {
+                  "Package\\Staging\\Source8 (ReceiverPays) _RP\\Load tblOnlineEnquiry_RP_Stg\\tblOnlineEnquiry_RP (OnlineEnquiries_NEW)": 1,
+                  "Package\\Staging\\Source8 (ReceiverPays) _RP\\Load tblOnlineEnquiry_RP_Stg\\tblOnlineEnquiry_RP_Stg (Bulk Insert)": 2,
+                  "Package\\Staging\\Source8 (ReceiverPays) _RP\\Load tblOnlineEnquiry_RP_Stg\\tblOnlineEnquiry_RP_Stg": 3,
+                  "Package\\Staging\\Source8 (ReceiverPays) _RP\\Load tblOnlineEnquiry_RP_Stg\\Get Error Details": 4,
+                  "Package\\Staging\\Source8 (ReceiverPays) _RP\\Load tblOnlineEnquiry_RP_Stg\\Save Error": 5
+                },
+                "per_component_data": {
+                  "Package\\Staging\\Source8 (ReceiverPays) _RP\\Load tblOnlineEnquiry_RP_Stg\\Save Error": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "SourceData_Err",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source8 (ReceiverPays) _RP\\Load tblOnlineEnquiry_RP_Stg\\tblOnlineEnquiry_RP (OnlineEnquiries_NEW)": {
+                    "component_type": "Microsoft.OLEDBSource",
+                    "component_info": {
+                      "sql_command": "DECLARE @startID int = ?\nSET @StartID = 1235690;\n\nSET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;\n\nSELECT rp.RPID, CreateDateUTC, CountryID, DescriptionOfGoods, PickupFranchiseeCode, DeliveryFranchiseeCode, PickupCourierNumber, DeliveryCourierNumber, \nNumberOfParcels, Sender_Name, Sender_StreetAddress, Sender_StreetAddress1, Sender_Suburb, Sender_Postcode, Sender_City, Sender_ContactName, Sender_ContactPhone,\nSender_MobileNumber, Sender_FaxNumber, Sender_EmailAddress, Sender_LocalRF, Receiver_Name, Receiver_StreetAddress, Receiver_StreetAddress1, Receiver_Suburb, Receiver_Postcode, Receiver_City,\nReceiver_ContactName, Receiver_ContactPhone, Receiver_MobileNumber, Receiver_FaxNumber, Receiver_EmailAddress, Receiver_LocalRF,\nCustomer_Name, IsThirdParty, CustomerID, CloseDateUTC, CancellationDateUTC, PickupDateLocal, PaymentDateUTC, label_colour, label_number, label_cost, receiverpays_label_cost, parcel_weight, parcel_height, parcel_width, parcel_length\nFROM [OnlineEnquiries_NEW].[dbo].[tblOnlineEnquiry_RP] rp\nJOIN [OnlineEnquiries_NEW].[dbo].[tblOnlineEnquiry_RP_Parcels] par ON rp.RPID = par.rpid\nWHERE rp.RPID > @startID",
+                      "connection_names": [
+                        "Project.ConnectionManagers[GOKU.OnlineEnquiries_NEW]"
+                      ],
+                      "inline_positional_params": true,
+                      "inline_positional_params_mapping": {
+                        "param_1": "LastID8"
+                      },
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": [
+                          "LastID8"
+                        ]
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source8 (ReceiverPays) _RP\\Load tblOnlineEnquiry_RP_Stg\\tblOnlineEnquiry_RP_Stg": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "tblOnlineEnquiry_RP_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Source8 (ReceiverPays) _RP\\Load tblOnlineEnquiry_RP_Stg\\tblOnlineEnquiry_RP_Stg (Bulk Insert)": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "tblOnlineEnquiry_RP_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  }
+                }
+              },
+              "task_type": "Microsoft.Pipeline"
+            },
+            "Package\\Staging\\Source8 (ReceiverPays) _RP\\Rebuild Indexes 8": {
+              "task_metadata": {
+                "query": "EXEC [dbo].[MaintainIndexes] @Operation = 'REBUILD', @SchemaName = 'Staging', @TableName = 'tblOnlineEnquiry_RP_Stg';",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Staging\\Source8 (ReceiverPays) _RP\\Truncate tblOnlineEnquiry_RP_Stg": {
+              "task_metadata": {
+                "query": "TRUNCATE TABLE [Staging].[tblOnlineEnquiry_RP_Stg];\n\nEXEC [dbo].[MaintainIndexes] @Operation = 'DISABLE', @SchemaName = 'Staging', @TableName = 'tblOnlineEnquiry_RP_Stg';",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            }
+          },
+          "task_type": "STOCK:SEQUENCE"
+        }
+      },
+      "task_type": "STOCK:SEQUENCE"
+    }
+  }
+}

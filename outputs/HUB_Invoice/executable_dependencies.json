@@ -1,0 +1,202 @@
+{
+  "Package\\Final": {
+    "executables": {
+      "Package\\Final\\Load HUB_Invoice": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Final\\Load_LNK_InvoiceLine",
+          "Package\\Final\\Load_LNK_Invoice_Label"
+        ],
+        "upstream_dependencies": [],
+        "referred_stored_proc": [
+          "[dv].[Load_HUB_Invoice]"
+        ]
+      },
+      "Package\\Final\\Load_Label_Invoices": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Final\\Set LastDate (FMS_Invoice)"
+        ],
+        "upstream_dependencies": [
+          "Package\\Final\\Load_LSAT_InvoiceHead"
+        ]
+      },
+      "Package\\Final\\Load_LNK_InvoiceLine": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Final\\Load_LSAT_InvoiceLine"
+        ],
+        "upstream_dependencies": [
+          "Package\\Final\\Load HUB_Invoice"
+        ],
+        "referred_stored_proc": [
+          "[dv].[Load_LNK_InvoiceLine]"
+        ]
+      },
+      "Package\\Final\\Load_LNK_Invoice_Label": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Final\\Load_LSAT_InvoiceHead"
+        ],
+        "upstream_dependencies": [
+          "Package\\Final\\Load HUB_Invoice"
+        ],
+        "referred_stored_proc": [
+          "[dv].[Load_LNK_Invoice_Label]"
+        ]
+      },
+      "Package\\Final\\Load_LSAT_InvoiceHead": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Final\\Load_Label_Invoices"
+        ],
+        "upstream_dependencies": [
+          "Package\\Final\\Load_LNK_Invoice_Label"
+        ]
+      },
+      "Package\\Final\\Load_LSAT_InvoiceLine": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Final\\Set LastDate (FMS_Invoice)"
+        ],
+        "upstream_dependencies": [
+          "Package\\Final\\Load_LNK_InvoiceLine"
+        ],
+        "referred_stored_proc": [
+          "[dv].[Load_LSAT_InvoiceLine]"
+        ]
+      },
+      "Package\\Final\\Set LastDate (FMS_Invoice)": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Final\\Load_LSAT_InvoiceLine",
+          "Package\\Final\\Load_Label_Invoices"
+        ],
+        "referred_stored_proc": [
+          "[Staging].[Set_LastValue]"
+        ]
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [],
+    "upstream_dependencies": [
+      "Package\\Staging"
+    ]
+  },
+  "Package\\Final UndTcktInvoice": {
+    "executables": {
+      "Package\\Final UndTcktInvoice\\Load UndTckt Invoice": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Final UndTcktInvoice\\Set LastDate (UndTckt Invoice)"
+        ],
+        "upstream_dependencies": [],
+        "referred_stored_proc": [
+          "[dbo].[Load_UndTckt_Invoice]"
+        ]
+      },
+      "Package\\Final UndTcktInvoice\\Set LastDate (UndTckt Invoice)": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Final UndTcktInvoice\\Load UndTckt Invoice"
+        ],
+        "referred_stored_proc": [
+          "[Staging].[Set_LastValue]"
+        ]
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [],
+    "upstream_dependencies": [
+      "Package\\Staging UndTcktInvoice"
+    ]
+  },
+  "Package\\Staging": {
+    "executables": {
+      "Package\\Staging\\Get LastDate (FMS_Invoice)": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging\\Load FMS_InvoiceHead_Stg",
+          "Package\\Staging\\Load FMS_InvoiceLines_Stg",
+          "Package\\Staging\\Load FMS_InvoiceBooks_Stg"
+        ],
+        "upstream_dependencies": [
+          "Package\\Staging\\Truncate Staging tables"
+        ],
+        "referred_stored_proc": [
+          "[Staging].[Get_LastValue]"
+        ]
+      },
+      "Package\\Staging\\Load FMS_InvoiceBooks_Stg": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Staging\\Get LastDate (FMS_Invoice)"
+        ]
+      },
+      "Package\\Staging\\Load FMS_InvoiceHead_Stg": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Staging\\Get LastDate (FMS_Invoice)"
+        ]
+      },
+      "Package\\Staging\\Load FMS_InvoiceLines_Stg": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Staging\\Get LastDate (FMS_Invoice)"
+        ]
+      },
+      "Package\\Staging\\Truncate Staging tables": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging\\Get LastDate (FMS_Invoice)"
+        ],
+        "upstream_dependencies": []
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [
+      "Package\\Final"
+    ],
+    "upstream_dependencies": []
+  },
+  "Package\\Staging UndTcktInvoice": {
+    "executables": {
+      "Package\\Staging UndTcktInvoice\\FMS_UndTcktInvoice_Load": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Staging UndTcktInvoice\\Get LastDate (UndTckt Invoice)"
+        ]
+      },
+      "Package\\Staging UndTcktInvoice\\Get LastDate (UndTckt Invoice)": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging UndTcktInvoice\\FMS_UndTcktInvoice_Load"
+        ],
+        "upstream_dependencies": [
+          "Package\\Staging UndTcktInvoice\\Truncate Staging tables"
+        ],
+        "referred_stored_proc": [
+          "[Staging].[Get_LastValue]"
+        ]
+      },
+      "Package\\Staging UndTcktInvoice\\Truncate Staging tables": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging UndTcktInvoice\\Get LastDate (UndTckt Invoice)"
+        ],
+        "upstream_dependencies": []
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [
+      "Package\\Final UndTcktInvoice"
+    ],
+    "upstream_dependencies": []
+  }
+}

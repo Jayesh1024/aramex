@@ -1,0 +1,185 @@
+{
+  "Package\\Database Maintenance": {
+    "task_metadata": {
+      "Package\\Database Maintenance\\DB Maintenance": {
+        "task_metadata": {
+          "task_metadata": "some-metadata",
+          "task_type": "Microsoft.ExecutePackageTask"
+        },
+        "task_type": "Microsoft.ExecutePackageTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  },
+  "Package\\Get Misceallaneous data": {
+    "task_metadata": {
+      "task_metadata": "some-metadata",
+      "task_type": "Microsoft.ExecutePackageTask"
+    },
+    "task_type": "Microsoft.ExecutePackageTask"
+  },
+  "Package\\Get Next ProcessID": {
+    "task_metadata": {
+      "query": "Declare @ProcessId Int;\nSELECT @ProcessId = max(ProcessId) FROM [Staging].[LoadLog] \nSELECT Isnull(@ProcessId,0) +1 AS [NextProcessId] ",
+      "param_map": {},
+      "result_set": {
+        "NextProcessId": null
+      }
+    },
+    "task_type": "Microsoft.ExecuteSQLTask"
+  },
+  "Package\\Load Dim tables": {
+    "task_metadata": {
+      "Package\\Load Dim tables\\Fact_KPI": {
+        "task_metadata": {
+          "task_metadata": "some-metadata",
+          "task_type": "Microsoft.ExecutePackageTask"
+        },
+        "task_type": "Microsoft.ExecutePackageTask"
+      },
+      "Package\\Load Dim tables\\Load Dim_Label": {
+        "task_metadata": {
+          "query": "Exec [dbo].[Load_Dim_Label] ?, ?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            },
+            "param_1": {
+              "variable_name": "StartTime",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  },
+  "Package\\Load HUB tables": {
+    "task_metadata": {
+      "Package\\Load HUB tables\\Full Reload": {
+        "task_metadata": {
+          "Package\\Load HUB tables\\Full Reload\\HUB_CF": {
+            "task_metadata": {
+              "task_metadata": "some-metadata",
+              "task_type": "Microsoft.ExecutePackageTask"
+            },
+            "task_type": "Microsoft.ExecutePackageTask"
+          },
+          "Package\\Load HUB tables\\Full Reload\\HUB_Customer": {
+            "task_metadata": {
+              "task_metadata": "some-metadata",
+              "task_type": "Microsoft.ExecutePackageTask"
+            },
+            "task_type": "Microsoft.ExecutePackageTask"
+          },
+          "Package\\Load HUB tables\\Full Reload\\HUB_Product": {
+            "task_metadata": {
+              "task_metadata": "some-metadata",
+              "task_type": "Microsoft.ExecutePackageTask"
+            },
+            "task_type": "Microsoft.ExecutePackageTask"
+          },
+          "Package\\Load HUB tables\\Full Reload\\HUB_RF": {
+            "task_metadata": {
+              "task_metadata": "some-metadata",
+              "task_type": "Microsoft.ExecutePackageTask"
+            },
+            "task_type": "Microsoft.ExecutePackageTask"
+          },
+          "Package\\Load HUB tables\\Full Reload\\HUB_ScanStatus": {
+            "task_metadata": {
+              "task_metadata": "some-metadata",
+              "task_type": "Microsoft.ExecutePackageTask"
+            },
+            "task_type": "Microsoft.ExecutePackageTask"
+          },
+          "Package\\Load HUB tables\\Full Reload\\HUB_ServiceItem": {
+            "task_metadata": {
+              "task_metadata": "some-metadata",
+              "task_type": "Microsoft.ExecutePackageTask"
+            },
+            "task_type": "Microsoft.ExecutePackageTask"
+          }
+        },
+        "task_type": "STOCK:SEQUENCE"
+      },
+      "Package\\Load HUB tables\\HUB_Invoice": {
+        "task_metadata": {
+          "task_metadata": "some-metadata",
+          "task_type": "Microsoft.ExecutePackageTask"
+        },
+        "task_type": "Microsoft.ExecutePackageTask"
+      },
+      "Package\\Load HUB tables\\HUB_Label": {
+        "task_metadata": {
+          "task_metadata": "some-metadata",
+          "task_type": "Microsoft.ExecutePackageTask"
+        },
+        "task_type": "Microsoft.ExecutePackageTask"
+      },
+      "Package\\Load HUB tables\\HUB_ServiceCon": {
+        "task_metadata": {
+          "task_metadata": "some-metadata",
+          "task_type": "Microsoft.ExecutePackageTask"
+        },
+        "task_type": "Microsoft.ExecutePackageTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  },
+  "Package\\Reserve ProcessID": {
+    "task_metadata": {
+      "query": "    DECLARE @ProcessID Bigint = ?, @DisableLnkLoad bit  = ?;\n --\n -- Reserve ProcessId for this job\n --\n    DECLARE \n        @Component VARCHAR(250) = 'Load TrackAndTrace - Job Start',\n        @Started DATETIME2(3) = SYSDATETIME(),\n        @Ended DATETIME2(3),\n        @Result VARCHAR(20),\n        @ErrorMessage VARCHAR(250) = '',\n        @Inserted INT = 0;\n \n  IF (@DisableLnkLoad = 1) SET @Component  = 'Load Labels - Job Start';\n\n    EXEC [Staging].[SaveLog] \n        @Component,\n        @ProcessID,\n        @Started,\n        @Ended,\n        @Result,\n        @ErrorMessage,\n        @Inserted; ",
+      "param_map": {
+        "param_0": {
+          "variable_name": "ProcessId",
+          "direction": "Input"
+        },
+        "param_1": {
+          "variable_name": "DisableLNKLoad",
+          "direction": "Input"
+        }
+      },
+      "result_set": {}
+    },
+    "task_type": "Microsoft.ExecuteSQLTask"
+  },
+  "Package\\Send Notification Email": {
+    "task_metadata": {
+      "Package\\Send Notification Email\\Get Summary Data": {
+        "task_metadata": {
+          "query": "Exec [Staging].[Get_LoadReportHtml] ?, ?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            },
+            "param_1": {
+              "variable_name": "ServerExecutionID",
+              "direction": "Input"
+            }
+          },
+          "result_set": {
+            "HtmlBody": null,
+            "BodyTable1": null,
+            "BodyTable2": null,
+            "BodyTable3": null,
+            "null": null
+          }
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Send Notification Email\\Send Email": {
+        "task_metadata": {
+          "task_metadata": "some-metadata",
+          "task_type": "Microsoft.ScriptTask"
+        },
+        "task_type": "Microsoft.ScriptTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  }
+}
