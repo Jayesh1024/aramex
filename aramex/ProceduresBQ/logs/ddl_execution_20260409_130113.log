@@ -1,0 +1,46 @@
+2026-04-09 13:01:13  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 13:01:13  INFO        DDL Execution — BigQuery
+2026-04-09 13:01:13  INFO        Started      : 2026-04-09 13:01:13
+2026-04-09 13:01:13  INFO        Project      : searce-sandbox-da-delivery
+2026-04-09 13:01:13  INFO        BQ location  : US
+2026-04-09 13:01:13  INFO        SQL dir      : /Users/jhalak.jain/Desktop/Searce - Aramex/aramex/ProceduresBQ/Rendered BQ
+2026-04-09 13:01:13  INFO        Credentials  : /Users/jhalak.jain/.config/gcloud/application_default_credentials.json
+2026-04-09 13:01:13  INFO        SQL files    : 14
+2026-04-09 13:01:13  INFO        Max Workers  : 5
+2026-04-09 13:01:13  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 13:01:14  INFO      
+2026-04-09 13:01:14  INFO        Results
+2026-04-09 13:01:14  INFO      ────────────────────────────────────────────────────────────────────────
+2026-04-09 13:01:17  INFO      [SUCCESS] BQ_Load_HUB_CF.sql
+2026-04-09 13:01:17  INFO      [SUCCESS] BQ_Load_HUB_BLKContainerManifestContents.sql
+2026-04-09 13:01:17  INFO      [SUCCESS] BQ_Load_HUB_Address.sql
+2026-04-09 13:01:17  INFO      [SUCCESS] BQ_Load_HUB_Customer.sql
+2026-04-09 13:01:17  ERROR     [FAILED]  BQ_Load_HUB_Invoice.sql
+2026-04-09 13:01:17  ERROR               400 Syntax error: Unexpected keyword ERROR at [75:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [75:5] Location: US Job ID: e8eefc7d-9ce8-41cc-ac95-df8a8a71ad77
+2026-04-09 13:01:17  INFO      [SUCCESS] BQ_Load_HUB_Container.sql
+2026-04-09 13:01:19  INFO      [SUCCESS] BQ_Load_HUB_Label.sql
+2026-04-09 13:01:19  INFO      [SUCCESS] BQ_Load_HUB_RF.sql
+2026-04-09 13:01:20  INFO      [SUCCESS] BQ_Load_SAT_Label_Allocation_MF.sql
+2026-04-09 13:01:20  INFO      [SUCCESS] BQ_Load_Hub_Account.sql
+2026-04-09 13:01:20  ERROR     [FAILED]  BQ_Load_SAT_Label_Allocation_TMD.sql
+2026-04-09 13:01:20  ERROR               400 Syntax error: Unexpected "[" at [48:31]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name].; reason: invalidQuery, location: query, message: Syntax error: Unexpected "[" at [48:31]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name]. Location: US Job ID: 4904d5a2-f69a-4acb-820b-4765749559f8
+2026-04-09 13:01:20  INFO      [SUCCESS] BQ_Load_HUB_Product.sql
+2026-04-09 13:01:21  INFO      [SUCCESS] BQ_Load_SAT_Label_Allocation_RP.sql
+2026-04-09 13:01:22  INFO      [SUCCESS] BQ_Load_SAT_Label_Allocation_TAS.sql
+2026-04-09 13:01:22  INFO      
+2026-04-09 13:01:22  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 13:01:22  INFO        SUMMARY
+2026-04-09 13:01:22  INFO        Finished : 2026-04-09 13:01:22
+2026-04-09 13:01:22  INFO        Elapsed  : 0m 7s
+2026-04-09 13:01:22  INFO        Success  : 12
+2026-04-09 13:01:22  INFO        Failed   : 2
+2026-04-09 13:01:22  INFO        Total    : 14
+2026-04-09 13:01:22  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 13:01:22  INFO      
+2026-04-09 13:01:22  INFO        Failed files:
+2026-04-09 13:01:22  INFO          BQ_Load_HUB_Invoice.sql
+2026-04-09 13:01:22  INFO            400 Syntax error: Unexpected keyword ERROR at [75:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [75:5] Location: US Job ID: e8eefc7d-9ce8-41cc-ac95-df8a8a71ad77
+2026-04-09 13:01:22  INFO          BQ_Load_SAT_Label_Allocation_TMD.sql
+2026-04-09 13:01:22  INFO            400 Syntax error: Unexpected "[" at [48:31]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name].; reason: invalidQuery, location: query, message: Syntax error: Unexpected "[" at [48:31]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name]. Location: US Job ID: 4904d5a2-f69a-4acb-820b-4765749559f8
+2026-04-09 13:01:22  INFO      
+2026-04-09 13:01:22  INFO      Full log saved to: logs/ddl_execution_20260409_130113.log
