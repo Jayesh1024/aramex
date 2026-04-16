@@ -1,0 +1,114 @@
+{
+  "Package\\Final": {
+    "task_metadata": {
+      "Package\\Final\\Load CF_HUB": {
+        "task_metadata": {
+          "query": "Exec [dv].[Load_HUB_CF] ?,?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            },
+            "param_1": {
+              "variable_name": "RecordSource",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Final\\Load CF_SAT": {
+        "task_metadata": {
+          "query": "Exec [dv].[Load_SAT_CF] ?,?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            },
+            "param_1": {
+              "variable_name": "RecordSource",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  },
+  "Package\\Staging": {
+    "task_metadata": {
+      "Package\\Staging\\Load Courier_Stg": {
+        "task_metadata": {
+          "task_dependency_map": {
+            "Package\\Staging\\Load Courier_Stg\\Get Error Details.Outputs[Error Columns]": [
+              "Package\\Staging\\Load Courier_Stg\\Save Error.Inputs[OLE DB Destination Input]"
+            ],
+            "Package\\Staging\\Load Courier_Stg\\Courier_Stg (Bulk Insert).Outputs[OLE DB Destination Error Output]": [
+              "Package\\Staging\\Load Courier_Stg\\Courier_Stg.Inputs[OLE DB Destination Input]"
+            ],
+            "Package\\Staging\\Load Courier_Stg\\Courier_Stg.Outputs[OLE DB Destination Error Output]": [
+              "Package\\Staging\\Load Courier_Stg\\Get Error Details.Inputs[Input 0]"
+            ],
+            "Package\\Staging\\Load Courier_Stg\\FMS_Courier data (Fastway).Outputs[OLE DB Source Output]": [
+              "Package\\Staging\\Load Courier_Stg\\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input]"
+            ]
+          },
+          "exec_order": {
+            "Package\\Staging\\Load Courier_Stg\\Get Error Details.Outputs[Error Columns]": 1,
+            "Package\\Staging\\Load Courier_Stg\\Courier_Stg.Outputs[OLE DB Destination Error Output]": 1,
+            "Package\\Staging\\Load Courier_Stg\\Courier_Stg (Bulk Insert).Outputs[OLE DB Destination Error Output]": 1,
+            "Package\\Staging\\Load Courier_Stg\\FMS_Courier data (Fastway).Outputs[OLE DB Source Output]": 1,
+            "Package\\Staging\\Load Courier_Stg\\Save Error.Inputs[OLE DB Destination Input]": 2,
+            "Package\\Staging\\Load Courier_Stg\\Get Error Details.Inputs[Input 0]": 2,
+            "Package\\Staging\\Load Courier_Stg\\Courier_Stg.Inputs[OLE DB Destination Input]": 2,
+            "Package\\Staging\\Load Courier_Stg\\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input]": 2
+          },
+          "per_component_data": {
+            "Package\\Staging\\Load Courier_Stg\\Courier_Stg": {
+              "component_type": "Microsoft.OLEDBDestination",
+              "component_info": {
+                "table_name": "Courier_Stg",
+                "schema_name": "Staging"
+              }
+            },
+            "Package\\Staging\\Load Courier_Stg\\Courier_Stg (Bulk Insert)": {
+              "component_type": "Microsoft.OLEDBDestination",
+              "component_info": {
+                "table_name": "Courier_Stg",
+                "schema_name": "Staging"
+              }
+            },
+            "Package\\Staging\\Load Courier_Stg\\FMS_Courier data (Fastway)": {
+              "component_type": "Microsoft.OLEDBSource",
+              "component_info": {
+                "sql_command": null,
+                "schema_name": "dbo",
+                "table_name": "FMS_Courier"
+              }
+            },
+            "Package\\Staging\\Load Courier_Stg\\Save Error": {
+              "component_type": "Microsoft.OLEDBDestination",
+              "component_info": {
+                "table_name": "SourceData_Err",
+                "schema_name": "Staging"
+              }
+            }
+          }
+        },
+        "task_type": "Microsoft.Pipeline"
+      },
+      "Package\\Staging\\Truncate Courier_Stg": {
+        "task_metadata": {
+          "query": "TRUNCATE TABLE [Staging].[Courier_Stg]",
+          "param_map": {},
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  }
+}

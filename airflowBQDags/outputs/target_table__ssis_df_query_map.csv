@@ -1,0 +1,2100 @@
+target_table,query,ssis_package_name,server_name
+dbo.DLBSRFBatching,"select * from invbtch where CountryCode in (1,6);",HUB_Label_2,KRILLIN
+Staging.Label_Interbranch_Stg,"DECLARE @LastBatchID INT = ?;
+DECLARE @RecordSource varchar(50) = ?;
+DECLARE @Batchsize Int = 5000000;
+DECLARE @CountryCode Int = 0;
+
+IF @RecordSource = 'InterBranchAU'  SET @CountryCode = 1;
+IF @RecordSource = 'InterBranchNZ'  SET @CountryCode = 6;
+
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+SELECT  TOP (@Batchsize)
+@CountryCode as 'CountryCode',
+CASE @CountryCode WHEN 1 THEN 'Australia' WHEN 6 THEN 'New Zealand' END AS [Country],
+d.[LabelNo],
+d.[Franchise] as 'InvoiceFromRF',
+i.[PickupRFCode] as 'InvoiceToRF',
+d.[BatchId],
+(CASE WHEN d.[Franchise] = i.PickupRFCode THEN 'Internal' ELSE 'Invoiced' END) as Category,
+i.[Date],
+d.[InvoiceNumber],
+d.ProductId ,
+convert(date,d.[CourierDate]) as 'DeliveryDate',
+d.[CourierTime] as 'DeliveryTime',
+convert(decimal(10,2),v.[DeliveryCostPerProduct]) as 'Price'
+
+FROM [Fastway].[dbo].invbtch b WITH (NOLOCK)
+
+INNER JOIN [invhead] i WITH (NOLOCK) on  b.BatchId = i.InvoiceBatchID and b.CountryCode = i.Country 
+INNER JOIN  [Fastway].[dbo].[labels] d WITH (NOLOCK) ON ISNULL(d.BatchID,0) = b.BatchID and d.InvoiceNumber = i.InvoiceNumber and d.CountryCode = b.countryCode and d.InvoiceFranchiseAccountNumber = i.DeliveryFranchisee
+LEFT JOIN prods p WITH (NOLOCK) on d.ProductId = p.ProductId and d.CountryCode = p.CountryCode
+LEFT JOIN invdet v WITH (NOLOCK) on d.InvoiceNumber = v.InvoiceNumber and i.DeliveryFranchisee = v.DeliveryFranchisee and i.Country = v.CountryCode and p.LabelPrefix = v.Prefix
+
+WHERE b.CountryCode = @CountryCode  and d.PickupDelivery = 'D'
+AND b.BatchID = @LastBatchID
+AND b.released = 1",HUB_Label_2,KRILLIN
+dbo.FMS_RFBatchingPerformanceBonus,,Export_KPI_Performance,CUBE
+Staging.Export_KPI_Delivery_Perf_Data,"DECLARE @ProcessID Int = ?
+
+EXEC [dbo].[Load_FMS_RFBatchingPerformanceBonus] @ProcessID",Export_KPI_Performance,CUBE
+Staging.fl_ServiceItem_Stg,"SELECT
+    [ServiceItemId]
+    ,[ServiceId]
+    ,[CountryId]
+    ,[Rf]
+    ,[PriceList]
+    ,[ProductId]
+    ,[Description]
+    ,[DisplayValue]
+    ,[DisplayText]
+    ,[DisplaySelected]
+    ,[Percentage]
+    ,[Price]
+    ,[PickupAmount]
+    ,[ServiceCommission]
+    ,[ReadOnly]
+    ,[DisplayForm]
+    ,[DisplaySummmary]
+    ,[ChargeLevel]
+    ,[IsDefault]
+    ,[ServiceType]
+    ,[TriggerPoint]
+FROM [Fastway].[dbo].[fl_ServiceItem]  WITH (NOLOCK)",HUB_ServiceItem,KRILLIN
+Staging.fl_MF_Interim_Stg,"--DECLARE @startDate datetime = ?;
+
+--DECLARE @startDate datetime2(3) = '2023-04-02T00:00:00';
+--DECLARE @endDate datetime2(3) = '2023-02-17T08:00:00';
+
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+
+DECLARE @startDate datetime2(3)
+
+SET @StartDate = CONVERT(varchar(10),EOMONTH(DATEADD(MONTH, -2, Getdate() )),120)+'T23:59:59.999';
+
+SELECT 
+ci.[Label],
+con.CountryId,
+ci.FromRf,
+ci.FromCf,
+ci.ToRf,
+ci.ToCf,
+con.ToLocality,
+con.ToPostalCode,
+              con.RealisedDate,
+              ci.[Zone],
+  con.CreatedOn,
+con.CustomerId
+FROM [FWFastlabel].[dbo].[fl_Con] con
+JOIN [FWFastlabel].[dbo].[fl_ConItemSum] cis on cis.ConId = con.ConId
+JOIN [FWFastlabel].[dbo].[fl_ConItem] ci on ci.ConId = cis.ConId and ci.[LineNo] = cis.[LineNo]
+WHERE con.CreatedOn > @startDate
+  AND Con.[RealisedDate] IS NOT NULL",Fact_KPI_Dashboard2,unknown
+Staging.TrackAndTrace_Stg,"--DECLARE   @lastDateTime datetime = ?
+
+--select @lastDateTime = '2020-03-01', @endDateTime  = '2020-07-20'
+
+DECLARE @StartDateOnly datetime = DATEADD(DAY,-4, SYSDATETIME());
+DECLARE @endDateOnly datetime = DATEADD(MINUTE,-5, SYSDATETIME());
+
+--SET @StartDate = CONVERT(varchar(10),EOMONTH(DATEADD(MONTH, -1, @startDate )),120)+'T23:59:59.999';
+
+
+SELECT 
+    a.ID,
+    a.RecordId,
+    a.CountryCode,
+    a.FranchiseeCode,
+    a.ScanType,
+    a.[Status] AS ScanStatus,
+    a.LabelNo,
+    a.ScanDate,
+    a.CourierNo,
+    a.UploadDate,
+    a.RecordCreateDate,
+    a.iLocate
+    FROM FastwayReports.dbo.TrackAndTrace_7Day a (nolock)
+    --FROM FastwayReports.dbo.TrackAndTraceData (nolock)
+    WHERE Countrycode = 1  -- in (1,6,11,24) 
+      AND Convert(date,RecordCreateDate) >= @StartDateOnly AND Convert(date,RecordCreateDate) <= @endDateOnly",Fact_KPI_Dashboard2,unknown
+Staging.fl_ConItemSrv_Stg_Interim,"DECLARE @startDate datetime = ?;
+DECLARE @startDate2 datetime;
+
+SET @StartDate2 = CONVERT(varchar(10),DATEADD(DAY, -1, Getdate()),120)+'T23:59:59.999';
+
+
+SELECT ci.[Label]
+      ,cis.[ConId]
+      ,cis.[ConItemId]
+      ,ci.[LineNo]
+      ,ci.[CountryId]
+      ,con.[CreatedOn]
+      ,cis.[ProductId]
+      ,cis.[ServiceItemId]
+      ,cis.[FMSInvoiceNo]
+      ,cis.[FMSInvoiceDate]
+      ,cis.[Price]
+      ,cis.[Tax]
+      
+,cis.[Total]
+      ,cis.[PickUpPrice]
+      ,cis.[DeliveryPrice]
+    ,cis.[DLBSBatchId]
+    ,cis.[DLBSInvoiceDate]
+    ,cis.[DLBSInvoiceNo]
+    ,cis.[DLBSPrice]
+    ,cis.[DLBSTax]
+    ,cis.[DLBSTotal]
+    ,cis.[PLBSBatchId]
+    ,cis.[PLBSInvoiceDate]
+    ,cis.[PLBSInvoiceNo]
+    ,cis.[PLBSPrice]
+    ,cis.[PLBSTax]
+    ,cis.[PLBSTotal]
+    ,cis.[BareProfileId]
+    ,cis.[ServicePrice]
+    ,cis.[ServicePriceComm]
+    ,cis.[ServicePriceCommPercent]
+    ,cis.[ServicePriceDiscountFixed]
+    ,cis.[ServicePriceDiscountPercent]
+    ,cis.[UpdatedOn]
+  FROM  [FWFastlabel].[dbo].[fl_ConItemSrv] cis
+  INNER JOIN [FWFastlabel].[dbo].[fl_Con] con on con.ConId = cis.ConId
+  INNER JOIN [FWFastlabel].[dbo].[fl_ConItem] ci on ci.ConId = cis.ConId AND ci.ConItemId = cis.[ConItemId]
+WHERE con.[CreatedOn] > @startDate2",Fact_KPI_Dashboard2,unknown
+Staging.FMS_InvoiceBooks_Stg,"DECLARE @FromDate DATETIME = ?
+/*
+  Invoices are read with a >= SystemDate rather than >
+  meaning some invoices already in FastwayDW are re-read
+  by this query. these duplicates are removed later
+*/
+SELECT [RFCode]
+      ,[InvoiceNumber]
+      ,[ProductId]
+      ,[IssueOrReceipt]
+      ,[Label]
+      ,[CustomerId]
+      ,[CourierId]
+      ,[NMId]
+  FROM [Fastway].[dbo].[FMS_InvoiceBooks] as stg
+  WHERE EXISTS (
+      select 1 from [Fastway].[dbo].[FMS_InvoiceHead] h 
+              where h.EnteredDate >= @FromDate
+	and h.InvoiceNumber = stg.InvoiceNumber 
+	and h.RFCode = stg.RFCode
+                   and h.[NMId] in (1,6) 
+  )",HUB_Invoice,KRILLIN
+Staging.FMS_InvoiceHead_Stg,"DECLARE @FromDate DATETIME = ?
+/*
+  Invoices are read with a >= EnteredDate rather than >
+  meaning some invoices already in FastwayDW are re-read
+  by this query. these duplicates are removed later
+*/
+SELECT 
+       [RFCode]
+      ,[InvoiceNumber]
+      ,[EnteredDate]
+      ,[EnterTime]
+      ,[CourierInvoiceBelongsTo]
+      ,[CustomerId]
+      ,[CourierIdCommisionPaidTo]
+      ,[InvoiceTotalAmount]
+      ,[TaxAmount]
+      ,[AmountPaid]
+      ,[Balance]
+      ,[PaidOnEntry]
+      ,[InsuranceAmount]
+      ,[DissectionLines]
+      ,[CourierFloatIssuesGoTo]
+      ,[FullyPaid]
+      ,[Committed]
+      ,[NMId]
+      ,[InvoiceCopyDate]
+      ,[BatchId]
+      ,[SystemDate]
+      ,[CreditedAmount]
+      ,[CreditedTax]
+      ,[PurchaseOrderNumber]
+      ,[Comments]
+      ,[ExcludedFromBaseRate]
+  FROM [Fastway].[dbo].[FMS_InvoiceHead]
+WHERE [EnteredDate] >= @FromDate
+  AND [NMId] IN(1,6)",HUB_Invoice,KRILLIN
+Staging.FMS_InvoiceLines_Stg,"DECLARE @FromDate DATETIME = ?
+/*
+  Invoices are read with a >= SystemDate rather than >
+  meaning some invoices already in FastwayDW are re-read
+  by this query. these duplicates are removed later
+*/
+SELECT 
+       [RFId]
+      ,[InvoiceNumber]
+      ,[ProductId]
+      ,[Qty]
+      ,[Price]
+      ,[Commission]
+      ,[PayCommission]
+      ,[DontPayCommissionReason]
+      ,[RecieptLabelsScanned]
+      ,[ReceiptLabelssUnknown]
+      ,[IssueTotalLabelsScanned]
+      ,[IssuesLabelsOwedAtEntry]
+      ,[IssueOwedOnThisInvoice]
+      ,[QtyToIssue]
+      ,[SaleType]
+      ,[InvoiceDateInvLine]
+      ,[InvoiceDateTime]
+      ,[PriceDiscounted]
+      ,[GSTAmount]
+      ,[NMId]
+      ,[BatchId]
+      ,[SystemDate]
+      ,[CreditedQty]
+      ,[CreditedPrice]
+      ,[CreditedTax]
+      ,[LineType]
+      ,[BatchingProgram]
+      ,[BatchingArguments]
+  FROM [Fastway].[dbo].[FMS_InvoiceLines] stg
+  WHERE EXISTS (
+      select 1 from [Fastway].[dbo].[FMS_InvoiceHead] h 
+      where h.EnteredDate >= @FromDate
+        and h.InvoiceNumber = stg.InvoiceNumber 
+        and h.RFCode = stg.RFId 
+        and H.[NMId] in (1,6)
+  )",HUB_Invoice,KRILLIN
+Staging.FMS_UndTcktInvoice_Stg,"SET DATEFORMAT YMD;
+
+DECLARE @LastDate datetime = ?
+DECLARE @StartDate datetime;
+
+SET  @StartDate = DATEADD(Day, -3, @LastDate)
+
+SELECT [UnderTickId]
+      ,[CountryId]
+      ,[LoggedByRF]
+      ,[UpdatedByRF]
+      ,[PRF]
+      ,[SaleRF]
+      ,[Label]
+      ,[CustomerId]
+      ,[CustomerName]
+      ,[SystemDeadWeight]
+      ,[SystemLength]
+      ,[SystemWidth]
+      ,[SystemHeight]
+      ,[SystemWeightCubic]
+      ,[SystemPrice]
+      ,[NewDeadWeight]
+      ,[NewLength]
+      ,[NewWidth]
+      ,[NewHeight]
+      ,[NewWeightCubic]
+      ,[NewPrice]
+      ,[FromAddress1]
+      ,[FromAddress2]
+      ,[FromAddress3]
+      ,[FromAddress4]
+      ,[FromAddress5]
+      ,[FromAddress6]
+      ,[ToAddress1]
+      ,[ToAddress2]
+      ,[ToAddress3]
+      ,[ToAddress4]
+      ,[ToAddress5]
+      ,[ToAddress6]
+      ,[Source]
+      ,[Note]
+      ,[Date]
+      ,[UserIdRecorded]
+      ,[BankedFMSCustomerId]
+      ,[Procssed]
+      ,[DeliveryRF]
+      ,[NumberOfExcess]
+      ,[NewExcessLabels]
+      ,[RepricedAutomatically]
+      ,[FMSOriginalInvoiceNumber]
+      ,[FMSBankedInvoiceAmount]
+      ,[FMSCustomerInvoiceMonthlyBatch]
+      ,[FMSCustomerInvoiceNumber]
+      ,[FMSCustomerIdInvoiced]
+      ,[FMSCustomerInvoiceAmount]
+      ,[DLBSInvoiceMonthlyBatch]
+      ,[DLBSInvoiceNumber]
+      ,[DLBSInvoiceRFFrom]
+      ,[DLBSInvoiceRFTo]
+      ,[DLBSInvoiceAmount]
+      ,[LeaMonthlyBatch]
+      ,[LeaInvoiceNumber]
+      ,[LeaChargeAmount]
+      ,[Locked]
+      ,[Repriced]
+      ,[InvoicePrice]
+      ,[ExcessPrice]
+      ,[Invoiced]
+      ,[NewPriceIncGST]
+      ,[MultiplePriceOptions]
+      ,[NewColour]
+      ,[RCTIInvoiceNumber]
+      ,[InvException]
+      ,[InvExceptionReason]
+      ,[ToLng]
+      ,[ToLat]
+      ,[ChildCharge]
+FROM [dbo].[FMS_UndTcktInvoice]
+WHERE [Date] >= @StartDate",HUB_Invoice,KRILLIN
+Staging.fl_ConSrv_Stg,"DECLARE @startDate2 datetime  = DATEADD(DAY, -14, GETDATE());
+DECLARE  @ConId bigint
+
+SELECT TOP 1 @ConId = ConId
+FROM [FWFastlabel].dbo.fl_Con (NOLOCK)
+WHERE CreatedOn >= @StartDate2
+ORDER BY CreatedOn
+
+
+SELECT cs.[ConId]
+,con.[CountryId]
+,con.[CreatedOn]
+,cs.[ProductId]
+,cs.[ServiceItemId]
+,cs.[FMSInvoiceNo]
+,cs.[FMSInvoiceDate]
+,cs.[Price]
+,cs.[Tax]
+,cs.[Total]
+,cs.[PickUpPrice]
+,cs.[DeliveryPrice]
+,cs.[DLBSBatchId]
+,cs.[DLBSInvoiceDate]
+,cs.[DLBSInvoiceNo]
+,cs.[DLBSPrice]
+,cs.[DLBSTax]
+,cs.[DLBSTotal]
+,cs.[PLBSBatchId]
+,cs.[PLBSInvoiceDate]
+,cs.[PLBSInvoiceNo]
+,cs.[PLBSPrice]
+,cs.[PLBSTax]
+,cs.[PLBSTotal]
+,cs.[ServicePrice]
+,cs.[ServicePriceDiscountPercent]
+,cs.[ServicePriceDiscountFixed]
+,cs.[ServicePriceCommPercent]
+,cs.[ServicePriceComm]
+,cs.[UpdatedOn]
+FROM [FWFastlabel].[dbo].[fl_ConSrv] cs WITH (NOLOCK)
+INNER JOIN [FWFastlabel].[dbo].[fl_Con] con WITH (NOLOCK) on con.ConId = cs.ConId
+WHERE con.ConId >= @ConId",HUB_ServiceCon,KRILLIN
+Staging.FWFastlabel_ClickAndCollect_Stg,"DECLARE @synchronization_version bigint = ?;
+                      DECLARE @minimumVersion  bigint;
+                      DECLARE @IsReload bit = ?;
+
+                      SET @minimumVersion  = CHANGE_TRACKING_MIN_VALID_VERSION(OBJECT_ID('dbo.FWFastlabel_ClickAndCollect'))
+
+                      IF (@synchronization_version < @minimumVersion AND @IsReload  = 0)  RAISERROR('ERROR - Synchronization version invalid', 11, 11);
+
+                      SELECT 
+                            Cng.[Id]
+                            ,Cng.[SYS_CHANGE_VERSION]
+                            ,Cng.[SYS_CHANGE_OPERATION]
+                            ,[Label]
+                            ,[ToContactName]
+                            ,[ToStreetAddress]
+                            ,[ToLocality]
+                            ,[ToStateOrProvince]
+                            ,[ToPostalCode]
+                            ,[ToCountry]
+                            ,[ToPhoneNumber]
+                            ,[ToEmail]
+                            ,[WeightDead]
+                            ,[WeightCubic]
+                            ,[Length]
+                            ,[Width]
+                            ,[Height]
+                            ,[FromRf]
+                            ,[FromStreetAddress]
+                            ,[FromLocality]
+                            ,[FromStateOrProvince]
+                            ,[FromPostalCode]
+                            ,[FromCountry]
+                            ,[FromPhoneNumber]
+                            ,[FromEmail]
+                            ,[CreatedOn]
+                            ,[CreatedBy]
+                            ,[Processed]
+                            ,[ProcessedOn]
+                        FROM CHANGETABLE (CHANGES FWFastlabel_ClickAndCollect, @synchronization_version) Cng 	
+                        LEFT JOIN [OnlineEnquiries_NEW].[dbo].[FWFastlabel_ClickAndCollect] AS CNC ON Cng.ID = CNC.Id
+                        WHERE @IsReload = 0
+
+                        UNION
+                        SELECT
+                            [Id]
+                            ,@minimumVersion AS [SYS_CHANGE_VERSION]
+                            ,'I' AS [SYS_CHANGE_OPERATION]
+                            ,[Label]
+                            ,[ToContactName]
+                            ,[ToStreetAddress]
+                            ,[ToLocality]
+                            ,[ToStateOrProvince]
+                            ,[ToPostalCode]
+                            ,[ToCountry]
+                            ,[ToPhoneNumber]
+                            ,[ToEmail]
+                            ,[WeightDead]
+                            ,[WeightCubic]
+                            ,[Length]
+                            ,[Width]
+                            ,[Height]
+                            ,[FromRf]
+                            ,[FromStreetAddress]
+                            ,[FromLocality]
+                            ,[FromStateOrProvince]
+                            ,[FromPostalCode]
+                            ,[FromCountry]
+                            ,[FromPhoneNumber]
+                            ,[FromEmail]
+                            ,[CreatedOn]
+                            ,[CreatedBy]
+                            ,[Processed]
+                            ,[ProcessedOn]
+                        FROM [OnlineEnquiries_NEW].[dbo].[FWFastlabel_ClickAndCollect] AS CNC
+                        WHERE @IsReload = 1",LoadGokuTables,GOKU
+Staging.payzone_agents_stg,"DECLARE @synchronization_version bigint = ?;
+DECLARE @minimumVersion bigint; 
+DECLARE @IsReload bit = ?;
+
+SET @minimumVersion  = CHANGE_TRACKING_MIN_VALID_VERSION(OBJECT_ID('dbo.payzone_agents'))
+
+IF (@synchronization_version < @minimumVersion  AND @IsReload  = 0 )  RAISERROR('ERROR - Synchronization version invalid', 11, 11);
+
+SELECT Src.[id]
+      ,[region_id]
+      ,[courier_no]
+      ,[store_identifier]
+      ,[store_name]
+      ,[store_address1]
+      ,[store_latitude]
+      ,[store_longitude]
+      ,[store_address2]
+      ,[store_town]
+      ,[store_county]
+      ,[store_active]
+      ,[is_test]
+      ,[Postcode]
+      ,[MyLocateCode]
+      ,[ApplicationFormReceived]
+      ,[SignedAgreementReceived]
+      ,[InsuranceCertificateSupplied]
+      ,[TradingHours]
+      ,[PhoneNo]
+      ,[NotificationSent]
+      ,[CreatedBy]
+      ,[CreatedByCountry]
+      ,[UserId]
+      ,[ApplicationId]
+      ,[Hubbed]
+      ,[AllowFwClickAndCollect]
+      ,[MaxWeightDead]
+      ,[DimensionCombinedMax]
+      ,[store_state]
+      ,[SYS_CHANGE_VERSION]
+      ,[SYS_CHANGE_OPERATION]
+  FROM CHANGETABLE (CHANGES payzone_agents, @synchronization_version) Cng 	
+  LEFT JOIN [OnlineEnquiries_NEW].[dbo].[payzone_agents] AS Src ON Cng.ID = Src.Id
+  WHERE @IsReload = 0
+
+UNION
+SELECT [id]
+      ,[region_id]
+      ,[courier_no]
+      ,[store_identifier]
+      ,[store_name]
+      ,[store_address1]
+      ,[store_latitude]
+      ,[store_longitude]
+      ,[store_address2]
+      ,[store_town]
+      ,[store_county]
+      ,[store_active]
+      ,[is_test]
+      ,[Postcode]
+      ,[MyLocateCode]
+      ,[ApplicationFormReceived]
+      ,[SignedAgreementReceived]
+      ,[InsuranceCertificateSupplied]
+      ,[TradingHours]
+      ,[PhoneNo]
+      ,[NotificationSent]
+      ,[CreatedBy]
+      ,[CreatedByCountry]
+      ,[UserId]
+      ,[ApplicationId]
+      ,[Hubbed]
+      ,[AllowFwClickAndCollect]
+      ,[MaxWeightDead]
+      ,[DimensionCombinedMax]
+      ,[store_state]
+      , @minimumVersion AS [SYS_CHANGE_VERSION]
+      ,'I' AS [SYS_CHANGE_OPERATION]
+  FROM [OnlineEnquiries_NEW].[dbo].[payzone_agents] AS Src
+  WHERE @IsReload = 1",LoadGokuTables,GOKU
+Staging.payzone_regions_stg,"DECLARE @synchronization_version bigint = ?;
+DECLARE @minimumVersion bigint; 
+DECLARE @IsReload bit = ?;
+
+SET @minimumVersion  = CHANGE_TRACKING_MIN_VALID_VERSION(OBJECT_ID('dbo.payzone_regions'))
+
+IF (@synchronization_version < @minimumVersion  AND @IsReload  = 0 ) RAISERROR('ERROR - Synchronization version invalid', 11, 11);
+
+SELECT Src.[id]
+      ,[franchisee_code]
+      ,[region_company_name]
+      ,[region_company_phone]
+      ,[region_address]
+      ,[region_company_email]
+      ,[secondary_franchisee_codes]
+      ,[CountryId]
+      ,[SYS_CHANGE_VERSION]
+      ,[SYS_CHANGE_OPERATION]
+  FROM CHANGETABLE (CHANGES payzone_regions, @synchronization_version) Cng 	
+  LEFT JOIN [OnlineEnquiries_NEW].[dbo].[payzone_regions] AS Src ON Cng.ID = Src.Id
+  WHERE @IsReload = 0
+
+  UNION
+  SELECT [id]
+      ,[franchisee_code]
+      ,[region_company_name]
+      ,[region_company_phone]
+      ,[region_address]
+      ,[region_company_email]
+      ,[secondary_franchisee_codes]
+      ,[CountryId]
+      ,@minimumVersion AS [SYS_CHANGE_VERSION]
+      ,'I' AS [SYS_CHANGE_OPERATION]
+  FROM [OnlineEnquiries_NEW].[dbo].[payzone_regions] AS Src
+  WHERE @IsReload = 1",LoadGokuTables,GOKU
+Staging.fl_InvoiceHeader_Stg,"DECLARE @FromDate DATETIME = ?
+/*
+  Invoices are read with a >= EnteredDate rather than >
+  meaning some invoices already in FastwayDW are re-read
+  by this query. these duplicates are removed later
+*/
+SELECT 
+       [InvoiceHeaderId]
+      ,[BatchId]
+      ,[RF]
+      ,[ParentRF]
+      ,[CountryId]
+      ,[CustomerId]
+      ,[ParentCustomerId]
+      ,[InvoiceNo]
+      ,[InvoiceDate]
+      ,[Price]
+      ,[Tax]
+      ,[Total]
+      ,[GroupPrice]
+      ,[GroupTax]
+      ,[GroupTotal]
+      ,[Released]
+      ,[RFLegalEntity]
+      ,[ParentRFLegalEntity]
+      ,[CFLegalEntity]
+      ,[Level]
+      ,[BankProcess]
+      ,[ParentInvoiceHeaderId]
+      ,[CFOverride]
+      ,[CFOverrideBasePriceCommPercent]
+      ,[CFOverrideExcessPriceCommPercent]
+      ,[SelectedUI]
+      ,[EnterpriseFastlabelType]
+      ,[DueDate]
+      ,[CloseDate]
+      ,[TotalPaid]
+      ,[CourierNumber]
+      ,[GroupTaxExempt]
+  FROM [FWFastLabel].[dbo].[fl_InvoiceHeader]
+WHERE [InvoiceDate] >= @FromDate
+  AND [CountryId] IN(1,6)",Package1,KRILLIN
+Staging.fl_InvoicePayment_Stg,"DECLARE @FromDate DATETIME = ?
+/*
+  Invoices are read with a >= EnteredDate rather than >
+  meaning some invoices already in FastwayDW are re-read
+  by this query. these duplicates are removed later
+*/
+SELECT 
+       [InvoicePaymentId]
+      ,[CountryId]
+      ,[CustomerId]
+      ,[InvoiceHeaderId]
+      ,[JournalId]
+      ,[Amount]
+      ,[UpdatedOn]
+      ,[UpdatedBy]
+  FROM [FWFastlabel].[dbo].[fl_InvoicePayment]
+WHERE [UpdatedOn] >= @FromDate
+  AND [CountryId] IN(1,6)",Package1,KRILLIN
+Staging.API_RF_AdHocLabel_AllocationHistory_Stg_Weekly,"DECLARE @LastID INT = ?;
+--Get Previous Sunday or Today if day is SUN  - 19050101 was a SUN
+DECLARE @maxDate  date = DATEADD(wk, DATEDIFF(wk, '19050101',  GETDATE()), '19050101')
+
+
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+SELECT
+       [HistoryID]
+      ,[SystemID]
+      ,[LabelColour]
+      ,[LabelNumber]
+      ,[CountryCode]
+      ,[Franchise]
+      ,[PriceSoldAtExGST]
+      ,[DateAllocatedUTC]
+      ,[ExternalReference]
+      ,[CustomerID]
+      ,[FKID]
+      ,[FKSource]
+      ,[FMSInvoiceID]
+      ,[FMSProductID]
+      ,[AllocatedByCustomer]
+      ,[CustomerUniqueID]
+      ,[PickupTown]
+      ,[PickupPostcode]
+      ,[DeliveryTown]
+      ,[DeliveryPostcode]
+      ,[Weight]
+      ,[DateAllocatedRelativeToRF]
+      ,[DeletedLabel]
+      ,[DeliveryAddr1]
+      ,[DeliveryAddr2]
+      ,[PickupAddr1]
+      ,[PickupAddr2]
+      ,[GroupTransId]
+      ,[DeliveryPhoneNo]
+      ,[LengthInCm]
+      ,[WidthInCm]
+      ,[HeightInCm]
+      ,[CubicWeight]
+FROM [OnlineEnquiries_NEW].[dbo].[API_RF_AdHocLabel_AllocationHistory] WITH (NOLOCK)
+  WHERE [HistoryID] > @LastID - 6000000
+ AND [DateAllocatedUTC] <  @maxDate",DLS_Manual_Pricing,GOKU
+Staging.ZEN_Ticket_Stg,"DECLARE @LastDate datetime = ?;
+--DECLARE @LastID int = 0;
+
+
+--SET @LastID = COALESCE(@LastID, 0);
+
+--SELECT @LastID = COALESCE(MIN([ZenDeskTicketId]), 0 )
+--  FROM [Fastway].[dbo].[ZEN_Tickets]
+--WHERE [SysLastUpdatedUtc] > @LastDate
+
+
+SELECT 
+       [ZenDeskTicketId]
+      ,[LabelNo]
+      ,[Subject]
+      ,[CreatedDate]
+      ,[CreatedTime]
+      ,[TicketType]
+      ,[Issue]
+      ,[Solved]
+      ,[SysLastUpdatedUtc]
+  FROM [Fastway].[dbo].[ZEN_Tickets]
+WHERE  [SysLastUpdatedUtc] > @LastDate",HUB_ZenTickets,KRILLIN
+dv.LNK_RFBatchingInvoiceLog,,RFBatchingInvoiceLog,CUBE
+Staging.RFBatchingInvoiceLog_Stg,"SELECT [CountryCode]
+      ,[BatchID]
+      ,[InvoiceNo]
+      ,[FromRF]
+      ,[ToRF]
+      ,[Paid]
+      ,[RemittedAmount]
+      ,[InvoiceDate]
+  FROM [Fastway].[dbo].[FMS_RFBatchingInvoiceLog]
+WHERE [InvoiceDate] >= '2019-01-01'",RFBatchingInvoiceLog,KRILLIN
+Staging.BLK_ContainerManifestContents_Stg,"DECLARE @LastScanDate varchar(50) = ?;
+--CONVERT(Datetime,'2023-05-01T00:00:00');
+
+SELECT TOP 200000
+       MC.[ContainerManifestId]
+      ,[LabelNo]
+      ,[ScanDate]
+      ,[ScanUserId]
+      ,MC.[Destination]
+      ,[MixedManifestId]
+      ,[Weight]
+      ,[CF]
+  FROM [Fastway].[dbo].[BLK_ContainerManifestContents] MC 
+ JOIN [Fastway].[dbo].[BLK_ContainerManifest] M ON M.ContainerManifestId = MC.ContainerManifestId
+WHERE [ScanDate] > @LastScanDate",HUB_BLKContainerManifest,KRILLIN
+Staging.BLK_ContainerManifest_Stg,"SELECT [ContainerManifestId]
+      ,[ContainerId]
+      ,[ContainerBarcode]
+      ,[Location]
+      ,[Destination]
+      ,[TotalParcels]
+      ,[Status]
+      ,[ActionDate]
+      ,[IsMixed]
+      ,[MixedUnknownDest]
+      ,[CurrentLocation]
+      ,[CountryCode]
+      ,[Sortation]
+      ,[SortationStatus]
+      ,[SortationOpen]
+      ,[SortationClosed]
+  FROM [Fastway].[dbo].[BLK_ContainerManifest]",HUB_BLKContainerManifest,KRILLIN
+Staging.Courier_Stg,"SELECT
+    c.[RFCode],
+    [CourierNumber],
+    g.[Description] as CourierGroup,
+    [Name],
+    [ShortName],
+    [CFName],
+    [Address1],
+    [Address2],
+    [Address3],
+    [Address4],
+    [EmailAddress],
+    [PhoneNumber],
+    [Mobile],
+    [BlackbayRouteId],
+    w.[Description] AS CFOwnershipModel,
+    c.[Inactive],
+    ParcelConnectCFTerritory
+FROM [Fastway].[dbo].[FMS_Courier] c
+         left join [FMS_LookUpTableDetail] g ON c.RFCode = g.RFCode AND HeaderCode = 'GRP' AND c.CourierGroup = g.ItemCode
+         left join [FMS_LookUpTableDetail] w ON w.HeaderCode = 'OWN' AND w.ItemCode = c.CFOwnershipModel AND c.NMid = w.NMid
+WHERE Inactive = 0;",HUB_CF,KRILLIN
+dv.temp_SAT_Label_Allocation_DL_Copy,,DB_Copy_Table,CUBE
+dv.LNK_InvoiceHead,"DECLARE @LoadDate Datetime2(7) = '2024-03-13';
+
+SELECT 
+             [Invoice_HSK] = dbo.GetHashKey( Convert(nvarchar,[InvoiceNumber]) +'^'+ [RFCode] ,'^'),
+             [FranchiseeCode_HSK] = dbo.GetHashKey(RFCode,'^')
+            ,[RFCode]
+            ,[InvoiceNumber]
+            ,[EnteredDate]
+            ,[EnterTime]
+            ,[CourierInvoiceBelongsTo]
+            ,[CustomerId]
+            ,[CourierIdCommisionPaidTo]
+            ,[InvoiceTotalAmount]
+            ,[TaxAmount]
+            ,[AmountPaid]
+            ,[Balance]
+            ,[PaidOnEntry]
+            ,[InsuranceAmount]
+            ,[DissectionLines]
+            ,[CourierFloatIssuesGoTo]
+            ,[FullyPaid]
+            ,[Committed]
+            ,[NMId]
+            ,[InvoiceCopyDate]
+            ,[BatchId]
+            ,[SystemDate]
+            ,[CreditedAmount]
+            ,[CreditedTax]
+            ,[PurchaseOrderNumber]
+            ,[Comments]
+            ,[ExcludedFromBaseRate]
+            ,Loaded = @LoadDate 
+            ,ProcessID = -1
+            ,RecordSource = 'INITIAL LOAD'
+    FROM [Staging].[FMS_InvoiceHead_Stg_All]
+    WHERE [SystemDate] >= '2019-01-01'",DB_Copy_Table,CUBE
+Staging.FMS_UndTcktInvoice_Stg,"DECLARE @LastID int = ?
+DECLARE @BatchSize int = 100000;
+DECLARE @EndID int;
+
+SET  @EndID = @LastID + @Batchsize;
+
+SELECT [UnderTickId]
+      ,[CountryId]
+      ,[LoggedByRF]
+      ,[UpdatedByRF]
+      ,[PRF]
+      ,[SaleRF]
+      ,[Label]
+      ,[CustomerId]
+      ,[CustomerName]
+      ,[SystemDeadWeight]
+      ,[SystemLength]
+      ,[SystemWidth]
+      ,[SystemHeight]
+      ,[SystemWeightCubic]
+      ,[SystemPrice]
+      ,[NewDeadWeight]
+      ,[NewLength]
+      ,[NewWidth]
+      ,[NewHeight]
+      ,[NewWeightCubic]
+      ,[NewPrice]
+      ,[FromAddress1]
+      ,[FromAddress2]
+      ,[FromAddress3]
+      ,[FromAddress4]
+      ,[FromAddress5]
+      ,[FromAddress6]
+      ,[ToAddress1]
+      ,[ToAddress2]
+      ,[ToAddress3]
+      ,[ToAddress4]
+      ,[ToAddress5]
+      ,[ToAddress6]
+      ,[Source]
+      ,[Note]
+      ,[Date]
+      ,[UserIdRecorded]
+      ,[BankedFMSCustomerId]
+      ,[Procssed]
+      ,[DeliveryRF]
+      ,[NumberOfExcess]
+      ,[NewExcessLabels]
+      ,[RepricedAutomatically]
+      ,[FMSOriginalInvoiceNumber]
+      ,[FMSBankedInvoiceAmount]
+      ,[FMSCustomerInvoiceMonthlyBatch]
+      ,[FMSCustomerInvoiceNumber]
+      ,[FMSCustomerIdInvoiced]
+      ,[FMSCustomerInvoiceAmount]
+      ,[DLBSInvoiceMonthlyBatch]
+      ,[DLBSInvoiceNumber]
+      ,[DLBSInvoiceRFFrom]
+      ,[DLBSInvoiceRFTo]
+      ,[DLBSInvoiceAmount]
+      ,[LeaMonthlyBatch]
+      ,[LeaInvoiceNumber]
+      ,[LeaChargeAmount]
+      ,[Locked]
+      ,[Repriced]
+      ,[InvoicePrice]
+      ,[ExcessPrice]
+      ,[Invoiced]
+      ,[NewPriceIncGST]
+      ,[MultiplePriceOptions]
+      ,[NewColour]
+      ,[RCTIInvoiceNumber]
+      ,[InvException]
+      ,[InvExceptionReason]
+      ,[ToLng]
+      ,[ToLat]
+      ,[ChildCharge]
+FROM [dbo].[FMS_UndTcktInvoice]
+WHERE [UnderTickId] > @LastID AND  [UnderTickId] <= @EndID",DB_Copy_Table,KRILLIN
+Staging.FMS_InvoiceHead_Stg_All,"SELECT 
+       [RFCode]
+      ,[InvoiceNumber]
+      ,[EnteredDate]
+      ,[EnterTime]
+      ,[CourierInvoiceBelongsTo]
+      ,[CustomerId]
+      ,[CourierIdCommisionPaidTo]
+      ,[InvoiceTotalAmount]
+      ,[TaxAmount]
+      ,[AmountPaid]
+      ,[Balance]
+      ,[PaidOnEntry]
+      ,[InsuranceAmount]
+      ,[DissectionLines]
+      ,[CourierFloatIssuesGoTo]
+      ,[FullyPaid]
+      ,[Committed]
+      ,[NMId]
+      ,[InvoiceCopyDate]
+      ,[BatchId]
+      ,[SystemDate]
+      ,[CreditedAmount]
+      ,[CreditedTax]
+      ,[PurchaseOrderNumber]
+      ,[Comments]
+      ,[ExcludedFromBaseRate]
+  FROM [Fastway].[dbo].[FMS_InvoiceHead] WITH (NOLOCK)
+WHERE [NMId] IN(1,6)",DB_Copy_Table,KRILLIN
+working.Load_iLocate_Stg,"DECLARE @NextID bigint = ?
+DECLARE @EndID bigint;
+
+SET @EndID  = @NextID  + 4000000;
+
+SELECT
+ID, iLocate 
+FROM FastwayReports.dbo.TrackAndTraceData
+WHERE ID > @NextID AND ID  <= @EndID
+AND ISNULL(iLocate,'') != ''",DB_Copy_Table,VEGETA
+InterimStaging.TrackAndTraceData_SignatureAI_Stg,"DECLARE @LastUpdateDate Datetime = ?
+
+
+SELECT [TrackAndTraceId]
+      ,[AILabel]
+      ,[AIScore]
+      ,[AIVersion]
+      ,[UserLabel]
+      ,[ValidatedByUsername]
+      ,[CourierNo]
+      ,[FranchiseeCode]
+      ,[ScanDate]
+      ,[LastUpdatedOn]
+      ,[TrainingLabel]
+  FROM [dbo].[TrackAndTraceData_SignatureAI]
+WHERE [LastUpdatedOn] > @LastUpdateDate",Interim_LNK_Scan,VEGETA
+InterimStaging.TrackAndTrace_Stg,"DECLARE
+    @lastId bigint = ?,
+    @endID bigint;
+
+SET @EndID = @lastID +  200000; -- Batchsize - rows every 15min
+
+
+SELECT
+	a.ID,
+	a.RecordId,
+	a.CountryCode,
+	a.FranchiseeCode,
+	a.ScanType,
+	a.ScanStatus,
+	a.LabelNo,
+	a.ScanDate,
+	a.CourierNo,
+	a.CountryName,
+	a.UploadDate,
+	a.RecordCreateDate,
+	a.iLocate,
+    a.ProductId,
+	TD.Latitude,
+	TD.Longitude,
+    TD.[Signature]
+	FROM (
+		SELECT
+		ID,
+		RecordId,
+		CountryCode,
+		FranchiseeCode,
+		ScanType,
+		[Status] as ScanStatus,
+		LabelNo,
+		ScanDate,
+		CourierNo,
+		'' AS CountryName,
+		UploadDate,
+		RecordCreateDate,
+		iLocate,
+	    ProductId   
+		FROM FastwayReports.dbo.TrackAndTrace_7Day T7 (READPAST)
+		WHERE ID > @lastID AND ID <= @endID
+		  AND Countrycode in (1,6,11,24)
+	) a
+LEFT JOIN FastwayReports.dbo.TrackAndTraceData (nolock) TD ON TD.ID = a.ID
+ORDER BY ID
+OPTION (Recompile);",Interim_LNK_Scan,VEGETA
+Staging.Franchisee_Stg,"SELECT
+    [FranchiseeCode], f.[CountryCode], c.[Country], f.[RFId], 
+    f.[Name], f.[Email], f.[LegalTradingEntity], f.[ABN], f.[ACN], f.[TaxNumber],
+    f.[Add1], f.[Add2], f.[Add3], f.[Add4], f.[Phone], f.[Fax],
+    f.[FranchiseEnquiryEmail], f.[State], f.[Suburb], f.[PostCode], 
+    f.[Phone2], f.[AccountsEmail], f.[FMSType],
+    [CompanyOwnedRF],
+    [UsingWebFMSBanking]
+FROM [Fastway].[dbo].[Franchisee] f 
+LEFT JOIN [Fastway].[dbo].[Country] c ON c.[Code] = f.[CountryCode];",HUB_RF,KRILLIN
+Staging.fl_PriceListCustomerOverride_Stg,,SAT_Overrides,KRILLIN
+Staging.fl_Zones_Stg,,SAT_Overrides,KRILLIN
+Staging.fl_ServiceZoneSatchelOverride_Stg,,SAT_Overrides,KRILLIN
+Staging.fl_ServiceZoneWeightOverride_Stg,,SAT_Overrides,KRILLIN
+Staging.ScanStatus_Stg,"SELECT 
+	[CountryCode], 
+	isnull(ct.Country,'Unknown') as CountryName, 
+	st.[Code] as StatusCode, 
+	[Description], 
+	[ExtendedDescription], 
+	[ShowToCustomer], 
+	[Misdirected], 
+	[LeftByCF], 
+	[Undeliverable], 
+	[CageScan], 
+	[BBForceToTScan], 
+	[DontSendToBB], 
+	[CanSelectInRunsheetScanning], 
+	[HeaderGroup], 
+	[CFBayScan], 
+	[ContainerScan],
+	[Active],
+                  [ForcedScanType],
+                  [ExcludeFromMFYBilling],
+                  [ImpactStatus],
+                  [Pickup],
+                  [PickupRF],
+                  [DeliveryRF],
+                  [Delivered],
+                  [PrePickup],
+                  [Problem],
+                  [AttemptedDelivery],
+                  [CollectionRequired],
+                  [Onforward],
+                  [Delayed],
+                  [ReadyToCollect]
+FROM [Fastway].[dbo].[status] st 
+LEFT JOIN [Fastway].[dbo].[Country] ct ON ct.Code = st.CountryCode",HUB_ScanStatus,KRILLIN
+Staging.LabelMaster_Stg,"DECLARE @startDate AS Datetime = ?; 
+SET @startDate = DATEADD(DD,-1,@startDate)
+
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+WITH Scan AS (
+    SELECT LabelNo, max(UploadDate) as UploadDate
+    FROM [FastwayReports].[dbo].[TrackAndTraceDataP] WITH (NOLOCK)
+    WHERE UploadDate > @startDate 
+    AND ScanDate >= DATEADD(Month,-1,GETDATE())
+    AND CountryCode IN (1,6,11,24)
+    GROUP BY LabelNo
+)
+
+SELECT 
+       Label.[LabelNo]
+      ,[CountryCode]
+      ,[Electronic_CustomerType]
+      ,[Electronic_CustomerID]
+      ,[Electronic_Reference]
+      ,[FastLabel_ConsignmentID]
+      ,[FastLabel_DestinationRF]
+      ,[Distribution_Date]
+      ,[Distribution_FranchiseeCode]
+      ,[KPI_PickupOK]
+      ,[KPI_DeliveryOK]
+      ,[KPI_LatePickup]
+      ,[KPI_LateDelivery]
+      ,[KPI_DelRF]
+      ,[KPI_PicRF]
+      ,[FMSCustomerID]
+      ,[FMSRfID]
+      ,[OES_CustomerId]
+      ,[KPI_ExpectedDelivery]
+      ,[KPI_ExceptionScan]
+      ,[PrintedOn]
+      ,[EbayClickCollect]
+      ,[HasSubscriptions]
+      ,Scan.[UploadDate]
+FROM [FastwayReports].[dbo].[LabelMaster] AS Label
+JOIN Scan ON Scan.LabelNo = Label.LabelNo 
+WHERE CountryCode IN (1,6,11,24) ;",HUB_Label,VEGETA
+Staging.Ebay_Labels_Stg,"DECLARE @startID int = ?
+
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+SELECT 
+	ID, 
+	LabelNumber, 
+	LabelColour, 
+	AccountId, 
+	EbayUserID, 
+	CreatedDateUTC, 
+	FirstName, LastName, B_CompanyName, Phoneno, EmailAddress, 
+	B_Address1, B_Address2, B_Town, B_Postcode, B_CountryCode, B_RF, 
+	C_CompanyName, C_Address1, C_Address2, C_Town, C_Postcode, C_CountryCode, C_RF, Phoneno_Mobile, 
+	SP_Instruction1, SP_Instruction2, SP_Instruction3, Status, 
+	OrderClosedDateUTC, NoOfItems, P_Date, EbayCreateDate, IsDeeded, IsSignatureRequired, ItemType,
+	DeliveryCompanyName, DeliveryName, 
+	DeliveryPhone, DeliveryPhone1, 
+	DeliveryStreet, DeliveryStreet1, 
+	DeliveryCity, DeliveryPostcode, DeliveryCountry, 
+	DeliveryRF, DeliveryEmail, 
+	Delivery_SP1, Delivery_SP2, Delivery_SP3,
+	LabelCost, ItemLabelCost, TotalLabelCost, TotalReplacementPckCost, GST_Number, TotalValue
+FROM [OnlineEnquiries_NEW].[dbo].[vw_ebay_labels]
+--WHERE ID > @startID",HUB_Label,GOKU
+Staging.fl_ConItemSrv_Stg,"DECLARE @startDate datetime = ?;
+DECLARE @startDate2 datetime;
+DECLARE  @ConId bigint;
+
+SET @startDate2  = DATEADD(DAY, -30,GETDATE());
+
+SELECT TOP 1 @ConId = ConId
+FROM [FWFastlabel].dbo.fl_Con (NOLOCK)
+WHERE CreatedOn >= @StartDate2
+ORDER BY CreatedOn
+
+SELECT ci.[Label]
+      ,cis.[ConId]
+      ,cis.[ConItemId]
+      ,ci.[LineNo]
+      ,ci.[CountryId]
+      ,con.[CreatedOn]
+      ,cis.[ProductId]
+      ,cis.[ServiceItemId]
+      ,cis.[FMSInvoiceNo]
+      ,cis.[FMSInvoiceDate]
+      ,cis.[Price]
+      ,cis.[Tax]
+      
+,cis.[Total]
+      ,cis.[PickUpPrice]
+      ,cis.[DeliveryPrice]
+    ,cis.[DLBSBatchId]
+    ,cis.[DLBSInvoiceDate]
+    ,cis.[DLBSInvoiceNo]
+    ,cis.[DLBSPrice]
+    ,cis.[DLBSTax]
+    ,cis.[DLBSTotal]
+    ,cis.[PLBSBatchId]
+    ,cis.[PLBSInvoiceDate]
+    ,cis.[PLBSInvoiceNo]
+    ,cis.[PLBSPrice]
+    ,cis.[PLBSTax]
+    ,cis.[PLBSTotal]
+    ,cis.[BareProfileId]
+    ,cis.[ServicePrice]
+    ,cis.[ServicePriceComm]
+    ,cis.[ServicePriceCommPercent]
+    ,cis.[ServicePriceDiscountFixed]
+    ,cis.[ServicePriceDiscountPercent]
+    ,cis.[UpdatedOn]
+  FROM  [FWFastlabel].[dbo].[fl_ConItemSrv] cis with (NOLOCK) 
+  INNER JOIN [FWFastlabel].[dbo].[fl_Con] con with (NOLOCK) on con.ConId = cis.ConId
+  INNER JOIN [FWFastlabel].[dbo].[fl_ConItem] ci with (NOLOCK) on ci.ConId = cis.ConId AND ci.ConItemId = cis.[ConItemId]
+WHERE con.ConId >= @ConId",HUB_Label,KRILLIN
+Staging.PickupRequest_Stg,"DECLARE @startDate datetime = DATEADD(DAY,-60,getdate())
+DECLARE @NextID INT;
+
+SELECT TOP 1 @NextID = ID  FROM [FastwayGlobal_1].[PickupDashboard].[PickupRequest]
+  WHERE [CreateDateUtc] > @startDate
+ ORDER BY [CreateDateUtc] 
+
+SELECT [Id]
+
+      ,[CreateDateUtc]
+      ,[ShouldPrintLabel]
+      ,[PickupFranchiseeCode]
+      ,[PickupCourierNumber]
+      ,[LabelNumber]
+      ,[CollectionDate]
+      ,[CollectionCycle]
+      ,[PickupAddress1]
+      ,[PickupAddress2]
+      ,[PickupSuburb]
+      ,[PickupPostcode]
+      ,[PickupName]
+      ,[PickupPhone]
+      ,[PickupEmail]
+      ,[DeliveryAddress1]
+      ,[DeliveryAddress2]
+      ,[DeliverySuburb]
+      ,[DeliveryPostcode]
+      ,[DeliveryName]
+      ,[DeliveryPhone]
+      ,[DeliveryEmail]
+      ,[IsMessageSent]
+      ,[Weight]
+      ,[Width]
+      ,[Height]
+      ,[Length]
+      ,[RequestingCustomerName]
+      ,[CountryCode]
+      ,[IsPrinted]
+      ,[IsComplete]
+      ,[ConsolidationGroupId]
+      ,[CourierMessageResult]
+      ,[ConsolidationDateUtc]
+      ,[PickupSpecialInstructions]
+      ,[DeliverySpecialInstructions]
+      ,[HhcMessageId]
+      ,[HasCourierRejected]
+      ,[IsRegularCollection]
+      ,[RequestingCustomerOesId]
+      ,[IsCancelled]
+      ,[CancellationReason]
+      ,[CancellationTitle]
+      ,[FutileScanDate]
+      ,[NotReadyScanDate]
+      ,[PickupScanDate]
+      ,[MessageSentDateUtc]
+      ,[CourierMessageResultText]
+      ,[RejectionReason]
+      ,[RejectionDate]
+      ,[InternalStatus]
+      ,[DidNotAssignCourierDuringCreation]
+      ,[IsReturnService]
+      ,[IsParcelConnectPickupLocation]
+      ,[SecondaryLabelNumber]
+      ,[PickupSubDepotFranchiseeCode]
+      ,[CubicWeight]
+      ,[PickupCompany]
+      ,[DeliveryCompany]
+      ,[IsPriority]
+  FROM [FastwayGlobal_1].[PickupDashboard].[PickupRequest]
+  WHERE [ID] >= @NextID",HUB_Label,GOKU
+Staging.PickupRequest_Stg,"DECLARE @startDate datetime = DATEADD(DAY,-60,getdate())
+DECLARE @NextID INT;
+
+SELECT TOP 1 @NextID = ID  FROM [FastwayGlobal_6].[PickupDashboard].[PickupRequest]
+  WHERE [CreateDateUtc] > @startDate
+ ORDER BY [CreateDateUtc] 
+
+SELECT [Id]
+
+      ,[CreateDateUtc]
+      ,[ShouldPrintLabel]
+      ,[PickupFranchiseeCode]
+      ,[PickupCourierNumber]
+      ,[LabelNumber]
+      ,[CollectionDate]
+      ,[CollectionCycle]
+      ,[PickupAddress1]
+      ,[PickupAddress2]
+      ,[PickupSuburb]
+      ,[PickupPostcode]
+      ,[PickupName]
+      ,[PickupPhone]
+      ,[PickupEmail]
+      ,[DeliveryAddress1]
+      ,[DeliveryAddress2]
+      ,[DeliverySuburb]
+      ,[DeliveryPostcode]
+      ,[DeliveryName]
+      ,[DeliveryPhone]
+      ,[DeliveryEmail]
+      ,[IsMessageSent]
+      ,[Weight]
+      ,[Width]
+      ,[Height]
+      ,[Length]
+      ,[RequestingCustomerName]
+      ,[CountryCode]
+      ,[IsPrinted]
+      ,[IsComplete]
+      ,[ConsolidationGroupId]
+      ,[CourierMessageResult]
+      ,[ConsolidationDateUtc]
+      ,[PickupSpecialInstructions]
+      ,[DeliverySpecialInstructions]
+      ,[HhcMessageId]
+      ,[HasCourierRejected]
+      ,[IsRegularCollection]
+      ,[RequestingCustomerOesId]
+      ,[IsCancelled]
+      ,[CancellationReason]
+      ,[CancellationTitle]
+      ,[FutileScanDate]
+      ,[NotReadyScanDate]
+      ,[PickupScanDate]
+      ,[MessageSentDateUtc]
+      ,[CourierMessageResultText]
+      ,[RejectionReason]
+      ,[RejectionDate]
+      ,[InternalStatus]
+      ,[DidNotAssignCourierDuringCreation]
+      ,[IsReturnService]
+      ,[IsParcelConnectPickupLocation]
+      ,[SecondaryLabelNumber]
+      ,[PickupSubDepotFranchiseeCode]
+      ,[CubicWeight]
+      ,[PickupCompany]
+      ,[DeliveryCompany]
+      ,[IsPriority]
+  FROM [FastwayGlobal_6].[PickupDashboard].[PickupRequest]
+  WHERE [ID] >= @NextID",HUB_Label,GOKU
+Staging.PickupRequest_Stg,"DECLARE @startDate datetime = DATEADD(DAY,-60,getdate())
+DECLARE @NextID INT;
+
+SELECT TOP 1 @NextID = ID  FROM [FastwayGlobal_24].[PickupDashboard].[PickupRequest]
+  WHERE [CreateDateUtc] > @startDate
+ ORDER BY [CreateDateUtc] 
+
+SELECT [Id]
+
+      ,[CreateDateUtc]
+      ,[ShouldPrintLabel]
+      ,[PickupFranchiseeCode]
+      ,[PickupCourierNumber]
+      ,[LabelNumber]
+      ,[CollectionDate]
+      ,[CollectionCycle]
+      ,[PickupAddress1]
+      ,[PickupAddress2]
+      ,[PickupSuburb]
+      ,[PickupPostcode]
+      ,[PickupName]
+      ,[PickupPhone]
+      ,[PickupEmail]
+      ,[DeliveryAddress1]
+      ,[DeliveryAddress2]
+      ,[DeliverySuburb]
+      ,[DeliveryPostcode]
+      ,[DeliveryName]
+      ,[DeliveryPhone]
+      ,[DeliveryEmail]
+      ,[IsMessageSent]
+      ,[Weight]
+      ,[Width]
+      ,[Height]
+      ,[Length]
+      ,[RequestingCustomerName]
+      ,[CountryCode]
+      ,[IsPrinted]
+      ,[IsComplete]
+      ,[ConsolidationGroupId]
+      ,[CourierMessageResult]
+      ,[ConsolidationDateUtc]
+      ,[PickupSpecialInstructions]
+      ,[DeliverySpecialInstructions]
+      ,[HhcMessageId]
+      ,[HasCourierRejected]
+      ,[IsRegularCollection]
+      ,[RequestingCustomerOesId]
+      ,[IsCancelled]
+      ,[CancellationReason]
+      ,[CancellationTitle]
+      ,[FutileScanDate]
+      ,[NotReadyScanDate]
+      ,[PickupScanDate]
+      ,[MessageSentDateUtc]
+      ,[CourierMessageResultText]
+      ,[RejectionReason]
+      ,[RejectionDate]
+      ,[InternalStatus]
+      ,[DidNotAssignCourierDuringCreation]
+      ,[IsReturnService]
+      ,[IsParcelConnectPickupLocation]
+      ,[SecondaryLabelNumber]
+      ,[PickupSubDepotFranchiseeCode]
+      ,[CubicWeight]
+      ,[PickupCompany]
+      ,[DeliveryCompany]
+      ,[IsPriority]
+  FROM [FastwayGlobal_24].[PickupDashboard].[PickupRequest]
+  WHERE [ID] >= @NextID",HUB_Label,GOKU
+Staging.API_RF_AdHocLabel_AllocationHistory_Stg,"DECLARE @LastID INT = ?;
+
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+SELECT
+       [HistoryID]
+      ,[SystemID]
+      ,[LabelColour]
+      ,[LabelNumber]
+      ,[CountryCode]
+      ,[Franchise]
+      ,[PriceSoldAtExGST]
+      ,[DateAllocatedUTC]
+      ,[ExternalReference]
+      ,[CustomerID]
+      ,[FKID]
+      ,[FKSource]
+      ,[FMSInvoiceID]
+      ,[FMSProductID]
+      ,[AllocatedByCustomer]
+      ,[CustomerUniqueID]
+      ,[PickupTown]
+      ,[PickupPostcode]
+      ,[DeliveryTown]
+      ,[DeliveryPostcode]
+      ,[Weight]
+      ,[DateAllocatedRelativeToRF]
+      ,[DeletedLabel]
+      ,[DeliveryAddr1]
+      ,[DeliveryAddr2]
+      ,[PickupAddr1]
+      ,[PickupAddr2]
+      ,[GroupTransId]
+      ,[DeliveryPhoneNo]
+      ,[LengthInCm]
+      ,[WidthInCm]
+      ,[HeightInCm]
+      ,[CubicWeight]
+FROM [OnlineEnquiries_NEW].[dbo].[API_RF_AdHocLabel_AllocationHistory]
+WHERE [HistoryID] > @LastID",HUB_Label,GOKU
+Staging.tblFastLabel_Consignment_Stg,"DECLARE @startDate datetime = ?
+SET @startDate = DATEADD(DD,-1,@startDate)
+--SET @StartDate = '2022-06-01T00:00:00'
+
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+SELECT 
+	d.LabelNumber, 
+	d.CountryCode, 
+	d.CreateDate, 
+	d.LabelPrinted, 
+	d.CustomerID, 
+	d.ClientID, 
+	d.ConsumedByCustomerUserID, 
+	d.LblColour, 
+	d.LblPrice, 
+	d.LblPrice1,
+	i.Reference, 
+	i.Packaging, 
+	i.Weight, 
+	i.WeightCubic, 
+	i.Length, 
+	i.Width, 
+	i.Height, 
+	b.ManifestID, 
+	b.Address1,
+	b.Address2,
+	b.Town, 
+	b.PostCode, 
+	b.State, 
+	b.destRF,
+	d.BookID,
+                  d.DateConsumed,
+                  i.ConsignmentID
+FROM [OnlineEnquiries_NEW].[dbo].[tblFastLabel_Book_Detail] d
+LEFT JOIN [OnlineEnquiries_NEW].[dbo].[tblFastLabel_Consignment_Items] i on d.AppliedToItemID = i.ItemID
+LEFT JOIN [OnlineEnquiries_NEW].[dbo].[tblFastLabel_Consignment] b on i.ConsignmentID = b.ConsignmentID
+WHERE d.CreateDate > @startDate OR d.DateConsumed > @startDate;",HUB_Label,GOKU
+Staging.fl_ConItem_Stg,"DECLARE @startDate datetime = ?;
+DECLARE @startDate2 datetime;
+DECLARE  @ConId bigint;
+
+SET @startDate2  = DATEADD(DAY, -60,GETDATE());
+
+SELECT TOP 1 @ConId = ConId
+FROM [FWFastlabel].dbo.fl_Con (NOLOCK)
+WHERE CreatedOn >= @StartDate2
+ORDER BY CreatedOn
+
+SELECT
+ci.[Label],
+con.ConId,
+ci.ConItemId,
+ci.[LineNo],
+con.CountryId,
+con.CreatedOn,
+con.CustomerId,
+ci.FromRf,
+ci.FromCf,
+ci.ToRf,
+ci.ToCf,
+ci.FMSInvoiceNo,
+ci.FMSInvoiceDate,
+cis.Reference,
+cis.Quantity,
+cis.ProductId,
+cis.WeightDead,
+cis.WeightCubic,
+cis.WeightPriced,
+cis.Width,
+cis.Length,
+cis.Height,
+con.FromBusinessName,
+con.FromContactName,
+con.FromStreetAddress,
+con.FromLocality,
+con.FromStateOrProvince,
+con.FromPostalCode,
+con.FromCountry,
+con.FromPhoneNumber,
+con.FromEmail,
+con.FromLat,
+con.FromLng,
+con.ToBusinessName,
+con.ToContactName,
+con.ToStreetAddress,
+con.ToLocality,
+con.ToStateOrProvince,
+con.ToPostalCode,
+con.ToCountry,
+con.ToPhoneNumber,
+con.ToEmail,
+con.ToLat,
+con.ToLng,
+con.RealisedDate,
+ci.BasePrice,
+ci.ExcessPrice,
+ci.PickUpPriceTotal,
+ci.DeliveryPriceTotal,
+ci.BasePriceComm,
+ci.ExcessPriceComm,
+ci.BasePriceDiscounted,
+ci.ExcessPriceDiscounted,
+ci.ItemPrice,
+ci.ServicePrice,
+ci.PLBSBatchId,
+ci.PLBSInvoiceNo,
+ci.PLBSInvoiceDate,
+ci.PLBSPrice,
+ci.PLBSTax,
+ci.PLBSTotal,
+ci.DLBSBatchId,
+ci.DLBSInvoiceNo,
+ci.DLBSInvoiceDate,
+ci.DLBSPrice,
+ci.DLBSTax,
+ci.DLBSTotal,
+ci.LineHaulPrice,
+ci.LineHaulTax,
+ci.LineHaulTotal,
+ci.[Zone],
+cis.SatchelSize,
+cis.WeightPriceTypeId,
+ci.SubDepot,
+ci.ToRfSubDepotCode,
+ci.BareProfileId,
+con.UpdatedOn as ConUpdatedOn,
+ci.UpdatedOn as ConItemUpdatedOn,
+cis.Price AS ItemSumPrice,
+cis.Tax AS ItemSumTax,
+cis.Total AS ItemSumTotal,
+cis.PackageTypeId AS ItemSumPackageTypeId,
+ci.LabelExternal
+--cis.DescriptionOfGoods as ItemSumDescriptionOfGoods,
+--cis.DeclaredValue,
+--cis.HSCodeInternal,
+--cis.HSCodeExternal
+FROM [FWFastlabel].[dbo].[fl_Con] con with (NOLOCK) 
+JOIN [FWFastlabel].[dbo].[fl_ConItemSum] cis with (NOLOCK) on cis.ConId = con.ConId
+JOIN [FWFastlabel].[dbo].[fl_ConItem] ci with (NOLOCK) on ci.ConId = cis.ConId and ci.[LineNo] = cis.[LineNo]
+WHERE con.ConId >= @ConId",HUB_Label,KRILLIN
+Staging.HDManifests_Stg,"DECLARE @NextID int = ?
+--SET @StartDate = '2022-06-01T00:00:00'
+
+
+SELECT 
+    LabelNo, 
+    CountryCode, 
+    DateInserted, 
+    ConDate, 
+    SendAdd1, SendAdd2, SendAdd3, SendAdd4, SendAdd5, SendAdd6,
+    RecAdd1, RecAdd2, RecAdd3, RecAdd4, RecAdd5, RecAdd6,
+    CollectionPostCode, CollectionCountryCode, 
+    DeliveryPostCode, DeliveryCountryCode,
+    ManifestId, 
+    ClientId, 
+    CustomerID, 
+    Quantity, 
+    Weight, 
+    Width, 
+    Length, 
+    Height, 
+    CollectionRF, 
+    DeliveryRF, 
+    RecordId,
+    UniqueParcelIdentifier
+FROM [Fastway].[dbo].[HDManifests] WITH (READPAST, INDEX = RecordId)
+WHERE RecordId >= @NextID ;",HUB_Label,KRILLIN
+Staging.ConsignmentItem_Stg,"DECLARE @startDate datetime = ?
+
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+SELECT 
+       cl.LabelNumber,
+       cl.CountryId,
+       cm.WebCustomerId,
+       c.CustomerId,
+       c.ReceiverContactName,
+       c.ReceiverCompanyName,
+       c.ReceiverAddress1,
+       c.ReceiverAddress2,
+       c.ReceiverSuburb,
+       c.ReceiverCity,
+       c.ReceiverPostcode,
+       c.SpecialInstructions,
+       c.ReceiverPhone,
+       c.ReceiverEmail,
+       cl.PrintedOn, 
+       ci.Reference,
+       c.DestinationRF,
+       c.ManifestId,
+       c.Price,
+       cl.InvoiceNo,
+       c.ItemCount,
+       cl.CreatedOn,
+       ci.WeightCubic,
+       ci.WeightDead,
+       ci.Width,
+       ci.Length,
+       ci.Height,
+       cl.Colour,
+       cl.ConsignmentItemId
+FROM FastLabelServer.dbo.Consignment c 
+JOIN FastLabelServer.dbo.ConsignmentItem ci on c.CountryId = ci.CountryId and c.CustomerId = ci.CustomerId and c.Id = ci.ConsignmentId
+JOIN FastLabelServer.dbo.ConsignmentLabel cl on ci.CountryId = cl.CountryId and ci.CustomerId = cl.CustomerId and ci.Id = cl.ConsignmentItemId
+LEFT JOIN FastLabelServer.dbo.CustomerMap cm on c.CountryId = cm.CountryId and c.CustomerId = cm.CustomerId 
+WHERE cl.CreatedOn >@startDate ;",HUB_Label,KRILLIN
+Staging.API_Temando_RequestLabel_Stg,"DECLARE @LastID INT = ?;
+
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+SELECT
+    globalRequestID,  createDateLocal, createDateUTC, requestID, readyDate,
+    originCountry, originContactName, originCompany, originStreet, originSuburb, originState, originPostcode, originPhone1, originPhone2, originFax, originEmail, originRF,
+    destinationContactName, destinationCompany, destinationStreet, destinationSuburb, destinationState, destinationPostcode, destinationFax, destinationEmail, destinationRF,
+    specialInstructions, parcelWeight, parcelLength, parcelWidth, parcelHeight, parcelDescriptioN, Label_Colour, Label_Type, result_LabelNumber, result_Cost
+FROM [OnlineEnquiries_NEW].[dbo].[API_Temando_RequestLabel]
+WHERE [globalRequestID] > @LastID;",HUB_Label,GOKU
+Staging.tblOnlineEnquiry_RP_Stg,"DECLARE @startID int = ?
+SET @StartID = 1235690;
+
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+SELECT rp.RPID, CreateDateUTC, CountryID, DescriptionOfGoods, PickupFranchiseeCode, DeliveryFranchiseeCode, PickupCourierNumber, DeliveryCourierNumber, 
+NumberOfParcels, Sender_Name, Sender_StreetAddress, Sender_StreetAddress1, Sender_Suburb, Sender_Postcode, Sender_City, Sender_ContactName, Sender_ContactPhone,
+Sender_MobileNumber, Sender_FaxNumber, Sender_EmailAddress, Sender_LocalRF, Receiver_Name, Receiver_StreetAddress, Receiver_StreetAddress1, Receiver_Suburb, Receiver_Postcode, Receiver_City,
+Receiver_ContactName, Receiver_ContactPhone, Receiver_MobileNumber, Receiver_FaxNumber, Receiver_EmailAddress, Receiver_LocalRF,
+Customer_Name, IsThirdParty, CustomerID, CloseDateUTC, CancellationDateUTC, PickupDateLocal, PaymentDateUTC, label_colour, label_number, label_cost, receiverpays_label_cost, parcel_weight, parcel_height, parcel_width, parcel_length
+FROM [OnlineEnquiries_NEW].[dbo].[tblOnlineEnquiry_RP] rp
+JOIN [OnlineEnquiries_NEW].[dbo].[tblOnlineEnquiry_RP_Parcels] par ON rp.RPID = par.rpid
+WHERE rp.RPID > @startID",HUB_Label,GOKU
+Staging.Product_Stg,"SELECT 
+	[CountryCode], 
+	[Country2] = CONVERT( VARCHAR(100), REPLACE(ISNULL(c.Country,p.CountryCode),'  ','') ), 
+	[ProductId], 
+	p.[Code], 
+	[Description], 
+	[Price], 
+	[QtyOnHand], 
+	[QtyCommitted], 
+	[ItemType], 
+	[LabelPrefix], 
+	[BooksPerPackOrCarton], 
+	[LabelsPerBook], 
+	[FMSBookPrice], 
+	[FMSDeliveryPrice], 
+	[FMSPickupPrice], 
+	[FMSCommission], 
+	[IncludesGST], 
+	[FMSSalesType], 
+	[MinimumStockLevel], 
+	[QTYOnBackOrder], 
+	[LastLandedUnitCost], 
+	[PackPrice], 
+	[PacksInOpenCartons], 
+	[DormantItem], 
+	[ProductCategory], 
+	[DestinationLabelCost], 
+	[DestinationLabelCostA], 
+	[DestinationLabelCostB], 
+	[DestinationLabelCostc], 
+	[DeliveryNumberofDays], 
+	[OldProductCode], 
+	[NotSoldByFSO], 
+	[MYOBAccountNo], 
+	[UsualSupplierId], 
+	[NMOrderingComments], 
+	[SuppliersCode], 
+	[SuppliersDescription], 
+	[SupplierPrice], 
+	[InterRFProduct], 
+	[EnterpriseFastLabelColor], 
+	[Supplementary], 
+	[AramexProduct], 
+	[FSOONFCharge],
+                  [SAPGroup],
+                  [SAPProductGroup],
+                  [SAPSubProduct]
+
+FROM [Fastway].[dbo].[prods] p 
+LEFT JOIN [Fastway].[dbo].[Country] c ON c.Code = p.CountryCode",HUB_Product,KRILLIN
+Staging.STK_RFProducts_Stg,"SELECT [RFCode]
+      ,[ProductId]
+      ,[QtyOnHand]
+      ,[QtyOnOrder]
+      ,[DeliveryPrice]
+      ,[PickupPrice]
+      ,[CommisionPercentage]
+      ,[IncludesGst]
+      ,[FMSBookPrice]
+      ,[ProductType]
+      ,[SalesRepCommissionPercentage]
+      ,[LocalPickup]
+      ,[UpdatedOn]
+      ,[UpdatedBy]
+  FROM [dbo].[STK_RFProducts]",HUB_Product,KRILLIN
+Staging.CustomerCommissionOverride_Stg,"SELECT [NmId]
+      ,[RFCode]
+      ,[Courier]
+      ,[ProductId]
+      ,[Percentage]
+      ,[UpdatedOn]
+      ,[UpdatedBy]
+FROM [dbo].[FMS_CustomerCommisionOverride]",HUB_Product,KRILLIN
+Staging.tblCustomer_Stg,,ConnectStringTest,TEST
+Staging.fl_ConItem_Stg,"DECLARE @startDate datetime = '1900-01-01 00:00:00';
+DECLARE @BatchDays int = -120;
+DECLARE @endDate datetime = @startDate;
+DECLARE  @ConId bigint;
+DECLARE  @EndConId bigint;
+
+IF (@StartDate = '1900-01-01 00:00:00' )
+	BEGIN
+		SET @startDate = DATEADD(DAY, @BatchDays, Getdate()); 
+		SET @endDate = Getdate(); 
+	END	
+ELSE 
+	SET @startDate = DATEADD(DAY, @BatchDays, Getdate()); 
+
+SELECT TOP 1 @ConId = ConId
+FROM [FWFastlabel].dbo.fl_Con (NOLOCK)
+WHERE CreatedOn >= @startDate
+ORDER BY CreatedOn
+
+SELECT TOP 1 @EndConId = ConId
+FROM [FWFastlabel].dbo.fl_Con (NOLOCK)
+WHERE CreatedOn <= @endDate  
+ORDER BY CreatedOn desc
+
+
+SELECT
+ci.[Label],
+con.ConId,
+ci.ConItemId,
+ci.[LineNo],
+con.CountryId,
+con.CreatedOn,
+con.CustomerId,
+ci.FromRf,
+ci.FromCf,
+ci.ToRf,
+ci.ToCf,
+ci.FMSInvoiceNo,
+ci.FMSInvoiceDate,
+cis.Reference,
+cis.Quantity,
+cis.ProductId,
+cis.WeightDead,
+cis.WeightCubic,
+cis.WeightPriced,
+cis.Width,
+cis.Length,
+cis.Height,
+con.FromBusinessName,
+con.FromContactName,
+con.FromStreetAddress,
+con.FromLocality,
+con.FromStateOrProvince,
+con.FromPostalCode,
+con.FromCountry,
+con.FromPhoneNumber,
+con.FromEmail,
+con.FromLat,
+con.FromLng,
+con.ToBusinessName,
+con.ToContactName,
+con.ToStreetAddress,
+con.ToLocality,
+con.ToStateOrProvince,
+con.ToPostalCode,
+con.ToCountry,
+con.ToPhoneNumber,
+con.ToEmail,
+con.ToLat,
+con.ToLng,
+con.RealisedDate,
+ci.RealisedDate as ItemRealisedDate,
+ci.BasePrice,
+ci.ExcessPrice,
+ci.PickUpPriceTotal,
+ci.DeliveryPriceTotal,
+ci.BasePriceComm,
+ci.ExcessPriceComm,
+ci.BasePriceDiscounted,
+ci.ExcessPriceDiscounted,
+ci.ItemPrice,
+ci.ServicePrice,
+ci.PLBSBatchId,
+ci.PLBSInvoiceNo,
+ci.PLBSInvoiceDate,
+ci.PLBSPrice,
+ci.PLBSTax,
+ci.PLBSTotal,
+ci.DLBSBatchId,
+ci.DLBSInvoiceNo,
+ci.DLBSInvoiceDate,
+ci.DLBSPrice,
+ci.DLBSTax,
+ci.DLBSTotal,
+ci.LineHaulPrice,
+ci.LineHaulTax,
+ci.LineHaulTotal,
+ci.[Zone],
+cis.SatchelSize,
+cis.WeightPriceTypeId,
+ci.SubDepot,
+ci.ToRfSubDepotCode,
+ci.BareProfileId,
+con.UpdatedOn as ConUpdatedOn,
+ci.UpdatedOn as ConItemUpdatedOn,
+cis.Price AS ItemSumPrice,
+cis.Tax AS ItemSumTax,
+cis.Total AS ItemSumTotal,
+cis.PackageTypeId AS ItemSumPackageTypeId,
+ci.LabelExternal
+--cis.DescriptionOfGoods as ItemSumDescriptionOfGoods,
+--cis.DeclaredValue,
+--cis.HSCodeInternal,
+--cis.HSCodeExternal
+FROM [FWFastlabel].[dbo].[fl_Con] con with (NOLOCK) 
+JOIN [FWFastlabel].[dbo].[fl_ConItemSum] cis with (NOLOCK) on cis.ConId = con.ConId
+JOIN [FWFastlabel].[dbo].[fl_ConItem] ci with (NOLOCK) on ci.ConId = cis.ConId and ci.[LineNo] = cis.[LineNo]
+WHERE con.ConId >= @ConId
+  AND con.ConId < @EndConId
+  AND con.RealisedDate IS NOT NULL",Package1,KRILLIN
+Staging.LA_RuralOnforwards_Stg,"DECLARE @LastDate date = ?
+DECLARE @StartDate date = ?
+DECLARE @EndDate date = ?;
+--If specified startdate and enddate are inclusive
+
+SET @StartDate  = IIF(@StartDate = '1900-01-01', DATEADD(DAY,1,@LastDate), @StartDate);
+SET @EndDate = IIF(@EndDate = '1900-01-01', CONVERT(date,DATEADD(DAY,-1,GetDate())), @EndDate);
+
+
+SELECT  [Country]
+      ,[RF]
+      ,[Courier]
+      ,[Label]
+      ,[Date]
+      ,[Time]
+      ,[Onforwards]
+      ,[FileId]
+  FROM [Fastway].[dbo].[LA_RuralOnforwards]
+  WHERE [Date] >= @StartDate AND [Date] <= @EndDate
+ORDER BY Country, RF,Courier,Label,Date,Time",LNK_RuralOnFowards,KRILLIN
+dv.SAT_Customer_OES,,HUB_Customer,CUBE
+Staging.CustomerLinks_Stg,"USE Fastway;
+                      SELECT 
+                          Concat(RFId, RIGHT('000'+CourierNumber,3), RIGHT('0000'+CAST(CustomerNumber AS VARCHAR(4)),4)) as CustomerKey, 
+                          ltrim(rtrim(fms.BusinessName)) as CustomerName,
+                          fms.NMId as CountryCode, 
+                          fms.RFId as RFCode,
+                          fms.CustomerId as FMSCustomerID, 
+                          lnk.OESCustomerID, 
+                          lnk.IFSCustomerCode,
+                          lnk.IFSCustomerType  
+                      FROM FMS_Customer fms
+                      LEFT JOIN (
+                          Select  
+                              coalesce(oes.CountryCode,ifs.CountryCode) as CountryCode, 
+                              coalesce(oes.CustomerID, ifs.FMSCustomerId) as FMSCustomerID, 
+                              OESCustomerID, 
+                              IFSCustomerCode,
+                              CustomerType as IFSCustomerType
+                          From DLS_CustomerLinks oes
+                          Full Join IFSCustomers ifs on oes.CustomerID = ifs.FMSCustomerId and oes.CountryCode = ifs.CountryCode and ifs.RFCode = oes.Franchise
+                      ) lnk ON fms.CustomerId = lnk.FMSCustomerID and fms.NMId = lnk.CountryCode
+                      WHERE fms.NMId in (1,6,11,24)
+                      ORDER BY 1;",HUB_Customer,KRILLIN
+Staging.FMS_Customer_Stg,"SELECT [RFId]
+      ,[CourierNumber]
+      ,[CustomerID] 
+      ,[CustomerKey] = Concat(RFId, RIGHT('000'+CAST(CourierNumber AS VARCHAR(3)),3), RIGHT('0000'+CAST(CustomerNumber AS VARCHAR(4)),4))
+      ,[CustomerNumber]
+      ,[Active]
+      ,[DeactiveDescription]
+      ,[BusinessName]
+      ,[TradingName]
+      ,[LegalEntity]
+      ,[LegEntOtherDes]
+      ,[ShortName]
+      ,[StreetAddress1]
+      ,[StreetAddress2]
+      ,[StreetAddress3]
+      ,[PostalAddress1]
+      ,[PostalAddress2]
+      ,[PostalAddress3]
+      ,[PhoneNumber]
+      ,[FaxNumber]
+      ,[Mobile]
+      ,[PaymentBasis]
+      ,[DiscountAllowed]
+      ,[LastPurchDate]
+      ,[Comments]
+      ,[EmailAddress]
+      ,[CartageInsurance]
+      ,[WareHouseDispatchFirstName]
+      ,[WareHouseDispatchLastName]
+      ,[WareHouseDispatchEmailAddress]
+      ,[WareHouseDispatchPhoneNumber]
+      ,[OfficeDispatchFirstName]
+      ,[OfficeDispatchLastName]
+      ,[OfficeDispatchEmailAddress]
+      ,[OfficeDispatchPhoneNumber]
+      ,[DecisionMakerFirstName]
+      ,[DecisionMakerLastName]
+      ,[DecisionMakerEmailAddress]
+      ,[DecisionMakerPhone]
+      ,[CeoFirstName]
+      ,[CeoLastName]
+      ,[CeoEmailAddress]
+      ,[CeoPhone]
+      ,[CustomerWebAddress]
+      ,[SellProductsViaInternet]
+      ,[PercentageOfDeliveriesAreHome]
+      ,[IndustryClassification]
+      ,g.Description as IndustryDescription
+      ,[IndustryClassifcationOtherDes]
+      ,[CompanyNumber]
+      ,[StartDate]
+      ,[UnsubscribeFromEmail]
+      ,[StatementCustomer]
+      ,[AlreadyExisted]
+      ,[PostCodeStreet]
+      ,[PostCodePostal]
+      ,[TaxNumber]
+      ,[DirectDebitType]
+      ,[BankAccName]
+      ,[BankAccNo]
+      ,[DirectDebit]
+      ,[PaymentTermsCode]
+      ,[CodeAndName]
+      ,c.[NMId]
+      ,[OldCustomerId]
+      ,[ExcludeFromBaseRateCalc]
+      ,[LabelPurchaseType]
+      ,[CustomerRFCode]
+      ,[ExcludedFromTax]
+      ,[Latitude]
+      ,[Longitude]
+      ,[MultiCustomer]
+      ,[PriceListCode]
+      ,[EnterpriseFastlabelType]
+      ,[B2B]
+      ,[B2C]
+      ,[MarketingFirstName]
+      ,[MarketingLastName]
+      ,[MarketingEmailAddress]
+      ,[MarketingPhone]
+      ,[EnterpriseFastLabelCustomer]
+      ,[EnterpriseFastLabelParentId]
+      ,[EnterpriseFastLabelBillPeriod]
+      ,[EnterpriseFastLabelInvOnScan]
+      ,[EnterpriseFastLabelInvScanType]
+      ,[AramexOutboundCustomerNumber]
+      ,[VariableFuelRate]
+      ,[StopCredit]
+      ,[CreditLimit]
+      ,[StreetIsPostalAddress]
+      ,[XLabelCustomer]
+      ,[xLabelAlcoholDeliveries]
+  FROM [Fastway].[dbo].[FMS_Customer] c
+LEFT JOIN  [FMS_LookUpTableDetail] g on HeaderCode = 'IND' and c.IndustryClassification = g.ItemCode and g.NMid = c.NMId",HUB_Customer,KRILLIN
+Staging.IFSCustomers_Stg,"USE [Fastway]
+
+SELECT
+    CountryCode, RFCode, 
+    IFSCustomerCode, CustomerType, Name, 
+    Address1, Address2, Address3, 
+    LastOrderNumber, Disabled
+FROM dbo.IFSCustomers",HUB_Customer,KRILLIN
+Staging.tblCustomer_Stg,"SELECT [CustomerID]
+      ,[CustomerNumber]
+      ,[CountryCode]
+      ,[createDate]
+      ,[topCustomer]
+      ,[CustomerName]
+      ,[StreetAddress]
+      ,[StreetAddress1]
+      ,[AddressExtra]
+      ,[Suburb]
+      ,[PostCode]
+      ,[City]
+      ,[ContactName]
+      ,[PhoneNumber]
+      ,[MobileNumber]
+      ,[FaxNumber]
+      ,[EmailAddress]
+      ,[FranchiseeCode]
+      ,[CSAid]
+      ,[pref_enable_Enquiry]
+      ,[pref_SendAutoEmails]
+      ,[FF_AuthorisedSendersType]
+      ,[DeleteDate]
+      ,[DeleteLog]
+      ,[WebSettings_Banner]
+      ,[WebSettings_CSS]
+      ,[WebSettings_HomePage]
+      ,[WebSettings_ContactUsPage]
+      ,[GroupID]
+      ,[PSC_FrequentPricing]
+      ,[FastLabel_ClientID]
+      ,[FF_CanBeInvoiced]
+      ,[ElecLabelSystem]
+      ,[ElecLabelCode]
+      ,[GSTCode]
+      ,[InvoiceNo_Last]
+      ,[MaxDailyReprints]
+      ,[PreferredCourierNo]
+      ,[Bank_CurrentBalance]
+      ,[Bank_AllowNegativeBalance]
+      ,[FastLabel_AllowDynamicLabels]
+      ,[FastLabel_EmailTemplateJSON]
+      ,[FastLabel_EmailTemplateUse]
+      ,[RP_DefaultPaymentTypeID]
+      ,[BudgetLabel_ReverseManifestingEnabled]
+      ,[TrademeAccessToken]
+      ,[TrademeAccessTokenSecret]
+      ,[TrademeAccessTokenExpiresUTC]
+      ,[GreenInvoice_Enabled]
+      ,[FastLabel_EnableA4]
+      ,[ElectronicLabels_ExportToFTP]
+      ,[RPReturnsCustomer]
+      ,[FastLabel_PrintPBarcode]
+      ,[DynamicLabels_InvoiceLevel]
+      ,[DynamicLabels_InvoiceEnabled]
+      ,[DyanmicLabels_InvoicePeriod]
+      ,[FastLabel_MaxWeightDead]
+      ,[FastLabel_MaxWeightCubic]
+      ,[FastLabel_CubicMultiplier]
+      ,[ElectronicLabels_ExportToFTP_Dynamic]
+      ,[MinimumBalance]
+      ,[Is_CustomerType_Frequent]
+      ,[ReturnUrl]
+      ,[EnableTSSNZ]
+      ,[FastLabel_AllowPOBox]
+      ,[FastLabel_ConsToAutoImport]
+      ,[ElectronicLabels_ExportToFTP_OnlyWithReference]
+      ,[Service_Override_Enabled]
+      ,[UseStreetAutoComplete]
+      ,[PSC_RFCode]
+      ,[FastLabel_AllManifestsAreAuto]
+      ,[EnableDoubleBaseLabel]
+      ,[DLSReqScan]
+      ,[PSC_FlatRateLabel]
+      ,[FastLabel_PrintReturnLabel_ANY]
+      ,[FastLabel_DynamicLabelsSystemId]
+      ,[Undelivered_Labels_Report_LastReportDate]
+      ,[Undelivered_Labels_Report_Span]
+      ,[Undelivered_Labels_Report_Emails]
+      ,[FastLabel_SendTextMessage]
+      ,[FastLabel_SendTextMessage_Message]
+      ,[LabelAddressLineA]
+      ,[LabelAddressLineB]
+      ,[LabelAddressLineC]
+      ,[LabelAddressLineD]
+      ,[UseLabelAddressLines]
+      ,[DefaultCostCenterID]
+      ,[RunSheetTSection]
+      ,[FMSCustomerID]
+      ,[FastLabel_BillingType]
+      ,[OneLabelPerPage]
+      ,[DLSScanType]
+      ,[FastLabel_DynamicLabelsDeliveryRfGetsSale]
+      ,[FtpExportImages]
+      ,[DynamicLabelLowerDLFee]
+      ,[AutoCloseEnable]
+      ,[DLSEmailAddress]
+      ,[BlackBayExpectedTriggerPoints]
+      ,[BlackBayServiceTypes]
+      ,[BlackBayDefaultNotificationType]
+      ,[HideTranstasmanOriginCountryScans]
+      ,[PaymentTrigger]
+      ,[IsZoneBillingMatrix]
+      ,[IsImpliedScanning]
+      ,[FastLabel_ShowWalletBalance]
+      ,[ExportParcelConnectFtp]
+      ,[IsAramexAccount]
+      ,[RpEmailTemplateId]
+      ,[RpCustomSettingsJson]
+      ,[PickupDashEmailWhenJobsCancelled]
+      ,[ReceiverPaysReturnType]
+      ,[RpDynamicLabelSystemId]
+      ,[FastLabel_PreAuthorizedReturns]
+      ,[FastLabel_ReturnServiceEnabled]
+      ,[ReturnsDynamicLabelSystemId]
+      ,[CustomFtpExportRulesJson]
+      ,[ReturnsThirdPartyDynamicLabelSystemId]
+      ,[IsNationalCustomer]
+     ,[TrackAndTrace_ShowEventsAuNz]
+     ,[ExportFTP_DescriptionToContactName_DScan]
+     ,[ExportFTP_IncludePrivateScans]
+     ,[ImportsAllocateToHdManifests]
+     ,[FastLabelDefaultDeliveryService]
+     ,[FastLabelSignatureRequiredServiceAllImports]
+  FROM [OnlineEnquiries_NEW].[dbo].[tblCustomer]",HUB_Customer,GOKU

@@ -1,0 +1,102 @@
+{
+  "Package\\Final": {
+    "executables": {
+      "Package\\Final\\Load HUB_ServiceCon": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Final\\Truncate LSAT_Product_ServiceCon"
+        ],
+        "upstream_dependencies": [
+          "Package\\Final\\Truncate LNK_Product_ServiceCon"
+        ],
+        "referred_stored_proc": [
+          "[dv].[Load_LNK_Product_ServiceCon]"
+        ]
+      },
+      "Package\\Final\\Load SAT_ServiceCon": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Final\\Truncate LSAT_Product_ServiceCon"
+        ],
+        "referred_stored_proc": [
+          "[dv].[Load_LSAT_Product_ServiceCon]"
+        ]
+      },
+      "Package\\Final\\Truncate LNK_Product_ServiceCon": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Final\\Load HUB_ServiceCon"
+        ],
+        "upstream_dependencies": []
+      },
+      "Package\\Final\\Truncate LSAT_Product_ServiceCon": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Final\\Load SAT_ServiceCon"
+        ],
+        "upstream_dependencies": [
+          "Package\\Final\\Load HUB_ServiceCon"
+        ]
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [],
+    "upstream_dependencies": [
+      "Package\\Staging"
+    ]
+  },
+  "Package\\Staging": {
+    "executables": {
+      "Package\\Staging\\Load fl_ConSrv_Stg": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [
+          "Package\\Staging\\Rebuild Indexes 13"
+        ],
+        "upstream_dependencies": [
+          "Package\\Staging\\Truncate fl_ConSrv_Stg"
+        ]
+      },
+      "Package\\Staging\\Load_LSAT_Product_ServiceCon": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Staging\\Truncate Product_ServiceCon_Stg"
+        ],
+        "referred_stored_proc": [
+          "[dv].[Load_Product_ServiceCon_Stg]"
+        ]
+      },
+      "Package\\Staging\\Rebuild Indexes 13": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging\\Truncate Product_ServiceCon_Stg"
+        ],
+        "upstream_dependencies": [
+          "Package\\Staging\\Load fl_ConSrv_Stg"
+        ]
+      },
+      "Package\\Staging\\Truncate fl_ConSrv_Stg": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging\\Load fl_ConSrv_Stg"
+        ],
+        "upstream_dependencies": []
+      },
+      "Package\\Staging\\Truncate Product_ServiceCon_Stg": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging\\Load_LSAT_Product_ServiceCon"
+        ],
+        "upstream_dependencies": [
+          "Package\\Staging\\Rebuild Indexes 13"
+        ]
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [
+      "Package\\Final"
+    ],
+    "upstream_dependencies": []
+  }
+}

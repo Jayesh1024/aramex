@@ -1,0 +1,382 @@
+{
+  "package_name": "Fact_KPI_Dashboard",
+  "executables": {
+    "Package\\Load Interim Labels": {
+      "task_metadata": {
+        "Package\\Load Interim Labels\\Load Fact_KPI_Daily_Stg": {
+          "task_metadata": {
+            "query": "Exec ? = [Staging].[Load_Fact_KPI_Daily_Stg_2] ?",
+            "param_map": {
+              "param_0": {
+                "variable_name": "ReturnCode",
+                "direction": "ReturnValue"
+              },
+              "param_1": {
+                "variable_name": "ProcessId",
+                "direction": "Input"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Load Interim Labels\\Load Fact_KPI_Interim": {
+          "task_metadata": {
+            "query": "EXEC ? =  [dbo]. [Load_Fact_KPI_Interim] ?",
+            "param_map": {
+              "param_0": {
+                "variable_name": "ReturnCode",
+                "direction": "ReturnValue"
+              },
+              "param_1": {
+                "variable_name": "ProcessId",
+                "direction": "Input"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Load Interim Labels\\Load Interim_KPI_Labels_Src_Stg": {
+          "task_metadata": {
+            "query": "Exec ? = Mini_FastwayDW.[Staging].[Load_Fact_KPI_Interim_Src_Stg] ?",
+            "param_map": {
+              "param_0": {
+                "variable_name": "ReturnCode",
+                "direction": "ReturnValue"
+              },
+              "param_1": {
+                "variable_name": "ProcessId",
+                "direction": "Input"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        }
+      },
+      "task_type": "STOCK:SEQUENCE"
+    },
+    "Package\\Staging": {
+      "task_metadata": {
+        "Package\\Staging\\Initial": {
+          "task_metadata": {
+            "Package\\Staging\\Initial\\Get Next ProcessID": {
+              "task_metadata": {
+                "query": "Declare @ProcessId Int;\nSELECT @ProcessId = IIF(MIN(ProcessId) > -30000, -30000, MIN(ProcessId)) FROM [Staging].[LoadLog] \nSELECT Isnull(@ProcessId,0) - 1 AS [NextProcessId] ",
+                "param_map": {},
+                "result_set": {
+                  "NextProcessId": null
+                }
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            }
+          },
+          "task_type": "STOCK:SEQUENCE"
+        },
+        "Package\\Staging\\Staging 1": {
+          "task_metadata": {
+            "Package\\Staging\\Staging 1\\Data Flow Task": {
+              "task_metadata": {
+                "task_dependency_map": {
+                  "Package\\Staging\\Staging 1\\Data Flow Task\\Load fl_MF_Interim_Stg": [
+                    "Package\\Staging\\Staging 1\\Data Flow Task\\OLE DB Destination"
+                  ]
+                },
+                "exec_order": {
+                  "Package\\Staging\\Staging 1\\Data Flow Task\\Load fl_MF_Interim_Stg": 1,
+                  "Package\\Staging\\Staging 1\\Data Flow Task\\OLE DB Destination": 2
+                },
+                "per_component_data": {
+                  "Package\\Staging\\Staging 1\\Data Flow Task\\Load fl_MF_Interim_Stg": {
+                    "component_type": "Microsoft.OLEDBSource",
+                    "component_info": {
+                      "sql_command": "SELECT [Label]\n      ,[ConId]\n      ,[ConItemId]\n      ,[LineNo]\n      ,[CountryId]\n      ,[CreatedOn]\n      ,[CustomerId]\n      ,[FromRf]\n      ,[FromCf]\n      ,[ToRf]\n      ,[ToCf]\n      ,[FMSInvoiceNo]\n      ,[FMSInvoiceDate]\n      ,[Reference]\n      ,[Quantity]\n      ,[ProductId]\n      ,[WeightDead]\n      ,[WeightCubic]\n      ,[WeightPriced]\n      ,[Width]\n      ,[Length]\n      ,[Height]\n      ,[FromBusinessName]\n      ,[FromContactName]\n      ,[FromStreetAddress]\n      ,[FromLocality]\n      ,[FromStateOrProvince]\n      ,[FromPostalCode]\n      ,[FromCountry]\n      ,[FromPhoneNumber]\n      ,[FromEmail]\n      ,[FromLat]\n      ,[FromLng]\n      ,[ToBusinessName]\n      ,[ToContactName]\n      ,[ToStreetAddress]\n      ,[ToLocality]\n      ,[ToStateOrProvince]\n      ,[ToPostalCode]\n      ,[ToCountry]\n      ,[ToPhoneNumber]\n      ,[ToEmail]\n      ,[ToLat]\n      ,[ToLng]\n      ,[RealisedDate]\n      ,[BasePrice]\n      ,[ExcessPrice]\n      ,[PickUpPriceTotal]\n      ,[DeliveryPriceTotal]\n      ,[BasePriceComm]\n      ,[ExcessPriceComm]\n      ,[BasePriceDiscounted]\n      ,[ExcessPriceDiscounted]\n      ,[ItemPrice]\n      ,[ServicePrice]\n      ,[PLBSBatchId]\n      ,[PLBSInvoiceNo]\n      ,[PLBSInvoiceDate]\n      ,[PLBSPrice]\n      ,[PLBSTax]\n      ,[PLBSTotal]\n      ,[DLBSBatchId]\n      ,[DLBSInvoiceNo]\n      ,[DLBSInvoiceDate]\n      ,[DLBSPrice]\n      ,[DLBSTax]\n      ,[DLBSTotal]\n      ,[LineHaulPrice]\n      ,[LineHaulTax]\n      ,[LineHaulTotal]\n      ,[Zone]\n      ,[SatchelSize]\n      ,[WeightPriceTypeId]\n      ,[SubDepot]\n      ,[ToRfSubDepotCode]\n      ,[BareProfileId]\n      ,[ConUpdatedOn]\n      ,[ConItemUpdatedOn]\nFROM [FWFastlabel].tmp.fl_Contitem_Stg",
+                      "connection_names": [
+                        "Project.ConnectionManagers[KRILLIN_Fastway]"
+                      ],
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Staging 1\\Data Flow Task\\OLE DB Destination": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "fl_ConItem_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  }
+                }
+              },
+              "task_type": "Microsoft.Pipeline"
+            },
+            "Package\\Staging\\Staging 1\\Get LastDate (MyFastway)": {
+              "task_metadata": {
+                "query": "Exec [Staging].[Get_LastValue] ?",
+                "param_map": {
+                  "param_0": {
+                    "variable_name": "RecordSource4",
+                    "direction": "Input"
+                  }
+                },
+                "result_set": {
+                  "LastValue": null,
+                  "null": null
+                }
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Staging\\Staging 1\\Load fl_MF_Interim_Stg": {
+              "task_metadata": {
+                "task_dependency_map": {
+                  "Package\\Staging\\Staging 1\\Load fl_MF_Interim_Stg\\Load fl_MF_Interim_Stg": [
+                    "Package\\Staging\\Staging 1\\Load fl_MF_Interim_Stg\\fl_MF_Interim_Stg (Bulk Insert)"
+                  ]
+                },
+                "exec_order": {
+                  "Package\\Staging\\Staging 1\\Load fl_MF_Interim_Stg\\Load fl_MF_Interim_Stg": 1,
+                  "Package\\Staging\\Staging 1\\Load fl_MF_Interim_Stg\\fl_MF_Interim_Stg (Bulk Insert)": 2
+                },
+                "per_component_data": {
+                  "Package\\Staging\\Staging 1\\Load fl_MF_Interim_Stg\\fl_MF_Interim_Stg (Bulk Insert)": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "fl_MF_Interim_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Staging 1\\Load fl_MF_Interim_Stg\\Load fl_MF_Interim_Stg": {
+                    "component_type": "Microsoft.OLEDBSource",
+                    "component_info": {
+                      "sql_command": "DECLARE @ISOCountryCodes varchar(20) = ?\n\nDECLARE @AUCode int = IIF(CHARINDEX('AU', @ISOCountryCodes) > 0,1,0)\nDECLARE @NZCode int = IIF(CHARINDEX('NZ', @ISOCountryCodes) > 0,6,0)\n\ndeclare @startDate datetime = dateadd(day, -2,  GETDATE())\n\nDeclare @RealizedConsignments table (ConId Int NOT NULL);\n\nINSERT INTO @RealizedConsignments  (ConId)\nSELECT ConId \nFROM [FWFastlabel].[dbo].[fl_Con] con with (NOLOCK)\nWHERE Con.[RealisedDate] >= @startDate\n\nSELECT  \nci.[Label],\ncon.CountryId,\nci.FromRf,\nci.FromCf,\nci.ToRf,\nci.ToCf,\ncon.ToLocality,\ncon.ToPostalCode,\ncon.RealisedDate,\nci.[Zone],\ncon.CreatedOn,\ncon.CustomerId,\ncon.UpdatedOn AS ConUpdatedOn,\nci.UpdatedOn AS ConItemUpdatedOn\n\nFROM @RealizedConsignments NC\nJOIN [FWFastlabel].[dbo].[fl_Con] con with (NOLOCK)\tON con.Conid = nc.ConId\nJOIN [FWFastlabel].[dbo].[fl_ConItem] ci  with (NOLOCK) on ci.ConId = nc.ConId\nWHERE  Con.CountryId IN (@AUCode , @NZCode)",
+                      "connection_names": [
+                        "Project.ConnectionManagers[KRILLIN_Fastway]"
+                      ],
+                      "inline_positional_params": true,
+                      "inline_positional_params_mapping": {
+                        "param_1": "(unresolved:{47FBA5AB-D1E9-4066-B492-70DFBED0730C})"
+                      },
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  }
+                }
+              },
+              "task_type": "Microsoft.Pipeline"
+            },
+            "Package\\Staging\\Staging 1\\Truncate fl_MF_Interim_Stg": {
+              "task_metadata": {
+                "query": "TRUNCATE TABLE [Staging].[fl_MF_Interim_Stg];\n",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            }
+          },
+          "task_type": "STOCK:SEQUENCE"
+        },
+        "Package\\Staging\\Staging 2": {
+          "task_metadata": {
+            "Package\\Staging\\Staging 2\\Defrag TrackAndTrace_stg Indexes": {
+              "task_metadata": {
+                "query": "EXEC [dbo].[MaintainIndexes] @Operation = 'DEFRAG', @SchemaName = 'Staging', @TableName = 'TrackAndTrace_Stg', @IndexName = 'IX_LatLong'",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Staging\\Staging 2\\Get LastScanID (TrackAndTrace)": {
+              "task_metadata": {
+                "query": "\nSELECT LastID = MAX(ID) From Staging.TrackAndTrace_Stg;\n\n",
+                "param_map": {},
+                "result_set": {
+                  "LastId": null,
+                  "null": null
+                }
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            },
+            "Package\\Staging\\Staging 2\\Load TrackAndTrace_Stg": {
+              "task_metadata": {
+                "task_dependency_map": {
+                  "Package\\Staging\\Staging 2\\Load TrackAndTrace_Stg\\TrackAndTrace data (Fastway)": [
+                    "Package\\Staging\\Staging 2\\Load TrackAndTrace_Stg\\TrackAndTrace_Stg (Bulk Insert)"
+                  ]
+                },
+                "exec_order": {
+                  "Package\\Staging\\Staging 2\\Load TrackAndTrace_Stg\\TrackAndTrace data (Fastway)": 1,
+                  "Package\\Staging\\Staging 2\\Load TrackAndTrace_Stg\\TrackAndTrace_Stg (Bulk Insert)": 2
+                },
+                "per_component_data": {
+                  "Package\\Staging\\Staging 2\\Load TrackAndTrace_Stg\\TrackAndTrace data (Fastway)": {
+                    "component_type": "Microsoft.OLEDBSource",
+                    "component_info": {
+                      "sql_command": "DECLARE @StartID bigint = ?;\nDECLARE @EndID bigint;\n\nDECLARE   @ISOCountryCodes varchar(20) = ?\n\nDECLARE @AUCode int = IIF(CHARINDEX('AU', @ISOCountryCodes) > 0,1,0)\nDECLARE @NZCode int = IIF(CHARINDEX('NZ', @ISOCountryCodes) > 0,6,0)\n\nSELECT @EndID = MAX(ID) - 1000 FROM FastwayReports.dbo.TrackAndTraceData a (nolock);\n\n\nSELECT\n    a.ID,\n    a.RecordId,\n    a.CountryCode,\n    a.FranchiseeCode,\n    a.ScanType,\n    a.[Status] AS ScanStatus,\n    a.LabelNo,\n    a.ScanDate,\n    a.CourierNo,\n    a.UploadDate,\n    a.RecordCreateDate,\n    a.iLocate\n    --FROM FastwayReports.dbo.TrackAndTrace_7Day a (nolock)\n    FROM FastwayReports.dbo.TrackAndTraceData a (nolock)\n    WHERE ID > @StartID  AND ID < @EndID\n      AND Countrycode  IN (@AUCode, @NZCode )",
+                      "connection_names": [
+                        "Project.ConnectionManagers[VEGETA_FastwayReports]"
+                      ],
+                      "inline_positional_params": true,
+                      "inline_positional_params_mapping": {
+                        "param_1": "LastScanID",
+                        "param_2": "(unresolved:{47FBA5AB-D1E9-4066-B492-70DFBED0730C})"
+                      },
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": "SourceDataQuery_tsections",
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": "User::SourceDataQuery_tsections",
+                        "variables_used_distinct": [
+                          "LastScanID",
+                          "SourceDataQuery_tsections"
+                        ]
+                      }
+                    }
+                  },
+                  "Package\\Staging\\Staging 2\\Load TrackAndTrace_Stg\\TrackAndTrace_Stg (Bulk Insert)": {
+                    "component_type": "Microsoft.OLEDBDestination",
+                    "component_info": {
+                      "table_name": "TrackAndTrace_Stg",
+                      "schema_name": "Staging",
+                      "variables_used": {
+                        "open_rowset_variable": null,
+                        "sql_command_variable": null,
+                        "open_rowset_variable_qualified": null,
+                        "sql_command_variable_qualified": null,
+                        "variables_used_distinct": []
+                      }
+                    }
+                  }
+                }
+              },
+              "task_type": "Microsoft.Pipeline"
+            },
+            "Package\\Staging\\Staging 2\\Truncate Staging tables": {
+              "task_metadata": {
+                "query": "TRUNCATE TABLE [Staging].[TrackAndTrace_Stg]\n\n\n",
+                "param_map": {},
+                "result_set": {}
+              },
+              "task_type": "Microsoft.ExecuteSQLTask"
+            }
+          },
+          "task_type": "STOCK:SEQUENCE"
+        }
+      },
+      "task_type": "STOCK:SEQUENCE"
+    },
+    "Package\\Staging 3": {
+      "task_metadata": {
+        "Package\\Staging 3\\Get Start Date": {
+          "task_metadata": {
+            "query": "DECLARE  @returnDate datetime;\n\nSET @returnDate = CONVERT(varchar(10),DATEADD(DAY, -1, Getdate()),120)+'T23:59:59.999';\n\nSELECT returnDate = @returnDate;",
+            "param_map": {},
+            "result_set": {
+              "returnDate": null
+            }
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Staging 3\\Load fl_ConItemSrv_Stg": {
+          "task_metadata": {
+            "task_dependency_map": {
+              "Package\\Staging 3\\Load fl_ConItemSrv_Stg\\fl_ConItemSrv (Fastway)": [
+                "Package\\Staging 3\\Load fl_ConItemSrv_Stg\\fl_conItemSrv (Bulk Insert)"
+              ]
+            },
+            "exec_order": {
+              "Package\\Staging 3\\Load fl_ConItemSrv_Stg\\fl_ConItemSrv (Fastway)": 1,
+              "Package\\Staging 3\\Load fl_ConItemSrv_Stg\\fl_conItemSrv (Bulk Insert)": 2
+            },
+            "per_component_data": {
+              "Package\\Staging 3\\Load fl_ConItemSrv_Stg\\fl_conItemSrv (Bulk Insert)": {
+                "component_type": "Microsoft.OLEDBDestination",
+                "component_info": {
+                  "table_name": "fl_ConItemSrv_Stg_Interim",
+                  "schema_name": "Staging",
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": []
+                  }
+                }
+              },
+              "Package\\Staging 3\\Load fl_ConItemSrv_Stg\\fl_ConItemSrv (Fastway)": {
+                "component_type": "Microsoft.OLEDBSource",
+                "component_info": {
+                  "sql_command": "DECLARE @ISOCountryCodes varchar(20) = ?\n\nDECLARE @AUCode int = IIF(CHARINDEX('AU', @ISOCountryCodes) > 0,1,0)\nDECLARE @NZCode int = IIF(CHARINDEX('NZ', @ISOCountryCodes) > 0,6,0)\n\nDECLARE @startDate2 datetime2(4);\nDECLARE  @ConId bigint;\n\nSET @StartDate2 = CONVERT(varchar(10),DATEADD(DAY, IIF( CONVERT(TIME, GetDate() ) < '08:00',-2,-1), GetDate()),120)+'T23:59:59';\n\nSELECT TOP 1 @ConId = ConId\nFROM [FWFastlabel].dbo.fl_Con (NOLOCK)\nWHERE CreatedOn >= @StartDate2\nORDER BY CreatedOn\n\nSELECT ci.[Label]\n      ,cis.[ConId]\n      ,cis.[ConItemId]\n\n      ,ci.[LineNo]\n      ,ci.[CountryId]\n      ,CONVERT(Datetime2(3),con.[CreatedOn]) AS CreatedOn \n      ,cis.[ProductId]\n      ,cis.[ServiceItemId]\n      ,cis.[FMSInvoiceNo]\n      ,cis.[FMSInvoiceDate]\n      ,cis.[Price]\n      ,cis.[Tax]\n      \n,cis.[Total]\n      ,cis.[PickUpPrice]\n      ,cis.[DeliveryPrice]\n    ,cis.[DLBSBatchId]\n    ,cis.[DLBSInvoiceDate]\n    ,cis.[DLBSInvoiceNo]\n    ,cis.[DLBSPrice]\n    ,cis.[DLBSTax]\n    ,cis.[DLBSTotal]\n    ,cis.[PLBSBatchId]\n    ,cis.[PLBSInvoiceDate]\n    ,cis.[PLBSInvoiceNo]\n    ,cis.[PLBSPrice]\n    ,cis.[PLBSTax]\n    ,cis.[PLBSTotal]\n    ,cis.[BareProfileId]\n    ,cis.[ServicePrice]\n    ,cis.[ServicePriceComm]\n    ,cis.[ServicePriceCommPercent]\n    ,cis.[ServicePriceDiscountFixed]\n    ,cis.[ServicePriceDiscountPercent]\n    ,CONVERT(Datetime2(3),cis.[UpdatedOn]) AS UpdatedOn \n   FROM  [FWFastlabel].[dbo].[fl_Con] con with (NOLOCK)\n  INNER JOIN [FWFastlabel].[dbo].[fl_ConItemSrv] cis with (NOLOCK)  on con.ConId = cis.ConId\n  \n  INNER JOIN [FWFastlabel].[dbo].[fl_ConItem] ci with (NOLOCK) on ci.ConId = cis.ConId AND ci.ConItemId = cis.[ConItemId]\nWHERE con.[ConId] >= @ConId\nAND ci.[CountryId] IN (@AUCode, @NZCode )",
+                  "connection_names": [
+                    "Project.ConnectionManagers[KRILLIN_Fastway]"
+                  ],
+                  "inline_positional_params": true,
+                  "inline_positional_params_mapping": {
+                    "param_1": "(unresolved:{47FBA5AB-D1E9-4066-B492-70DFBED0730C})"
+                  },
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": []
+                  }
+                }
+              }
+            }
+          },
+          "task_type": "Microsoft.Pipeline"
+        },
+        "Package\\Staging 3\\Load Product ServiceItem_Stg": {
+          "task_metadata": {
+            "query": "Exec [Staging].[Load_Label_Product_ServiceItem_Stg_Interim] ?,?",
+            "param_map": {
+              "param_0": {
+                "variable_name": "ProcessId",
+                "direction": "Input"
+              },
+              "param_1": {
+                "variable_name": "RecordSource4",
+                "direction": "Input"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Staging 3\\Truncate fl_conitmsrv_stg": {
+          "task_metadata": {
+            "query": "TRUNCATE TABLE [Staging].[fl_conitemsrv_stg_Interim];\nTRUNCATE TABLE [Staging].[Label_Product_ServiceItem_Stg_Interim] ;\n\n\n",
+            "param_map": {},
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        }
+      },
+      "task_type": "STOCK:SEQUENCE"
+    }
+  }
+}

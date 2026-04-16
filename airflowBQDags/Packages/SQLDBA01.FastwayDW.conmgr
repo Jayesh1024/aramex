@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<DTS:ConnectionManager xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:ObjectName="SQLDBA01 FastwayDW"
+  DTS:DTSID="{CEF572FB-B14E-449A-8301-07CA1F2C4DA2}"
+  DTS:CreationName="OLEDB">
+  <DTS:ObjectData>
+    <DTS:ConnectionManager
+      DTS:ConnectRetryCount="1"
+      DTS:ConnectRetryInterval="5"
+      DTS:ConnectionString="Data Source=AU01UATDB01VS;User ID=DW_UAT;Initial Catalog=FastwayDW;Provider=SQLNCLI11.1;Auto Translate=False;Application Name=SSIS-{CEF572FB-B14E-449A-8301-07CA1F2C4DA2}SQLDBA01 FastwayDW;">
+      <DTS:Password
+        DTS:Name="Password"
+        Sensitive="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAART17OY4EA0GEADtw7h6GTAAAAAACAAAAAAAQZgAAAAEAACAAAABGReif2Jd2wbTS4Eelb8beZwbZVoP3Jw5xF66Kzp+M+gAAAAAOgAAAAAIAACAAAAA93R5HXh0I/lcv8r2M+8cIoYndeDBa8Xrjx+PU2DyjhoAAAACWKqJE8iXsJEAx8C87HgO6dagj9Y5cqtoMy3ZV2H8QePDsVlhsDQEyfMiDfpo6c9GQEu6+BuZy8SWQFrU51SeglwmBSqSJ1BPXm0tuM4Zu+Umu2ZVMiAnfA1hVCwIWRLr3QfPoNoSPS636SP6xVoINrI06khAhs9W24cw5BECGlUAAAACcskfrxom1M4ltbpweHH+4Ume/QsqgkUosBl9spSbNbilLa8IX0RxXK0/EboGS5wbRgOD/C45Ok4tRL6TEZ7oX</DTS:Password>
+    </DTS:ConnectionManager>
+  </DTS:ObjectData>
+</DTS:ConnectionManager>

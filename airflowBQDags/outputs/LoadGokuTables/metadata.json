@@ -1,0 +1,199 @@
+{
+  "Package\\Check if Secondary": {
+    "task_metadata": {
+      "query": "declare @IsPrimary bit;\n\nSELECT @IsPrimary = sys.fn_hadr_is_primary_replica ( 'OnlineEnquiries_NEW' )\n\nIF @IsPrimary != 1 RAISERROR('Error - Connected to Secondary. Cannot run Change Tracking queries',11,9);\n",
+      "param_map": {},
+      "result_set": {}
+    },
+    "task_type": "Microsoft.ExecuteSQLTask"
+  },
+  "Package\\ClickAndCollect Table": {
+    "task_metadata": {
+      "Package\\ClickAndCollect Table\\Get ClickAndConnect": {
+        "task_metadata": {
+          "task_dependency_map": {
+            "Package\\ClickAndCollect Table\\Get ClickAndConnect\\Get ClickAndConnect changes.Outputs[OLE DB Source Output]": [
+              "Package\\ClickAndCollect Table\\Get ClickAndConnect\\Put ClickAndConnect.Inputs[OLE DB Destination Input]"
+            ]
+          },
+          "exec_order": {
+            "Package\\ClickAndCollect Table\\Get ClickAndConnect\\Get ClickAndConnect changes.Outputs[OLE DB Source Output]": 1,
+            "Package\\ClickAndCollect Table\\Get ClickAndConnect\\Put ClickAndConnect.Inputs[OLE DB Destination Input]": 2
+          },
+          "per_component_data": {
+            "Package\\ClickAndCollect Table\\Get ClickAndConnect\\Get ClickAndConnect changes": {
+              "component_type": "Microsoft.OLEDBSource",
+              "component_info": {
+                "sql_command": null,
+                "schema_name": "dbo",
+                "table_name": "FWFastlabel_ClickAndCollect"
+              }
+            },
+            "Package\\ClickAndCollect Table\\Get ClickAndConnect\\Put ClickAndConnect": {
+              "component_type": "Microsoft.OLEDBDestination",
+              "component_info": {
+                "table_name": "FWFastlabel_ClickAndCollect_Stg",
+                "schema_name": "Staging"
+              }
+            }
+          }
+        },
+        "task_type": "Microsoft.Pipeline"
+      },
+      "Package\\ClickAndCollect Table\\Load Target Table": {
+        "task_metadata": {
+          "query": "exec Load_ClickAndCollect",
+          "param_map": {},
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\ClickAndCollect Table\\Truncate FWFastlabel_ClickAndCollect_Stg": {
+        "task_metadata": {
+          "query": "TRUNCATE TABLE [Staging].[FWFastlabel_ClickAndCollect_Stg];\n\nEXEC [dbo].[MaintainIndexes] @Operation = 'DISABLE', @SchemaName = 'Staging', @TableName = 'FWFastlabel_ClickAndCollect_Stg';",
+          "param_map": {},
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  },
+  "Package\\Get Last CT Version": {
+    "task_metadata": {
+      "query": "\nSELECT LastValue = LastSyncVersion \nFROM [Staging].[LoadControl_ChangeTracking]\nWHERE TargetName = 'Payzone'",
+      "param_map": {},
+      "result_set": {
+        "LastValue": null
+      }
+    },
+    "task_type": "Microsoft.ExecuteSQLTask"
+  },
+  "Package\\Get Next CT Version": {
+    "task_metadata": {
+      "query": "\nSELECT NextValue = CHANGE_TRACKING_CURRENT_VERSION()",
+      "param_map": {},
+      "result_set": {
+        "NextValue": null
+      }
+    },
+    "task_type": "Microsoft.ExecuteSQLTask"
+  },
+  "Package\\Payzone_agents": {
+    "task_metadata": {
+      "Package\\Payzone_agents\\Load Target Table": {
+        "task_metadata": {
+          "query": "exec Load_Payzone_Agents",
+          "param_map": {},
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Payzone_agents\\payzone_agents": {
+        "task_metadata": {
+          "task_dependency_map": {
+            "Package\\Payzone_agents\\payzone_agents\\Get Payzone Agents.Outputs[OLE DB Source Output]": [
+              "Package\\Payzone_agents\\payzone_agents\\Put Payzone Agents.Inputs[OLE DB Destination Input]"
+            ]
+          },
+          "exec_order": {
+            "Package\\Payzone_agents\\payzone_agents\\Get Payzone Agents.Outputs[OLE DB Source Output]": 1,
+            "Package\\Payzone_agents\\payzone_agents\\Put Payzone Agents.Inputs[OLE DB Destination Input]": 2
+          },
+          "per_component_data": {
+            "Package\\Payzone_agents\\payzone_agents\\Get Payzone Agents": {
+              "component_type": "Microsoft.OLEDBSource",
+              "component_info": {
+                "sql_command": null,
+                "schema_name": "dbo",
+                "table_name": "payzone_agents"
+              }
+            },
+            "Package\\Payzone_agents\\payzone_agents\\Put Payzone Agents": {
+              "component_type": "Microsoft.OLEDBDestination",
+              "component_info": {
+                "table_name": "payzone_agents_stg",
+                "schema_name": "Staging"
+              }
+            }
+          }
+        },
+        "task_type": "Microsoft.Pipeline"
+      },
+      "Package\\Payzone_agents\\Truncate payzone_agents_stg": {
+        "task_metadata": {
+          "query": "TRUNCATE TABLE [Staging].[payzone_agents_stg];\n",
+          "param_map": {},
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  },
+  "Package\\Payzone_regions": {
+    "task_metadata": {
+      "Package\\Payzone_regions\\Load Target Table": {
+        "task_metadata": {
+          "query": "exec Load_Payzone_Regions",
+          "param_map": {},
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Payzone_regions\\payzone_regions": {
+        "task_metadata": {
+          "task_dependency_map": {
+            "Package\\Payzone_regions\\payzone_regions\\Get Payzone Regions.Outputs[OLE DB Source Output]": [
+              "Package\\Payzone_regions\\payzone_regions\\Put Payzone Regions.Inputs[OLE DB Destination Input]"
+            ]
+          },
+          "exec_order": {
+            "Package\\Payzone_regions\\payzone_regions\\Get Payzone Regions.Outputs[OLE DB Source Output]": 1,
+            "Package\\Payzone_regions\\payzone_regions\\Put Payzone Regions.Inputs[OLE DB Destination Input]": 2
+          },
+          "per_component_data": {
+            "Package\\Payzone_regions\\payzone_regions\\Get Payzone Regions": {
+              "component_type": "Microsoft.OLEDBSource",
+              "component_info": {
+                "sql_command": null,
+                "schema_name": "dbo",
+                "table_name": "payzone_regions"
+              }
+            },
+            "Package\\Payzone_regions\\payzone_regions\\Put Payzone Regions": {
+              "component_type": "Microsoft.OLEDBDestination",
+              "component_info": {
+                "table_name": "payzone_regions_stg",
+                "schema_name": "Staging"
+              }
+            }
+          }
+        },
+        "task_type": "Microsoft.Pipeline"
+      },
+      "Package\\Payzone_regions\\Truncate payzone_regions_stg": {
+        "task_metadata": {
+          "query": "TRUNCATE TABLE [Staging].[payzone_regions_stg]\n",
+          "param_map": {},
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  },
+  "Package\\Set Next CT_Version": {
+    "task_metadata": {
+      "query": "declare @NextVersion bigint = ?;\n\n\nif @NextVersion IS NOT NULL\nBEGIN\n UPDATE  [FastwayDW].[Staging].[LoadControl_ChangeTracking] \n SET LastSyncVersion = @NextVersion \n WHERE TargetName = 'payzone'\nEND",
+      "param_map": {
+        "param_0": {
+          "variable_name": "NextVersion",
+          "direction": "Input"
+        }
+      },
+      "result_set": {}
+    },
+    "task_type": "Microsoft.ExecuteSQLTask"
+  }
+}

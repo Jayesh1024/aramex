@@ -1,0 +1,1134 @@
+﻿<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="4/16/2024 9:25:01 AM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="DESKTOP-1260P"
+  DTS:CreatorName="DESKTOP-1260P\Barry"
+  DTS:DTSID="{BAF27100-84F5-4D6D-BF3C-AD2AAC5D7C02}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="16.0.5397.1"
+  DTS:LocaleID="3081"
+  DTS:ObjectName="HUB_ZenTickets"
+  DTS:PackageType="5"
+  DTS:VersionBuild="62"
+  DTS:VersionGUID="{C4B686A0-0BEB-4B82-BD69-0EC476A42E18}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:PackageParameters>
+    <DTS:PackageParameter
+      DTS:CreationName=""
+      DTS:DataType="11"
+      DTS:DTSID="{99C1783C-D0F5-477D-90D3-020D15462743}"
+      DTS:ObjectName="DisableFinal">
+      <DTS:Property
+        DTS:DataType="11"
+        DTS:Name="ParameterValue">0</DTS:Property>
+    </DTS:PackageParameter>
+    <DTS:PackageParameter
+      DTS:CreationName=""
+      DTS:DataType="11"
+      DTS:DTSID="{E29B699D-6C56-4666-959F-AE66F08BBBCA}"
+      DTS:ObjectName="DisableStage">
+      <DTS:Property
+        DTS:DataType="11"
+        DTS:Name="ParameterValue">0</DTS:Property>
+    </DTS:PackageParameter>
+    <DTS:PackageParameter
+      DTS:CreationName=""
+      DTS:DataType="20"
+      DTS:DTSID="{7A18888E-34C2-4967-8BD3-58A81B26C45F}"
+      DTS:ObjectName="ProcessId">
+      <DTS:Property
+        DTS:DataType="20"
+        DTS:Name="ParameterValue">-29</DTS:Property>
+    </DTS:PackageParameter>
+    <DTS:PackageParameter
+      DTS:CreationName=""
+      DTS:DataType="8"
+      DTS:DTSID="{2F0FE0DC-D579-436A-89C1-D9B527C09003}"
+      DTS:ObjectName="RecordSource">
+      <DTS:Property
+        DTS:DataType="8"
+        DTS:Name="ParameterValue">ZenLog</DTS:Property>
+    </DTS:PackageParameter>
+  </DTS:PackageParameters>
+  <DTS:Variables>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{7247D051-C043-4571-BA68-AE24925D4440}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="LastDate">
+      <DTS:VariableValue
+        DTS:DataType="7">7/16/2024 6:58:33 PM</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{1C7E549A-900F-4FC2-8109-F8542B70BD29}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="LastID">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{8AD92E94-0340-4209-9229-BC6CD0430C46}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="ProcessId">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+  </DTS:Variables>
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\Final"
+      DTS:CreationName="STOCK:SEQUENCE"
+      DTS:Description="Sequence Container"
+      DTS:DTSID="{A5CDBDA1-DAC7-4251-9B4B-AE0AB8D9EB54}"
+      DTS:ExecutableType="STOCK:SEQUENCE"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Final">
+      <DTS:Variables />
+      <DTS:PropertyExpression
+        DTS:Name="Disable">@[$Package::DisableFinal]</DTS:PropertyExpression>
+      <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package\Final\(ZENLog)"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{722B62EC-7F38-45C0-8D3D-A5A50719C707}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="(ZENLog)"
+          DTS:ThreadHint="0">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
+              SQLTask:BypassPrepare="False"
+              SQLTask:SqlStatementSource="DECLARE @Source varchar(50) = 'ZenLog';&#xA;DECLARE @LastDate Datetime;&#xA;&#xA;SELECT @LastDate = MAX([SysLastUpdatedUtc]) From [Staging].[ZEN_Ticket_Stg]&#xA;&#xA;UPDATE [Staging].[LoadControl] &#xA;SET LastValue = CONVERT(varchar(30), @LastDate, 121) &#xA;WHERE [RecordSource] = @Source &#xA;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="$Package::RecordSource"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="130"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\Final\Load HUB_Zen_Tickets"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{4F6CD6B9-C6CD-4065-83ED-470A805AB3C5}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Load HUB_Zen_Tickets"
+          DTS:ThreadHint="1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
+              SQLTask:SqlStatementSource="EXEC [dv].[Load_HUB_ZEN_Ticket] ?,?" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="$Package::ProcessId"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="3"
+                SQLTask:ParameterSize="-1" />
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="1"
+                SQLTask:DtsVariableName="$Package::RecordSource"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="130"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\Final\Load SAT_Zen_Tickets"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{805C736F-9EBC-49C1-98E9-22AFA7595621}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Load SAT_Zen_Tickets"
+          DTS:ThreadHint="0">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
+              SQLTask:SqlStatementSource="EXEC [dv].[Load_SAT_ZEN_Ticket] ?,?" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="$Package::ProcessId"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="3"
+                SQLTask:ParameterSize="-1" />
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="1"
+                SQLTask:DtsVariableName="$Package::RecordSource"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="130"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+      <DTS:PrecedenceConstraints>
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\Final.PrecedenceConstraints[Constraint]"
+          DTS:CreationName=""
+          DTS:DTSID="{33DD5B10-D95B-4199-859D-9E66C85D94DA}"
+          DTS:From="Package\Final\Load HUB_Zen_Tickets"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint"
+          DTS:To="Package\Final\(ZENLog)" />
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\Final.PrecedenceConstraints[Constraint 1]"
+          DTS:CreationName=""
+          DTS:DTSID="{47E13336-2344-4457-9ACF-F42423FF1C92}"
+          DTS:From="Package\Final\Load SAT_Zen_Tickets"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint 1"
+          DTS:To="Package\Final\(ZENLog)" />
+      </DTS:PrecedenceConstraints>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Staging"
+      DTS:CreationName="STOCK:SEQUENCE"
+      DTS:Description="Sequence Container"
+      DTS:DTSID="{2C5B4853-2BAF-4A7F-80A2-488EB41A2462}"
+      DTS:ExecutableType="STOCK:SEQUENCE"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Staging">
+      <DTS:Variables />
+      <DTS:PropertyExpression
+        DTS:Name="Disable">@[$Package::DisableStage]</DTS:PropertyExpression>
+      <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package\Staging\Get Last Run Date (ZENLog)"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{a9364ce6-01f0-4e5d-b030-feffc725799d}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Get Last Run Date (ZENLog)"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2012; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="0">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
+              SQLTask:SqlStatementSource="Exec [Staging].[Get_LastValue] ?"
+              SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ResultBinding
+                SQLTask:ResultName="LastValue"
+                SQLTask:DtsVariableName="User::LastDate" />
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="$Package::RecordSource"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="130"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\Staging\Get ProcessID"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{e02ad9da-30e3-4a98-833a-fca17375da64}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Get ProcessID"
+          DTS:ThreadHint="0">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
+              SQLTask:BypassPrepare="False"
+              SQLTask:SqlStatementSource="SELECT ProcessID =  MIN(ProcessID) - 1 FROM Staging.LoadLog &#xA;WHERE ProcessID &lt; -99999"
+              SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ResultBinding
+                SQLTask:ResultName="ProcessID"
+                SQLTask:DtsVariableName="User::ProcessId" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\Staging\Load Zen_Ticket_Stg"
+          DTS:CreationName="Microsoft.Pipeline"
+          DTS:Description="Data Flow Task"
+          DTS:DTSID="{5297A627-E0E9-439D-882E-5C1BFA26BF6C}"
+          DTS:ExecutableType="Microsoft.Pipeline"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Load Zen_Ticket_Stg"
+          DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <pipeline
+              version="1">
+              <components>
+                <component
+                  refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination"
+                  componentClassID="Microsoft.OLEDBDestination"
+                  contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+                  description="OLE DB Destination"
+                  name="OLE DB Destination"
+                  usesDispositions="true"
+                  version="4">
+                  <properties>
+                    <property
+                      dataType="System.Int32"
+                      description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                      name="CommandTimeout">0</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the name of the database object used to open a rowset."
+                      name="OpenRowset">[Staging].[ZEN_Ticket_Stg]</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the variable that contains the name of the database object used to open a rowset."
+                      name="OpenRowsetVariable"></property>
+                    <property
+                      dataType="System.String"
+                      description="The SQL command to be executed."
+                      name="SqlCommand"
+                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91">SELECT 
+       [ZenDeskTicketId]
+      ,[LabelNo]
+      ,[Subject]
+      ,[CreatedDate]
+      ,[CreatedTime]
+      ,[TicketType]
+      ,[Issue]
+      ,[Solved]
+  FROM [Fastway].[dbo].[ZEN_Tickets]</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the column code page to use when code page information is unavailable from the data source."
+                      name="DefaultCodePage">1252</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Forces the use of the DefaultCodePage property value when describing character data."
+                      name="AlwaysUseDefaultCodePage">false</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the mode used to access the database."
+                      name="AccessMode"
+                      typeConverter="AccessMode">3</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                      name="FastLoadKeepIdentity">false</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                      name="FastLoadKeepNulls">false</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                      name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                      name="FastLoadMaxInsertCommitSize">2147483647</property>
+                  </properties>
+                  <connections>
+                    <connection
+                      refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Connections[OleDbConnection]"
+                      connectionManagerID="{66292261-9521-45A6-ACCA-54377A482A00}:external"
+                      connectionManagerRefId="Project.ConnectionManagers[CUBE.FastwayDW]"
+                      description="The OLE DB runtime connection used to access the database."
+                      name="OleDbConnection" />
+                  </connections>
+                  <inputs>
+                    <input
+                      refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input]"
+                      errorOrTruncationOperation="Insert"
+                      errorRowDisposition="FailComponent"
+                      hasSideEffects="true"
+                      name="OLE DB Destination Input">
+                      <inputColumns>
+                        <inputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[ZenDeskTicketId]"
+                          cachedDataType="i4"
+                          cachedName="ZenDeskTicketId"
+                          externalMetadataColumnId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ZenDeskTicketId]"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[ZenDeskTicketId]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[LabelNo]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="12"
+                          cachedName="LabelNo"
+                          externalMetadataColumnId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[LabelNo]"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[LabelNo]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Subject]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="100"
+                          cachedName="Subject"
+                          externalMetadataColumnId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Subject]"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[Subject]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[CreatedDate]"
+                          cachedDataType="dbTimeStamp"
+                          cachedName="CreatedDate"
+                          externalMetadataColumnId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[CreatedDate]"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[CreatedDate]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[CreatedTime]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="6"
+                          cachedName="CreatedTime"
+                          externalMetadataColumnId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[CreatedTime]"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[CreatedTime]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[TicketType]"
+                          cachedDataType="i2"
+                          cachedName="TicketType"
+                          externalMetadataColumnId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[TicketType]"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[TicketType]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Issue]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="50"
+                          cachedName="Issue"
+                          externalMetadataColumnId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Issue]"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[Issue]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Solved]"
+                          cachedDataType="bool"
+                          cachedName="Solved"
+                          externalMetadataColumnId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Solved]"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[Solved]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[SysLastUpdatedUtc]"
+                          cachedDataType="dbTimeStamp"
+                          cachedName="SysLastUpdatedUtc"
+                          externalMetadataColumnId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[SysLastUpdatedUtc]"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[SysLastUpdatedUtc]" />
+                      </inputColumns>
+                      <externalMetadataColumns
+                        isUsed="True">
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ZenDeskTicketId]"
+                          dataType="i4"
+                          name="ZenDeskTicketId" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[LabelNo]"
+                          codePage="1252"
+                          dataType="str"
+                          length="12"
+                          name="LabelNo" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Subject]"
+                          codePage="1252"
+                          dataType="str"
+                          length="100"
+                          name="Subject" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[CreatedDate]"
+                          dataType="dbTimeStamp"
+                          name="CreatedDate" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[CreatedTime]"
+                          codePage="1252"
+                          dataType="str"
+                          length="6"
+                          name="CreatedTime" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[TicketType]"
+                          dataType="i2"
+                          name="TicketType" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Issue]"
+                          codePage="1252"
+                          dataType="str"
+                          length="50"
+                          name="Issue" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Solved]"
+                          dataType="bool"
+                          name="Solved" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[SysLastUpdatedUtc]"
+                          dataType="dbTimeStamp"
+                          name="SysLastUpdatedUtc" />
+                      </externalMetadataColumns>
+                    </input>
+                  </inputs>
+                  <outputs>
+                    <output
+                      refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Outputs[OLE DB Destination Error Output]"
+                      exclusionGroup="1"
+                      isErrorOut="true"
+                      name="OLE DB Destination Error Output"
+                      synchronousInputId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input]">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                          name="ErrorCode"
+                          specialFlags="1" />
+                        <outputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                          name="ErrorColumn"
+                          specialFlags="2" />
+                      </outputColumns>
+                      <externalMetadataColumns />
+                    </output>
+                  </outputs>
+                </component>
+                <component
+                  refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source"
+                  componentClassID="Microsoft.OLEDBSource"
+                  contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+                  description="OLE DB Source"
+                  name="OLE DB Source"
+                  usesDispositions="true"
+                  version="7">
+                  <properties>
+                    <property
+                      dataType="System.Int32"
+                      description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                      name="CommandTimeout">0</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the name of the database object used to open a rowset."
+                      name="OpenRowset">[dbo].[ZEN_Tickets]</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the variable that contains the name of the database object used to open a rowset."
+                      name="OpenRowsetVariable"></property>
+                    <property
+                      dataType="System.String"
+                      description="The SQL command to be executed."
+                      name="SqlCommand"
+                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91">DECLARE @LastDate datetime = ?;
+--DECLARE @LastID int = 0;
+
+
+--SET @LastID = COALESCE(@LastID, 0);
+
+--SELECT @LastID = COALESCE(MIN([ZenDeskTicketId]), 0 )
+--  FROM [Fastway].[dbo].[ZEN_Tickets]
+--WHERE [SysLastUpdatedUtc] &gt; @LastDate
+
+
+SELECT 
+       [ZenDeskTicketId]
+      ,[LabelNo]
+      ,[Subject]
+      ,[CreatedDate]
+      ,[CreatedTime]
+      ,[TicketType]
+      ,[Issue]
+      ,[Solved]
+      ,[SysLastUpdatedUtc]
+  FROM [Fastway].[dbo].[ZEN_Tickets]
+WHERE  [SysLastUpdatedUtc] &gt; @LastDate</property>
+                    <property
+                      dataType="System.String"
+                      description="The variable that contains the SQL command to be executed."
+                      name="SqlCommandVariable"></property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the column code page to use when code page information is unavailable from the data source."
+                      name="DefaultCodePage">1252</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Forces the use of the DefaultCodePage property value when describing character data."
+                      name="AlwaysUseDefaultCodePage">false</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the mode used to access the database."
+                      name="AccessMode"
+                      typeConverter="AccessMode">2</property>
+                    <property
+                      dataType="System.String"
+                      description="The mappings between the parameters in the SQL command and variables."
+                      name="ParameterMapping">"Parameter0:Input",{7247D051-C043-4571-BA68-AE24925D4440};</property>
+                  </properties>
+                  <connections>
+                    <connection
+                      refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Connections[OleDbConnection]"
+                      connectionManagerID="{7BE0BAD7-C4E3-4C8B-B147-DFD9B94F82A8}:external"
+                      connectionManagerRefId="Project.ConnectionManagers[KRILLIN_Fastway]"
+                      description="The OLE DB runtime connection used to access the database."
+                      name="OleDbConnection" />
+                  </connections>
+                  <outputs>
+                    <output
+                      refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output]"
+                      name="OLE DB Source Output">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[ZenDeskTicketId]"
+                          dataType="i4"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[ZenDeskTicketId]"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[ZenDeskTicketId]"
+                          name="ZenDeskTicketId"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[LabelNo]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[LabelNo]"
+                          length="12"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[LabelNo]"
+                          name="LabelNo"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[Subject]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Subject]"
+                          length="100"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[Subject]"
+                          name="Subject"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[CreatedDate]"
+                          dataType="dbTimeStamp"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[CreatedDate]"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[CreatedDate]"
+                          name="CreatedDate"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[CreatedTime]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[CreatedTime]"
+                          length="6"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[CreatedTime]"
+                          name="CreatedTime"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[TicketType]"
+                          dataType="i2"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[TicketType]"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[TicketType]"
+                          name="TicketType"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[Issue]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Issue]"
+                          length="50"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[Issue]"
+                          name="Issue"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[Solved]"
+                          dataType="bool"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Solved]"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[Solved]"
+                          name="Solved"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[SysLastUpdatedUtc]"
+                          dataType="dbTimeStamp"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[SysLastUpdatedUtc]"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].Columns[SysLastUpdatedUtc]"
+                          name="SysLastUpdatedUtc"
+                          truncationRowDisposition="FailComponent" />
+                      </outputColumns>
+                      <externalMetadataColumns
+                        isUsed="True">
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[ZenDeskTicketId]"
+                          dataType="i4"
+                          name="ZenDeskTicketId" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[LabelNo]"
+                          codePage="1252"
+                          dataType="str"
+                          length="12"
+                          name="LabelNo" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Subject]"
+                          codePage="1252"
+                          dataType="str"
+                          length="100"
+                          name="Subject" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[CreatedDate]"
+                          dataType="dbTimeStamp"
+                          name="CreatedDate" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[CreatedTime]"
+                          codePage="1252"
+                          dataType="str"
+                          length="6"
+                          name="CreatedTime" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[TicketType]"
+                          dataType="i2"
+                          name="TicketType" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Issue]"
+                          codePage="1252"
+                          dataType="str"
+                          length="50"
+                          name="Issue" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Solved]"
+                          dataType="bool"
+                          name="Solved" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[SysLastUpdatedUtc]"
+                          dataType="dbTimeStamp"
+                          name="SysLastUpdatedUtc" />
+                      </externalMetadataColumns>
+                    </output>
+                    <output
+                      refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Error Output]"
+                      isErrorOut="true"
+                      name="OLE DB Source Error Output">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ZenDeskTicketId]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ZenDeskTicketId]"
+                          name="ZenDeskTicketId" />
+                        <outputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[LabelNo]"
+                          codePage="1252"
+                          dataType="str"
+                          length="12"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[LabelNo]"
+                          name="LabelNo" />
+                        <outputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Subject]"
+                          codePage="1252"
+                          dataType="str"
+                          length="100"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Subject]"
+                          name="Subject" />
+                        <outputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[CreatedDate]"
+                          dataType="dbTimeStamp"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[CreatedDate]"
+                          name="CreatedDate" />
+                        <outputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[CreatedTime]"
+                          codePage="1252"
+                          dataType="str"
+                          length="6"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[CreatedTime]"
+                          name="CreatedTime" />
+                        <outputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[TicketType]"
+                          dataType="i2"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[TicketType]"
+                          name="TicketType" />
+                        <outputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Issue]"
+                          codePage="1252"
+                          dataType="str"
+                          length="50"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Issue]"
+                          name="Issue" />
+                        <outputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Solved]"
+                          dataType="bool"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Solved]"
+                          name="Solved" />
+                        <outputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[SysLastUpdatedUtc]"
+                          dataType="dbTimeStamp"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[SysLastUpdatedUtc]"
+                          name="SysLastUpdatedUtc" />
+                        <outputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                          name="ErrorCode"
+                          specialFlags="1" />
+                        <outputColumn
+                          refId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                          name="ErrorColumn"
+                          specialFlags="2" />
+                      </outputColumns>
+                      <externalMetadataColumns />
+                    </output>
+                  </outputs>
+                </component>
+              </components>
+              <paths>
+                <path
+                  refId="Package\Staging\Load Zen_Ticket_Stg.Paths[OLE DB Source Output]"
+                  endId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination.Inputs[OLE DB Destination Input]"
+                  name="OLE DB Source Output"
+                  startId="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source.Outputs[OLE DB Source Output]" />
+              </paths>
+            </pipeline>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\Staging\Truncate ZEN_Ticket_Stg"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{4B8E6368-9DA4-41DD-9C0C-8D5E93C6D572}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Truncate ZEN_Ticket_Stg"
+          DTS:ThreadHint="0">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
+              SQLTask:SqlStatementSource="TRUNCATE TABLE [Staging].[ZEN_Ticket_Stg]" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+      <DTS:PrecedenceConstraints>
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\Staging.PrecedenceConstraints[Constraint]"
+          DTS:CreationName=""
+          DTS:DTSID="{9B91894C-FD10-4D41-B9F7-A5F9E9758FB3}"
+          DTS:From="Package\Staging\Truncate ZEN_Ticket_Stg"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint"
+          DTS:To="Package\Staging\Get Last Run Date (ZENLog)" />
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\Staging.PrecedenceConstraints[Constraint 1]"
+          DTS:CreationName=""
+          DTS:DTSID="{B4C14624-E263-4975-81B1-BE72755AC33E}"
+          DTS:From="Package\Staging\Get Last Run Date (ZENLog)"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint 1"
+          DTS:To="Package\Staging\Load Zen_Ticket_Stg" />
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\Staging.PrecedenceConstraints[Constraint 2]"
+          DTS:CreationName=""
+          DTS:DTSID="{65E9DAC7-0E82-432E-93B6-3C610355B315}"
+          DTS:From="Package\Staging\Get ProcessID"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint 2"
+          DTS:To="Package\Staging\Truncate ZEN_Ticket_Stg" />
+      </DTS:PrecedenceConstraints>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{4136473A-A5ED-4EF5-A3C7-41E38AF9FC8E}"
+      DTS:From="Package\Staging"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\Final" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="127,42"
+          Id="Package\Final\(ZENLog)"
+          TopLeft="155,135" />
+        <NodeLayout
+          Size="196,42"
+          Id="Package\Final\Load HUB_Zen_Tickets"
+          TopLeft="23,24" />
+        <NodeLayout
+          Size="194,42"
+          Id="Package\Final\Load SAT_Zen_Tickets"
+          TopLeft="254,26" />
+        <EdgeLayout
+          Id="Package\Final.PrecedenceConstraints[Constraint]"
+          TopLeft="121,66">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="77.6666666666667,69"
+              Start="0,0"
+              End="77.6666666666667,61.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,36.8849144634526" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,36.8849144634526"
+                    Point2="0,40.8849144634526"
+                    Point3="4,40.8849144634526" />
+                  <mssgle:LineSegment
+                    End="73.6666666666667,40.8849144634526" />
+                  <mssgle:CubicBezierSegment
+                    Point1="73.6666666666667,40.8849144634526"
+                    Point2="77.6666666666667,40.8849144634526"
+                    Point3="77.6666666666667,44.8849144634526" />
+                  <mssgle:LineSegment
+                    End="77.6666666666667,61.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Final.PrecedenceConstraints[Constraint 1]"
+          TopLeft="351,68">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-112.666666666667,67"
+              Start="0,0"
+              End="-112.666666666667,59.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,35.6998444790047" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,35.6998444790047"
+                    Point2="0,39.6998444790047"
+                    Point3="-4,39.6998444790047" />
+                  <mssgle:LineSegment
+                    End="-108.666666666667,39.6998444790047" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-108.666666666667,39.6998444790047"
+                    Point2="-112.666666666667,39.6998444790047"
+                    Point3="-112.666666666667,43.6998444790047" />
+                  <mssgle:LineSegment
+                    End="-112.666666666667,59.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <ContainerLayout
+          HeaderHeight="43"
+          IsExpanded="True"
+          PanelSize="472,232"
+          Size="472,275"
+          Id="Package\Final"
+          TopLeft="554,120" />
+        <NodeLayout
+          Size="220,42"
+          Id="Package\Staging\Get Last Run Date (ZENLog)"
+          TopLeft="32,184" />
+        <NodeLayout
+          Size="145,42"
+          Id="Package\Staging\Get ProcessID"
+          TopLeft="71,15.5" />
+        <NodeLayout
+          Size="183,42"
+          Id="Package\Staging\Load Zen_Ticket_Stg"
+          TopLeft="49,273" />
+        <NodeLayout
+          Size="205,42"
+          Id="Package\Staging\Truncate ZEN_Ticket_Stg"
+          TopLeft="35,98" />
+        <EdgeLayout
+          Id="Package\Staging.PrecedenceConstraints[Constraint]"
+          TopLeft="139.75,140">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,44"
+              Start="0,0"
+              End="0,36.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,36.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Staging.PrecedenceConstraints[Constraint 1]"
+          TopLeft="141.25,226">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,47"
+              Start="0,0"
+              End="0,39.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,39.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Staging.PrecedenceConstraints[Constraint 2]"
+          TopLeft="140.5,57.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,40.5"
+              Start="0,0"
+              End="0,33">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,33" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <ContainerLayout
+          HeaderHeight="43"
+          IsExpanded="True"
+          PanelSize="281,370"
+          Size="281,413"
+          Id="Package\Staging"
+          TopLeft="155,47" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="436,255.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="118,0"
+              Start="0,0"
+              End="110.5,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="110.5,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+  <TaskHost
+    design-time-name="Package\Staging\Load Zen_Ticket_Stg">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="177,42"
+          Id="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination"
+          TopLeft="377,80" />
+        <NodeLayout
+          Size="157,42"
+          Id="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source"
+          TopLeft="115,82" />
+        <EdgeLayout
+          Id="Package\Staging\Load Zen_Ticket_Stg.Paths[OLE DB Source Output]"
+          TopLeft="272,102">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="105,0"
+              Start="0,0"
+              End="97.5,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="97.5,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\Staging\Load Zen_Ticket_Stg\OLE DB Destination">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\Staging\Load Zen_Ticket_Stg\OLE DB Source">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>

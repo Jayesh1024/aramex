@@ -1,0 +1,872 @@
+{
+  "Package\\Final (Load HUB)": {
+    "task_metadata": {
+      "Package\\Final (Load HUB)\\Defrag HUB_Label Indexes": {
+        "task_metadata": {
+          "query": "EXEC [dbo].[MaintainIndexes] @Operation = 'DEFRAG', @SchemaName = 'dv', @TableName = 'HUB_Label';",
+          "param_map": {},
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Final (Load HUB)\\Load HUB_Label": {
+        "task_metadata": {
+          "query": "Exec ? = [dv].[Load_HUB_Label] ?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ReturnCode",
+              "direction": "ReturnValue"
+            },
+            "param_1": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  },
+  "Package\\Final (Load other SATs)": {
+    "task_metadata": {
+      "Package\\Final (Load other SATs)\\Load SAT_Label_Allocation_FL": {
+        "task_metadata": {
+          "query": "Exec ? = [dv].[Load_SAT_Label_Allocation_FL] ?,?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ReturnCode3",
+              "direction": "ReturnValue"
+            },
+            "param_1": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            },
+            "param_2": {
+              "variable_name": "RecordSource3",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Final (Load other SATs)\\Load SAT_Label_Allocation_FLE": {
+        "task_metadata": {
+          "query": "Exec ? = [dv].[Load_SAT_Label_Allocation_FLE] ?,?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ReturnCode6",
+              "direction": "ReturnValue"
+            },
+            "param_1": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            },
+            "param_2": {
+              "variable_name": "RecordSource6",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Final (Load other SATs)\\Load SAT_Label_Allocation_IFS": {
+        "task_metadata": {
+          "query": "Exec ? = [dv].[Load_SAT_Label_Allocation_IFS] ?,?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ReturnCode5",
+              "direction": "ReturnValue"
+            },
+            "param_1": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            },
+            "param_2": {
+              "variable_name": "RecordSource5",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Final (Load other SATs)\\Load SAT_Label_Allocation_MF": {
+        "task_metadata": {
+          "query": "Exec ? = [dv].[Load_SAT_Label_Allocation_MF] ?,?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ReturnCode4",
+              "direction": "ReturnValue"
+            },
+            "param_1": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            },
+            "param_2": {
+              "variable_name": "RecordSource4",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Final (Load other SATs)\\Set LastDate (FastLabel)": {
+        "task_metadata": {
+          "query": "Exec [Staging].[Set_LastValue] ?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "RecordSource3",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Final (Load other SATs)\\Set LastDate (FastLabelEnterprise)": {
+        "task_metadata": {
+          "query": "Exec [Staging].[Set_LastValue] ?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "RecordSource6",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Final (Load other SATs)\\Set LastDate (IFS)": {
+        "task_metadata": {
+          "query": "Exec [Staging].[Set_LastValue] ?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "RecordSource5",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Final (Load other SATs)\\Set LastDate (MyFastway)": {
+        "task_metadata": {
+          "query": "Exec [Staging].[Set_LastValue] ?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "RecordSource4",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  },
+  "Package\\Final (Load SAT_Allocation)": {
+    "task_metadata": {
+      "Package\\Final (Load SAT_Allocation)\\Load SAT_Label_Allocation": {
+        "task_metadata": {
+          "query": "Exec ? = [dv].[Load_SAT_Label_Allocation] ?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ReturnCode2",
+              "direction": "ReturnValue"
+            },
+            "param_1": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Final (Load SAT_Allocation)\\Set LastId (DynamicLabel)": {
+        "task_metadata": {
+          "query": "Exec [Staging].[Set_LastValue] ?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "RecordSource2",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  },
+  "Package\\Final (Load SAT_Distribution)": {
+    "task_metadata": {
+      "Package\\Final (Load SAT_Distribution)\\Load SAT_Label_Distribution": {
+        "task_metadata": {
+          "query": "Exec ? = [dv].[Load_SAT_Label_Distribution] ?,?",
+          "param_map": {
+            "param_1": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            },
+            "param_2": {
+              "variable_name": "RecordSource1",
+              "direction": "Input"
+            },
+            "param_0": {
+              "variable_name": "ReturnCode1",
+              "direction": "ReturnValue"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Final (Load SAT_Distribution)\\Set LastDate (LabelMaster)": {
+        "task_metadata": {
+          "query": "Exec [Staging].[Set_LastValue] ?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "RecordSource1",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  },
+  "Package\\Staging": {
+    "task_metadata": {
+      "Package\\Staging\\Load SAT_Allocation_Stg": {
+        "task_metadata": {
+          "Package\\Staging\\Load SAT_Allocation_Stg\\Load SAT_Label_Allocation_Stg": {
+            "task_metadata": {
+              "query": "Exec ? = [Staging].[Load_SAT_Label_Allocation_Stg] ?",
+              "param_map": {
+                "param_0": {
+                  "variable_name": "ReturnCode",
+                  "direction": "ReturnValue"
+                },
+                "param_1": {
+                  "variable_name": "ProcessId",
+                  "direction": "Input"
+                }
+              },
+              "result_set": {}
+            },
+            "task_type": "Microsoft.ExecuteSQLTask"
+          },
+          "Package\\Staging\\Load SAT_Allocation_Stg\\Rebuild Indexes": {
+            "task_metadata": {
+              "query": "EXEC [dbo].[MaintainIndexes] @Operation = 'REBUILD', @SchemaName = 'Staging', @TableName = 'SAT_Label_Allocation_Stg';",
+              "param_map": {},
+              "result_set": {}
+            },
+            "task_type": "Microsoft.ExecuteSQLTask"
+          },
+          "Package\\Staging\\Load SAT_Allocation_Stg\\Truncate SAT_Label_Allocation_Stg": {
+            "task_metadata": {
+              "query": "TRUNCATE TABLE [Staging].[SAT_Label_Allocation_Stg];\n\nEXEC [dbo].[MaintainIndexes] @Operation = 'DISABLE', @SchemaName = 'Staging', @TableName = 'SAT_Label_Allocation_Stg';",
+              "param_map": {},
+              "result_set": {}
+            },
+            "task_type": "Microsoft.ExecuteSQLTask"
+          }
+        },
+        "task_type": "STOCK:SEQUENCE"
+      },
+      "Package\\Staging\\Source1 (LabelMaster)": {
+        "task_metadata": {
+          "Package\\Staging\\Source1 (LabelMaster)\\Get LastDate (LabelMaster)": {
+            "task_metadata": {
+              "query": "Exec [Staging].[Get_LastValue] ?",
+              "param_map": {
+                "param_0": {
+                  "variable_name": "RecordSource1",
+                  "direction": "Input"
+                }
+              },
+              "result_set": {
+                "LastValue": null,
+                "null": null
+              }
+            },
+            "task_type": "Microsoft.ExecuteSQLTask"
+          },
+          "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg": {
+            "task_metadata": {
+              "task_dependency_map": {
+                "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\Get Error Details.Outputs[Error Columns]": [
+                  "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\Save Error.Inputs[OLE DB Destination Input]"
+                ],
+                "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster_Stg (Bulk Insert).Outputs[OLE DB Destination Error Output]": [
+                  "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster_Stg.Inputs[OLE DB Destination Input]"
+                ],
+                "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster_Stg.Outputs[OLE DB Destination Error Output]": [
+                  "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\Get Error Details.Inputs[Input 0]"
+                ],
+                "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster data (FastwayReports).Outputs[OLE DB Source Output]": [
+                  "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster_Stg (Bulk Insert).Inputs[OLE DB Destination Input]"
+                ]
+              },
+              "exec_order": {
+                "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\Get Error Details.Outputs[Error Columns]": 1,
+                "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster_Stg (Bulk Insert).Outputs[OLE DB Destination Error Output]": 1,
+                "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster_Stg.Outputs[OLE DB Destination Error Output]": 1,
+                "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster data (FastwayReports).Outputs[OLE DB Source Output]": 1,
+                "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\Save Error.Inputs[OLE DB Destination Input]": 2,
+                "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster_Stg.Inputs[OLE DB Destination Input]": 2,
+                "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\Get Error Details.Inputs[Input 0]": 2,
+                "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster_Stg (Bulk Insert).Inputs[OLE DB Destination Input]": 2
+              },
+              "per_component_data": {
+                "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster data (FastwayReports)": {
+                  "component_type": "Microsoft.OLEDBSource",
+                  "component_info": {
+                    "sql_command": "DECLARE @startDate AS Datetime = ?; \n\nSET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;\n\nWITH Scan AS (\n    SELECT LabelNo, max(UploadDate) as UploadDate\n    FROM [FastwayReports].[dbo].[TrackAndTraceData] WITH (INDEX ([LabelNo,UploadDate,CountryCode_N]))\n    WHERE UploadDate > @startDate \n    AND CountryCode IN (1,6)\n    GROUP BY LabelNo\n)\n\nSELECT \n       Label.[LabelNo]\n      ,[CountryCode]\n      ,[Electronic_CustomerType]\n      ,[Electronic_CustomerID]\n      ,[Electronic_Reference]\n      ,[FastLabel_ConsignmentID]\n      ,[FastLabel_DestinationRF]\n      ,[Distribution_Date]\n      ,[Distribution_FranchiseeCode]\n      ,[KPI_PickupOK]\n      ,[KPI_DeliveryOK]\n      ,[KPI_LatePickup]\n      ,[KPI_LateDelivery]\n      ,[KPI_DelRF]\n      ,[KPI_PicRF]\n      ,[FMSCustomerID]\n      ,[FMSRfID]\n      ,[OES_CustomerId]\n      ,[KPI_ExpectedDelivery]\n      ,[KPI_ExceptionScan]\n      ,[PrintedOn]\n      ,[EbayClickCollect]\n      ,[HasSubscriptions]\n      ,Scan.[UploadDate]\nFROM [FastwayReports].[dbo].[LabelMaster] AS Label\nJOIN Scan ON Scan.LabelNo = Label.LabelNo ;",
+                    "inline_positional_params": true,
+                    "inline_positional_params_mapping": {}
+                  }
+                },
+                "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster_Stg": {
+                  "component_type": "Microsoft.OLEDBDestination",
+                  "component_info": {
+                    "table_name": "LabelMaster_Stg",
+                    "schema_name": "Staging"
+                  }
+                },
+                "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\LabelMaster_Stg (Bulk Insert)": {
+                  "component_type": "Microsoft.OLEDBDestination",
+                  "component_info": {
+                    "table_name": "LabelMaster_Stg",
+                    "schema_name": "Staging"
+                  }
+                },
+                "Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg\\Save Error": {
+                  "component_type": "Microsoft.OLEDBDestination",
+                  "component_info": {
+                    "table_name": "SourceData_Err",
+                    "schema_name": "Staging"
+                  }
+                }
+              }
+            },
+            "task_type": "Microsoft.Pipeline"
+          },
+          "Package\\Staging\\Source1 (LabelMaster)\\Rebuild Indexes 1": {
+            "task_metadata": {
+              "query": "EXEC [dbo].[MaintainIndexes] @Operation = 'REBUILD', @SchemaName = 'Staging', @TableName = 'LabelMaster_Stg';",
+              "param_map": {},
+              "result_set": {}
+            },
+            "task_type": "Microsoft.ExecuteSQLTask"
+          },
+          "Package\\Staging\\Source1 (LabelMaster)\\Truncate LabelMaster_Stg": {
+            "task_metadata": {
+              "query": "TRUNCATE TABLE [Staging].[LabelMaster_Stg];\n\nEXEC [dbo].[MaintainIndexes] @Operation = 'DISABLE', @SchemaName = 'Staging', @TableName = 'LabelMaster_Stg';",
+              "param_map": {},
+              "result_set": {}
+            },
+            "task_type": "Microsoft.ExecuteSQLTask"
+          }
+        },
+        "task_type": "STOCK:SEQUENCE"
+      },
+      "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)": {
+        "task_metadata": {
+          "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Get LastId (DynamicLabel)": {
+            "task_metadata": {
+              "query": "Exec [Staging].[Get_LastValue] ?",
+              "param_map": {
+                "param_0": {
+                  "variable_name": "RecordSource2",
+                  "direction": "Input"
+                }
+              },
+              "result_set": {
+                "LastValue": null,
+                "null": null
+              }
+            },
+            "task_type": "Microsoft.ExecuteSQLTask"
+          },
+          "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Load API_RF_AdHocLabel_AllocationHistory_Stg": {
+            "task_metadata": {
+              "task_dependency_map": {
+                "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\Get Error Details.Outputs[Error Columns]": [
+                  "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\Save Error.Inputs[OLE DB Destination Input]"
+                ],
+                "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\API_RF_AdHocLabel_AllocationHistory (Bulk Insert).Outputs[OLE DB Destination Error Output]": [
+                  "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\API_RF_AdHocLabel_AllocationHistory.Inputs[OLE DB Destination Input]"
+                ],
+                "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\API_RF_AdHocLabel_AllocationHistory.Outputs[OLE DB Destination Error Output]": [
+                  "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\Get Error Details.Inputs[Input 0]"
+                ],
+                "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\Load API_RF_AdHocLabel_AllocationHistory data (OnlineEnquiries_NEW).Outputs[OLE DB Source Output]": [
+                  "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\API_RF_AdHocLabel_AllocationHistory (Bulk Insert).Inputs[OLE DB Destination Input]"
+                ]
+              },
+              "exec_order": {
+                "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\Get Error Details.Outputs[Error Columns]": 1,
+                "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\API_RF_AdHocLabel_AllocationHistory (Bulk Insert).Outputs[OLE DB Destination Error Output]": 1,
+                "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\Load API_RF_AdHocLabel_AllocationHistory data (OnlineEnquiries_NEW).Outputs[OLE DB Source Output]": 1,
+                "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\API_RF_AdHocLabel_AllocationHistory.Outputs[OLE DB Destination Error Output]": 1,
+                "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\Save Error.Inputs[OLE DB Destination Input]": 2,
+                "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\API_RF_AdHocLabel_AllocationHistory.Inputs[OLE DB Destination Input]": 2,
+                "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\API_RF_AdHocLabel_AllocationHistory (Bulk Insert).Inputs[OLE DB Destination Input]": 2,
+                "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\Get Error Details.Inputs[Input 0]": 2
+              },
+              "per_component_data": {
+                "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\API_RF_AdHocLabel_AllocationHistory": {
+                  "component_type": "Microsoft.OLEDBDestination",
+                  "component_info": {
+                    "table_name": "API_RF_AdHocLabel_AllocationHistory_Stg",
+                    "schema_name": "Staging"
+                  }
+                },
+                "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\API_RF_AdHocLabel_AllocationHistory (Bulk Insert)": {
+                  "component_type": "Microsoft.OLEDBDestination",
+                  "component_info": {
+                    "table_name": "API_RF_AdHocLabel_AllocationHistory_Stg",
+                    "schema_name": "Staging"
+                  }
+                },
+                "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\Load API_RF_AdHocLabel_AllocationHistory data (OnlineEnquiries_NEW)": {
+                  "component_type": "Microsoft.OLEDBSource",
+                  "component_info": {
+                    "sql_command": "DECLARE @LastID INT = ?;\n\nSET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;\n\nSELECT\n       [HistoryID]\n      ,[SystemID]\n      ,[LabelColour]\n      ,[LabelNumber]\n      ,[CountryCode]\n      ,[Franchise]\n      ,[PriceSoldAtExGST]\n      ,[DateAllocatedUTC]\n      ,[ExternalReference]\n      ,[CustomerID]\n      ,[FKID]\n      ,[FKSource]\n      ,[FMSInvoiceID]\n      ,[FMSProductID]\n      ,[AllocatedByCustomer]\n      ,[CustomerUniqueID]\n      ,[PickupTown]\n      ,[PickupPostcode]\n      ,[DeliveryTown]\n      ,[DeliveryPostcode]\n      ,[Weight]\n      ,[DateAllocatedRelativeToRF]\n      ,[DeletedLabel]\n      ,[DeliveryAddr1]\n      ,[DeliveryAddr2]\n      ,[PickupAddr1]\n      ,[PickupAddr2]\n      ,[GroupTransId]\n      ,[DeliveryPhoneNo]\n      ,[LengthInCm]\n      ,[WidthInCm]\n      ,[HeightInCm]\n      ,[CubicWeight]\nFROM [OnlineEnquiries_NEW].[dbo].[API_RF_AdHocLabel_AllocationHistory]\nWHERE [HistoryID] > @LastID\n    AND CountryCode IN (1,6)",
+                    "inline_positional_params": true,
+                    "inline_positional_params_mapping": {}
+                  }
+                },
+                "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Load API_RF_AdHocLabel_AllocationHistory_Stg\\Save Error": {
+                  "component_type": "Microsoft.OLEDBDestination",
+                  "component_info": {
+                    "table_name": "SourceData_Err",
+                    "schema_name": "Staging"
+                  }
+                }
+              }
+            },
+            "task_type": "Microsoft.Pipeline"
+          },
+          "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Rebuild Indexes 2": {
+            "task_metadata": {
+              "query": "EXEC [dbo].[MaintainIndexes] @Operation = 'REBUILD', @SchemaName = 'Staging', @TableName = 'API_RF_AdHocLabel_AllocationHistory_Stg';",
+              "param_map": {},
+              "result_set": {}
+            },
+            "task_type": "Microsoft.ExecuteSQLTask"
+          },
+          "Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Truncate API_RF_AdHocLabel_AllocationHistory_Stg": {
+            "task_metadata": {
+              "query": "TRUNCATE TABLE [Staging].[API_RF_AdHocLabel_AllocationHistory_Stg];\n\nEXEC [dbo].[MaintainIndexes] @Operation = 'DISABLE', @SchemaName = 'Staging', @TableName = 'API_RF_AdHocLabel_AllocationHistory_Stg';",
+              "param_map": {},
+              "result_set": {}
+            },
+            "task_type": "Microsoft.ExecuteSQLTask"
+          }
+        },
+        "task_type": "STOCK:SEQUENCE"
+      },
+      "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL": {
+        "task_metadata": {
+          "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Get LastDate (FastLabel)": {
+            "task_metadata": {
+              "query": "Exec [Staging].[Get_LastValue] ?",
+              "param_map": {
+                "param_0": {
+                  "variable_name": "RecordSource3",
+                  "direction": "Input"
+                }
+              },
+              "result_set": {
+                "LastValue": null,
+                "null": null
+              }
+            },
+            "task_type": "Microsoft.ExecuteSQLTask"
+          },
+          "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Load tblFastLabel_Consignment_Stg": {
+            "task_metadata": {
+              "task_dependency_map": {
+                "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Load tblFastLabel_Consignment_Stg\\Get Error Details.Outputs[Error Columns]": [
+                  "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Load tblFastLabel_Consignment_Stg\\Save Error.Inputs[OLE DB Destination Input]"
+                ],
+                "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment_Stg (Bulk Insert).Outputs[OLE DB Destination Error Output]": [
+                  "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment_Stg.Inputs[OLE DB Destination Input]"
+                ],
+                "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment_Stg.Outputs[OLE DB Destination Error Output]": [
+                  "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Load tblFastLabel_Consignment_Stg\\Get Error Details.Inputs[Input 0]"
+                ],
+                "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment (OnlineEnquiries_NEW).Outputs[OLE DB Source Output]": [
+                  "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment_Stg (Bulk Insert).Inputs[OLE DB Destination Input]"
+                ]
+              },
+              "exec_order": {
+                "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment_Stg.Outputs[OLE DB Destination Error Output]": 1,
+                "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment_Stg (Bulk Insert).Outputs[OLE DB Destination Error Output]": 1,
+                "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Load tblFastLabel_Consignment_Stg\\Get Error Details.Outputs[Error Columns]": 1,
+                "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment (OnlineEnquiries_NEW).Outputs[OLE DB Source Output]": 1,
+                "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Load tblFastLabel_Consignment_Stg\\Get Error Details.Inputs[Input 0]": 2,
+                "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment_Stg.Inputs[OLE DB Destination Input]": 2,
+                "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Load tblFastLabel_Consignment_Stg\\Save Error.Inputs[OLE DB Destination Input]": 2,
+                "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment_Stg (Bulk Insert).Inputs[OLE DB Destination Input]": 2
+              },
+              "per_component_data": {
+                "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Load tblFastLabel_Consignment_Stg\\Save Error": {
+                  "component_type": "Microsoft.OLEDBDestination",
+                  "component_info": {
+                    "table_name": "SourceData_Err",
+                    "schema_name": "Staging"
+                  }
+                },
+                "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment (OnlineEnquiries_NEW)": {
+                  "component_type": "Microsoft.OLEDBSource",
+                  "component_info": {
+                    "sql_command": "DECLARE @startDate datetime = ?\n\nSET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;\n\nSELECT \n\td.LabelNumber, \n\td.CountryCode, \n\td.CreateDate, \n\td.LabelPrinted, \n\td.CustomerID, \n\td.ClientID, \n\td.ConsumedByCustomerUserID, \n\td.LblColour, \n\td.LblPrice, \n\td.LblPrice1,\n\ti.Reference, \n\ti.Packaging, \n\ti.Weight, \n\ti.WeightCubic, \n\ti.Length, \n\ti.Width, \n\ti.Height, \n\tb.ManifestID, \n\tb.Town, \n\tb.PostCode, \n\tb.destRF,\n\ti.itemID  \nFROM [OnlineEnquiries_NEW].[dbo].[tblFastLabel_Book_Detail] d\nJOIN [OnlineEnquiries_NEW].[dbo].[tblFastLabel_Consignment_Items] i on d.AppliedToItemID = i.ItemID\nJOIN [OnlineEnquiries_NEW].[dbo].[tblFastLabel_Consignment] b on i.ConsignmentID = b.ConsignmentID\nWHERE d.CreateDate >@startDate\n    AND d.CountryCode IN (1,6)",
+                    "inline_positional_params": true,
+                    "inline_positional_params_mapping": {}
+                  }
+                },
+                "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment_Stg": {
+                  "component_type": "Microsoft.OLEDBDestination",
+                  "component_info": {
+                    "table_name": "tblFastLabel_Consignment_Stg",
+                    "schema_name": "Staging"
+                  }
+                },
+                "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Load tblFastLabel_Consignment_Stg\\tblFastLabel_Consignment_Stg (Bulk Insert)": {
+                  "component_type": "Microsoft.OLEDBDestination",
+                  "component_info": {
+                    "table_name": "tblFastLabel_Consignment_Stg",
+                    "schema_name": "Staging"
+                  }
+                }
+              }
+            },
+            "task_type": "Microsoft.Pipeline"
+          },
+          "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Rebuild Indexes 3": {
+            "task_metadata": {
+              "query": "EXEC [dbo].[MaintainIndexes] @Operation = 'REBUILD', @SchemaName = 'Staging', @TableName = 'tblFastLabel_Consignment_Stg';",
+              "param_map": {},
+              "result_set": {}
+            },
+            "task_type": "Microsoft.ExecuteSQLTask"
+          },
+          "Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Truncate tblFastLabel_Consignment_Stg": {
+            "task_metadata": {
+              "query": "TRUNCATE TABLE [Staging].[tblFastLabel_Consignment_Stg];\n\nEXEC [dbo].[MaintainIndexes] @Operation = 'DISABLE', @SchemaName = 'Staging', @TableName = 'tblFastLabel_Consignment_Stg';",
+              "param_map": {},
+              "result_set": {}
+            },
+            "task_type": "Microsoft.ExecuteSQLTask"
+          }
+        },
+        "task_type": "STOCK:SEQUENCE"
+      },
+      "Package\\Staging\\Source4 (fl_ConItem) _MF": {
+        "task_metadata": {
+          "Package\\Staging\\Source4 (fl_ConItem) _MF\\Get LastDate (MyFastway)": {
+            "task_metadata": {
+              "query": "Exec [Staging].[Get_LastValue] ?",
+              "param_map": {
+                "param_0": {
+                  "variable_name": "RecordSource4",
+                  "direction": "Input"
+                }
+              },
+              "result_set": {
+                "LastValue": null,
+                "null": null
+              }
+            },
+            "task_type": "Microsoft.ExecuteSQLTask"
+          },
+          "Package\\Staging\\Source4 (fl_ConItem) _MF\\Load fl_ConItem_Stg": {
+            "task_metadata": {
+              "task_dependency_map": {
+                "Package\\Staging\\Source4 (fl_ConItem) _MF\\Load fl_ConItem_Stg\\Get Error Details.Outputs[Error Columns]": [
+                  "Package\\Staging\\Source4 (fl_ConItem) _MF\\Load fl_ConItem_Stg\\Save Error.Inputs[OLE DB Destination Input]"
+                ],
+                "Package\\Staging\\Source4 (fl_ConItem) _MF\\Load fl_ConItem_Stg\\fl_ConItem _Stg (Bulk Insert).Outputs[OLE DB Destination Error Output]": [
+                  "Package\\Staging\\Source4 (fl_ConItem) _MF\\Load fl_ConItem_Stg\\fl_ConItem _Stg.Inputs[OLE DB Destination Input]"
+                ],
+                "Package\\Staging\\Source4 (fl_ConItem) _MF\\Load fl_ConItem_Stg\\fl_ConItem _Stg.Outputs[OLE DB Destination Error Output]": [
+                  "Package\\Staging\\Source4 (fl_ConItem) _MF\\Load fl_ConItem_Stg\\Get Error Details.Inputs[Input 0]"
+                ],
+                "Package\\Staging\\Source4 (fl_ConItem) _MF\\Load fl_ConItem_Stg\\fl_ConItem (Fastway).Outputs[OLE DB Source Output]": [
+                  "Package\\Staging\\Source4 (fl_ConItem) _MF\\Load fl_ConItem_Stg\\fl_ConItem _Stg (Bulk Insert).Inputs[OLE DB Destination Input]"
+                ]
+              },
+              "exec_order": {
+                "Package\\Staging\\Source4 (fl_ConItem) _MF\\Load fl_ConItem_Stg\\fl_ConItem _Stg (Bulk Insert).Outputs[OLE DB Destination Error Output]": 1,
+                "Package\\Staging\\Source4 (fl_ConItem) _MF\\Load fl_ConItem_Stg\\fl_ConItem _Stg.Outputs[OLE DB Destination Error Output]": 1,
+                "Package\\Staging\\Source4 (fl_ConItem) _MF\\Load fl_ConItem_Stg\\Get Error Details.Outputs[Error Columns]": 1,
+                "Package\\Staging\\Source4 (fl_ConItem) _MF\\Load fl_ConItem_Stg\\fl_ConItem (Fastway).Outputs[OLE DB Source Output]": 1,
+                "Package\\Staging\\Source4 (fl_ConItem) _MF\\Load fl_ConItem_Stg\\fl_ConItem _Stg.Inputs[OLE DB Destination Input]": 2,
+                "Package\\Staging\\Source4 (fl_ConItem) _MF\\Load fl_ConItem_Stg\\Get Error Details.Inputs[Input 0]": 2,
+                "Package\\Staging\\Source4 (fl_ConItem) _MF\\Load fl_ConItem_Stg\\Save Error.Inputs[OLE DB Destination Input]": 2,
+                "Package\\Staging\\Source4 (fl_ConItem) _MF\\Load fl_ConItem_Stg\\fl_ConItem _Stg (Bulk Insert).Inputs[OLE DB Destination Input]": 2
+              },
+              "per_component_data": {
+                "Package\\Staging\\Source4 (fl_ConItem) _MF\\Load fl_ConItem_Stg\\fl_ConItem (Fastway)": {
+                  "component_type": "Microsoft.OLEDBSource",
+                  "component_info": {
+                    "sql_command": "DECLARE @startDate datetime = ?;\n\nSELECT \n       ci.Label,  \n       con.ConId,\n       ci.ConItemId,\n       ci.[LineNo],\n       con.CountryId,\n       con.CreatedOn,\n       con.CustomerId,\n       ci.FromRf, \n       ci.FromCf, \n       ci.ToRf, \n       ci.ToCf, \n       ci.FMSInvoiceNo,\n       ci.FMSInvoiceDate,\n       ci.BasePrice,\n       cis.Reference,\n       cis.Quantity,\n       cis.ProductId,\n       cis.WeightDead,\n       cis.WeightCubic,\n       cis.WeightPriced,\n       cis.Width,\n       cis.Length,\n       cis.Height,\n       con.FromStreetAddress,\n       con.FromLocality,\n       con.FromPostalCode,\n       con.FromLat,\n       con.FromLng,\n       con.ToStreetAddress,\n       con.ToLocality,\n       con.ToPostalCode,\n       con.ToLat,\n       con.ToLng\nFROM [FWFastlabel].[dbo].[fl_Con] con \nJOIN [FWFastlabel].[dbo].[fl_ConItemSum] cis on cis.ConId = con.ConId \nJOIN [FWFastlabel].[dbo].[fl_ConItem] ci on ci.ConId = cis.ConId and ci.[LineNo] = cis.[LineNo]\nWHERE con.CreatedOn > @startDate\n    AND con.CountryId IN (1,6)",
+                    "inline_positional_params": true,
+                    "inline_positional_params_mapping": {}
+                  }
+                },
+                "Package\\Staging\\Source4 (fl_ConItem) _MF\\Load fl_ConItem_Stg\\fl_ConItem _Stg": {
+                  "component_type": "Microsoft.OLEDBDestination",
+                  "component_info": {
+                    "table_name": "fl_ConItem_Stg",
+                    "schema_name": "Staging"
+                  }
+                },
+                "Package\\Staging\\Source4 (fl_ConItem) _MF\\Load fl_ConItem_Stg\\fl_ConItem _Stg (Bulk Insert)": {
+                  "component_type": "Microsoft.OLEDBDestination",
+                  "component_info": {
+                    "table_name": "fl_ConItem_Stg",
+                    "schema_name": "Staging"
+                  }
+                },
+                "Package\\Staging\\Source4 (fl_ConItem) _MF\\Load fl_ConItem_Stg\\Save Error": {
+                  "component_type": "Microsoft.OLEDBDestination",
+                  "component_info": {
+                    "table_name": "SourceData_Err",
+                    "schema_name": "Staging"
+                  }
+                }
+              }
+            },
+            "task_type": "Microsoft.Pipeline"
+          },
+          "Package\\Staging\\Source4 (fl_ConItem) _MF\\Rebuild Indexes 4": {
+            "task_metadata": {
+              "query": "EXEC [dbo].[MaintainIndexes] @Operation = 'REBUILD', @SchemaName = 'Staging', @TableName = 'fl_ConItem_Stg';",
+              "param_map": {},
+              "result_set": {}
+            },
+            "task_type": "Microsoft.ExecuteSQLTask"
+          },
+          "Package\\Staging\\Source4 (fl_ConItem) _MF\\Truncate fl_ConItem_Stg": {
+            "task_metadata": {
+              "query": "TRUNCATE TABLE [Staging].[fl_ConItem_Stg];\n\nEXEC [dbo].[MaintainIndexes] @Operation = 'DISABLE', @SchemaName = 'Staging', @TableName = 'fl_ConItem_Stg';",
+              "param_map": {},
+              "result_set": {}
+            },
+            "task_type": "Microsoft.ExecuteSQLTask"
+          }
+        },
+        "task_type": "STOCK:SEQUENCE"
+      },
+      "Package\\Staging\\Source5 (HDManifests) _IFS": {
+        "task_metadata": {
+          "Package\\Staging\\Source5 (HDManifests) _IFS\\Get LastDate (IFS)": {
+            "task_metadata": {
+              "query": "Exec [Staging].[Get_LastValue] ?",
+              "param_map": {
+                "param_0": {
+                  "variable_name": "RecordSource5",
+                  "direction": "Input"
+                }
+              },
+              "result_set": {
+                "LastValue": null,
+                "null": null
+              }
+            },
+            "task_type": "Microsoft.ExecuteSQLTask"
+          },
+          "Package\\Staging\\Source5 (HDManifests) _IFS\\Load HDManifests_Stg": {
+            "task_metadata": {
+              "task_dependency_map": {
+                "Package\\Staging\\Source5 (HDManifests) _IFS\\Load HDManifests_Stg\\Get Error Details.Outputs[Error Columns]": [
+                  "Package\\Staging\\Source5 (HDManifests) _IFS\\Load HDManifests_Stg\\Save Error.Inputs[OLE DB Destination Input]"
+                ],
+                "Package\\Staging\\Source5 (HDManifests) _IFS\\Load HDManifests_Stg\\HDManifests_Stg (Bulk Insert).Outputs[OLE DB Destination Error Output]": [
+                  "Package\\Staging\\Source5 (HDManifests) _IFS\\Load HDManifests_Stg\\HDManifests_Stg.Inputs[OLE DB Destination Input]"
+                ],
+                "Package\\Staging\\Source5 (HDManifests) _IFS\\Load HDManifests_Stg\\HDManifests_Stg.Outputs[OLE DB Destination Error Output]": [
+                  "Package\\Staging\\Source5 (HDManifests) _IFS\\Load HDManifests_Stg\\Get Error Details.Inputs[Input 0]"
+                ],
+                "Package\\Staging\\Source5 (HDManifests) _IFS\\Load HDManifests_Stg\\HDManifests (FWFastLabel).Outputs[OLE DB Source Output]": [
+                  "Package\\Staging\\Source5 (HDManifests) _IFS\\Load HDManifests_Stg\\HDManifests_Stg (Bulk Insert).Inputs[OLE DB Destination Input]"
+                ]
+              },
+              "exec_order": {
+                "Package\\Staging\\Source5 (HDManifests) _IFS\\Load HDManifests_Stg\\HDManifests_Stg (Bulk Insert).Outputs[OLE DB Destination Error Output]": 1,
+                "Package\\Staging\\Source5 (HDManifests) _IFS\\Load HDManifests_Stg\\HDManifests_Stg.Outputs[OLE DB Destination Error Output]": 1,
+                "Package\\Staging\\Source5 (HDManifests) _IFS\\Load HDManifests_Stg\\HDManifests (FWFastLabel).Outputs[OLE DB Source Output]": 1,
+                "Package\\Staging\\Source5 (HDManifests) _IFS\\Load HDManifests_Stg\\Get Error Details.Outputs[Error Columns]": 1,
+                "Package\\Staging\\Source5 (HDManifests) _IFS\\Load HDManifests_Stg\\HDManifests_Stg.Inputs[OLE DB Destination Input]": 2,
+                "Package\\Staging\\Source5 (HDManifests) _IFS\\Load HDManifests_Stg\\Get Error Details.Inputs[Input 0]": 2,
+                "Package\\Staging\\Source5 (HDManifests) _IFS\\Load HDManifests_Stg\\HDManifests_Stg (Bulk Insert).Inputs[OLE DB Destination Input]": 2,
+                "Package\\Staging\\Source5 (HDManifests) _IFS\\Load HDManifests_Stg\\Save Error.Inputs[OLE DB Destination Input]": 2
+              },
+              "per_component_data": {
+                "Package\\Staging\\Source5 (HDManifests) _IFS\\Load HDManifests_Stg\\HDManifests (FWFastLabel)": {
+                  "component_type": "Microsoft.OLEDBSource",
+                  "component_info": {
+                    "sql_command": "DECLARE @startDate datetime = ?\n\nSET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;\n\nSELECT \n    LabelNo, \n    CountryCode, \n    DateInserted, \n    ConDate, \n    RTRIM(SendAdd3) as PickupTown, \n    RTRIM(CONVERT(VARCHAR(15),SendAdd5)) as PickupPostcode, \n    RTRIM(RecAdd3) as DeliveryTown,\n    RTRIM(CONVERT(VARCHAR(15),(Case when DeliveryPostCode is not null then DeliveryPostCode when LEN(RecAdd5) = 4 and RecAdd5!= '0000' then RecAdd5 else RecAdd4 end))) as DeliveryPostcode, \n    ManifestId, \n    ClientId, \n    CustomerID, \n    Quantity, \n    Weight, \n    Width, \n    Length, \n    Height, \n    CollectionRF, \n    DeliveryRF, \n    CollectionCountryCode, \n    DeliveryCountryCode, \n    RecordId,\n    UniqueParcelIdentifier\nFROM [Fastway].[dbo].[HDManifests]\nWHERE DateInserted > @startDate\n    AND CountryCode IN (1,6)",
+                    "inline_positional_params": true,
+                    "inline_positional_params_mapping": {}
+                  }
+                },
+                "Package\\Staging\\Source5 (HDManifests) _IFS\\Load HDManifests_Stg\\HDManifests_Stg": {
+                  "component_type": "Microsoft.OLEDBDestination",
+                  "component_info": {
+                    "table_name": "HDManifests_Stg",
+                    "schema_name": "Staging"
+                  }
+                },
+                "Package\\Staging\\Source5 (HDManifests) _IFS\\Load HDManifests_Stg\\HDManifests_Stg (Bulk Insert)": {
+                  "component_type": "Microsoft.OLEDBDestination",
+                  "component_info": {
+                    "table_name": "HDManifests_Stg",
+                    "schema_name": "Staging"
+                  }
+                },
+                "Package\\Staging\\Source5 (HDManifests) _IFS\\Load HDManifests_Stg\\Save Error": {
+                  "component_type": "Microsoft.OLEDBDestination",
+                  "component_info": {
+                    "table_name": "SourceData_Err",
+                    "schema_name": "Staging"
+                  }
+                }
+              }
+            },
+            "task_type": "Microsoft.Pipeline"
+          },
+          "Package\\Staging\\Source5 (HDManifests) _IFS\\Rebuild Indexes 5": {
+            "task_metadata": {
+              "query": "EXEC [dbo].[MaintainIndexes] @Operation = 'REBUILD', @SchemaName = 'Staging', @TableName = 'HDManifests_Stg';",
+              "param_map": {},
+              "result_set": {}
+            },
+            "task_type": "Microsoft.ExecuteSQLTask"
+          },
+          "Package\\Staging\\Source5 (HDManifests) _IFS\\Truncate HDManifests_Stg": {
+            "task_metadata": {
+              "query": "TRUNCATE TABLE [Staging].[HDManifests_Stg];\n\nEXEC [dbo].[MaintainIndexes] @Operation = 'DISABLE', @SchemaName = 'Staging', @TableName = 'HDManifests_Stg';",
+              "param_map": {},
+              "result_set": {}
+            },
+            "task_type": "Microsoft.ExecuteSQLTask"
+          }
+        },
+        "task_type": "STOCK:SEQUENCE"
+      },
+      "Package\\Staging\\Source6 (ConsignmentItem) _FLE": {
+        "task_metadata": {
+          "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Get LastDate (FastLabelEnterprise)": {
+            "task_metadata": {
+              "query": "Exec [Staging].[Get_LastValue] ?",
+              "param_map": {
+                "param_0": {
+                  "variable_name": "RecordSource6",
+                  "direction": "Input"
+                }
+              },
+              "result_set": {
+                "LastValue": null,
+                "null": null
+              }
+            },
+            "task_type": "Microsoft.ExecuteSQLTask"
+          },
+          "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Load ConsignmentItem_Stg": {
+            "task_metadata": {
+              "task_dependency_map": {
+                "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Load ConsignmentItem_Stg\\Get Error Details.Outputs[Error Columns]": [
+                  "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Load ConsignmentItem_Stg\\Save Error.Inputs[OLE DB Destination Input]"
+                ],
+                "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem_Stg (Bulk Insert).Outputs[OLE DB Destination Error Output]": [
+                  "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem_Stg.Inputs[OLE DB Destination Input]"
+                ],
+                "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem_Stg.Outputs[OLE DB Destination Error Output]": [
+                  "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Load ConsignmentItem_Stg\\Get Error Details.Inputs[Input 0]"
+                ],
+                "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem (FastLabelServer).Outputs[OLE DB Source Output]": [
+                  "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem_Stg (Bulk Insert).Inputs[OLE DB Destination Input]"
+                ]
+              },
+              "exec_order": {
+                "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Load ConsignmentItem_Stg\\Get Error Details.Outputs[Error Columns]": 1,
+                "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem_Stg (Bulk Insert).Outputs[OLE DB Destination Error Output]": 1,
+                "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem (FastLabelServer).Outputs[OLE DB Source Output]": 1,
+                "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem_Stg.Outputs[OLE DB Destination Error Output]": 1,
+                "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Load ConsignmentItem_Stg\\Save Error.Inputs[OLE DB Destination Input]": 2,
+                "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem_Stg.Inputs[OLE DB Destination Input]": 2,
+                "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem_Stg (Bulk Insert).Inputs[OLE DB Destination Input]": 2,
+                "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Load ConsignmentItem_Stg\\Get Error Details.Inputs[Input 0]": 2
+              },
+              "per_component_data": {
+                "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem (FastLabelServer)": {
+                  "component_type": "Microsoft.OLEDBSource",
+                  "component_info": {
+                    "sql_command": "DECLARE @startDate datetime = ?\n\nSET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;\n\nSELECT \n       cl.LabelNumber,\n       cl.CountryId,\n       cm.WebCustomerId,\n       c.CustomerId,\n       c.ReceiverContactName,\n       c.ReceiverCompanyName,\n       c.ReceiverAddress1,\n       c.ReceiverAddress2,\n       c.ReceiverSuburb,\n       c.ReceiverCity,\n       c.ReceiverPostcode,\n       c.SpecialInstructions,\n       c.ReceiverPhone,\n       c.ReceiverEmail,\n       cl.PrintedOn, \n       ci.Reference,\n       c.DestinationRF,\n       c.ManifestId,\n       c.Price,\n       c.InvoiceNo,\n       c.ItemCount,\n       cl.CreatedOn,\n       ci.WeightCubic,\n       ci.WeightDead,\n       ci.Width,\n       ci.Length,\n       ci.Height,\n       cl.Colour,\n       cl.ConsignmentItemId\nFROM FastLabelServer.dbo.Consignment c \nJOIN FastLabelServer.dbo.ConsignmentItem ci on c.CountryId = ci.CountryId and c.CustomerId = ci.CustomerId and c.Id = ci.ConsignmentId\nJOIN FastLabelServer.dbo.ConsignmentLabel cl on ci.CountryId = cl.CountryId and ci.CustomerId = cl.CustomerId and ci.Id = cl.ConsignmentItemId\nLEFT JOIN FastLabelServer.dbo.CustomerMap cm on c.CountryId = cm.CountryId and c.CustomerId = cm.CustomerId \nWHERE cl.CreatedOn > @startDate and cl.CountryId in (1,6)",
+                    "inline_positional_params": true,
+                    "inline_positional_params_mapping": {}
+                  }
+                },
+                "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem_Stg": {
+                  "component_type": "Microsoft.OLEDBDestination",
+                  "component_info": {
+                    "table_name": "ConsignmentItem_Stg",
+                    "schema_name": "Staging"
+                  }
+                },
+                "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Load ConsignmentItem_Stg\\ConsignmentItem_Stg (Bulk Insert)": {
+                  "component_type": "Microsoft.OLEDBDestination",
+                  "component_info": {
+                    "table_name": "ConsignmentItem_Stg",
+                    "schema_name": "Staging"
+                  }
+                },
+                "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Load ConsignmentItem_Stg\\Save Error": {
+                  "component_type": "Microsoft.OLEDBDestination",
+                  "component_info": {
+                    "table_name": "SourceData_Err",
+                    "schema_name": "Staging"
+                  }
+                }
+              }
+            },
+            "task_type": "Microsoft.Pipeline"
+          },
+          "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Rebuild Indexes 6": {
+            "task_metadata": {
+              "query": "EXEC [dbo].[MaintainIndexes] @Operation = 'REBUILD', @SchemaName = 'Staging', @TableName = 'ConsignmentItem_Stg';",
+              "param_map": {},
+              "result_set": {}
+            },
+            "task_type": "Microsoft.ExecuteSQLTask"
+          },
+          "Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Truncate ConsignmentItem_Stg": {
+            "task_metadata": {
+              "query": "TRUNCATE TABLE [Staging].[ConsignmentItem_Stg];",
+              "param_map": {},
+              "result_set": {}
+            },
+            "task_type": "Microsoft.ExecuteSQLTask"
+          }
+        },
+        "task_type": "STOCK:SEQUENCE"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  }
+}

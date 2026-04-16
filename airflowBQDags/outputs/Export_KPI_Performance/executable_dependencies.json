@@ -1,0 +1,69 @@
+{
+  "Package\\Send Notification Email": {
+    "executables": {
+      "Package\\Send Notification Email\\Get Summary Data": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Send Notification Email\\Send Email"
+        ],
+        "upstream_dependencies": [],
+        "referred_stored_proc": [
+          "[Staging].[Get_ExportReportHtml]"
+        ]
+      },
+      "Package\\Send Notification Email\\Send Email": {
+        "type": "Microsoft.ScriptTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Send Notification Email\\Get Summary Data"
+        ]
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [],
+    "upstream_dependencies": [
+      "Package\\Sequence Container"
+    ]
+  },
+  "Package\\Sequence Container": {
+    "executables": {
+      "Package\\Sequence Container\\Export to KRILLIN": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Sequence Container\\Load Staging Export"
+        ]
+      },
+      "Package\\Sequence Container\\Get Next ProcessID": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Sequence Container\\Truncate Staging Tables"
+        ],
+        "upstream_dependencies": []
+      },
+      "Package\\Sequence Container\\Load Staging Export": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [
+          "Package\\Sequence Container\\Export to KRILLIN"
+        ],
+        "upstream_dependencies": [
+          "Package\\Sequence Container\\Truncate Staging Tables"
+        ]
+      },
+      "Package\\Sequence Container\\Truncate Staging Tables": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Sequence Container\\Load Staging Export"
+        ],
+        "upstream_dependencies": [
+          "Package\\Sequence Container\\Get Next ProcessID"
+        ]
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [
+      "Package\\Send Notification Email"
+    ],
+    "upstream_dependencies": []
+  }
+}

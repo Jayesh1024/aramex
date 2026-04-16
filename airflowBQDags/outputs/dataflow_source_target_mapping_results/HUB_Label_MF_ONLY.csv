@@ -1,0 +1,7 @@
+package_name,dataflow_executable_ref_id,referred_server_name,referred_database_name,referred_schema_name,referred_table_name,destination_server_name,destination_database_name,destination_schema_name,destination_table_name
+Package1,Package\Source4 (MyFastway) _MF\Load fl_ConItem_Stg,KRILLIN,FWFastlabel,dbo,fl_Con,CUBE,FastwayDW,Staging,fl_ConItem_Stg
+Package1,Package\Source4 (MyFastway) _MF\Load fl_ConItem_Stg,KRILLIN,FWFastlabel,dbo,fl_Con,CUBE,FastwayDW,Staging,SourceData_Err
+Package1,Package\Source4 (MyFastway) _MF\Load fl_ConItem_Stg,KRILLIN,FWFastlabel,dbo,fl_ConItemSum,CUBE,FastwayDW,Staging,fl_ConItem_Stg
+Package1,Package\Source4 (MyFastway) _MF\Load fl_ConItem_Stg,KRILLIN,FWFastlabel,dbo,fl_ConItemSum,CUBE,FastwayDW,Staging,SourceData_Err
+Package1,Package\Source4 (MyFastway) _MF\Load fl_ConItem_Stg,KRILLIN,FWFastlabel,dbo,fl_ConItem,CUBE,FastwayDW,Staging,fl_ConItem_Stg
+Package1,Package\Source4 (MyFastway) _MF\Load fl_ConItem_Stg,KRILLIN,FWFastlabel,dbo,fl_ConItem,CUBE,FastwayDW,Staging,SourceData_Err

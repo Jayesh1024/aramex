@@ -1,0 +1,145 @@
+{
+  "package_name": "HUB_CF",
+  "executables": {
+    "Package\\Final": {
+      "task_metadata": {
+        "Package\\Final\\Load CF_HUB": {
+          "task_metadata": {
+            "query": "Exec [dv].[Load_HUB_CF] ?,?",
+            "param_map": {
+              "param_0": {
+                "variable_name": "ProcessId",
+                "direction": "Input"
+              },
+              "param_1": {
+                "variable_name": "RecordSource",
+                "direction": "Input"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Final\\Load CF_SAT": {
+          "task_metadata": {
+            "query": "Exec [dv].[Load_SAT_CF] ?,?",
+            "param_map": {
+              "param_0": {
+                "variable_name": "ProcessId",
+                "direction": "Input"
+              },
+              "param_1": {
+                "variable_name": "RecordSource",
+                "direction": "Input"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        }
+      },
+      "task_type": "STOCK:SEQUENCE"
+    },
+    "Package\\Staging": {
+      "task_metadata": {
+        "Package\\Staging\\Load Courier_Stg": {
+          "task_metadata": {
+            "task_dependency_map": {
+              "Package\\Staging\\Load Courier_Stg\\Get Error Details": [
+                "Package\\Staging\\Load Courier_Stg\\Save Error"
+              ],
+              "Package\\Staging\\Load Courier_Stg\\Courier_Stg (Bulk Insert)": [
+                "Package\\Staging\\Load Courier_Stg\\Courier_Stg"
+              ],
+              "Package\\Staging\\Load Courier_Stg\\Courier_Stg": [
+                "Package\\Staging\\Load Courier_Stg\\Get Error Details"
+              ],
+              "Package\\Staging\\Load Courier_Stg\\FMS_Courier data (Fastway)": [
+                "Package\\Staging\\Load Courier_Stg\\Courier_Stg (Bulk Insert)"
+              ]
+            },
+            "exec_order": {
+              "Package\\Staging\\Load Courier_Stg\\FMS_Courier data (Fastway)": 1,
+              "Package\\Staging\\Load Courier_Stg\\Courier_Stg (Bulk Insert)": 2,
+              "Package\\Staging\\Load Courier_Stg\\Courier_Stg": 3,
+              "Package\\Staging\\Load Courier_Stg\\Get Error Details": 4,
+              "Package\\Staging\\Load Courier_Stg\\Save Error": 5
+            },
+            "per_component_data": {
+              "Package\\Staging\\Load Courier_Stg\\Courier_Stg": {
+                "component_type": "Microsoft.OLEDBDestination",
+                "component_info": {
+                  "table_name": "Courier_Stg",
+                  "schema_name": "Staging",
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": []
+                  }
+                }
+              },
+              "Package\\Staging\\Load Courier_Stg\\Courier_Stg (Bulk Insert)": {
+                "component_type": "Microsoft.OLEDBDestination",
+                "component_info": {
+                  "table_name": "Courier_Stg",
+                  "schema_name": "Staging",
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": []
+                  }
+                }
+              },
+              "Package\\Staging\\Load Courier_Stg\\FMS_Courier data (Fastway)": {
+                "component_type": "Microsoft.OLEDBSource",
+                "component_info": {
+                  "sql_command": "SELECT\n    c.[RFCode],\n    [CourierNumber],\n    g.[Description] as CourierGroup,\n    [Name],\n    [ShortName],\n    [CFName],\n    [Address1],\n    [Address2],\n    [Address3],\n    [Address4],\n    [EmailAddress],\n    [PhoneNumber],\n    [Mobile],\n    [BlackbayRouteId],\n    w.[Description] AS CFOwnershipModel,\n    c.[Inactive],\n    ParcelConnectCFTerritory\nFROM [Fastway].[dbo].[FMS_Courier] c\n         left join [FMS_LookUpTableDetail] g ON c.RFCode = g.RFCode AND HeaderCode = 'GRP' AND c.CourierGroup = g.ItemCode\n         left join [FMS_LookUpTableDetail] w ON w.HeaderCode = 'OWN' AND w.ItemCode = c.CFOwnershipModel AND c.NMid = w.NMid\nWHERE Inactive = 0;",
+                  "connection_names": [
+                    "Project.ConnectionManagers[KRILLIN_Fastway]"
+                  ],
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": "SourceDataQuery",
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": "User::SourceDataQuery",
+                    "variables_used_distinct": [
+                      "SourceDataQuery"
+                    ]
+                  }
+                }
+              },
+              "Package\\Staging\\Load Courier_Stg\\Save Error": {
+                "component_type": "Microsoft.OLEDBDestination",
+                "component_info": {
+                  "table_name": "SourceData_Err",
+                  "schema_name": "Staging",
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": []
+                  }
+                }
+              }
+            }
+          },
+          "task_type": "Microsoft.Pipeline"
+        },
+        "Package\\Staging\\Truncate Courier_Stg": {
+          "task_metadata": {
+            "query": "TRUNCATE TABLE [Staging].[Courier_Stg]",
+            "param_map": {},
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        }
+      },
+      "task_type": "STOCK:SEQUENCE"
+    }
+  }
+}

@@ -1,0 +1,189 @@
+{
+  "Package\\Copy Table": {
+    "task_metadata": {
+      "task_dependency_map": {
+        "Package\\Copy Table\\OLE DB Source.Outputs[OLE DB Source Output]": [
+          "Package\\Copy Table\\OLE DB Destination.Inputs[OLE DB Destination Input]"
+        ]
+      },
+      "exec_order": {
+        "Package\\Copy Table\\OLE DB Source.Outputs[OLE DB Source Output]": 1,
+        "Package\\Copy Table\\OLE DB Destination.Inputs[OLE DB Destination Input]": 2
+      },
+      "per_component_data": {
+        "Package\\Copy Table\\OLE DB Destination": {
+          "component_type": "Microsoft.OLEDBDestination",
+          "component_info": {
+            "table_name": "temp_SAT_Label_Allocation_DL_Copy",
+            "schema_name": "dv"
+          }
+        },
+        "Package\\Copy Table\\OLE DB Source": {
+          "component_type": "Microsoft.OLEDBSource",
+          "component_info": {
+            "sql_command": null,
+            "schema_name": "dv",
+            "table_name": "SAT_Label_Allocation_DL"
+          }
+        }
+      }
+    },
+    "task_type": "Microsoft.Pipeline"
+  },
+  "Package\\Data Flow Task": {
+    "task_metadata": {
+      "task_dependency_map": {
+        "Package\\Data Flow Task\\OLE DB Source.Outputs[OLE DB Source Output]": [
+          "Package\\Data Flow Task\\OLE DB Destination.Inputs[OLE DB Destination Input]"
+        ]
+      },
+      "exec_order": {
+        "Package\\Data Flow Task\\OLE DB Source.Outputs[OLE DB Source Output]": 1,
+        "Package\\Data Flow Task\\OLE DB Destination.Inputs[OLE DB Destination Input]": 2
+      },
+      "per_component_data": {
+        "Package\\Data Flow Task\\OLE DB Destination": {
+          "component_type": "Microsoft.OLEDBDestination",
+          "component_info": {
+            "table_name": "LNK_InvoiceHead",
+            "schema_name": "dv"
+          }
+        },
+        "Package\\Data Flow Task\\OLE DB Source": {
+          "component_type": "Microsoft.OLEDBSource",
+          "component_info": {
+            "sql_command": "DECLARE @LoadDate Datetime2(7) = '2024-03-13';\n\nSELECT \n             [Invoice_HSK] = dbo.GetHashKey( Convert(nvarchar,[InvoiceNumber]) +'^'+ [RFCode] ,'^'),\n             [FranchiseeCode_HSK] = dbo.GetHashKey(RFCode,'^')\n            ,[RFCode]\n            ,[InvoiceNumber]\n            ,[EnteredDate]\n            ,[EnterTime]\n            ,[CourierInvoiceBelongsTo]\n            ,[CustomerId]\n            ,[CourierIdCommisionPaidTo]\n            ,[InvoiceTotalAmount]\n            ,[TaxAmount]\n            ,[AmountPaid]\n            ,[Balance]\n            ,[PaidOnEntry]\n            ,[InsuranceAmount]\n            ,[DissectionLines]\n            ,[CourierFloatIssuesGoTo]\n            ,[FullyPaid]\n            ,[Committed]\n            ,[NMId]\n            ,[InvoiceCopyDate]\n            ,[BatchId]\n            ,[SystemDate]\n            ,[CreditedAmount]\n            ,[CreditedTax]\n            ,[PurchaseOrderNumber]\n            ,[Comments]\n            ,[ExcludedFromBaseRate]\n            ,Loaded = @LoadDate \n            ,ProcessID = -1\n            ,RecordSource = 'INITIAL LOAD'\n    FROM [Staging].[FMS_InvoiceHead_Stg_All]\n    WHERE [SystemDate] >= '2019-01-01'"
+          }
+        }
+      }
+    },
+    "task_type": "Microsoft.Pipeline"
+  },
+  "Package\\FMS_UndTcktInvoice_Load": {
+    "task_metadata": {
+      "task_dependency_map": {
+        "Package\\FMS_UndTcktInvoice_Load\\OLE DB Source.Outputs[OLE DB Source Output]": [
+          "Package\\FMS_UndTcktInvoice_Load\\OLE DB Destination.Inputs[OLE DB Destination Input]"
+        ]
+      },
+      "exec_order": {
+        "Package\\FMS_UndTcktInvoice_Load\\OLE DB Source.Outputs[OLE DB Source Output]": 1,
+        "Package\\FMS_UndTcktInvoice_Load\\OLE DB Destination.Inputs[OLE DB Destination Input]": 2
+      },
+      "per_component_data": {
+        "Package\\FMS_UndTcktInvoice_Load\\OLE DB Destination": {
+          "component_type": "Microsoft.OLEDBDestination",
+          "component_info": {
+            "table_name": "FMS_UndTcktInvoice_Stg",
+            "schema_name": "Staging"
+          }
+        },
+        "Package\\FMS_UndTcktInvoice_Load\\OLE DB Source": {
+          "component_type": "Microsoft.OLEDBSource",
+          "component_info": {
+            "sql_command": "DECLARE @LastID int = ?\nDECLARE @BatchSize int = 100000;\nDECLARE @EndID int;\n\nSET  @EndID = @LastID + @Batchsize;\n\nSELECT [UnderTickId]\n      ,[CountryId]\n      ,[LoggedByRF]\n      ,[UpdatedByRF]\n      ,[PRF]\n      ,[SaleRF]\n      ,[Label]\n      ,[CustomerId]\n      ,[CustomerName]\n      ,[SystemDeadWeight]\n      ,[SystemLength]\n      ,[SystemWidth]\n      ,[SystemHeight]\n      ,[SystemWeightCubic]\n      ,[SystemPrice]\n      ,[NewDeadWeight]\n      ,[NewLength]\n      ,[NewWidth]\n      ,[NewHeight]\n      ,[NewWeightCubic]\n      ,[NewPrice]\n      ,[FromAddress1]\n      ,[FromAddress2]\n      ,[FromAddress3]\n      ,[FromAddress4]\n      ,[FromAddress5]\n      ,[FromAddress6]\n      ,[ToAddress1]\n      ,[ToAddress2]\n      ,[ToAddress3]\n      ,[ToAddress4]\n      ,[ToAddress5]\n      ,[ToAddress6]\n      ,[Source]\n      ,[Note]\n      ,[Date]\n      ,[UserIdRecorded]\n      ,[BankedFMSCustomerId]\n      ,[Procssed]\n      ,[DeliveryRF]\n      ,[NumberOfExcess]\n      ,[NewExcessLabels]\n      ,[RepricedAutomatically]\n      ,[FMSOriginalInvoiceNumber]\n      ,[FMSBankedInvoiceAmount]\n      ,[FMSCustomerInvoiceMonthlyBatch]\n      ,[FMSCustomerInvoiceNumber]\n      ,[FMSCustomerIdInvoiced]\n      ,[FMSCustomerInvoiceAmount]\n      ,[DLBSInvoiceMonthlyBatch]\n      ,[DLBSInvoiceNumber]\n      ,[DLBSInvoiceRFFrom]\n      ,[DLBSInvoiceRFTo]\n      ,[DLBSInvoiceAmount]\n      ,[LeaMonthlyBatch]\n      ,[LeaInvoiceNumber]\n      ,[LeaChargeAmount]\n      ,[Locked]\n      ,[Repriced]\n      ,[InvoicePrice]\n      ,[ExcessPrice]\n      ,[Invoiced]\n      ,[NewPriceIncGST]\n      ,[MultiplePriceOptions]\n      ,[NewColour]\n      ,[RCTIInvoiceNumber]\n      ,[InvException]\n      ,[InvExceptionReason]\n      ,[ToLng]\n      ,[ToLat]\n      ,[ChildCharge]\nFROM [dbo].[FMS_UndTcktInvoice]\nWHERE [UnderTickId] > @LastID AND  [UnderTickId] <= @EndID",
+            "inline_positional_params": true,
+            "inline_positional_params_mapping": {}
+          }
+        }
+      }
+    },
+    "task_type": "Microsoft.Pipeline"
+  },
+  "Package\\Load FMS_InvoiceHead": {
+    "task_metadata": {
+      "task_dependency_map": {
+        "Package\\Load FMS_InvoiceHead\\FMS_InvoiceHead.Outputs[OLE DB Source Output]": [
+          "Package\\Load FMS_InvoiceHead\\FMS_InvoiceHead_Stg_All.Inputs[OLE DB Destination Input]"
+        ]
+      },
+      "exec_order": {
+        "Package\\Load FMS_InvoiceHead\\FMS_InvoiceHead.Outputs[OLE DB Source Output]": 1,
+        "Package\\Load FMS_InvoiceHead\\FMS_InvoiceHead_Stg_All.Inputs[OLE DB Destination Input]": 2
+      },
+      "per_component_data": {
+        "Package\\Load FMS_InvoiceHead\\FMS_InvoiceHead": {
+          "component_type": "Microsoft.OLEDBSource",
+          "component_info": {
+            "sql_command": "SELECT \n       [RFCode]\n      ,[InvoiceNumber]\n      ,[EnteredDate]\n      ,[EnterTime]\n      ,[CourierInvoiceBelongsTo]\n      ,[CustomerId]\n      ,[CourierIdCommisionPaidTo]\n      ,[InvoiceTotalAmount]\n      ,[TaxAmount]\n      ,[AmountPaid]\n      ,[Balance]\n      ,[PaidOnEntry]\n      ,[InsuranceAmount]\n      ,[DissectionLines]\n      ,[CourierFloatIssuesGoTo]\n      ,[FullyPaid]\n      ,[Committed]\n      ,[NMId]\n      ,[InvoiceCopyDate]\n      ,[BatchId]\n      ,[SystemDate]\n      ,[CreditedAmount]\n      ,[CreditedTax]\n      ,[PurchaseOrderNumber]\n      ,[Comments]\n      ,[ExcludedFromBaseRate]\n  FROM [Fastway].[dbo].[FMS_InvoiceHead] WITH (NOLOCK)\nWHERE [NMId] IN(1,6)"
+          }
+        },
+        "Package\\Load FMS_InvoiceHead\\FMS_InvoiceHead_Stg_All": {
+          "component_type": "Microsoft.OLEDBDestination",
+          "component_info": {
+            "table_name": "FMS_InvoiceHead_Stg_All",
+            "schema_name": "Staging"
+          }
+        }
+      }
+    },
+    "task_type": "Microsoft.Pipeline"
+  },
+  "Package\\Sequence Container": {
+    "task_metadata": {
+      "Package\\Sequence Container\\Get Next ID": {
+        "task_metadata": {
+          "query": "DECLARE @NextID bigint;\n\nSELECT @NextID = LastID FROM Working.Load_iLocate_NextID;\n\nSELECT @NextID AS NextID",
+          "param_map": {},
+          "result_set": {
+            "NextID": null
+          }
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Sequence Container\\Load iLocate": {
+        "task_metadata": {
+          "task_dependency_map": {
+            "Package\\Sequence Container\\Load iLocate\\OLE DB Source.Outputs[OLE DB Source Output]": [
+              "Package\\Sequence Container\\Load iLocate\\OLE DB Destination.Inputs[OLE DB Destination Input]"
+            ]
+          },
+          "exec_order": {
+            "Package\\Sequence Container\\Load iLocate\\OLE DB Source.Outputs[OLE DB Source Output]": 1,
+            "Package\\Sequence Container\\Load iLocate\\OLE DB Destination.Inputs[OLE DB Destination Input]": 2
+          },
+          "per_component_data": {
+            "Package\\Sequence Container\\Load iLocate\\OLE DB Destination": {
+              "component_type": "Microsoft.OLEDBDestination",
+              "component_info": {
+                "table_name": "Load_iLocate_Stg",
+                "schema_name": "working"
+              }
+            },
+            "Package\\Sequence Container\\Load iLocate\\OLE DB Source": {
+              "component_type": "Microsoft.OLEDBSource",
+              "component_info": {
+                "sql_command": "DECLARE @NextID bigint = ?\nDECLARE @EndID bigint;\n\nSET @EndID  = @NextID  + 4000000;\n\nSELECT\nID, iLocate \nFROM FastwayReports.dbo.TrackAndTraceData\nWHERE ID > @NextID AND ID  <= @EndID\nAND ISNULL(iLocate,'') != ''",
+                "inline_positional_params": true,
+                "inline_positional_params_mapping": {}
+              }
+            }
+          }
+        },
+        "task_type": "Microsoft.Pipeline"
+      },
+      "Package\\Sequence Container\\Truncate Stg": {
+        "task_metadata": {
+          "query": "TRUNCATE TABLE [FastwayDW].[working].[Load_iLocate_Stg];",
+          "param_map": {},
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Sequence Container\\Update LNK_Scan": {
+        "task_metadata": {
+          "query": "DECLARE @NextID bigint = ?;\nDECLARE @EndID bigint = 0;\n\nSET @EndID  = @NextID  + 4000000;\n\nUpdate LNK\nSET LNK.iLocate = S.iLocate\nFROM dv.LNK_Scan LNK\nJOIN [working].[Load_iLocate_Stg] S ON S.ID = LNK.[TrackAndTraceID];\n\nUPDATE FastwayDW.[working].[Load_iLocate_NextID]\nSET LastID = @EndID;\n",
+          "param_map": {
+            "param_0": {
+              "variable_name": "LastID",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  }
+}

@@ -1,0 +1,1261 @@
+﻿<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="10/24/2018 3:36:25 PM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="CUBE"
+  DTS:CreatorName="FASTWAYTECH\philw.adm"
+  DTS:DTSID="{EB68E24C-12D9-44E1-B07F-11F33422FCAD}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="16.0.5685.0"
+  DTS:LocaleID="3081"
+  DTS:ObjectName="HUB_ServiceItem"
+  DTS:PackageType="5"
+  DTS:VersionBuild="53"
+  DTS:VersionGUID="{AE95B720-62BE-4CD7-85B5-64CB5F4E5B75}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:PackageParameters>
+    <DTS:PackageParameter
+      DTS:CreationName=""
+      DTS:DataType="11"
+      DTS:DTSID="{03D73D90-FC8B-43F0-B2D7-7E20D40F5D14}"
+      DTS:ObjectName="DisableFinal">
+      <DTS:Property
+        DTS:DataType="11"
+        DTS:Name="ParameterValue">0</DTS:Property>
+    </DTS:PackageParameter>
+    <DTS:PackageParameter
+      DTS:CreationName=""
+      DTS:DataType="11"
+      DTS:DTSID="{360FD664-A81A-44B4-B72A-6CE8462FAEA8}"
+      DTS:ObjectName="DisableStaging">
+      <DTS:Property
+        DTS:DataType="11"
+        DTS:Name="ParameterValue">0</DTS:Property>
+    </DTS:PackageParameter>
+    <DTS:PackageParameter
+      DTS:CreationName=""
+      DTS:DataType="20"
+      DTS:DTSID="{E1295767-4735-4F18-802B-80588136584A}"
+      DTS:ObjectName="ProcessId">
+      <DTS:Property
+        DTS:DataType="20"
+        DTS:Name="ParameterValue">659</DTS:Property>
+    </DTS:PackageParameter>
+    <DTS:PackageParameter
+      DTS:CreationName=""
+      DTS:DataType="8"
+      DTS:DTSID="{F9EF4A71-9945-457C-B901-FA77E9413490}"
+      DTS:ObjectName="RecordSource">
+      <DTS:Property
+        DTS:DataType="8"
+        DTS:Name="ParameterValue">Fastway</DTS:Property>
+    </DTS:PackageParameter>
+  </DTS:PackageParameters>
+  <DTS:Variables>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{69861B11-86F4-4116-84E7-E9CAA9871F85}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="DatasetName">
+      <DTS:VariableValue
+        DTS:DataType="8">Fastway.dbo.FMS_Courier</DTS:VariableValue>
+    </DTS:Variable>
+  </DTS:Variables>
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\Final"
+      DTS:CreationName="STOCK:SEQUENCE"
+      DTS:Description="Sequence Container"
+      DTS:DTSID="{44FF1CEA-5873-4F21-8CF4-2EED6E234DF5}"
+      DTS:ExecutableType="STOCK:SEQUENCE"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Final">
+      <DTS:Variables />
+      <DTS:PropertyExpression
+        DTS:Name="Disable">@[$Package::DisableFinal]</DTS:PropertyExpression>
+      <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package\Final\Load HUB_ServiceItem"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{A00EA314-0CDD-4AD9-BD96-AFFFB87A6D6A}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Load HUB_ServiceItem"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2012; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
+              SQLTask:SqlStatementSource="Exec [dv].[Load_HUB_ServiceItem] ?,?" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="$Package::ProcessId"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="3"
+                SQLTask:ParameterSize="-1" />
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="1"
+                SQLTask:DtsVariableName="$Package::RecordSource"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="130"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\Final\Load SAT_ServiceItem"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:Disabled="True"
+          DTS:DTSID="{859CE36C-DBD5-4AA6-8042-36F69C637E96}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Load SAT_ServiceItem"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2012; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="0">
+          <DTS:Variables />
+          <DTS:PropertyExpression
+            DTS:Name="Disable">(DT_BOOL)1</DTS:PropertyExpression>
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
+              SQLTask:SqlStatementSource="Exec [dv].[Load_SAT_ServiceItem] ?,?" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="$Package::ProcessId"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="3"
+                SQLTask:ParameterSize="-1" />
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="1"
+                SQLTask:DtsVariableName="$Package::RecordSource"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="130"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Staging"
+      DTS:CreationName="STOCK:SEQUENCE"
+      DTS:Description="Sequence Container"
+      DTS:DTSID="{F60BAC26-3A0E-42C6-8F4A-767373A20256}"
+      DTS:ExecutableType="STOCK:SEQUENCE"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Staging">
+      <DTS:Variables />
+      <DTS:PropertyExpression
+        DTS:Name="Disable">@[$Package::DisableStaging]</DTS:PropertyExpression>
+      <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package\Staging\Load fl_ServiceItem_Stg"
+          DTS:CreationName="Microsoft.Pipeline"
+          DTS:Description="Data Flow Task"
+          DTS:DTSID="{fee9445d-9e6e-4511-bb50-90837e4df6aa}"
+          DTS:ExecutableType="Microsoft.Pipeline"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Load fl_ServiceItem_Stg"
+          DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <pipeline
+              version="1">
+              <components>
+                <component
+                  refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway)"
+                  componentClassID="Microsoft.OLEDBSource"
+                  contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+                  description="OLE DB Source"
+                  name="fl_ServiceItem (Fastway)"
+                  usesDispositions="true"
+                  version="7">
+                  <properties>
+                    <property
+                      dataType="System.Int32"
+                      description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                      name="CommandTimeout">0</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the name of the database object used to open a rowset."
+                      name="OpenRowset"></property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the variable that contains the name of the database object used to open a rowset."
+                      name="OpenRowsetVariable"></property>
+                    <property
+                      dataType="System.String"
+                      description="The SQL command to be executed."
+                      name="SqlCommand"
+                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91">SELECT
+    [ServiceItemId]
+    ,[ServiceId]
+    ,[CountryId]
+    ,[Rf]
+    ,[PriceList]
+    ,[ProductId]
+    ,[Description]
+    ,[DisplayValue]
+    ,[DisplayText]
+    ,[DisplaySelected]
+    ,[Percentage]
+    ,[Price]
+    ,[PickupAmount]
+    ,[ServiceCommission]
+    ,[ReadOnly]
+    ,[DisplayForm]
+    ,[DisplaySummmary]
+    ,[ChargeLevel]
+    ,[IsDefault]
+    ,[ServiceType]
+    ,[TriggerPoint]
+FROM [Fastway].[dbo].[fl_ServiceItem]  WITH (NOLOCK)</property>
+                    <property
+                      dataType="System.String"
+                      description="The variable that contains the SQL command to be executed."
+                      name="SqlCommandVariable"></property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the column code page to use when code page information is unavailable from the data source."
+                      name="DefaultCodePage">1252</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Forces the use of the DefaultCodePage property value when describing character data."
+                      name="AlwaysUseDefaultCodePage">false</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the mode used to access the database."
+                      name="AccessMode"
+                      typeConverter="AccessMode">2</property>
+                    <property
+                      dataType="System.String"
+                      description="The mappings between the parameters in the SQL command and variables."
+                      name="ParameterMapping">"Parameter0:Input",{4DE2AA19-9E9E-4D95-AAA0-37DD490EC4A5};</property>
+                  </properties>
+                  <connections>
+                    <connection
+                      refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Connections[OleDbConnection]"
+                      connectionManagerID="{7BE0BAD7-C4E3-4C8B-B147-DFD9B94F82A8}:external"
+                      connectionManagerRefId="Project.ConnectionManagers[KRILLIN_Fastway]"
+                      description="The OLE DB runtime connection used to access the database."
+                      name="OleDbConnection" />
+                  </connections>
+                  <outputs>
+                    <output
+                      refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output]"
+                      name="OLE DB Source Output">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[CountryId]"
+                          dataType="ui1"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[CountryId]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[CountryId]"
+                          name="CountryId"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[ProductId]"
+                          dataType="i4"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[ProductId]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[ProductId]"
+                          name="ProductId"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[ServiceItemId]"
+                          dataType="i4"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[ServiceItemId]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[ServiceItemId]"
+                          name="ServiceItemId"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[Price]"
+                          dataType="numeric"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[Price]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[Price]"
+                          name="Price"
+                          precision="19"
+                          scale="6"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[ServiceId]"
+                          dataType="i2"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[ServiceId]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[ServiceId]"
+                          name="ServiceId"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[Rf]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[Rf]"
+                          length="3"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[Rf]"
+                          name="Rf"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[PriceList]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[PriceList]"
+                          length="3"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[PriceList]"
+                          name="PriceList"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[Description]"
+                          dataType="wstr"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[Description]"
+                          length="200"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[Description]"
+                          name="Description"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[DisplayValue]"
+                          dataType="wstr"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[DisplayValue]"
+                          length="50"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[DisplayValue]"
+                          name="DisplayValue"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[DisplayText]"
+                          dataType="wstr"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[DisplayText]"
+                          length="100"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[DisplayText]"
+                          name="DisplayText"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[DisplaySelected]"
+                          dataType="bool"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[DisplaySelected]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[DisplaySelected]"
+                          name="DisplaySelected"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[Percentage]"
+                          dataType="numeric"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[Percentage]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[Percentage]"
+                          name="Percentage"
+                          precision="5"
+                          scale="2"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[PickupAmount]"
+                          dataType="numeric"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[PickupAmount]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[PickupAmount]"
+                          name="PickupAmount"
+                          precision="19"
+                          scale="6"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[ServiceCommission]"
+                          dataType="numeric"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[ServiceCommission]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[ServiceCommission]"
+                          name="ServiceCommission"
+                          precision="5"
+                          scale="2"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[ReadOnly]"
+                          dataType="bool"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[ReadOnly]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[ReadOnly]"
+                          name="ReadOnly"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[DisplayForm]"
+                          dataType="bool"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[DisplayForm]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[DisplayForm]"
+                          name="DisplayForm"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[DisplaySummmary]"
+                          dataType="bool"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[DisplaySummmary]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[DisplaySummmary]"
+                          name="DisplaySummmary"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[ChargeLevel]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[ChargeLevel]"
+                          length="1"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[ChargeLevel]"
+                          name="ChargeLevel"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[IsDefault]"
+                          dataType="bool"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[IsDefault]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[IsDefault]"
+                          name="IsDefault"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[ServiceType]"
+                          dataType="i4"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[ServiceType]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[ServiceType]"
+                          name="ServiceType"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[TriggerPoint]"
+                          dataType="wstr"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[TriggerPoint]"
+                          length="100"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[TriggerPoint]"
+                          name="TriggerPoint"
+                          truncationRowDisposition="FailComponent" />
+                      </outputColumns>
+                      <externalMetadataColumns
+                        isUsed="True">
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[CountryId]"
+                          dataType="ui1"
+                          name="CountryId" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[ProductId]"
+                          dataType="i4"
+                          name="ProductId" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[ServiceItemId]"
+                          dataType="i4"
+                          name="ServiceItemId" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[Price]"
+                          dataType="numeric"
+                          name="Price"
+                          precision="19"
+                          scale="6" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[ServiceId]"
+                          dataType="i2"
+                          name="ServiceId" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[Rf]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          name="Rf" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[PriceList]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          name="PriceList" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[Description]"
+                          dataType="wstr"
+                          length="200"
+                          name="Description" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[DisplayValue]"
+                          dataType="wstr"
+                          length="50"
+                          name="DisplayValue" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[DisplayText]"
+                          dataType="wstr"
+                          length="100"
+                          name="DisplayText" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[DisplaySelected]"
+                          dataType="bool"
+                          name="DisplaySelected" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[Percentage]"
+                          dataType="numeric"
+                          name="Percentage"
+                          precision="5"
+                          scale="2" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[PickupAmount]"
+                          dataType="numeric"
+                          name="PickupAmount"
+                          precision="19"
+                          scale="6" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[ServiceCommission]"
+                          dataType="numeric"
+                          name="ServiceCommission"
+                          precision="5"
+                          scale="2" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[ReadOnly]"
+                          dataType="bool"
+                          name="ReadOnly" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[DisplayForm]"
+                          dataType="bool"
+                          name="DisplayForm" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[DisplaySummmary]"
+                          dataType="bool"
+                          name="DisplaySummmary" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[ChargeLevel]"
+                          codePage="1252"
+                          dataType="str"
+                          length="1"
+                          name="ChargeLevel" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[IsDefault]"
+                          dataType="bool"
+                          name="IsDefault" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[ServiceType]"
+                          dataType="i4"
+                          name="ServiceType" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].ExternalColumns[TriggerPoint]"
+                          dataType="wstr"
+                          length="100"
+                          name="TriggerPoint" />
+                      </externalMetadataColumns>
+                    </output>
+                    <output
+                      refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output]"
+                      isErrorOut="true"
+                      name="OLE DB Source Error Output">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[CountryId]"
+                          dataType="ui1"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[CountryId]"
+                          name="CountryId" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[ServiceId]"
+                          dataType="i2"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[ServiceId]"
+                          name="ServiceId" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[ServiceItemId]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[ServiceItemId]"
+                          name="ServiceItemId" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[Rf]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[Rf]"
+                          name="Rf" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[PriceList]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[PriceList]"
+                          name="PriceList" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[ProductId]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[ProductId]"
+                          name="ProductId" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[Description]"
+                          dataType="wstr"
+                          length="200"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[Description]"
+                          name="Description" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[DisplayValue]"
+                          dataType="wstr"
+                          length="50"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[DisplayValue]"
+                          name="DisplayValue" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[DisplayText]"
+                          dataType="wstr"
+                          length="100"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[DisplayText]"
+                          name="DisplayText" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[DisplaySelected]"
+                          dataType="bool"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[DisplaySelected]"
+                          name="DisplaySelected" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[Percentage]"
+                          dataType="numeric"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[Percentage]"
+                          name="Percentage"
+                          precision="5"
+                          scale="2" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[Price]"
+                          dataType="numeric"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[Price]"
+                          name="Price"
+                          precision="19"
+                          scale="6" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[PickupAmount]"
+                          dataType="numeric"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[PickupAmount]"
+                          name="PickupAmount"
+                          precision="19"
+                          scale="6" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[ServiceCommission]"
+                          dataType="numeric"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[ServiceCommission]"
+                          name="ServiceCommission"
+                          precision="5"
+                          scale="2" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[ReadOnly]"
+                          dataType="bool"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[ReadOnly]"
+                          name="ReadOnly" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[DisplayForm]"
+                          dataType="bool"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[DisplayForm]"
+                          name="DisplayForm" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[DisplaySummmary]"
+                          dataType="bool"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[DisplaySummmary]"
+                          name="DisplaySummmary" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[ChargeLevel]"
+                          codePage="1252"
+                          dataType="str"
+                          length="1"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[ChargeLevel]"
+                          name="ChargeLevel" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[IsDefault]"
+                          dataType="bool"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[IsDefault]"
+                          name="IsDefault" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[ServiceType]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[ServiceType]"
+                          name="ServiceType" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[TriggerPoint]"
+                          dataType="wstr"
+                          length="100"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[TriggerPoint]"
+                          name="TriggerPoint" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                          name="ErrorCode"
+                          specialFlags="1" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                          name="ErrorColumn"
+                          specialFlags="2" />
+                      </outputColumns>
+                      <externalMetadataColumns />
+                    </output>
+                  </outputs>
+                </component>
+                <component
+                  refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg"
+                  componentClassID="Microsoft.OLEDBDestination"
+                  contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+                  description="OLE DB Destination"
+                  name="Load fl_ServiceItem_Stg"
+                  usesDispositions="true"
+                  version="4">
+                  <properties>
+                    <property
+                      dataType="System.Int32"
+                      description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                      name="CommandTimeout">0</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the name of the database object used to open a rowset."
+                      name="OpenRowset">[Staging].[fl_ServiceItem_Stg]</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the variable that contains the name of the database object used to open a rowset."
+                      name="OpenRowsetVariable"></property>
+                    <property
+                      dataType="System.String"
+                      description="The SQL command to be executed."
+                      name="SqlCommand"
+                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the column code page to use when code page information is unavailable from the data source."
+                      name="DefaultCodePage">1252</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Forces the use of the DefaultCodePage property value when describing character data."
+                      name="AlwaysUseDefaultCodePage">false</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the mode used to access the database."
+                      name="AccessMode"
+                      typeConverter="AccessMode">3</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                      name="FastLoadKeepIdentity">false</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                      name="FastLoadKeepNulls">false</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                      name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                      name="FastLoadMaxInsertCommitSize">2147483647</property>
+                  </properties>
+                  <connections>
+                    <connection
+                      refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Connections[OleDbConnection]"
+                      connectionManagerID="{66292261-9521-45A6-ACCA-54377A482A00}:external"
+                      connectionManagerRefId="Project.ConnectionManagers[CUBE.FastwayDW]"
+                      description="The OLE DB runtime connection used to access the database."
+                      name="OleDbConnection" />
+                  </connections>
+                  <inputs>
+                    <input
+                      refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input]"
+                      errorOrTruncationOperation="Insert"
+                      errorRowDisposition="FailComponent"
+                      hasSideEffects="true"
+                      name="OLE DB Destination Input">
+                      <inputColumns>
+                        <inputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].Columns[CountryId]"
+                          cachedDataType="ui1"
+                          cachedName="CountryId"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[CountryId]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[CountryId]" />
+                        <inputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].Columns[ProductId]"
+                          cachedDataType="i4"
+                          cachedName="ProductId"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[ProductId]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[ProductId]" />
+                        <inputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].Columns[ServiceItemId]"
+                          cachedDataType="i4"
+                          cachedName="ServiceItemId"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[ServiceItemId]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[ServiceItemId]" />
+                        <inputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].Columns[Price]"
+                          cachedDataType="numeric"
+                          cachedName="Price"
+                          cachedPrecision="19"
+                          cachedScale="6"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[Price]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[Price]" />
+                        <inputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].Columns[ServiceId]"
+                          cachedDataType="i2"
+                          cachedName="ServiceId"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[ServiceId]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[ServiceId]" />
+                        <inputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].Columns[Rf]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="3"
+                          cachedName="Rf"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[Rf]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[Rf]" />
+                        <inputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].Columns[PriceList]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="3"
+                          cachedName="PriceList"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[PriceList]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[PriceList]" />
+                        <inputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].Columns[Description]"
+                          cachedDataType="wstr"
+                          cachedLength="200"
+                          cachedName="Description"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[Description]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[Description]" />
+                        <inputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].Columns[DisplayValue]"
+                          cachedDataType="wstr"
+                          cachedLength="50"
+                          cachedName="DisplayValue"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[DisplayValue]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[DisplayValue]" />
+                        <inputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].Columns[DisplayText]"
+                          cachedDataType="wstr"
+                          cachedLength="100"
+                          cachedName="DisplayText"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[DisplayText]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[DisplayText]" />
+                        <inputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].Columns[DisplaySelected]"
+                          cachedDataType="bool"
+                          cachedName="DisplaySelected"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[DisplaySelected]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[DisplaySelected]" />
+                        <inputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].Columns[Percentage]"
+                          cachedDataType="numeric"
+                          cachedName="Percentage"
+                          cachedPrecision="5"
+                          cachedScale="2"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[Percentage]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[Percentage]" />
+                        <inputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].Columns[PickupAmount]"
+                          cachedDataType="numeric"
+                          cachedName="PickupAmount"
+                          cachedPrecision="19"
+                          cachedScale="6"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[PickupAmount]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[PickupAmount]" />
+                        <inputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].Columns[ServiceCommission]"
+                          cachedDataType="numeric"
+                          cachedName="ServiceCommission"
+                          cachedPrecision="5"
+                          cachedScale="2"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[ServiceCommission]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[ServiceCommission]" />
+                        <inputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].Columns[ReadOnly]"
+                          cachedDataType="bool"
+                          cachedName="ReadOnly"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[ReadOnly]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[ReadOnly]" />
+                        <inputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].Columns[DisplayForm]"
+                          cachedDataType="bool"
+                          cachedName="DisplayForm"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[DisplayForm]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[DisplayForm]" />
+                        <inputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].Columns[DisplaySummmary]"
+                          cachedDataType="bool"
+                          cachedName="DisplaySummmary"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[DisplaySummmary]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[DisplaySummmary]" />
+                        <inputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].Columns[ChargeLevel]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="1"
+                          cachedName="ChargeLevel"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[ChargeLevel]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[ChargeLevel]" />
+                        <inputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].Columns[IsDefault]"
+                          cachedDataType="bool"
+                          cachedName="IsDefault"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[IsDefault]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[IsDefault]" />
+                        <inputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].Columns[ServiceType]"
+                          cachedDataType="i4"
+                          cachedName="ServiceType"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[ServiceType]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[ServiceType]" />
+                        <inputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].Columns[TriggerPoint]"
+                          cachedDataType="wstr"
+                          cachedLength="100"
+                          cachedName="TriggerPoint"
+                          externalMetadataColumnId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[TriggerPoint]"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output].Columns[TriggerPoint]" />
+                      </inputColumns>
+                      <externalMetadataColumns
+                        isUsed="True">
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[CountryId]"
+                          dataType="ui1"
+                          name="CountryId" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[ProductId]"
+                          dataType="i4"
+                          name="ProductId" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[ServiceItemId]"
+                          dataType="i4"
+                          name="ServiceItemId" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[Price]"
+                          dataType="numeric"
+                          name="Price"
+                          precision="19"
+                          scale="6" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[ServiceId]"
+                          dataType="i2"
+                          name="ServiceId" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[Rf]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          name="Rf" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[PriceList]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          name="PriceList" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[Description]"
+                          dataType="wstr"
+                          length="200"
+                          name="Description" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[DisplayValue]"
+                          dataType="wstr"
+                          length="50"
+                          name="DisplayValue" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[DisplayText]"
+                          dataType="wstr"
+                          length="100"
+                          name="DisplayText" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[DisplaySelected]"
+                          dataType="bool"
+                          name="DisplaySelected" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[Percentage]"
+                          dataType="numeric"
+                          name="Percentage"
+                          precision="5"
+                          scale="2" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[PickupAmount]"
+                          dataType="numeric"
+                          name="PickupAmount"
+                          precision="19"
+                          scale="6" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[ServiceCommission]"
+                          dataType="numeric"
+                          name="ServiceCommission"
+                          precision="5"
+                          scale="2" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[ReadOnly]"
+                          dataType="bool"
+                          name="ReadOnly" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[DisplayForm]"
+                          dataType="bool"
+                          name="DisplayForm" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[DisplaySummmary]"
+                          dataType="bool"
+                          name="DisplaySummmary" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[ChargeLevel]"
+                          codePage="1252"
+                          dataType="str"
+                          length="1"
+                          name="ChargeLevel" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[IsDefault]"
+                          dataType="bool"
+                          name="IsDefault" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[ServiceType]"
+                          dataType="i4"
+                          name="ServiceType" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input].ExternalColumns[TriggerPoint]"
+                          dataType="wstr"
+                          length="100"
+                          name="TriggerPoint" />
+                      </externalMetadataColumns>
+                    </input>
+                  </inputs>
+                  <outputs>
+                    <output
+                      refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Outputs[OLE DB Destination Error Output]"
+                      exclusionGroup="1"
+                      isErrorOut="true"
+                      name="OLE DB Destination Error Output"
+                      synchronousInputId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input]">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                          name="ErrorCode"
+                          specialFlags="1" />
+                        <outputColumn
+                          refId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                          name="ErrorColumn"
+                          specialFlags="2" />
+                      </outputColumns>
+                      <externalMetadataColumns />
+                    </output>
+                  </outputs>
+                </component>
+              </components>
+              <paths>
+                <path
+                  refId="Package\Staging\Load fl_ServiceItem_Stg.Paths[OLE DB Source Output]"
+                  endId="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg.Inputs[OLE DB Destination Input]"
+                  name="OLE DB Source Output"
+                  startId="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway).Outputs[OLE DB Source Output]" />
+              </paths>
+            </pipeline>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\Staging\Truncate fl_ServiceItem_Stg"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{bfa38f04-5e8e-4708-a4aa-a44d97dc1445}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Truncate fl_ServiceItem_Stg"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2012; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="0">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
+              SQLTask:SqlStatementSource="TRUNCATE TABLE [Staging].[fl_ServiceItem_Stg];" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+      <DTS:PrecedenceConstraints>
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\Staging.PrecedenceConstraints[Constraint]"
+          DTS:CreationName=""
+          DTS:DTSID="{2AA82755-B7AC-4478-98D7-FFA5209915E2}"
+          DTS:From="Package\Staging\Truncate fl_ServiceItem_Stg"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint"
+          DTS:To="Package\Staging\Load fl_ServiceItem_Stg" />
+      </DTS:PrecedenceConstraints>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{A1FF8355-0959-4F95-8292-C11EDD57E0F1}"
+      DTS:From="Package\Staging"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\Final" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="187,42"
+          Id="Package\Final\Load HUB_ServiceItem"
+          TopLeft="26,40" />
+        <NodeLayout
+          Size="185,42"
+          Id="Package\Final\Load SAT_ServiceItem"
+          TopLeft="250,36" />
+        <ContainerLayout
+          HeaderHeight="43"
+          IsExpanded="True"
+          PanelSize="482,169"
+          Size="482,212"
+          Id="Package\Final"
+          TopLeft="101,346" />
+        <NodeLayout
+          Size="194,42"
+          Id="Package\Staging\Load fl_ServiceItem_Stg"
+          TopLeft="45,93" />
+        <NodeLayout
+          Size="213,42"
+          Id="Package\Staging\Truncate fl_ServiceItem_Stg"
+          TopLeft="39,15" />
+        <EdgeLayout
+          Id="Package\Staging.PrecedenceConstraints[Constraint]"
+          TopLeft="143.75,57">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,36"
+              Start="0,0"
+              End="0,28.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,28.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <ContainerLayout
+          HeaderHeight="43"
+          IsExpanded="True"
+          PanelSize="315,169"
+          Size="315,212"
+          Id="Package\Staging"
+          TopLeft="185,64" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="342.25,276">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,70"
+              Start="0,0"
+              End="0,62.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,62.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+  <TaskHost
+    design-time-name="Package\Staging\Load fl_ServiceItem_Stg">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="194,43"
+          Id="Package\Staging\Load fl_ServiceItem_Stg\Load fl_ServiceItem_Stg"
+          TopLeft="101,141" />
+        <NodeLayout
+          Size="196,42"
+          Id="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway)"
+          TopLeft="88,58" />
+        <EdgeLayout
+          Id="Package\Staging\Load fl_ServiceItem_Stg.Paths[OLE DB Source Output]"
+          TopLeft="186,100">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="12,41"
+              Start="0,0"
+              End="12,33.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,16.5" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,16.5"
+                    Point2="0,20.5"
+                    Point3="4,20.5" />
+                  <mssgle:LineSegment
+                    End="8,20.5" />
+                  <mssgle:CubicBezierSegment
+                    Point1="8,20.5"
+                    Point2="12,20.5"
+                    Point3="12,24.5" />
+                  <mssgle:LineSegment
+                    End="12,33.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\Staging\Load fl_ServiceItem_Stg\fl_ServiceItem (Fastway)">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>
