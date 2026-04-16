@@ -10,9 +10,15 @@ from datetime import datetime
 from airflow import DAG
 from airflow.operators.empty import EmptyOperator
 from airflow.utils.task_group import TaskGroup
+from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
+from airflow.providers.google.cloud.hooks.bigquery import BigQueryHook
+from utils.getValue import get_last_value
+from airflow.operators.python import PythonOperator
 
 PACKAGE_NAME = "HUB_Label"
-
+RECORD_SOURCE_1 = "LabelMaster"
+SP_DATASET_ID = "Aramex_oceania_SP"
+PROJECT_ID = "searce-sandbox-da-delivery"
 with DAG(
     dag_id="ssis_skeleton_hub_label",
     start_date=datetime(2024, 1, 1),
@@ -137,16 +143,42 @@ with DAG(
             op_34 = EmptyOperator(task_id="package_staging_source1_labelmaster")
 
             # ref_id: Package\\Staging\\Source1 (LabelMaster)\\Get LastDate (LabelMaster)
-            op_35 = EmptyOperator(task_id="package_staging_source1_labelmaster_get_lastdate_labelmaster")
+            op_35 = PythonOperator(
+                task_id="package_staging_source1_labelmaster_get_lastdate_labelmaster",
+                python_callable=get_last_value,
+                op_kwargs={
+                    "project_id": PROJECT_ID,
+                    "dataset_id": SP_DATASET_ID,
+                    "record_source": RECORD_SOURCE_1,
+                },
+                
+
+            )
 
             # ref_id: Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg
-            op_36 = EmptyOperator(task_id="package_staging_source1_labelmaster_load_labelmaster_stg")
+            op_36 = BigQueryInsertJobOperator(
+                task_id="package_staging_source1_labelmaster_load_labelmaster_stg",
+                configuration={
+                    "query": {
+                        "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_LabelMaster_Stg` ({{{{ti.xcom_pull(task_ids='{op_35.task_id}')}}}})",
+                        "useLegacySql": False,
+                    }
+                }
+            )
 
             # ref_id: Package\\Staging\\Source1 (LabelMaster)\\Rebuild Indexes 1
             op_37 = EmptyOperator(task_id="package_staging_source1_labelmaster_rebuild_indexes_1")
 
             # ref_id: Package\\Staging\\Source1 (LabelMaster)\\Truncate LabelMaster_Stg
-            op_38 = EmptyOperator(task_id="package_staging_source1_labelmaster_truncate_labelmaster_stg")
+            op_38 = BigQueryInsertJobOperator(
+                task_id="package_staging_source1_labelmaster_truncate_labelmaster_stg",
+                configuration={
+                    "query": {
+                        "query": f"TRUNCATE TABLE `{PROJECT_ID}.{SP_DATASET_ID}.Staging.LabelMaster_Stg`",
+                        "useLegacySql": False,
+                    }
+                }
+            )
 
         with TaskGroup(group_id="tg_package_staging_source10_ebay_ebay"):
             # STOCK:SEQUENCE — ref_id: Package\\Staging\\Source10 (EBAY) _EBAY
