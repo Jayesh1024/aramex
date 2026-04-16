@@ -1,0 +1,96 @@
+{
+  "Package\\Final (Load HUB_Address)": {
+    "task_metadata": {
+      "Package\\Final (Load HUB_Address)\\Load HUB_Address": {
+        "task_metadata": {
+          "query": "Exec ? = [dv].[Load_HUB_Address] ?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ReturnCode11",
+              "direction": "ReturnValue"
+            },
+            "param_1": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Final (Load HUB_Address)\\Load LNK_Label_Address": {
+        "task_metadata": {
+          "query": "Exec ? = [dv].[Load_LNK_Label_Address] ?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ReturnCode11",
+              "direction": "ReturnValue"
+            },
+            "param_1": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Final (Load HUB_Address)\\Load SAT_Address": {
+        "task_metadata": {
+          "query": "Exec ? = [dv].[Load_SAT_Address] ?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ReturnCode11",
+              "direction": "ReturnValue"
+            },
+            "param_1": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Final (Load HUB_Address)\\Rebuild Indexes": {
+        "task_metadata": {
+          "query": "SET DEADLOCK_PRIORITY 2;\n\nALTER INDEX [IX_AddressHSK] ON [Staging].[Label_Address_Stg] REBUILD;\n\n--Mashup causing load to fail with this index rebuild as the deadlock victim. Want mashup to be the victim\n\n--EXEC [dbo].[MaintainIndexes] @Operation = 'REBUILD', @SchemaName = 'Staging', @TableName = 'Label_Address_Stg';",
+          "param_map": {},
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  },
+  "Package\\Staging": {
+    "task_metadata": {
+      "Package\\Staging\\Load SAT_Label_Address_Stg": {
+        "task_metadata": {
+          "query": "Exec ? = [Staging].[Load_Label_Address_Stg] ?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ReturnCode11",
+              "direction": "ReturnValue"
+            },
+            "param_1": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Staging\\Truncate Label_Address_Stg": {
+        "task_metadata": {
+          "query": "TRUNCATE TABLE [Staging].[Label_Address_Stg]",
+          "param_map": {},
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  }
+}

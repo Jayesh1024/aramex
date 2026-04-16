@@ -1,0 +1,46 @@
+2026-04-09 11:28:31  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 11:28:31  INFO        DDL Execution — BigQuery
+2026-04-09 11:28:31  INFO        Started      : 2026-04-09 11:28:31
+2026-04-09 11:28:31  INFO        Project      : searce-sandbox-da-delivery
+2026-04-09 11:28:31  INFO        BQ location  : US
+2026-04-09 11:28:31  INFO        SQL dir      : /Users/mausam.kamdar/Desktop/aramax_mausam/aramex/ProceduresBQ/rendered_sp
+2026-04-09 11:28:31  INFO        Credentials  : /Users/mausam.kamdar/.config/gcloud/application_default_credentials.json
+2026-04-09 11:28:31  INFO        SQL files    : 17
+2026-04-09 11:28:31  INFO        Max Workers  : 20
+2026-04-09 11:28:31  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 11:28:38  INFO      
+2026-04-09 11:28:38  INFO        Results
+2026-04-09 11:28:38  INFO      ────────────────────────────────────────────────────────────────────────
+2026-04-09 11:28:41  INFO      [SUCCESS] BQ_Get_LastValue_Scans.sql
+2026-04-09 11:28:41  INFO      [SUCCESS] BQ_GetAgingbyDateNZ.sql
+2026-04-09 11:28:42  INFO      [SUCCESS] BQ_Load_UndTckt Invoice.sql
+2026-04-09 11:28:42  INFO      [SUCCESS] BQ_Load_Fact_Scan_KPI_Stg.sql
+2026-04-09 11:28:42  INFO      [SUCCESS] BQ_Load_Payzone_Regions.sql
+2026-04-09 11:28:42  INFO      [SUCCESS] BQ_Load_SAT_Label_PickupRequests.sql
+2026-04-09 11:28:42  INFO      [SUCCESS] BQ_Load_SAT_FL_PriceListCustomerOverride.sql
+2026-04-09 11:28:42  INFO      [SUCCESS] BQ_Load_SAT_FL_Zones.sql
+2026-04-09 11:28:42  INFO      [SUCCESS] BQ_Load_SAT_CustomerCommissionOverride.sql
+2026-04-09 11:28:42  INFO      [SUCCESS] BQ_Load_SAT_STK_RFProducts.sql
+2026-04-09 11:28:42  INFO      [SUCCESS] BQ_Load_Fact_KPI_Daily_Stg.sql
+2026-04-09 11:28:42  INFO      [SUCCESS] BQ_Get_LastValue.sql
+2026-04-09 11:28:42  INFO      [SUCCESS] BQ_Load_Fact_KPI_Src_Stg.sql
+2026-04-09 11:28:42  INFO      [SUCCESS] BQ_Load_Payzone_Agents.sql
+2026-04-09 11:28:43  INFO      [SUCCESS] BQ_Load_KPI_Labels_Stg.sql
+2026-04-09 11:28:43  INFO      [SUCCESS] BQ_GetAgingbyDate.sql
+2026-04-09 11:28:43  ERROR     [FAILED]  BQ_Get_LoadReportHtml.sql
+2026-04-09 11:28:43  ERROR               400 Error validating procedure body (add OPTIONS(strict_mode=false) to suppress): Query error: Query error: Function not found: `searce-sandbox-da-delivery.Aramex_oceania.dbo_FormatDuration` at [71:17] Location: US Job ID: 0790103f-c61f-48fc-aff0-cc08f5eeb802
+2026-04-09 11:28:43  INFO      
+2026-04-09 11:28:43  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 11:28:43  INFO        SUMMARY
+2026-04-09 11:28:43  INFO        Finished : 2026-04-09 11:28:43
+2026-04-09 11:28:43  INFO        Elapsed  : 0m 5s
+2026-04-09 11:28:43  INFO        Success  : 16
+2026-04-09 11:28:43  INFO        Failed   : 1
+2026-04-09 11:28:43  INFO        Total    : 17
+2026-04-09 11:28:43  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 11:28:43  INFO      
+2026-04-09 11:28:43  INFO        Failed files:
+2026-04-09 11:28:43  INFO          BQ_Get_LoadReportHtml.sql
+2026-04-09 11:28:43  INFO            400 Error validating procedure body (add OPTIONS(strict_mode=false) to suppress): Query error: Query error: Function not found: `searce-sandbox-da-delivery.Aramex_oceania.dbo_FormatDuration` at [71:17] Location: US Job ID: 0790103f-c61f-48fc-aff0-cc08f5eeb802
+2026-04-09 11:28:43  INFO      
+2026-04-09 11:28:43  INFO      Full log saved to: /Users/mausam.kamdar/Desktop/aramax_mausam/aramex/ProceduresBQ/logs/ddl_execution_20260409_112831.log

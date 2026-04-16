@@ -1,0 +1,119 @@
+{
+  "Package\\Final": {
+    "task_metadata": {
+      "Package\\Final\\(ZENLog)": {
+        "task_metadata": {
+          "query": "DECLARE @Source varchar(50) = 'ZenLog';\nDECLARE @LastDate Datetime;\n\nSELECT @LastDate = MAX([SysLastUpdatedUtc]) From [Staging].[ZEN_Ticket_Stg]\n\nUPDATE [Staging].[LoadControl] \nSET LastValue = CONVERT(varchar(30), @LastDate, 121) \nWHERE [RecordSource] = @Source \n\n",
+          "param_map": {},
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Final\\Load HUB_Zen_Tickets": {
+        "task_metadata": {
+          "query": "EXEC [dv].[Load_HUB_ZEN_Ticket] ?,?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            },
+            "param_1": {
+              "variable_name": "RecordSource",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Final\\Load SAT_Zen_Tickets": {
+        "task_metadata": {
+          "query": "EXEC [dv].[Load_SAT_ZEN_Ticket] ?,?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            },
+            "param_1": {
+              "variable_name": "RecordSource",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  },
+  "Package\\Staging": {
+    "task_metadata": {
+      "Package\\Staging\\Get Last Run Date (ZENLog)": {
+        "task_metadata": {
+          "query": "Exec [Staging].[Get_LastValue] ?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "RecordSource",
+              "direction": "Input"
+            }
+          },
+          "result_set": {
+            "LastValue": null,
+            "null": null
+          }
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Staging\\Get ProcessID": {
+        "task_metadata": {
+          "query": "SELECT ProcessID =  MIN(ProcessID) - 1 FROM Staging.LoadLog \nWHERE ProcessID < -99999",
+          "param_map": {},
+          "result_set": {
+            "ProcessID": null
+          }
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Staging\\Load Zen_Ticket_Stg": {
+        "task_metadata": {
+          "task_dependency_map": {
+            "Package\\Staging\\Load Zen_Ticket_Stg\\OLE DB Source.Outputs[OLE DB Source Output]": [
+              "Package\\Staging\\Load Zen_Ticket_Stg\\OLE DB Destination.Inputs[OLE DB Destination Input]"
+            ]
+          },
+          "exec_order": {
+            "Package\\Staging\\Load Zen_Ticket_Stg\\OLE DB Source.Outputs[OLE DB Source Output]": 1,
+            "Package\\Staging\\Load Zen_Ticket_Stg\\OLE DB Destination.Inputs[OLE DB Destination Input]": 2
+          },
+          "per_component_data": {
+            "Package\\Staging\\Load Zen_Ticket_Stg\\OLE DB Destination": {
+              "component_type": "Microsoft.OLEDBDestination",
+              "component_info": {
+                "table_name": "ZEN_Ticket_Stg",
+                "schema_name": "Staging"
+              }
+            },
+            "Package\\Staging\\Load Zen_Ticket_Stg\\OLE DB Source": {
+              "component_type": "Microsoft.OLEDBSource",
+              "component_info": {
+                "sql_command": null,
+                "schema_name": "dbo",
+                "table_name": "ZEN_Tickets"
+              }
+            }
+          }
+        },
+        "task_type": "Microsoft.Pipeline"
+      },
+      "Package\\Staging\\Truncate ZEN_Ticket_Stg": {
+        "task_metadata": {
+          "query": "TRUNCATE TABLE [Staging].[ZEN_Ticket_Stg]",
+          "param_map": {},
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  }
+}

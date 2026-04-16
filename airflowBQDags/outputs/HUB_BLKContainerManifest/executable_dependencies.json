@@ -1,0 +1,95 @@
+{
+  "Package\\Final": {
+    "executables": {
+      "Package\\Final\\Load HUB_BLKContainerManifestLabel": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Final\\Update LoadControl LastScanDate (BLK_ManifestID)"
+        ],
+        "upstream_dependencies": []
+      },
+      "Package\\Final\\Load SAT_BLKContainerManifest": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Final\\Load SAT_BLKContainerManifestContent"
+        ],
+        "upstream_dependencies": []
+      },
+      "Package\\Final\\Load SAT_BLKContainerManifestContent": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Final\\Update LoadControl LastScanDate (BLK_ManifestID)"
+        ],
+        "upstream_dependencies": [
+          "Package\\Final\\Load SAT_BLKContainerManifest"
+        ]
+      },
+      "Package\\Final\\Update LoadControl LastScanDate (BLK_ManifestID)": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Final\\Load HUB_BLKContainerManifestLabel",
+          "Package\\Final\\Load SAT_BLKContainerManifestContent"
+        ]
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [],
+    "upstream_dependencies": [
+      "Package\\Staging"
+    ]
+  },
+  "Package\\Get ProcessID": {
+    "type": "Microsoft.ExecuteSQLTask",
+    "downstream_dependencies": [
+      "Package\\Staging"
+    ],
+    "upstream_dependencies": []
+  },
+  "Package\\Staging": {
+    "executables": {
+      "Package\\Staging\\Get Last ContainerContents LastScanDate": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging\\Load ContainerContents"
+        ],
+        "upstream_dependencies": [
+          "Package\\Staging\\Load ContainerManifest"
+        ],
+        "referred_stored_proc": [
+          "[Staging].[Get_LastValue]"
+        ]
+      },
+      "Package\\Staging\\Load ContainerContents": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Staging\\Get Last ContainerContents LastScanDate"
+        ]
+      },
+      "Package\\Staging\\Load ContainerManifest": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [
+          "Package\\Staging\\Get Last ContainerContents LastScanDate"
+        ],
+        "upstream_dependencies": [
+          "Package\\Staging\\Truncate BLK_Manifest_Stg"
+        ]
+      },
+      "Package\\Staging\\Truncate BLK_Manifest_Stg": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Staging\\Load ContainerManifest"
+        ],
+        "upstream_dependencies": []
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [
+      "Package\\Final"
+    ],
+    "upstream_dependencies": [
+      "Package\\Get ProcessID"
+    ]
+  }
+}

@@ -1,0 +1,3095 @@
+﻿<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="10/24/2018 3:36:25 PM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="CUBE"
+  DTS:CreatorName="FASTWAYTECH\philw.adm"
+  DTS:DTSID="{B6846493-C865-4727-9350-F9F9B7829951}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="16.0.5314.0"
+  DTS:LocaleID="3081"
+  DTS:ObjectName="HUB_CF"
+  DTS:PackageType="5"
+  DTS:VersionBuild="54"
+  DTS:VersionGUID="{9DAEF56B-8D8C-49C1-A2A9-432E6E16524A}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:PackageParameters>
+    <DTS:PackageParameter
+      DTS:CreationName=""
+      DTS:DataType="11"
+      DTS:DTSID="{40B0CD75-9B3A-4209-B01B-D28E7610B574}"
+      DTS:ObjectName="DisableFinal">
+      <DTS:Property
+        DTS:DataType="11"
+        DTS:Name="ParameterValue">0</DTS:Property>
+    </DTS:PackageParameter>
+    <DTS:PackageParameter
+      DTS:CreationName=""
+      DTS:DataType="11"
+      DTS:DTSID="{70B09BDD-7EA9-400A-A42D-38EBA8402340}"
+      DTS:ObjectName="DisableStaging">
+      <DTS:Property
+        DTS:DataType="11"
+        DTS:Name="ParameterValue">0</DTS:Property>
+    </DTS:PackageParameter>
+    <DTS:PackageParameter
+      DTS:CreationName=""
+      DTS:DataType="20"
+      DTS:DTSID="{FCFB0CC9-FD80-47D3-8A94-828E7926F2DD}"
+      DTS:ObjectName="ProcessId">
+      <DTS:Property
+        DTS:DataType="20"
+        DTS:Name="ParameterValue">8</DTS:Property>
+    </DTS:PackageParameter>
+    <DTS:PackageParameter
+      DTS:CreationName=""
+      DTS:DataType="8"
+      DTS:DTSID="{136C99D8-3F81-4B3E-87FE-06347C201481}"
+      DTS:ObjectName="RecordSource">
+      <DTS:Property
+        DTS:DataType="8"
+        DTS:Name="ParameterValue">Fastway</DTS:Property>
+    </DTS:PackageParameter>
+  </DTS:PackageParameters>
+  <DTS:Variables>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{79FD8E90-9EC1-4357-AD38-C8EED96FE406}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="DatasetName">
+      <DTS:VariableValue
+        DTS:DataType="8">Fastway.dbo.FMS_Courier</DTS:VariableValue>
+    </DTS:Variable>
+  </DTS:Variables>
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\Final"
+      DTS:CreationName="STOCK:SEQUENCE"
+      DTS:Description="Sequence Container"
+      DTS:DTSID="{905D1C43-9284-49ED-8E3A-1E5C652E5C59}"
+      DTS:ExecutableType="STOCK:SEQUENCE"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Final">
+      <DTS:Variables />
+      <DTS:PropertyExpression
+        DTS:Name="Disable">@[$Package::DisableFinal]</DTS:PropertyExpression>
+      <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package\Final\Load CF_HUB"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{AB931B32-4137-4271-B21B-94CB84815CA3}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Load CF_HUB"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2012; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="0">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
+              SQLTask:SqlStatementSource="Exec [dv].[Load_HUB_CF] ?,?" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="$Package::ProcessId"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="3"
+                SQLTask:ParameterSize="-1" />
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="1"
+                SQLTask:DtsVariableName="$Package::RecordSource"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="130"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\Final\Load CF_SAT"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{a77feab1-5141-4e0b-942e-ddb4c2c93f60}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Load CF_SAT"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2012; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
+              SQLTask:SqlStatementSource="Exec [dv].[Load_SAT_CF] ?,?" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="$Package::ProcessId"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="3"
+                SQLTask:ParameterSize="-1" />
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="1"
+                SQLTask:DtsVariableName="$Package::RecordSource"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="130"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Staging"
+      DTS:CreationName="STOCK:SEQUENCE"
+      DTS:Description="Sequence Container"
+      DTS:DTSID="{29F441B4-7209-4EA4-BCAB-DECB0447C9BB}"
+      DTS:ExecutableType="STOCK:SEQUENCE"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Staging">
+      <DTS:Variables />
+      <DTS:PropertyExpression
+        DTS:Name="Disable">@[$Package::DisableStaging]</DTS:PropertyExpression>
+      <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package\Staging\Load Courier_Stg"
+          DTS:CreationName="Microsoft.Pipeline"
+          DTS:Description="Data Flow Task"
+          DTS:DTSID="{FC783AC7-6959-4330-86B0-B4FA518C98B4}"
+          DTS:ExecutableType="Microsoft.Pipeline"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Load Courier_Stg"
+          DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <pipeline
+              version="1">
+              <components>
+                <component
+                  refId="Package\Staging\Load Courier_Stg\Courier_Stg"
+                  componentClassID="Microsoft.OLEDBDestination"
+                  contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+                  description="OLE DB Destination"
+                  name="Courier_Stg"
+                  usesDispositions="true"
+                  version="4">
+                  <properties>
+                    <property
+                      dataType="System.Int32"
+                      description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                      name="CommandTimeout">0</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the name of the database object used to open a rowset."
+                      name="OpenRowset">[Staging].[Courier_Stg]</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the variable that contains the name of the database object used to open a rowset."
+                      name="OpenRowsetVariable"></property>
+                    <property
+                      dataType="System.String"
+                      description="The SQL command to be executed."
+                      name="SqlCommand"
+                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the column code page to use when code page information is unavailable from the data source."
+                      name="DefaultCodePage">1252</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Forces the use of the DefaultCodePage property value when describing character data."
+                      name="AlwaysUseDefaultCodePage">false</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the mode used to access the database."
+                      name="AccessMode"
+                      typeConverter="AccessMode">3</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                      name="FastLoadKeepIdentity">false</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                      name="FastLoadKeepNulls">false</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                      name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                      name="FastLoadMaxInsertCommitSize">2147483647</property>
+                  </properties>
+                  <connections>
+                    <connection
+                      refId="Package\Staging\Load Courier_Stg\Courier_Stg.Connections[OleDbConnection]"
+                      connectionManagerID="{66292261-9521-45A6-ACCA-54377A482A00}:external"
+                      connectionManagerRefId="Project.ConnectionManagers[CUBE.FastwayDW]"
+                      description="The OLE DB runtime connection used to access the database."
+                      name="OleDbConnection" />
+                  </connections>
+                  <inputs>
+                    <input
+                      refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input]"
+                      errorOrTruncationOperation="Insert"
+                      errorRowDisposition="RedirectRow"
+                      hasSideEffects="true"
+                      name="OLE DB Destination Input">
+                      <inputColumns>
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].Columns[Name]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="60"
+                          cachedName="Name"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[Name]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Name]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].Columns[RFCode]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="3"
+                          cachedName="RFCode"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[RFCode]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[RFCode]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].Columns[CourierNumber]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="3"
+                          cachedName="CourierNumber"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[CourierNumber]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[CourierNumber]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].Columns[ShortName]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="10"
+                          cachedName="ShortName"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[ShortName]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[ShortName]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].Columns[EmailAddress]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="60"
+                          cachedName="EmailAddress"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[EmailAddress]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[EmailAddress]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].Columns[PhoneNumber]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="15"
+                          cachedName="PhoneNumber"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[PhoneNumber]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[PhoneNumber]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].Columns[Mobile]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="15"
+                          cachedName="Mobile"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[Mobile]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Mobile]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].Columns[BlackbayRouteId]"
+                          cachedDataType="i4"
+                          cachedName="BlackbayRouteId"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[BlackbayRouteId]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[BlackbayRouteId]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].Columns[CFName]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="25"
+                          cachedName="CFName"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[CFName]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[CFName]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].Columns[Address1]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="60"
+                          cachedName="Address1"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[Address1]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Address1]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].Columns[Address2]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="60"
+                          cachedName="Address2"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[Address2]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Address2]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].Columns[Address3]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="60"
+                          cachedName="Address3"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[Address3]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Address3]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].Columns[Address4]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="60"
+                          cachedName="Address4"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[Address4]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Address4]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].Columns[CourierGroup]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="40"
+                          cachedName="CourierGroup"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[CourierGroup]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[CourierGroup]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].Columns[CFOwnershipModel]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="40"
+                          cachedName="CFOwnershipModel"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[CFOwnershipModel]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[CFOwnershipModel]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].Columns[Inactive]"
+                          cachedDataType="bool"
+                          cachedName="Inactive"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[Inactive]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Inactive]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].Columns[ParcelConnectCFTerritory]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="3"
+                          cachedName="ParcelConnectCFTerritory"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[ParcelConnectCFTerritory]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[ParcelConnectCFTerritory]" />
+                      </inputColumns>
+                      <externalMetadataColumns
+                        isUsed="True">
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[EmailAddress]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          name="EmailAddress" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[RFCode]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          name="RFCode" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[CourierNumber]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          name="CourierNumber" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[Name]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          name="Name" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[ShortName]"
+                          codePage="1252"
+                          dataType="str"
+                          length="10"
+                          name="ShortName" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[PhoneNumber]"
+                          codePage="1252"
+                          dataType="str"
+                          length="15"
+                          name="PhoneNumber" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[Mobile]"
+                          codePage="1252"
+                          dataType="str"
+                          length="15"
+                          name="Mobile" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[BlackbayRouteId]"
+                          dataType="i4"
+                          name="BlackbayRouteId" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[CFName]"
+                          codePage="1252"
+                          dataType="str"
+                          length="25"
+                          name="CFName" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[Address1]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          name="Address1" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[Address2]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          name="Address2" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[Address3]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          name="Address3" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[Address4]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          name="Address4" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[CourierGroup]"
+                          codePage="1252"
+                          dataType="str"
+                          length="40"
+                          name="CourierGroup" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[CFOwnershipModel]"
+                          codePage="1252"
+                          dataType="str"
+                          length="40"
+                          name="CFOwnershipModel" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[Inactive]"
+                          dataType="bool"
+                          name="Inactive" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input].ExternalColumns[ParcelConnectCFTerritory]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          name="ParcelConnectCFTerritory" />
+                      </externalMetadataColumns>
+                    </input>
+                  </inputs>
+                  <outputs>
+                    <output
+                      refId="Package\Staging\Load Courier_Stg\Courier_Stg.Outputs[OLE DB Destination Error Output]"
+                      exclusionGroup="1"
+                      isErrorOut="true"
+                      name="OLE DB Destination Error Output"
+                      synchronousInputId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input]">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load Courier_Stg\Courier_Stg.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                          name="ErrorCode"
+                          specialFlags="1" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load Courier_Stg\Courier_Stg.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                          name="ErrorColumn"
+                          specialFlags="2" />
+                      </outputColumns>
+                      <externalMetadataColumns />
+                    </output>
+                  </outputs>
+                </component>
+                <component
+                  refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert)"
+                  componentClassID="Microsoft.OLEDBDestination"
+                  contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+                  description="OLE DB Destination"
+                  name="Courier_Stg (Bulk Insert)"
+                  usesDispositions="true"
+                  version="4">
+                  <properties>
+                    <property
+                      dataType="System.Int32"
+                      description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                      name="CommandTimeout">0</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the name of the database object used to open a rowset."
+                      name="OpenRowset">[Staging].[Courier_Stg]</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the variable that contains the name of the database object used to open a rowset."
+                      name="OpenRowsetVariable"></property>
+                    <property
+                      dataType="System.String"
+                      description="The SQL command to be executed."
+                      name="SqlCommand"
+                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the column code page to use when code page information is unavailable from the data source."
+                      name="DefaultCodePage">1252</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Forces the use of the DefaultCodePage property value when describing character data."
+                      name="AlwaysUseDefaultCodePage">false</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the mode used to access the database."
+                      name="AccessMode"
+                      typeConverter="AccessMode">3</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                      name="FastLoadKeepIdentity">false</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                      name="FastLoadKeepNulls">false</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                      name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS,ROWS_PER_BATCH = 10000</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                      name="FastLoadMaxInsertCommitSize">2147483647</property>
+                  </properties>
+                  <connections>
+                    <connection
+                      refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Connections[OleDbConnection]"
+                      connectionManagerID="{66292261-9521-45A6-ACCA-54377A482A00}:external"
+                      connectionManagerRefId="Project.ConnectionManagers[CUBE.FastwayDW]"
+                      description="The OLE DB runtime connection used to access the database."
+                      name="OleDbConnection" />
+                  </connections>
+                  <inputs>
+                    <input
+                      refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input]"
+                      errorOrTruncationOperation="Insert"
+                      errorRowDisposition="RedirectRow"
+                      hasSideEffects="true"
+                      name="OLE DB Destination Input">
+                      <inputColumns>
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].Columns[Name]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="60"
+                          cachedName="Name"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[Name]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Name]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].Columns[RFCode]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="3"
+                          cachedName="RFCode"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[RFCode]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[RFCode]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].Columns[CourierNumber]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="3"
+                          cachedName="CourierNumber"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[CourierNumber]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[CourierNumber]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].Columns[ShortName]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="10"
+                          cachedName="ShortName"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[ShortName]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[ShortName]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].Columns[EmailAddress]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="60"
+                          cachedName="EmailAddress"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[EmailAddress]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[EmailAddress]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].Columns[CFName]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="25"
+                          cachedName="CFName"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[CFName]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[CFName]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].Columns[PhoneNumber]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="15"
+                          cachedName="PhoneNumber"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[PhoneNumber]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[PhoneNumber]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].Columns[Mobile]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="15"
+                          cachedName="Mobile"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[Mobile]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Mobile]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].Columns[BlackbayRouteId]"
+                          cachedDataType="i4"
+                          cachedName="BlackbayRouteId"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[BlackbayRouteId]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[BlackbayRouteId]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].Columns[Address1]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="60"
+                          cachedName="Address1"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[Address1]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Address1]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].Columns[Address2]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="60"
+                          cachedName="Address2"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[Address2]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Address2]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].Columns[Address3]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="60"
+                          cachedName="Address3"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[Address3]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Address3]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].Columns[Address4]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="60"
+                          cachedName="Address4"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[Address4]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Address4]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].Columns[CourierGroup]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="40"
+                          cachedName="CourierGroup"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[CourierGroup]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[CourierGroup]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].Columns[CFOwnershipModel]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="40"
+                          cachedName="CFOwnershipModel"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[CFOwnershipModel]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[CFOwnershipModel]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].Columns[Inactive]"
+                          cachedDataType="bool"
+                          cachedName="Inactive"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[Inactive]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Inactive]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].Columns[ParcelConnectCFTerritory]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="3"
+                          cachedName="ParcelConnectCFTerritory"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[ParcelConnectCFTerritory]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[ParcelConnectCFTerritory]" />
+                      </inputColumns>
+                      <externalMetadataColumns
+                        isUsed="True">
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[EmailAddress]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          name="EmailAddress" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[CourierNumber]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          name="CourierNumber" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[RFCode]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          name="RFCode" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[Name]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          name="Name" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[ShortName]"
+                          codePage="1252"
+                          dataType="str"
+                          length="10"
+                          name="ShortName" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[PhoneNumber]"
+                          codePage="1252"
+                          dataType="str"
+                          length="15"
+                          name="PhoneNumber" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[Mobile]"
+                          codePage="1252"
+                          dataType="str"
+                          length="15"
+                          name="Mobile" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[BlackbayRouteId]"
+                          dataType="i4"
+                          name="BlackbayRouteId" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[CFName]"
+                          codePage="1252"
+                          dataType="str"
+                          length="25"
+                          name="CFName" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[Address1]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          name="Address1" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[Address2]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          name="Address2" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[Address3]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          name="Address3" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[Address4]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          name="Address4" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[CourierGroup]"
+                          codePage="1252"
+                          dataType="str"
+                          length="40"
+                          name="CourierGroup" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[CFOwnershipModel]"
+                          codePage="1252"
+                          dataType="str"
+                          length="40"
+                          name="CFOwnershipModel" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[Inactive]"
+                          dataType="bool"
+                          name="Inactive" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[ParcelConnectCFTerritory]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          name="ParcelConnectCFTerritory" />
+                      </externalMetadataColumns>
+                    </input>
+                  </inputs>
+                  <outputs>
+                    <output
+                      refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Outputs[OLE DB Destination Error Output]"
+                      exclusionGroup="1"
+                      isErrorOut="true"
+                      name="OLE DB Destination Error Output"
+                      synchronousInputId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input]">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                          name="ErrorCode"
+                          specialFlags="1" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                          name="ErrorColumn"
+                          specialFlags="2" />
+                      </outputColumns>
+                      <externalMetadataColumns />
+                    </output>
+                  </outputs>
+                </component>
+                <component
+                  refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway)"
+                  componentClassID="Microsoft.OLEDBSource"
+                  contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+                  description="OLE DB Source"
+                  name="FMS_Courier data (Fastway)"
+                  usesDispositions="true"
+                  version="7">
+                  <properties>
+                    <property
+                      dataType="System.Int32"
+                      description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                      name="CommandTimeout">0</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the name of the database object used to open a rowset."
+                      name="OpenRowset">[dbo].[FMS_Courier]</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the variable that contains the name of the database object used to open a rowset."
+                      name="OpenRowsetVariable"></property>
+                    <property
+                      dataType="System.String"
+                      description="The SQL command to be executed."
+                      name="SqlCommand"
+                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91">SELECT
+    c.[RFCode],
+    [CourierNumber],
+    g.[Description] as CourierGroup,
+    [Name],
+    [ShortName],
+    [CFName],
+    [Address1],
+    [Address2],
+    [Address3],
+    [Address4],
+    [EmailAddress],
+    [PhoneNumber],
+    [Mobile],
+    [BlackbayRouteId],
+    w.[Description] AS CFOwnershipModel,
+    c.[Inactive],
+    ParcelConnectCFTerritory
+FROM [Fastway].[dbo].[FMS_Courier] c
+         left join [FMS_LookUpTableDetail] g ON c.RFCode = g.RFCode AND HeaderCode = 'GRP' AND c.CourierGroup = g.ItemCode
+         left join [FMS_LookUpTableDetail] w ON w.HeaderCode = 'OWN' AND w.ItemCode = c.CFOwnershipModel AND c.NMid = w.NMid
+WHERE Inactive = 0;</property>
+                    <property
+                      dataType="System.String"
+                      description="The variable that contains the SQL command to be executed."
+                      name="SqlCommandVariable">User::SourceDataQuery</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the column code page to use when code page information is unavailable from the data source."
+                      name="DefaultCodePage">1252</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Forces the use of the DefaultCodePage property value when describing character data."
+                      name="AlwaysUseDefaultCodePage">false</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the mode used to access the database."
+                      name="AccessMode"
+                      typeConverter="AccessMode">2</property>
+                    <property
+                      dataType="System.String"
+                      description="The mappings between the parameters in the SQL command and variables."
+                      name="ParameterMapping"></property>
+                  </properties>
+                  <connections>
+                    <connection
+                      refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Connections[OleDbConnection]"
+                      connectionManagerID="{7BE0BAD7-C4E3-4C8B-B147-DFD9B94F82A8}:external"
+                      connectionManagerRefId="Project.ConnectionManagers[KRILLIN_Fastway]"
+                      description="The OLE DB runtime connection used to access the database."
+                      name="OleDbConnection" />
+                  </connections>
+                  <outputs>
+                    <output
+                      refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output]"
+                      name="OLE DB Source Output">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Name]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[Name]"
+                          length="60"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Name]"
+                          name="Name"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[RFCode]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[RFCode]"
+                          length="3"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[RFCode]"
+                          name="RFCode"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[CourierNumber]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[CourierNumber]"
+                          length="3"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[CourierNumber]"
+                          name="CourierNumber"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[ShortName]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[ShortName]"
+                          length="10"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[ShortName]"
+                          name="ShortName"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[EmailAddress]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[EmailAddress]"
+                          length="60"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[EmailAddress]"
+                          name="EmailAddress"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[CFName]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[CFName]"
+                          length="25"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[CFName]"
+                          name="CFName"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Address1]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[Address1]"
+                          length="60"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Address1]"
+                          name="Address1"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Address2]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[Address2]"
+                          length="60"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Address2]"
+                          name="Address2"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Address3]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[Address3]"
+                          length="60"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Address3]"
+                          name="Address3"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Address4]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[Address4]"
+                          length="60"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Address4]"
+                          name="Address4"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[PhoneNumber]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[PhoneNumber]"
+                          length="15"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[PhoneNumber]"
+                          name="PhoneNumber"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Mobile]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[Mobile]"
+                          length="15"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Mobile]"
+                          name="Mobile"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[BlackbayRouteId]"
+                          dataType="i4"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[BlackbayRouteId]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[BlackbayRouteId]"
+                          name="BlackbayRouteId"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[CourierGroup]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[CourierGroup]"
+                          length="40"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[CourierGroup]"
+                          name="CourierGroup"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[CFOwnershipModel]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[CFOwnershipModel]"
+                          length="40"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[CFOwnershipModel]"
+                          name="CFOwnershipModel"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Inactive]"
+                          dataType="bool"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[Inactive]"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[Inactive]"
+                          name="Inactive"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[ParcelConnectCFTerritory]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[ParcelConnectCFTerritory]"
+                          length="3"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[ParcelConnectCFTerritory]"
+                          name="ParcelConnectCFTerritory"
+                          truncationRowDisposition="FailComponent" />
+                      </outputColumns>
+                      <externalMetadataColumns
+                        isUsed="True">
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[Name]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          name="Name" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[RFCode]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          name="RFCode" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[CourierNumber]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          name="CourierNumber" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[ShortName]"
+                          codePage="1252"
+                          dataType="str"
+                          length="10"
+                          name="ShortName" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[EmailAddress]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          name="EmailAddress" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[CFName]"
+                          codePage="1252"
+                          dataType="str"
+                          length="25"
+                          name="CFName" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[Address1]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          name="Address1" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[Address2]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          name="Address2" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[Address3]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          name="Address3" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[Address4]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          name="Address4" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[PhoneNumber]"
+                          codePage="1252"
+                          dataType="str"
+                          length="15"
+                          name="PhoneNumber" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[Mobile]"
+                          codePage="1252"
+                          dataType="str"
+                          length="15"
+                          name="Mobile" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[BlackbayRouteId]"
+                          dataType="i4"
+                          name="BlackbayRouteId" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[CourierGroup]"
+                          codePage="1252"
+                          dataType="str"
+                          length="40"
+                          name="CourierGroup" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[CFOwnershipModel]"
+                          codePage="1252"
+                          dataType="str"
+                          length="40"
+                          name="CFOwnershipModel" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[Inactive]"
+                          dataType="bool"
+                          name="Inactive" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[ParcelConnectCFTerritory]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          name="ParcelConnectCFTerritory" />
+                      </externalMetadataColumns>
+                    </output>
+                    <output
+                      refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output]"
+                      isErrorOut="true"
+                      name="OLE DB Source Error Output">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[RFCode]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[RFCode]"
+                          name="RFCode" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[CourierNumber]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[CourierNumber]"
+                          name="CourierNumber" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[CourierGroup]"
+                          codePage="1252"
+                          dataType="str"
+                          length="40"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[CourierGroup]"
+                          name="CourierGroup" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[EmailAddress]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[EmailAddress]"
+                          name="EmailAddress" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[Name]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[Name]"
+                          name="Name" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[CFName]"
+                          codePage="1252"
+                          dataType="str"
+                          length="25"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[CFName]"
+                          name="CFName" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[Address1]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[Address1]"
+                          name="Address1" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[Address2]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[Address2]"
+                          name="Address2" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[Address3]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[Address3]"
+                          name="Address3" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[Address4]"
+                          codePage="1252"
+                          dataType="str"
+                          length="60"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[Address4]"
+                          name="Address4" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[ShortName]"
+                          codePage="1252"
+                          dataType="str"
+                          length="10"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[ShortName]"
+                          name="ShortName" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[PhoneNumber]"
+                          codePage="1252"
+                          dataType="str"
+                          length="15"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[PhoneNumber]"
+                          name="PhoneNumber" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[Mobile]"
+                          codePage="1252"
+                          dataType="str"
+                          length="15"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[Mobile]"
+                          name="Mobile" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[BlackbayRouteId]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[BlackbayRouteId]"
+                          name="BlackbayRouteId" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[CFOwnershipModel]"
+                          codePage="1252"
+                          dataType="str"
+                          length="40"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[CFOwnershipModel]"
+                          name="CFOwnershipModel" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[Inactive]"
+                          dataType="bool"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[Inactive]"
+                          name="Inactive" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[ParcelConnectCFTerritory]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[ParcelConnectCFTerritory]"
+                          name="ParcelConnectCFTerritory" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                          name="ErrorCode"
+                          specialFlags="1" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                          name="ErrorColumn"
+                          specialFlags="2" />
+                      </outputColumns>
+                      <externalMetadataColumns />
+                    </output>
+                  </outputs>
+                </component>
+                <component
+                  refId="Package\Staging\Load Courier_Stg\Get Error Details"
+                  componentClassID="Microsoft.ManagedComponentHost"
+                  contactInfo="Includes and runs custom script code. For example, apply a business rule that limits the range of valid values in an &quot;income&quot; column or add values in two columns and calculate the average of the sum.;Microsoft Corporation; Microsoft SQL Server; Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;8"
+                  description="Includes and runs custom script code. For example, apply a business rule that limits the range of valid values in an &quot;income&quot; column or add values in two columns and calculate the average of the sum."
+                  name="Get Error Details"
+                  version="10">
+                  <properties>
+                    <property
+                      dataType="System.String"
+                      description="Stores the source code of the component"
+                      isArray="true"
+                      name="SourceCode"
+                      state="cdata">
+                      <arrayElements
+                        arrayElementCount="30">
+                        <arrayElement
+                          dataType="System.String"><![CDATA[Properties\AssemblyInfo.cs]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[UTF8]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[using System.Reflection;
+using System.Runtime.CompilerServices;
+
+//
+// General Information about an assembly is controlled through the following 
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
+//
+[assembly: AssemblyTitle("SC_c92149591e1844968c7ee6d041ff3e0f")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("SC_c92149591e1844968c7ee6d041ff3e0f")]
+[assembly: AssemblyCopyright("Copyright @  2019")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
+//
+// Version information for an assembly consists of the following four values:
+//
+//      Major Version
+//      Minor Version 
+//      Build Number
+//      Revision
+//
+// You can specify all the values or you can default the Revision and Build Numbers 
+// by using the '*' as shown below:
+
+[assembly: AssemblyVersion("1.0.0.0")]
+]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[Properties\Resources.resx]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[UTF8]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+</root>]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[main.cs]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[UTF8]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[#region Help:  Introduction to the Script Component
+/* The Script Component allows you to perform virtually any operation that can be accomplished in
+ * a .Net application within the context of an Integration Services data flow.
+ *
+ * Expand the other regions which have "Help" prefixes for examples of specific ways to use
+ * Integration Services features within this script component. */
+#endregion
+
+#region Namespaces
+using System;
+using System.Data;
+using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
+using Microsoft.SqlServer.Dts.Runtime.Wrapper;
+#endregion
+
+[Microsoft.SqlServer.Dts.Pipeline.SSISScriptComponentEntryPointAttribute]
+public class ScriptMain : UserComponent
+{
+
+    public override void PreExecute()
+    {
+        base.PreExecute();
+    }
+
+    public override void PostExecute()
+    {
+        base.PostExecute();
+    }
+
+    private static string getStringBetween(string strSource, string strStart, string strEnd)
+    {
+        int Start, End;
+        if (strSource.Contains(strStart) && strSource.Contains(strEnd))
+        {
+            Start = strSource.IndexOf(strStart, 0) + strStart.Length;
+            End = strSource.IndexOf(strEnd, Start);
+            return strSource.Substring(Start, End - Start);
+        }
+        else
+        {
+            return strSource;
+        }
+    }
+
+    public override void Input0_ProcessInputRow(Input0Buffer Row)
+    {
+        IDTSComponentMetaData130 componentMetaData = this.ComponentMetaData as IDTSComponentMetaData130;
+        String columnName = componentMetaData.GetIdentificationStringByID(Row.ErrorColumn);
+        // columnName can be "tsections_Stg.Inputs[OLE DB Destination Input].Columns[RecordId]"
+        // so call a function to get "RecordId"
+        Row.ErrorColumnName = getStringBetween(columnName,"].Columns[","]");
+       
+        Row.ErrorDescription = this.ComponentMetaData.GetErrorDescription(Row.ErrorCode);
+        Row.ErrorDateTime = DateTime.Now;
+
+        Row.DatasetName = Variables.DatasetName;
+        Row.PackageName = Variables.PackageName;
+        Row.ProcessID = Variables.ProcessId;
+
+        Row.BusinessKey1 = Row.RFCode;
+        Row.BusinessKey2 = Row.CourierNumber;
+        Row.SystemKey = null;
+    }
+
+}
+]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[BufferWrapper.cs]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[UTF8]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[/* THIS IS AUTO-GENERATED CODE THAT WILL BE OVERWRITTEN! DO NOT EDIT!
+*  Microsoft SQL Server Integration Services buffer wrappers
+*  This module defines classes for accessing data flow buffers
+*  THIS IS AUTO-GENERATED CODE THAT WILL BE OVERWRITTEN! DO NOT EDIT! */
+
+
+
+using System;
+using System.Data;
+using Microsoft.SqlServer.Dts.Pipeline;
+using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
+
+public class Input0Buffer: ScriptBuffer
+
+{
+    public Input0Buffer(PipelineBuffer Buffer, int[] BufferColumnIndexes, OutputNameMap OutputMap)
+        : base(Buffer, BufferColumnIndexes, OutputMap)
+    {
+    }
+
+    public String RFCode
+    {
+        get
+        {
+            return Buffer.GetString(BufferColumnIndexes[0]);
+        }
+    }
+    public bool RFCode_IsNull
+    {
+        get
+        {
+            return IsNull(0);
+        }
+    }
+
+    public String CourierNumber
+    {
+        get
+        {
+            return Buffer.GetString(BufferColumnIndexes[1]);
+        }
+    }
+    public bool CourierNumber_IsNull
+    {
+        get
+        {
+            return IsNull(1);
+        }
+    }
+
+    public Int32 ErrorCode
+    {
+        get
+        {
+            return Buffer.GetInt32(BufferColumnIndexes[2]);
+        }
+    }
+    public bool ErrorCode_IsNull
+    {
+        get
+        {
+            return IsNull(2);
+        }
+    }
+
+    public Int32 ErrorColumn
+    {
+        get
+        {
+            return Buffer.GetInt32(BufferColumnIndexes[3]);
+        }
+    }
+    public bool ErrorColumn_IsNull
+    {
+        get
+        {
+            return IsNull(3);
+        }
+    }
+
+    public String ErrorColumnName
+    {
+        set
+        {
+            this[4] = value;
+        }
+    }
+    public bool ErrorColumnName_IsNull
+    {
+        set
+        {
+            if (value)
+            {
+                SetNull(4);
+            }
+            else
+            {
+                throw new InvalidOperationException("IsNull property cannot be set to False. Assign a value to the column instead.");
+            }
+        }
+    }
+
+    public String ErrorDescription
+    {
+        set
+        {
+            this[5] = value;
+        }
+    }
+    public bool ErrorDescription_IsNull
+    {
+        set
+        {
+            if (value)
+            {
+                SetNull(5);
+            }
+            else
+            {
+                throw new InvalidOperationException("IsNull property cannot be set to False. Assign a value to the column instead.");
+            }
+        }
+    }
+
+    public DateTime ErrorDateTime
+    {
+        set
+        {
+            this[6] = value;
+        }
+    }
+    public bool ErrorDateTime_IsNull
+    {
+        set
+        {
+            if (value)
+            {
+                SetNull(6);
+            }
+            else
+            {
+                throw new InvalidOperationException("IsNull property cannot be set to False. Assign a value to the column instead.");
+            }
+        }
+    }
+
+    public String BusinessKey1
+    {
+        set
+        {
+            this[7] = value;
+        }
+    }
+    public bool BusinessKey1_IsNull
+    {
+        set
+        {
+            if (value)
+            {
+                SetNull(7);
+            }
+            else
+            {
+                throw new InvalidOperationException("IsNull property cannot be set to False. Assign a value to the column instead.");
+            }
+        }
+    }
+
+    public String BusinessKey2
+    {
+        set
+        {
+            this[8] = value;
+        }
+    }
+    public bool BusinessKey2_IsNull
+    {
+        set
+        {
+            if (value)
+            {
+                SetNull(8);
+            }
+            else
+            {
+                throw new InvalidOperationException("IsNull property cannot be set to False. Assign a value to the column instead.");
+            }
+        }
+    }
+
+    public String SystemKey
+    {
+        set
+        {
+            this[9] = value;
+        }
+    }
+    public bool SystemKey_IsNull
+    {
+        set
+        {
+            if (value)
+            {
+                SetNull(9);
+            }
+            else
+            {
+                throw new InvalidOperationException("IsNull property cannot be set to False. Assign a value to the column instead.");
+            }
+        }
+    }
+
+    public String DatasetName
+    {
+        set
+        {
+            this[10] = value;
+        }
+    }
+    public bool DatasetName_IsNull
+    {
+        set
+        {
+            if (value)
+            {
+                SetNull(10);
+            }
+            else
+            {
+                throw new InvalidOperationException("IsNull property cannot be set to False. Assign a value to the column instead.");
+            }
+        }
+    }
+
+    public String PackageName
+    {
+        set
+        {
+            this[11] = value;
+        }
+    }
+    public bool PackageName_IsNull
+    {
+        set
+        {
+            if (value)
+            {
+                SetNull(11);
+            }
+            else
+            {
+                throw new InvalidOperationException("IsNull property cannot be set to False. Assign a value to the column instead.");
+            }
+        }
+    }
+
+    public Int64 ProcessID
+    {
+        set
+        {
+            this[12] = value;
+        }
+    }
+    public bool ProcessID_IsNull
+    {
+        set
+        {
+            if (value)
+            {
+                SetNull(12);
+            }
+            else
+            {
+                throw new InvalidOperationException("IsNull property cannot be set to False. Assign a value to the column instead.");
+            }
+        }
+    }
+
+    new public bool NextRow()
+    {
+        return base.NextRow();
+    }
+
+    new public bool EndOfRowset()
+    {
+        return base.EndOfRowset();
+    }
+
+}
+]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[ComponentWrapper.cs]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[UTF8]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[/* THIS IS AUTO-GENERATED CODE THAT WILL BE OVERWRITTEN! DO NOT EDIT!
+*  Microsoft SQL Server Integration Services component wrapper
+*  This module defines the base class for your component
+*  THIS IS AUTO-GENERATED CODE THAT WILL BE OVERWRITTEN! DO NOT EDIT! */
+
+using System;
+using System.Data;
+using Microsoft.SqlServer.Dts.Pipeline;
+using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
+using Microsoft.SqlServer.Dts.Runtime.Wrapper;
+
+public class UserComponent: ScriptComponent
+{
+    public Connections Connections;
+    public Variables Variables;
+    public UserComponent()
+    {
+        Connections = new Connections(this);
+        Variables = new Variables(this);
+    }
+
+    public override void ProcessInput(int InputID, string InputName, PipelineBuffer Buffer, OutputNameMap OutputMap)
+    {
+
+        if (InputName.Equals(@"Input 0", StringComparison.Ordinal))
+        {
+            Input0_ProcessInput(new Input0Buffer(Buffer, GetColumnIndexes(InputID), OutputMap));
+        }
+
+    }
+
+    public virtual void Input0_ProcessInput(Input0Buffer Buffer)
+    {
+        while (Buffer.NextRow())
+        {
+            Input0_ProcessInputRow(Buffer);
+        }
+    }
+
+    public virtual void Input0_ProcessInputRow(Input0Buffer Row)
+    {
+    }
+
+}
+
+public class Connections
+{
+    ScriptComponent ParentComponent;
+
+    public Connections(ScriptComponent Component)
+    {
+        ParentComponent = Component;
+    }
+
+}
+
+public class Variables
+{
+    ScriptComponent ParentComponent;
+
+    public Variables(ScriptComponent Component)
+    {
+        ParentComponent = Component;
+    }
+
+    public String DatasetName
+    {
+        get
+        {
+            return (String)(ParentComponent.ReadOnlyVariables["DatasetName"].GetValueWithContext(ScriptComponent.EvaluatorContext));
+        }
+    }
+
+    public String PackageName
+    {
+        get
+        {
+            return (String)(ParentComponent.ReadOnlyVariables["PackageName"].GetValueWithContext(ScriptComponent.EvaluatorContext));
+        }
+    }
+
+    public Int64 ProcessId
+    {
+        get
+        {
+            return (Int64)(ParentComponent.ReadOnlyVariables["ProcessId"].GetValueWithContext(ScriptComponent.EvaluatorContext));
+        }
+    }
+
+}
+]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[SC_c92149591e1844968c7ee6d041ff3e0f.csproj]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[UTF8]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectTypeGuids>{30D016F9-3734-4E33-A861-5E7D899E18F3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{c4758bde-067a-42b0-8bc3-ca1c6d8849aa}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SC_c92149591e1844968c7ee6d041ff3e0f</RootNamespace>
+    <AssemblyName>SC_c92149591e1844968c7ee6d041ff3e0f</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ResolveAssemblyReferenceIgnoreTargetFrameworkAttributeVersionMismatch>true</ResolveAssemblyReferenceIgnoreTargetFrameworkAttributeVersionMismatch>
+    <TargetFrameworkProfile></TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>.\bin\Debug\</OutputPath>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>true</Optimize>
+    <OutputPath>.\bin\Release\</OutputPath>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.SqlServer.TxScript, Version=13.0.0.0, Culture=Neutral, PublicKeyToken=89845dcd8080cc91" />
+    <Reference Include="Microsoft.SqlServer.DTSRuntimeWrap, Version=13.0.0.0, Culture=Neutral, PublicKeyToken=89845dcd8080cc91" />
+    <Reference Include="Microsoft.SqlServer.DTSPipelineWrap, Version=13.0.0.0, Culture=Neutral, PublicKeyToken=89845dcd8080cc91" />
+    <Reference Include="Microsoft.SqlServer.PipelineHost, Version=13.0.0.0, Culture=Neutral, PublicKeyToken=89845dcd8080cc91" />
+    <Compile Include="main.cs" />
+    <Compile Include="BufferWrapper.cs" />
+    <Compile Include="ComponentWrapper.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <AppDesigner Include="Properties\" />
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <!-- Include the build rules for a C# project.-->
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- This section defines VSTA properties that describe the host-changable project properties. -->
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{30D016F9-3734-4E33-A861-5E7D899E18F3}">
+        <ProjectProperties HostName="ScriptComponent" HostPackage="{B3A685AA-7EAF-4BC6-9940-57959FA5AC07}" ApplicationType="usd" Language="cs" TemplatesPath="" DebugInfoExeName="" DebugInfoCommandLine="" DebugInfoWorkingDir="" IconImageList="" />
+        <Host Name="ScriptComponent" GeneratedNamespace="SC_c92149591e1844968c7ee6d041ff3e0f" IconIndex="0"></Host>
+        <ProjectClient>
+          <HostIdentifier>SSIS_SC130</HostIdentifier>
+        </ProjectClient>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[Project]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[UTF16LE]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[<?xml version="1.0" encoding="UTF-16" standalone="yes"?>
+<c:Project xmlns:c="http://schemas.microsoft.com/codeprojectml/2010/08/main" xmlns:msb="http://schemas.microsoft.com/developer/msbuild/2003" runtimeVersion="4.0" schemaVersion="1.0">
+	<msb:PropertyGroup>
+		<msb:CodeName>SC_c92149591e1844968c7ee6d041ff3e0f</msb:CodeName>
+		<msb:Language>msBuild</msb:Language>
+		<msb:DisplayName>SC_c92149591e1844968c7ee6d041ff3e0f</msb:DisplayName>
+		<msb:ProjectId>{ABC71F16-0E74-4B89-97F5-110DDFB260B7}</msb:ProjectId>
+	</msb:PropertyGroup>
+	<msb:ItemGroup>
+		<msb:Project Include="SC_c92149591e1844968c7ee6d041ff3e0f.csproj"/>
+		<msb:File Include="Properties\Settings.Designer.cs"/>
+		<msb:File Include="BufferWrapper.cs"/>
+		<msb:File Include="main.cs"/>
+		<msb:File Include="ComponentWrapper.cs"/>
+		<msb:File Include="Properties\Settings.settings"/>
+		<msb:File Include="Properties\AssemblyInfo.cs"/>
+		<msb:File Include="Properties\Resources.resx"/>
+		<msb:File Include="Properties\Resources.Designer.cs"/>
+	</msb:ItemGroup>
+</c:Project>]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[Properties\Settings.Designer.cs]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[UTF8]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+[assembly: global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Scope="member", Target="SC_c92149591e1844968c7ee6d041ff3e0f.Properties.Settings.get_Default():SC_c92149591e1844968c7ee6d041ff3e0f.Properties.Sett" +
+    "ings")]
+
+namespace SC_c92149591e1844968c7ee6d041ff3e0f.Properties {
+    
+    
+    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
+        
+        [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
+        private static Settings defaultInstance = new Settings();
+        
+        public static Settings Default {
+            get {
+                return defaultInstance;
+            }
+        }
+    }
+}
+]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[Properties\Settings.settings]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[UTF8]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[<?xml version='1.0' encoding='iso-8859-1'?>
+<SettingsFile xmlns="uri:settings" CurrentProfile="(Default)">
+  <Profiles>
+    <Profile Name="(Default)" />
+  </Profiles>
+  <Settings />
+</SettingsFile>]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[Properties\Resources.Designer.cs]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[UTF8]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+[assembly: global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Scope="member", Target="SC_c92149591e1844968c7ee6d041ff3e0f.Properties.Resources.get_ResourceManager():System.Resources.Resou" +
+    "rceManager")]
+[assembly: global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Scope="member", Target="SC_c92149591e1844968c7ee6d041ff3e0f.Properties.Resources.get_Culture():System.Globalization.CultureIn" +
+    "fo")]
+[assembly: global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Scope="member", Target="SC_c92149591e1844968c7ee6d041ff3e0f.Properties.Resources.set_Culture(System.Globalization.CultureInfo" +
+    "):Void")]
+
+namespace SC_c92149591e1844968c7ee6d041ff3e0f.Properties {
+    
+    
+    /// <summary>
+    ///   A strongly-typed resource class, for looking up localized strings, etc.
+    /// </summary>
+    // This class was auto-generated by the StronglyTypedResourceBuilder
+    // class via a tool like ResGen or Visual Studio.
+    // To add or remove a member, edit your .ResX file then rerun ResGen
+    // with the /str option, or rebuild your VS project.
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+    internal class Resources {
+        
+        private static global::System.Resources.ResourceManager resourceMan;
+        
+        private static global::System.Globalization.CultureInfo resourceCulture;
+        
+        [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        internal Resources() {
+        }
+        
+        /// <summary>
+        ///   Returns the cached ResourceManager instance used by this class.
+        /// </summary>
+        [global::System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        internal static global::System.Resources.ResourceManager ResourceManager {
+            get {
+                if ((resourceMan == null)) {
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SC_c92149591e1844968c7ee6d041ff3e0f.Properties.Resources", typeof(Resources).Assembly);
+                    resourceMan = temp;
+                }
+                return resourceMan;
+            }
+        }
+        
+        /// <summary>
+        ///   Overrides the current thread's CurrentUICulture property for all
+        ///   resource lookups using this strongly typed resource class.
+        /// </summary>
+        [global::System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        internal static global::System.Globalization.CultureInfo Culture {
+            get {
+                return resourceCulture;
+            }
+            set {
+                resourceCulture = value;
+            }
+        }
+    }
+}
+]]></arrayElement>
+                      </arrayElements>
+                    </property>
+                    <property
+                      dataType="System.String"
+                      description="Stores the binary representation of the component"
+                      isArray="true"
+                      name="BinaryCode"
+                      state="cdata">
+                      <arrayElements
+                        arrayElementCount="2">
+                        <arrayElement
+                          dataType="System.String"><![CDATA[SC_c92149591e1844968c7ee6d041ff3e0f.dll]]></arrayElement>
+                        <arrayElement
+                          dataType="System.String"><![CDATA[TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAgAAAAA4fug4AtAnNIbgBTM0hVGhpcyBwcm9ncmFtIGNhbm5vdCBiZSBydW4gaW4gRE9TIG1v
+ZGUuDQ0KJAAAAAAAAABQRQAATAEDAAIpNGYAAAAAAAAAAOAAIiALATAAAB4AAAAIAAAAAAAA1jwA
+AAAgAAAAQAAAAAAAEAAgAAAAAgAABAAAAAAAAAAGAAAAAAAAAACAAAAAAgAAAAAAAAMAYIUAABAA
+ABAAAAAAEAAAEAAAAAAAABAAAAAAAAAAAAAAAIQ8AABPAAAAAEAAAEgEAAAAAAAAAAAAAAAAAAAA
+AAAAAGAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAIAAACAAAAAAAAAAAAAAACCAAAEgAAAAAAAAAAAAAAC50ZXh0AAAA3BwAAAAgAAAAHgAAAAIA
+AAAAAAAAAAAAAAAAACAAAGAucnNyYwAAAEgEAAAAQAAAAAYAAAAgAAAAAAAAAAAAAAAAAABAAABA
+LnJlbG9jAAAMAAAAAGAAAAACAAAAJgAAAAAAAAAAAAAAAAAAQAAAQgAAAAAAAAAAAAAAAAAAAAC4
+PAAAAAAAAEgAAAACAAUAcCQAAFwXAAABAAAAAAAAAMw7AAC4AAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAB4CKBAAAAoqHgIoEQAACioTMAQAOAAAAAEAABECA28SAAAK
+LC0CBG8SAAAKLCQCAxZvEwAACgNvFAAAClgKAgQGbxMAAAoLAgYHBllvFQAACioCKhMwBACiAAAA
+AgAAEQIoFgAACnUdAAABA28NAAAGbxcAAAoKAwZyAQAAcHIXAABwKAMAAAZvDwAABgMCKBYAAAoD
+bwsAAAZvGAAACm8RAAAGAygZAAAKbxMAAAYDAnsCAAAEbykAAAZvGwAABgMCewIAAARvKgAABm8d
+AAAGAwJ7AgAABG8rAAAGbx8AAAYDA28HAAAGbxUAAAYDA28JAAAGbxcAAAYDFG8ZAAAGKh4CKCMA
+AAYqKgIDBAUoGgAACipSAnsbAAAKAnscAAAKFpRvHQAACioiAhYoHgAACipSAnsbAAAKAnscAAAK
+F5RvHQAACioiAhcoHgAACipSAnsbAAAKAnscAAAKGJRvHwAACioiAhgoHgAACipSAnsbAAAKAnsc
+AAAKGZRvHwAACioiAhkoHgAACiomAhoDKCAAAAoqWgMsCAIaKCEAAAoqchsAAHBzIgAACnomAhsD
+KCAAAAoqWgMsCAIbKCEAAAoqchsAAHBzIgAACno6AhwDjBEAAAEoIAAACipaAywIAhwoIQAACipy
+GwAAcHMiAAAKeiYCHQMoIAAACipaAywIAh0oIQAACipyGwAAcHMiAAAKeiYCHgMoIAAACipaAywI
+Ah4oIQAACipyGwAAcHMiAAAKeioCHwkDKCAAAAoqXgMsCQIfCSghAAAKKnIbAABwcyIAAAp6KgIf
+CgMoIAAACipeAywJAh8KKCEAAAoqchsAAHBzIgAACnoqAh8LAyggAAAKKl4DLAkCHwsoIQAACipy
+GwAAcHMiAAAKej4CHwwDjB8AAAEoIAAACipeAywJAh8MKCEAAAoqchsAAHBzIgAACnoeAigjAAAK
+Kh4CKCQAAAoqfgIoJQAACgICcycAAAZ9AQAABAICcygAAAZ9AgAABCqSBHK4AABwGm8mAAAKLBUC
+BQIDKCcAAAoOBHMGAAAGbyUAAAYqSisHAgNvJgAABgNvIQAABi3xKgYqOgIoKAAACgIDfQMAAAQq
+OgIoKAAACgIDfQQAAAQqlgJ7BAAABG8pAAAKcsgAAHBvKgAACigrAAAKbywAAAp0GwAAASqWAnsE
+AAAEbykAAApy4AAAcG8qAAAKKCsAAApvLAAACnQbAAABKpYCewQAAARvKQAACnL4AABwbyoAAAoo
+KwAACm8sAAAKpR8AAAEqHgIoKAAACiqufgUAAAQtHnIMAQBw0AcAAAIoLQAACm8uAAAKcy8AAAqA
+BQAABH4FAAAEKhp+BgAABCoeAoAGAAAEKhp+BwAABCoeAigwAAAKKi5zMQAABoAHAAAEKkJTSkIB
+AAEAAAAAAAwAAAB2NC4wLjMwMzE5AAAAAAUAbAAAACAJAAAjfgAAjAkAADAKAAAjU3RyaW5ncwAA
+AAC8EwAAgAEAACNVUwA8FQAAEAAAACNHVUlEAAAATBUAABACAAAjQmxvYgAAAAAAAAACAAABVxWi
+AQkBAAAA+gEzABYAAAEAAAAnAAAACAAAAAcAAAAyAAAAIgAAADAAAAAQAAAAAgAAAAQAAAAgAAAA
+IQAAAAEAAAAGAAAAAQAAAAAAhAQBAAAAAAAGADoD7wcGAM4D7wcGAIYC3AcPAGMIAAAGALMCXgYG
+AB0DXgYGAP4CXgYGALUDXgYGAFoDXgYGAHMDXgYGAMoCXgYGAOUCNQQKAI4D0wEKAF0H0wEOAE4H
+0wEKANAG0wEGAMoB9QUKAD4J0wEGAAEJ9QUGAGkC3AcGAG4HDwgGAMQGSQYSADkCbgQSAJoCbgQS
+ACECNAYGAE4C7wcGAFIE9QUWAAEApgcWAFMApgcGAHAG9QUGAJcA9QUGALMG9QUaACoAfgcaABoA
+fgdLAL0JAAAaADsAfgcGAPQB9QUGAD8B9QUGACYKXgYAAAAAnQAAAAAAAQABAAEAEAAZBgAAEAAB
+AAEAAQAQAEEHAAA5AAEABgABABAAIAkAAEkAAQAjAAEAEAD1CAAATQADACcAAQAQAK0IAABNAAQA
+KAAAABAAFghyCE0ABQAsAAABEADcCHIIZQAHADAABgD1CL8ABgCtCMMAAQAuCccAAQAuCccAEQD8
+BcsAEQARAs8AEQAMAdMAUCAAAAAAxgDsAwYAAQBYIAAAAADGAPcDBgABAGAgAAAAAJEACAbXAAEA
+pCAAAAAAxgD1Cd4ABABSIQAAAACGGM8HBgAFAFohAAAAAIYYzwdIAAUAZSEAAAAAhggmAeQACAB6
+IQAAAACGCPEEagAIAIMhAAAAAIYILwfkAAgAmCEAAAAAhgitBWoACAChIQAAAACGCDEBKwAIALYh
+AAAAAIYIAwVqAAgAvyEAAAAAhggkBisACADUIQAAAACGCHoFagAIAN0hAAAAAIYIgwEQAAgA5yEA
+AAAAhggvBegACQD+IQAAAACGCIoGEAAKAAgiAAAAAIYIkQXoAAsAHyIAAAAAhgjBAe0ADAAuIgAA
+AACGCGEF6AANAEUiAAAAAIYIbAAQAA4ATyIAAAAAhgisBOgADwBmIgAAAACGCIYAEAAQAHAiAAAA
+AIYIxAToABEAhyIAAAAAhggUChAAEgCSIgAAAACGCMYF6AATAKoiAAAAAIYIpwEQABQAtSIAAAAA
+hghKBegAFQDNIgAAAACGCHMBEAAWANgiAAAAAIYIGAXoABcA8CIAAAAAhgimAPMAGAAAIwAAAACG
+CNwE6AAZABgjAAAAAIYADApqABoAICMAAAAAhgAICWoAGgAoIwAAAACGGM8HBgAaAEgjAAAAAMYA
+nAn4ABoAbSMAAAAAxgGVCd4AHgCAIwAAAADGAfUJ3gAfAIIjAAAAAIYYzwcCASAAkSMAAAAAhhjP
+BwIBIQCgIwAAAACGCJcB5AAiAMYjAAAAAIYIYwHkACIA7CMAAAAAhgj3AAgBIgASJAAAAACDGM8H
+BgAiABokAAAAAJMIagcMASIARiQAAAAAkwj5AREBIgBNJAAAAACTCAUCFgEiAFUkAAAAAJYIFAkc
+ASMAXCQAAAAAhhjPBwYAIwBkJAAAAACRGNUHIQEjAAAAAQAcAQAAAgBrCQAAAwAFAQAAAQAQCgAA
+AQBjBwAAAgC3CAAAAwDeBgAAAQADBAAAAQADBAAAAQADBAAAAQADBAAAAQADBAAAAQADBAAAAQAD
+BAAAAQADBAAAAQADBAAAAQADBAAAAQADBAAAAQADBAAAAQADBAAAAQADBAAAAQADBAAAAQADBAAA
+AQADBAAAAQADBAAAAQC0AAAAAgC3AQAAAwBjBwAABADeBgAAAQBjBwAAAQAQCgAAAQBECQAAAQBE
+CQAAAQADBAkAzwcBABEAzwcGABkAzwcKACkAzwcQADEAzwcQADkAzwcQAEEAzwcQAEkAzwcQAFEA
+zwcQAFkAzwcQAGEAzwcQAGkAzwcGAKEAzwcGAMEAzwcVANEAzwcGAJEA7AMGAJEA9wMGANkA7Agg
+ANkALQQlANkAYwQrANkAWQQvAJEA2AA5AOkAvAA+AOEAnwY+AIkA7QlDAHEAzwdIAHEAYwdSAHEA
+twhWAHkATwQ+AHEA1AVaAHkAfQBfAHEA7AVkAHEA2wUBAPEAzwcQAHEADApqAHEACAlqAJEAzwcG
+ANkA5QhuAJEAywh2AJkAzwcGAJEAoQh8AAkB4wWCAJEA2AmJABEBqQmPACkBUQGWACkBIgqfAKkA
+zwelAMkAzwcGAC4ACwBJAS4AEwBSAS4AGwBxAS4AIwB6AS4AKwCjAS4AMwCjAS4AOwCjAS4AQwB6
+AS4ASwCpAS4AUwCjAS4AWwDAAUMAYwAKAuEAewAKAuMAawAKAskDcwBxAekDcwBxARsANQADAAEA
+BgAbAAcAHgAIACAAAAAqASUBAAD1BCkBAAAzByUBAACxBSkBAAA1AS0BAAAHBSkBAAAoBi0BAAB+
+BSkBAACHASUBAAAzBSkBAACiBiUBAACVBSkBAADFATEBAABlBSkBAABwACUBAACwBCkBAACKACUB
+AADIBCkBAAAYCiUBAADKBSkBAACrASUBAABOBSkBAAB3ASUBAAAcBSkBAACqADYBAADgBCkBAACr
+ASUBAAB3ASUBAAD7ADYBAABuBzoBAAAZAj8BAAAYCUQBAgAHAAMAAgAIAAUAAgAJAAcAAgAKAAkA
+AgALAAsAAgAMAA0AAgANAA8AAgAOABEAAQAPABMAAQAQABUAAQARABcAAQASABkAAQATABsAAQAU
+AB0AAQAVAB8AAQAWACEAAQAXACMAAQAYACUAAQAZACcAAQAaACkAAQAbACsAAQAcAC0AAQAdAC8A
+AQAeADEAAQAfADMAAQAgADUAAgApADcAAgAqADkAAgArADsAAgAtAD0AAgAuAD8AAQAvAD8AAgAw
+AEEABIAAAAEAAAAAAAAAAAAAAAAACQQAAAQAAAAAAAAAAAAAAK0A7gAAAAAADQAAAAAAAAAAAAAA
+tgBOCQAAAAANAAAAAAAAAAAAAAC2AHQJAAAAAAQAAAAAAAAAAAAAAK0A9QUAAAAADQAAAAAAAAAA
+AAAAtgALBwAAAAANAAAAAAAAAAAAAAC2AOgGAAAAAAAAAAABAAAAIAgAAAAAAElEVFNDb21wb25l
+bnRNZXRhRGF0YTEwMABJRFRTVmFyaWFibGUxMDAASURUU1ZhcmlhYmxlczEwMABJRFRTRXZhbHVh
+dG9yQ29udGV4dDEwMABJRFRTQ29tcG9uZW50TWV0YURhdGExMzAAc2V0X0J1c2luZXNzS2V5MQBH
+ZXRJbnQzMgBzZXRfQnVzaW5lc3NLZXkyAEludDY0ADxNb2R1bGU+AHNldF9Qcm9jZXNzSUQASW5w
+dXRJRABHZXRJZGVudGlmaWNhdGlvblN0cmluZ0J5SUQAZ2V0X0NvbXBvbmVudE1ldGFEYXRhAG1z
+Y29ybGliAGdldF9Qcm9jZXNzSWQAc3RyRW5kAGRlZmF1bHRJbnN0YW5jZQBzdHJTb3VyY2UAZ2V0
+X1JGQ29kZQBnZXRfRXJyb3JDb2RlAFJ1bnRpbWVUeXBlSGFuZGxlAEdldFR5cGVGcm9tSGFuZGxl
+AGdldF9QYWNrYWdlTmFtZQBzZXRfUGFja2FnZU5hbWUAc2V0X0Vycm9yQ29sdW1uTmFtZQBnZXRf
+RGF0YXNldE5hbWUAc2V0X0RhdGFzZXROYW1lAElucHV0TmFtZQBzZXRfRXJyb3JEYXRlVGltZQBN
+aWNyb3NvZnQuU3FsU2VydmVyLkR0cy5QaXBlbGluZQBUeXBlAGdldF9DdWx0dXJlAHNldF9DdWx0
+dXJlAHJlc291cmNlQ3VsdHVyZQBBcHBsaWNhdGlvblNldHRpbmdzQmFzZQBFZGl0b3JCcm93c2Fi
+bGVTdGF0ZQBDb21waWxlckdlbmVyYXRlZEF0dHJpYnV0ZQBEZWJ1Z2dlck5vblVzZXJDb2RlQXR0
+cmlidXRlAERlYnVnZ2FibGVBdHRyaWJ1dGUARWRpdG9yQnJvd3NhYmxlQXR0cmlidXRlAEFzc2Vt
+Ymx5VGl0bGVBdHRyaWJ1dGUAQXNzZW1ibHlUcmFkZW1hcmtBdHRyaWJ1dGUAVGFyZ2V0RnJhbWV3
+b3JrQXR0cmlidXRlAEFzc2VtYmx5Q29uZmlndXJhdGlvbkF0dHJpYnV0ZQBBc3NlbWJseURlc2Ny
+aXB0aW9uQXR0cmlidXRlAENvbXBpbGF0aW9uUmVsYXhhdGlvbnNBdHRyaWJ1dGUAQXNzZW1ibHlQ
+cm9kdWN0QXR0cmlidXRlAEFzc2VtYmx5Q29weXJpZ2h0QXR0cmlidXRlAFNTSVNTY3JpcHRDb21w
+b25lbnRFbnRyeVBvaW50QXR0cmlidXRlAEFzc2VtYmx5Q29tcGFueUF0dHJpYnV0ZQBSdW50aW1l
+Q29tcGF0aWJpbGl0eUF0dHJpYnV0ZQBQcmVFeGVjdXRlAFBvc3RFeGVjdXRlAHZhbHVlAFNDX2M5
+MjE0OTU5MWUxODQ0OTY4YzdlZTZkMDQxZmYzZTBmAEluZGV4T2YAU3lzdGVtLlJ1bnRpbWUuVmVy
+c2lvbmluZwBHZXRTdHJpbmcAU3Vic3RyaW5nAGdldF9MZW5ndGgAU3lzdGVtLkNvbXBvbmVudE1v
+ZGVsAFNDX2M5MjE0OTU5MWUxODQ0OTY4YzdlZTZkMDQxZmYzZTBmLmRsbABzZXRfQnVzaW5lc3NL
+ZXkxX0lzTnVsbABzZXRfQnVzaW5lc3NLZXkyX0lzTnVsbABzZXRfUHJvY2Vzc0lEX0lzTnVsbABn
+ZXRfUkZDb2RlX0lzTnVsbABnZXRfRXJyb3JDb2RlX0lzTnVsbABzZXRfUGFja2FnZU5hbWVfSXNO
+dWxsAHNldF9FcnJvckNvbHVtbk5hbWVfSXNOdWxsAHNldF9EYXRhc2V0TmFtZV9Jc051bGwAc2V0
+X0Vycm9yRGF0ZVRpbWVfSXNOdWxsAGdldF9FcnJvckNvbHVtbl9Jc051bGwAc2V0X0Vycm9yRGVz
+Y3JpcHRpb25fSXNOdWxsAGdldF9Db3VyaWVyTnVtYmVyX0lzTnVsbABzZXRfU3lzdGVtS2V5X0lz
+TnVsbABTZXROdWxsAGdldF9JdGVtAHNldF9JdGVtAFN5c3RlbQByZXNvdXJjZU1hbgBnZXRTdHJp
+bmdCZXR3ZWVuAFNjcmlwdE1haW4AZ2V0X0Vycm9yQ29sdW1uAFN5c3RlbS5Db25maWd1cmF0aW9u
+AFN5c3RlbS5HbG9iYWxpemF0aW9uAFN5c3RlbS5SZWZsZWN0aW9uAEludmFsaWRPcGVyYXRpb25F
+eGNlcHRpb24Ac2V0X0Vycm9yRGVzY3JpcHRpb24AR2V0RXJyb3JEZXNjcmlwdGlvbgBTdHJpbmdD
+b21wYXJpc29uAEN1bHR1cmVJbmZvAE91dHB1dE5hbWVNYXAAT3V0cHV0TWFwAE1pY3Jvc29mdC5T
+cWxTZXJ2ZXIuRFRTUnVudGltZVdyYXAATWljcm9zb2Z0LlNxbFNlcnZlci5EVFNQaXBlbGluZVdy
+YXAAZ2V0X0NvdXJpZXJOdW1iZXIASW5wdXQwQnVmZmVyAFBpcGVsaW5lQnVmZmVyAFNjcmlwdEJ1
+ZmZlcgBnZXRfUmVzb3VyY2VNYW5hZ2VyAE1pY3Jvc29mdC5TcWxTZXJ2ZXIuRHRzLlJ1bnRpbWUu
+V3JhcHBlcgBNaWNyb3NvZnQuU3FsU2VydmVyLkR0cy5QaXBlbGluZS5XcmFwcGVyAC5jdG9yAC5j
+Y3RvcgBTeXN0ZW0uRGlhZ25vc3RpY3MAU3lzdGVtLlJ1bnRpbWUuQ29tcGlsZXJTZXJ2aWNlcwBT
+eXN0ZW0uUmVzb3VyY2VzAFNDX2M5MjE0OTU5MWUxODQ0OTY4YzdlZTZkMDQxZmYzZTBmLlByb3Bl
+cnRpZXMuUmVzb3VyY2VzLnJlc291cmNlcwBEZWJ1Z2dpbmdNb2RlcwBTQ19jOTIxNDk1OTFlMTg0
+NDk2OGM3ZWU2ZDA0MWZmM2UwZi5Qcm9wZXJ0aWVzAGdldF9SZWFkT25seVZhcmlhYmxlcwBCdWZm
+ZXJDb2x1bW5JbmRleGVzAEdldENvbHVtbkluZGV4ZXMAU2V0dGluZ3MARXF1YWxzAENvbnRhaW5z
+AENvbm5lY3Rpb25zAE9iamVjdABFbmRPZlJvd3NldABnZXRfRGVmYXVsdABVc2VyQ29tcG9uZW50
+AFBhcmVudENvbXBvbmVudABTY3JpcHRDb21wb25lbnQATWljcm9zb2Z0LlNxbFNlcnZlci5UeFNj
+cmlwdABzdHJTdGFydABNaWNyb3NvZnQuU3FsU2VydmVyLlBpcGVsaW5lSG9zdABJbnB1dDBfUHJv
+Y2Vzc0lucHV0AEdldFZhbHVlV2l0aENvbnRleHQAU2NyaXB0Q29tcG9uZW50RXZhbENvbnRleHQA
+Z2V0X0V2YWx1YXRvckNvbnRleHQAZ2V0X05vdwBJbnB1dDBfUHJvY2Vzc0lucHV0Um93AE5leHRS
+b3cAc2V0X1N5c3RlbUtleQBnZXRfQXNzZW1ibHkAAAAVXQAuAEMAbwBsAHUAbQBuAHMAWwAAA10A
+AICbSQBzAE4AdQBsAGwAIABwAHIAbwBwAGUAcgB0AHkAIABjAGEAbgBuAG8AdAAgAGIAZQAgAHMA
+ZQB0ACAAdABvACAARgBhAGwAcwBlAC4AIABBAHMAcwBpAGcAbgAgAGEAIAB2AGEAbAB1AGUAIAB0
+AG8AIAB0AGgAZQAgAGMAbwBsAHUAbQBuACAAaQBuAHMAdABlAGEAZAAuAAAPSQBuAHAAdQB0ACAA
+MAAAF0QAYQB0AGEAcwBlAHQATgBhAG0AZQAAF1AAYQBjAGsAYQBnAGUATgBhAG0AZQAAE1AAcgBv
+AGMAZQBzAHMASQBkAABxUwBDAF8AYwA5ADIAMQA0ADkANQA5ADEAZQAxADgANAA0ADkANgA4AGMA
+NwBlAGUANgBkADAANAAxAGYAZgAzAGUAMABmAC4AUAByAG8AcABlAHIAdABpAGUAcwAuAFIAZQBz
+AG8AdQByAGMAZQBzAAAAAJsKY4/e/UpAkLZkndD0bIAABCABAQgDIAABBSABARERBCABAQ4FIAEB
+EV0EBwIICAQgAQIOBSACCA4IAyAACAUgAg4ICAMHAQ4EIAAScQQgAQ4IBAAAEUUJIAMBEj0dCBJB
+AwYSPQMGHQgEIAECCAQgAQgIBSACAQgcAyAAAgcgAgIOEYCBBSABHQgIBSAAEoCFBiABEoCJHAUA
+ABKAjQYgARwSgJEIAAESgJURgJkFIAASgJ0HIAIBDhKAnQi3elxWGTTgiQiJhF3NgIDMkQMGEhQD
+BhIYAwYSSQMGElUDBhJZAwYSIAYAAw4ODg4FIAEBEgwDIAAOBCABAQIFIAEBEUUEIAEBCgkgBAEI
+DhI9EkEFIAEBEkkDIAAKBAAAElUEAAASWQUAAQESWQQAABIgAwAAAQMoAA4DKAACAygACAQoABFF
+AygACgQIABJVBAgAElkECAASIAgBAAgAAAAAAB4BAAEAVAIWV3JhcE5vbkV4Y2VwdGlvblRocm93
+cwEIAQACAAAAAAAoAQAjU0NfYzkyMTQ5NTkxZTE4NDQ5NjhjN2VlNmQwNDFmZjNlMGYAAAUBAAAA
+ABYBABFDb3B5cmlnaHQgQCAgMjAxOQAASQEAGi5ORVRGcmFtZXdvcmssVmVyc2lvbj12NC41AQBU
+DhRGcmFtZXdvcmtEaXNwbGF5TmFtZRIuTkVUIEZyYW1ld29yayA0LjUEAQAAAAC0AAAAzsrvvgEA
+AACRAAAAbFN5c3RlbS5SZXNvdXJjZXMuUmVzb3VyY2VSZWFkZXIsIG1zY29ybGliLCBWZXJzaW9u
+PTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0ZTA4
+OSNTeXN0ZW0uUmVzb3VyY2VzLlJ1bnRpbWVSZXNvdXJjZVNldAIAAAAAAAAAAAAAAFBBRFBBRFC0
+AAAArDwAAAAAAAAAAAAAxjwAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAALg8AAAAAAAAAAAAAAAA
+X0NvckRsbE1haW4AbXNjb3JlZS5kbGwAAAAAAP8lACAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEA
+EAAAABgAAIAAAAAAAAAAAAAAAAAAAAEAAQAAADAAAIAAAAAAAAAAAAAAAAAAAAEAAAAAAEgAAABY
+QAAA7AMAAAAAAAAAAAAA7AM0AAAAVgBTAF8AVgBFAFIAUwBJAE8ATgBfAEkATgBGAE8AAAAAAL0E
+7/4AAAEAAAABAAAAAAAAAAEAAAAAAD8AAAAAAAAABAAAAAIAAAAAAAAAAAAAAAAAAABEAAAAAQBW
+AGEAcgBGAGkAbABlAEkAbgBmAG8AAAAAACQABAAAAFQAcgBhAG4AcwBsAGEAdABpAG8AbgAAAAAA
+AACwBEwDAAABAFMAdAByAGkAbgBnAEYAaQBsAGUASQBuAGYAbwAAACgDAAABADAAMAAwADAAMAA0
+AGIAMAAAABoAAQABAEMAbwBtAG0AZQBuAHQAcwAAAAAAAAAiAAEAAQBDAG8AbQBwAGEAbgB5AE4A
+YQBtAGUAAAAAAAAAAABwACQAAQBGAGkAbABlAEQAZQBzAGMAcgBpAHAAdABpAG8AbgAAAAAAUwBD
+AF8AYwA5ADIAMQA0ADkANQA5ADEAZQAxADgANAA0ADkANgA4AGMANwBlAGUANgBkADAANAAxAGYA
+ZgAzAGUAMABmAAAAMAAIAAEARgBpAGwAZQBWAGUAcgBzAGkAbwBuAAAAAAAxAC4AMAAuADAALgAw
+AAAAcAAoAAEASQBuAHQAZQByAG4AYQBsAE4AYQBtAGUAAABTAEMAXwBjADkAMgAxADQAOQA1ADkA
+MQBlADEAOAA0ADQAOQA2ADgAYwA3AGUAZQA2AGQAMAA0ADEAZgBmADMAZQAwAGYALgBkAGwAbAAA
+AEgAEgABAEwAZQBnAGEAbABDAG8AcAB5AHIAaQBnAGgAdAAAAEMAbwBwAHkAcgBpAGcAaAB0ACAA
+QAAgACAAMgAwADEAOQAAACoAAQABAEwAZQBnAGEAbABUAHIAYQBkAGUAbQBhAHIAawBzAAAAAAAA
+AAAAeAAoAAEATwByAGkAZwBpAG4AYQBsAEYAaQBsAGUAbgBhAG0AZQAAAFMAQwBfAGMAOQAyADEA
+NAA5ADUAOQAxAGUAMQA4ADQANAA5ADYAOABjADcAZQBlADYAZAAwADQAMQBmAGYAMwBlADAAZgAu
+AGQAbABsAAAAaAAkAAEAUAByAG8AZAB1AGMAdABOAGEAbQBlAAAAAABTAEMAXwBjADkAMgAxADQA
+OQA1ADkAMQBlADEAOAA0ADQAOQA2ADgAYwA3AGUAZQA2AGQAMAA0ADEAZgBmADMAZQAwAGYAAAA0
+AAgAAQBQAHIAbwBkAHUAYwB0AFYAZQByAHMAaQBvAG4AAAAxAC4AMAAuADAALgAwAAAAOAAIAAEA
+QQBzAHMAZQBtAGIAbAB5ACAAVgBlAHIAcwBpAG8AbgAAADEALgAwAC4AMAAuADAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAADAAAANg8AAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==]]></arrayElement>
+                      </arrayElements>
+                    </property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the name of the Microsoft Visual Studio Tools for Applications project. Project names must be unique within a package."
+                      name="VSTAProjectName"
+                      typeConverter="NOTBROWSABLE">SC_c92149591e1844968c7ee6d041ff3e0f</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the programming language used by the script."
+                      name="ScriptLanguage"
+                      typeConverter="Microsoft.SqlServer.VSTAHosting.ScriptingLanguages">CSharp</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies a comma-separated list of read-only variables."
+                      name="ReadOnlyVariables"
+                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ScriptUIVariablePickerDlg">User::DatasetName,System::PackageName,$Package::ProcessId</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies a comma-separated list of read/write variables."
+                      name="ReadWriteVariables"
+                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ScriptUIWriteableVariablePickerDlg"></property>
+                    <property
+                      dataType="System.String"
+                      description="List of breakpoints present on the script."
+                      isArray="true"
+                      name="BreakpointCollection"
+                      typeConverter="NOTBROWSABLE">
+                      <arrayElements
+                        arrayElementCount="0" />
+                    </property>
+                    <property
+                      dataType="System.String"
+                      description="Checksum to match component metedata against compiled codes."
+                      name="MetadataChecksum"
+                      typeConverter="NOTBROWSABLE">6a2d4644c1afad52faa601c0e1e614c2</property>
+                    <property
+                      dataType="System.String"
+                      description="Checksum to match component metedata against compiled codes."
+                      name="MetadataShaChecksum"
+                      typeConverter="NOTBROWSABLE">00b82f3ae3cfa68b72bbc00aed04bf1ebea85b40</property>
+                    <property
+                      dataType="System.String"
+                      name="UserComponentTypeName">Microsoft.ScriptComponentHost</property>
+                    <property
+                      dataType="System.String"
+                      description="Checksum to match component metedata against compiled codes."
+                      name="MetadataChecksum140"
+                      typeConverter="NOTBROWSABLE">19</property>
+                  </properties>
+                  <inputs>
+                    <input
+                      refId="Package\Staging\Load Courier_Stg\Get Error Details.Inputs[Input 0]"
+                      hasSideEffects="true"
+                      name="Input 0">
+                      <inputColumns>
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Get Error Details.Inputs[Input 0].Columns[RFCode]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="3"
+                          cachedName="RFCode"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[RFCode]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Get Error Details.Inputs[Input 0].Columns[CourierNumber]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="3"
+                          cachedName="CourierNumber"
+                          lineageId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output].Columns[CourierNumber]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Get Error Details.Inputs[Input 0].Columns[ErrorCode]"
+                          cachedDataType="i4"
+                          cachedName="ErrorCode"
+                          lineageId="Package\Staging\Load Courier_Stg\Courier_Stg.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                          name="ErrorCode" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Get Error Details.Inputs[Input 0].Columns[ErrorColumn]"
+                          cachedDataType="i4"
+                          cachedName="ErrorColumn"
+                          lineageId="Package\Staging\Load Courier_Stg\Courier_Stg.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                          name="ErrorColumn" />
+                      </inputColumns>
+                      <externalMetadataColumns />
+                    </input>
+                  </inputs>
+                  <outputs>
+                    <output
+                      refId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns]"
+                      name="Error Columns"
+                      synchronousInputId="Package\Staging\Load Courier_Stg\Get Error Details.Inputs[Input 0]">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[ErrorColumnName]"
+                          codePage="1252"
+                          dataType="str"
+                          length="255"
+                          lineageId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[ErrorColumnName]"
+                          name="ErrorColumnName" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[ErrorDescription]"
+                          codePage="1252"
+                          dataType="str"
+                          length="5000"
+                          lineageId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[ErrorDescription]"
+                          name="ErrorDescription" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[ErrorDateTime]"
+                          dataType="dbTimeStamp"
+                          lineageId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[ErrorDateTime]"
+                          name="ErrorDateTime" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[BusinessKey1]"
+                          codePage="1252"
+                          dataType="str"
+                          length="100"
+                          lineageId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[BusinessKey1]"
+                          name="BusinessKey1" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[BusinessKey2]"
+                          codePage="1252"
+                          dataType="str"
+                          length="100"
+                          lineageId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[BusinessKey2]"
+                          name="BusinessKey2" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[SystemKey]"
+                          codePage="1252"
+                          dataType="str"
+                          length="50"
+                          lineageId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[SystemKey]"
+                          name="SystemKey" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[DatasetName]"
+                          codePage="1252"
+                          dataType="str"
+                          length="100"
+                          lineageId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[DatasetName]"
+                          name="DatasetName" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[PackageName]"
+                          codePage="1252"
+                          dataType="str"
+                          length="100"
+                          lineageId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[PackageName]"
+                          name="PackageName" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[ProcessID]"
+                          dataType="i8"
+                          lineageId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[ProcessID]"
+                          name="ProcessID" />
+                      </outputColumns>
+                      <externalMetadataColumns />
+                    </output>
+                  </outputs>
+                </component>
+                <component
+                  refId="Package\Staging\Load Courier_Stg\Save Error"
+                  componentClassID="Microsoft.OLEDBDestination"
+                  contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+                  description="OLE DB Destination"
+                  name="Save Error"
+                  usesDispositions="true"
+                  version="4">
+                  <properties>
+                    <property
+                      dataType="System.Int32"
+                      description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                      name="CommandTimeout">0</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the name of the database object used to open a rowset."
+                      name="OpenRowset">[Staging].[SourceData_Err]</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the variable that contains the name of the database object used to open a rowset."
+                      name="OpenRowsetVariable"></property>
+                    <property
+                      dataType="System.String"
+                      description="The SQL command to be executed."
+                      name="SqlCommand"
+                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the column code page to use when code page information is unavailable from the data source."
+                      name="DefaultCodePage">1252</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Forces the use of the DefaultCodePage property value when describing character data."
+                      name="AlwaysUseDefaultCodePage">false</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the mode used to access the database."
+                      name="AccessMode"
+                      typeConverter="AccessMode">0</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                      name="FastLoadKeepIdentity">false</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                      name="FastLoadKeepNulls">false</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                      name="FastLoadOptions"></property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                      name="FastLoadMaxInsertCommitSize">2147483647</property>
+                  </properties>
+                  <connections>
+                    <connection
+                      refId="Package\Staging\Load Courier_Stg\Save Error.Connections[OleDbConnection]"
+                      connectionManagerID="{66292261-9521-45A6-ACCA-54377A482A00}:external"
+                      connectionManagerRefId="Project.ConnectionManagers[CUBE.FastwayDW]"
+                      description="The OLE DB runtime connection used to access the database."
+                      name="OleDbConnection" />
+                  </connections>
+                  <inputs>
+                    <input
+                      refId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input]"
+                      errorOrTruncationOperation="Insert"
+                      errorRowDisposition="FailComponent"
+                      hasSideEffects="true"
+                      name="OLE DB Destination Input">
+                      <inputColumns>
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].Columns[ErrorDescription]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="5000"
+                          cachedName="ErrorDescription"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].ExternalColumns[ErrorDescription]"
+                          lineageId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[ErrorDescription]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].Columns[ErrorColumnName]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="255"
+                          cachedName="ErrorColumnName"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].ExternalColumns[ErrorColumn]"
+                          lineageId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[ErrorColumnName]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].Columns[DatasetName]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="100"
+                          cachedName="DatasetName"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].ExternalColumns[DatasetName]"
+                          lineageId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[DatasetName]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].Columns[BusinessKey1]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="100"
+                          cachedName="BusinessKey1"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].ExternalColumns[BuinessKey1]"
+                          lineageId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[BusinessKey1]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].Columns[BusinessKey2]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="100"
+                          cachedName="BusinessKey2"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].ExternalColumns[BuinessKey2]"
+                          lineageId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[BusinessKey2]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].Columns[ProcessID]"
+                          cachedDataType="i8"
+                          cachedName="ProcessID"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].ExternalColumns[ProcessID]"
+                          lineageId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[ProcessID]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].Columns[ErrorDateTime]"
+                          cachedDataType="dbTimeStamp"
+                          cachedName="ErrorDateTime"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].ExternalColumns[ErrorDateTime]"
+                          lineageId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[ErrorDateTime]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].Columns[SystemKey]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="50"
+                          cachedName="SystemKey"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].ExternalColumns[SystemKey]"
+                          lineageId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[SystemKey]" />
+                        <inputColumn
+                          refId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].Columns[PackageName]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="100"
+                          cachedName="PackageName"
+                          externalMetadataColumnId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].ExternalColumns[PackageName]"
+                          lineageId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns].Columns[PackageName]" />
+                      </inputColumns>
+                      <externalMetadataColumns
+                        isUsed="True">
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].ExternalColumns[DatasetName]"
+                          codePage="1252"
+                          dataType="str"
+                          length="100"
+                          name="DatasetName" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].ExternalColumns[ProcessID]"
+                          dataType="i8"
+                          name="ProcessID" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].ExternalColumns[ErrorColumn]"
+                          codePage="1252"
+                          dataType="str"
+                          length="255"
+                          name="ErrorColumn" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].ExternalColumns[ErrorDescription]"
+                          codePage="1252"
+                          dataType="text"
+                          name="ErrorDescription" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].ExternalColumns[ErrorDateTime]"
+                          dataType="dbTimeStamp"
+                          name="ErrorDateTime" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].ExternalColumns[ID]"
+                          dataType="i4"
+                          name="ID" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].ExternalColumns[SystemKey]"
+                          codePage="1252"
+                          dataType="str"
+                          length="100"
+                          name="SystemKey" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].ExternalColumns[BuinessKey1]"
+                          codePage="1252"
+                          dataType="str"
+                          length="100"
+                          name="BuinessKey1" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].ExternalColumns[BuinessKey2]"
+                          codePage="1252"
+                          dataType="str"
+                          length="100"
+                          name="BuinessKey2" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input].ExternalColumns[PackageName]"
+                          codePage="1252"
+                          dataType="str"
+                          length="100"
+                          name="PackageName" />
+                      </externalMetadataColumns>
+                    </input>
+                  </inputs>
+                  <outputs>
+                    <output
+                      refId="Package\Staging\Load Courier_Stg\Save Error.Outputs[OLE DB Destination Error Output]"
+                      exclusionGroup="1"
+                      isErrorOut="true"
+                      name="OLE DB Destination Error Output"
+                      synchronousInputId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input]">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\Save Error.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load Courier_Stg\Save Error.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                          name="ErrorCode"
+                          specialFlags="1" />
+                        <outputColumn
+                          refId="Package\Staging\Load Courier_Stg\Save Error.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load Courier_Stg\Save Error.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                          name="ErrorColumn"
+                          specialFlags="2" />
+                      </outputColumns>
+                      <externalMetadataColumns />
+                    </output>
+                  </outputs>
+                </component>
+              </components>
+              <paths>
+                <path
+                  refId="Package\Staging\Load Courier_Stg.Paths[Error Columns]"
+                  endId="Package\Staging\Load Courier_Stg\Save Error.Inputs[OLE DB Destination Input]"
+                  name="Error Columns"
+                  startId="Package\Staging\Load Courier_Stg\Get Error Details.Outputs[Error Columns]" />
+                <path
+                  refId="Package\Staging\Load Courier_Stg.Paths[OLE DB Destination Error Output]"
+                  endId="Package\Staging\Load Courier_Stg\Courier_Stg.Inputs[OLE DB Destination Input]"
+                  name="OLE DB Destination Error Output"
+                  startId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Outputs[OLE DB Destination Error Output]" />
+                <path
+                  refId="Package\Staging\Load Courier_Stg.Paths[OLE DB Destination Error Output1]"
+                  endId="Package\Staging\Load Courier_Stg\Get Error Details.Inputs[Input 0]"
+                  name="OLE DB Destination Error Output"
+                  startId="Package\Staging\Load Courier_Stg\Courier_Stg.Outputs[OLE DB Destination Error Output]" />
+                <path
+                  refId="Package\Staging\Load Courier_Stg.Paths[OLE DB Source Output]"
+                  endId="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert).Inputs[OLE DB Destination Input]"
+                  name="OLE DB Source Output"
+                  startId="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway).Outputs[OLE DB Source Output]" />
+              </paths>
+            </pipeline>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\Staging\Truncate Courier_Stg"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{59BE741F-13D3-4DAD-967C-4E4C0208EBAE}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Truncate Courier_Stg"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2012; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="0">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
+              SQLTask:SqlStatementSource="TRUNCATE TABLE [Staging].[Courier_Stg]" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+      <DTS:PrecedenceConstraints>
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\Staging.PrecedenceConstraints[Constraint]"
+          DTS:CreationName=""
+          DTS:DTSID="{21D22DD8-9791-4428-A8ED-D194DF24AB03}"
+          DTS:From="Package\Staging\Truncate Courier_Stg"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint"
+          DTS:To="Package\Staging\Load Courier_Stg" />
+      </DTS:PrecedenceConstraints>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{384BD8E7-5D7B-4DD2-84EE-BBD04F5DE314}"
+      DTS:From="Package\Staging"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\Final" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="143,42"
+          Id="Package\Final\Load CF_HUB"
+          TopLeft="33,29" />
+        <NodeLayout
+          Size="141,42"
+          Id="Package\Final\Load CF_SAT"
+          TopLeft="217,28" />
+        <ContainerLayout
+          HeaderHeight="43"
+          IsExpanded="True"
+          PanelSize="404,129"
+          Size="404,172"
+          Id="Package\Final"
+          TopLeft="117,361" />
+        <NodeLayout
+          Size="160,42"
+          Id="Package\Staging\Load Courier_Stg"
+          TopLeft="41,96" />
+        <NodeLayout
+          Size="179,42"
+          Id="Package\Staging\Truncate Courier_Stg"
+          TopLeft="34,21" />
+        <EdgeLayout
+          Id="Package\Staging.PrecedenceConstraints[Constraint]"
+          TopLeft="122.25,63">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,33"
+              Start="0,0"
+              End="0,25.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,25.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <ContainerLayout
+          HeaderHeight="43"
+          IsExpanded="True"
+          PanelSize="255,193"
+          Size="255,236"
+          Id="Package\Staging"
+          TopLeft="185,64" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="315.75,300">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,61"
+              Start="0,0"
+              End="0,53.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,53.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+  <TaskHost
+    design-time-name="Package\Staging\Load Courier_Stg">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
+        <NodeLayout
+          Size="197,42"
+          Id="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert)"
+          TopLeft="396,48" />
+        <NodeLayout
+          Size="212,42"
+          Id="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway)"
+          TopLeft="60,45" />
+        <NodeLayout
+          Size="128,42"
+          Id="Package\Staging\Load Courier_Stg\Save Error"
+          TopLeft="438,303" />
+        <NodeLayout
+          Size="134,42"
+          Id="Package\Staging\Load Courier_Stg\Courier_Stg"
+          TopLeft="426,135" />
+        <NodeLayout
+          Size="157,42"
+          Id="Package\Staging\Load Courier_Stg\Get Error Details"
+          TopLeft="421,230" />
+        <EdgeLayout
+          Id="Package\Staging\Load Courier_Stg.Paths[OLE DB Source Output]"
+          TopLeft="272,67.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="124,0"
+              Start="0,0"
+              End="116.5,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="116.5,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Staging\Load Courier_Stg.Paths[OLE DB Destination Error Output1]"
+          TopLeft="496.25,177">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,53"
+              Start="0,0"
+              End="0,45.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,45.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-73.20890625,17.033203125,146.4178125,11.43359375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Staging\Load Courier_Stg.Paths[OLE DB Destination Error Output]"
+          TopLeft="493.75,90">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,45"
+              Start="0,0"
+              End="0,37.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,37.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-73.20890625,13.033203125,146.4178125,11.43359375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Staging\Load Courier_Stg.Paths[Error Columns]"
+          TopLeft="500.75,272">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,31"
+              Start="0,0"
+              End="0,23.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,23.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\Staging\Load Courier_Stg\FMS_Courier data (Fastway)">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\Staging\Load Courier_Stg\Courier_Stg (Bulk Insert)">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\Staging\Load Courier_Stg\Courier_Stg">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>

@@ -14,8 +14,10 @@ sp_dataset_id     = os.getenv('SP_DATASET_ID')
 target_dataset_id = os.getenv('TARGET_DATASET_ID')
 
 # Folders
+
 input_folder  = os.path.join(base_dir, 'jinja_template_sp')
 output_folder = os.path.join(base_dir, 'rendered_sp')
+
 os.makedirs(output_folder, exist_ok=True)
 
 # Loop through all SQL files and render them

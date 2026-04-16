@@ -1,0 +1,79 @@
+2026-04-08 16:31:32  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-08 16:31:32  INFO        DDL Execution — BigQuery
+2026-04-08 16:31:32  INFO        Started      : 2026-04-08 16:31:32
+2026-04-08 16:31:32  INFO        Project      : searce-sandbox-da-delivery
+2026-04-08 16:31:32  INFO        BQ location  : US
+2026-04-08 16:31:32  INFO        SQL dir      : /Users/jhalak.jain/Desktop/Searce - Aramex/aramex/ProceduresBQ/Rendered BQ
+2026-04-08 16:31:32  INFO        Credentials  : /Users/jhalak.jain/.config/gcloud/application_default_credentials.json
+2026-04-08 16:31:32  INFO        SQL files    : 14
+2026-04-08 16:31:32  INFO        Max Workers  : 5
+2026-04-08 16:31:32  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-08 16:31:33  INFO      
+2026-04-08 16:31:33  INFO        Results
+2026-04-08 16:31:33  INFO      ────────────────────────────────────────────────────────────────────────
+2026-04-08 16:31:34  ERROR     [FAILED]  BQ_Load_HUB_Address.sql
+2026-04-08 16:31:34  ERROR               400 Syntax error: Unexpected keyword ERROR at [57:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [57:5] Location: US Job ID: d238a01d-2752-44a5-b926-d1ea8004e951
+2026-04-08 16:31:34  ERROR     [FAILED]  BQ_Load_HUB_CF.sql
+2026-04-08 16:31:34  ERROR               400 Syntax error: Unexpected keyword ERROR at [59:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [59:5] Location: US Job ID: 10bc431a-2222-4449-9cd5-af0f2ec821e9
+2026-04-08 16:31:34  ERROR     [FAILED]  BQ_Load_HUB_BLKContainerManifestContents.sql
+2026-04-08 16:31:34  ERROR               400 Syntax error: Unexpected keyword ERROR at [66:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [66:5] Location: US Job ID: 8585463f-8cba-4c14-8e15-d6a4ef7545eb
+2026-04-08 16:31:34  ERROR     [FAILED]  BQ_Load_HUB_Invoice.sql
+2026-04-08 16:31:34  ERROR     [FAILED]  BQ_Load_HUB_Label.sql
+2026-04-08 16:31:34  ERROR     [FAILED]  BQ_Load_HUB_Customer.sql
+2026-04-08 16:31:34  ERROR               400 Syntax error: Unexpected keyword ERROR at [75:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [75:5] Location: US Job ID: f0b65fa7-2cf6-4cc7-b7e0-83c5c29fd135
+2026-04-08 16:31:34  ERROR               400 Syntax error: Unexpected keyword ERROR at [93:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [93:5] Location: US Job ID: 9f363954-d2bd-4154-9e51-eda45cfddbe4
+2026-04-08 16:31:34  ERROR               400 Syntax error: Unexpected keyword ERROR at [60:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [60:5] Location: US Job ID: 93bdc1a8-8c99-41e5-a167-c7f4426505b0
+2026-04-08 16:31:34  ERROR     [FAILED]  BQ_Load_HUB_Product.sql
+2026-04-08 16:31:34  ERROR               400 Syntax error: Unexpected keyword ERROR at [61:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [61:5] Location: US Job ID: 8b531f65-30cf-47fb-b835-0678da1ae527
+2026-04-08 16:31:35  ERROR     [FAILED]  BQ_Load_HUB_RF.sql
+2026-04-08 16:31:35  ERROR     [FAILED]  BQ_Load_HUB_Container.sql
+2026-04-08 16:31:35  ERROR               400 Syntax error: Unexpected keyword ERROR at [57:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [57:5] Location: US Job ID: baf0ab4f-44e3-4c13-b10e-1ed9d7ac0839
+2026-04-08 16:31:35  ERROR               400 GET https://bigquery.googleapis.com/bigquery/v2/projects/searce-sandbox-da-delivery/queries/35fbfaed-f5d2-4197-b642-abc681aa7d89?maxResults=0&location=US&prettyPrint=false: Error validating procedure body (add OPTIONS(strict_mode=false) to suppress): Query error: Query error: Value has type TIMESTAMP which cannot be inserted into column Loaded, which has type DATETIME at [36:53] Location: US Job ID: 35fbfaed-f5d2-4197-b642-abc681aa7d89
+2026-04-08 16:31:35  ERROR     [FAILED]  BQ_Load_SAT_Label_Allocation_MF.sql
+2026-04-08 16:31:35  ERROR               400 Syntax error: Unexpected keyword ERROR at [144:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [144:5] Location: US Job ID: d9372d64-c12f-4f9d-9996-70a4b5e9e254
+2026-04-08 16:31:35  ERROR     [FAILED]  BQ_Load_SAT_Label_Allocation_RP.sql
+2026-04-08 16:31:35  ERROR               400 Syntax error: Unexpected keyword ERROR at [119:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [119:5] Location: US Job ID: b14f9051-00fc-4820-a33b-a5ed9bae0ccc
+2026-04-08 16:31:35  ERROR     [FAILED]  BQ_Load_SAT_Label_Allocation_TMD.sql
+2026-04-08 16:31:35  ERROR               400 Syntax error: Unexpected "[" at [48:31]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name].; reason: invalidQuery, location: query, message: Syntax error: Unexpected "[" at [48:31]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name]. Location: US Job ID: 52559c67-be4a-4f39-a354-ac3aca45eb95
+2026-04-08 16:31:35  ERROR     [FAILED]  BQ_Load_SAT_Label_Allocation_TAS.sql
+2026-04-08 16:31:35  ERROR               400 Syntax error: Unexpected "[" at [44:30]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name].; reason: invalidQuery, location: query, message: Syntax error: Unexpected "[" at [44:30]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name]. Location: US Job ID: 62ee674f-e4fc-4e8e-9474-9bd588f12a59
+2026-04-08 16:31:37  INFO      [SUCCESS] BQ_Load_Hub_Account.sql
+2026-04-08 16:31:37  INFO      
+2026-04-08 16:31:37  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-08 16:31:37  INFO        SUMMARY
+2026-04-08 16:31:37  INFO        Finished : 2026-04-08 16:31:37
+2026-04-08 16:31:37  INFO        Elapsed  : 0m 4s
+2026-04-08 16:31:37  INFO        Success  : 1
+2026-04-08 16:31:37  INFO        Failed   : 13
+2026-04-08 16:31:37  INFO        Total    : 14
+2026-04-08 16:31:37  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-08 16:31:37  INFO      
+2026-04-08 16:31:37  INFO        Failed files:
+2026-04-08 16:31:37  INFO          BQ_Load_HUB_Address.sql
+2026-04-08 16:31:37  INFO            400 Syntax error: Unexpected keyword ERROR at [57:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [57:5] Location: US Job ID: d238a01d-2752-44a5-b926-d1ea8004e951
+2026-04-08 16:31:37  INFO          BQ_Load_HUB_CF.sql
+2026-04-08 16:31:37  INFO            400 Syntax error: Unexpected keyword ERROR at [59:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [59:5] Location: US Job ID: 10bc431a-2222-4449-9cd5-af0f2ec821e9
+2026-04-08 16:31:37  INFO          BQ_Load_HUB_BLKContainerManifestContents.sql
+2026-04-08 16:31:37  INFO            400 Syntax error: Unexpected keyword ERROR at [66:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [66:5] Location: US Job ID: 8585463f-8cba-4c14-8e15-d6a4ef7545eb
+2026-04-08 16:31:37  INFO          BQ_Load_HUB_Invoice.sql
+2026-04-08 16:31:37  INFO            400 Syntax error: Unexpected keyword ERROR at [75:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [75:5] Location: US Job ID: f0b65fa7-2cf6-4cc7-b7e0-83c5c29fd135
+2026-04-08 16:31:37  INFO          BQ_Load_HUB_Label.sql
+2026-04-08 16:31:37  INFO            400 Syntax error: Unexpected keyword ERROR at [93:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [93:5] Location: US Job ID: 9f363954-d2bd-4154-9e51-eda45cfddbe4
+2026-04-08 16:31:37  INFO          BQ_Load_HUB_Customer.sql
+2026-04-08 16:31:37  INFO            400 Syntax error: Unexpected keyword ERROR at [60:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [60:5] Location: US Job ID: 93bdc1a8-8c99-41e5-a167-c7f4426505b0
+2026-04-08 16:31:37  INFO          BQ_Load_HUB_Product.sql
+2026-04-08 16:31:37  INFO            400 Syntax error: Unexpected keyword ERROR at [61:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [61:5] Location: US Job ID: 8b531f65-30cf-47fb-b835-0678da1ae527
+2026-04-08 16:31:37  INFO          BQ_Load_HUB_RF.sql
+2026-04-08 16:31:37  INFO            400 Syntax error: Unexpected keyword ERROR at [57:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [57:5] Location: US Job ID: baf0ab4f-44e3-4c13-b10e-1ed9d7ac0839
+2026-04-08 16:31:37  INFO          BQ_Load_HUB_Container.sql
+2026-04-08 16:31:37  INFO            400 GET https://bigquery.googleapis.com/bigquery/v2/projects/searce-sandbox-da-delivery/queries/35fbfaed-f5d2-4197-b642-abc681aa7d89?maxResults=0&location=US&prettyPrint=false: Error validating procedure body (add OPTIONS(strict_mode=false) to suppress): Query error: Query error: Value has type TIMESTAMP which cannot be inserted into column Loaded, which has type DATETIME at [36:53] Location: US Job ID: 35fbfaed-f5d2-4197-b642-abc681aa7d89
+2026-04-08 16:31:37  INFO          BQ_Load_SAT_Label_Allocation_MF.sql
+2026-04-08 16:31:37  INFO            400 Syntax error: Unexpected keyword ERROR at [144:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [144:5] Location: US Job ID: d9372d64-c12f-4f9d-9996-70a4b5e9e254
+2026-04-08 16:31:37  INFO          BQ_Load_SAT_Label_Allocation_RP.sql
+2026-04-08 16:31:37  INFO            400 Syntax error: Unexpected keyword ERROR at [119:5]; reason: invalidQuery, location: query, message: Syntax error: Unexpected keyword ERROR at [119:5] Location: US Job ID: b14f9051-00fc-4820-a33b-a5ed9bae0ccc
+2026-04-08 16:31:37  INFO          BQ_Load_SAT_Label_Allocation_TMD.sql
+2026-04-08 16:31:37  INFO            400 Syntax error: Unexpected "[" at [48:31]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name].; reason: invalidQuery, location: query, message: Syntax error: Unexpected "[" at [48:31]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name]. Location: US Job ID: 52559c67-be4a-4f39-a354-ac3aca45eb95
+2026-04-08 16:31:37  INFO          BQ_Load_SAT_Label_Allocation_TAS.sql
+2026-04-08 16:31:37  INFO            400 Syntax error: Unexpected "[" at [44:30]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name].; reason: invalidQuery, location: query, message: Syntax error: Unexpected "[" at [44:30]. If this is a table identifier, escape the name with `, e.g. `table.name` rather than [table.name]. Location: US Job ID: 62ee674f-e4fc-4e8e-9474-9bd588f12a59
+2026-04-08 16:31:37  INFO      
+2026-04-08 16:31:37  INFO      Full log saved to: logs/ddl_execution_20260408_163132.log

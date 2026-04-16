@@ -1,0 +1,74 @@
+{
+  "Package\\Source2 (DynamicLabel) _DL": {
+    "executables": {
+      "Package\\Source2 (DynamicLabel) _DL\\Get LastId (DynamicLabel)": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg_Weekly"
+        ],
+        "upstream_dependencies": [
+          "Package\\Source2 (DynamicLabel) _DL\\Truncate API_RF_AdHocLabel_AllocationHistory_Stg_Weekly"
+        ],
+        "referred_stored_proc": [
+          "[Staging].[Get_LastValue]"
+        ]
+      },
+      "Package\\Source2 (DynamicLabel) _DL\\Get Next ProcessID": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Source2 (DynamicLabel) _DL\\Load Lastest Priced Invoices"
+        ],
+        "upstream_dependencies": [
+          "Package\\Source2 (DynamicLabel) _DL\\Insert Into API_RF_AdHocLabel_AllocationHistory_Stg"
+        ]
+      },
+      "Package\\Source2 (DynamicLabel) _DL\\Insert Into API_RF_AdHocLabel_AllocationHistory_Stg": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Source2 (DynamicLabel) _DL\\Get Next ProcessID"
+        ],
+        "upstream_dependencies": [
+          "Package\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg_Weekly"
+        ]
+      },
+      "Package\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg_Weekly": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [
+          "Package\\Source2 (DynamicLabel) _DL\\Insert Into API_RF_AdHocLabel_AllocationHistory_Stg"
+        ],
+        "upstream_dependencies": [
+          "Package\\Source2 (DynamicLabel) _DL\\Get LastId (DynamicLabel)"
+        ]
+      },
+      "Package\\Source2 (DynamicLabel) _DL\\Load Lastest Priced Invoices": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Source2 (DynamicLabel) _DL\\Update Dim_Label"
+        ],
+        "upstream_dependencies": [
+          "Package\\Source2 (DynamicLabel) _DL\\Get Next ProcessID"
+        ],
+        "referred_stored_proc": [
+          "[dv].[Load_SAT_Label_Allocation_DL]"
+        ]
+      },
+      "Package\\Source2 (DynamicLabel) _DL\\Truncate API_RF_AdHocLabel_AllocationHistory_Stg_Weekly": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Source2 (DynamicLabel) _DL\\Get LastId (DynamicLabel)"
+        ],
+        "upstream_dependencies": []
+      },
+      "Package\\Source2 (DynamicLabel) _DL\\Update Dim_Label": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Source2 (DynamicLabel) _DL\\Load Lastest Priced Invoices"
+        ]
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [],
+    "upstream_dependencies": []
+  }
+}

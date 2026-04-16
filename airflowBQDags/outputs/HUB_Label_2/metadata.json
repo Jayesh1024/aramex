@@ -1,0 +1,191 @@
+{
+  "Package\\Final": {
+    "task_metadata": {
+      "Package\\Final\\Load LNK_Label_InterBranch": {
+        "task_metadata": {
+          "query": "Exec [dv].[Load_LNK_Label_InterBranch] ?,?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            },
+            "param_1": {
+              "variable_name": "RecordSource12",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Final\\Load LSAT_Label_InterBranch": {
+        "task_metadata": {
+          "query": "Exec [dv].[Load_LSAT_Label_InterBranch] ?,?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            },
+            "param_1": {
+              "variable_name": "RecordSource12",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  },
+  "Package\\Monthly Miscellaneous": {
+    "task_metadata": {
+      "Package\\Monthly Miscellaneous\\Maintain DLBS RFBatching": {
+        "task_metadata": {
+          "task_dependency_map": {
+            "Package\\Monthly Miscellaneous\\Maintain DLBS RFBatching\\Get DLBS_InvoiceHeader from Source.Outputs[OLE DB Source Output]": [
+              "Package\\Monthly Miscellaneous\\Maintain DLBS RFBatching\\OLE DB Destination.Inputs[OLE DB Destination Input]"
+            ]
+          },
+          "exec_order": {
+            "Package\\Monthly Miscellaneous\\Maintain DLBS RFBatching\\Get DLBS_InvoiceHeader from Source.Outputs[OLE DB Source Output]": 1,
+            "Package\\Monthly Miscellaneous\\Maintain DLBS RFBatching\\OLE DB Destination.Inputs[OLE DB Destination Input]": 2
+          },
+          "per_component_data": {
+            "Package\\Monthly Miscellaneous\\Maintain DLBS RFBatching\\Get DLBS_InvoiceHeader from Source": {
+              "component_type": "Microsoft.OLEDBSource",
+              "component_info": {
+                "sql_command": null,
+                "schema_name": "dbo",
+                "table_name": "tssdetail"
+              }
+            },
+            "Package\\Monthly Miscellaneous\\Maintain DLBS RFBatching\\OLE DB Destination": {
+              "component_type": "Microsoft.OLEDBDestination",
+              "component_info": {
+                "table_name": "DLBSRFBatching",
+                "schema_name": "dbo"
+              }
+            }
+          }
+        },
+        "task_type": "Microsoft.Pipeline"
+      },
+      "Package\\Monthly Miscellaneous\\Truncate DLBS RF Batching": {
+        "task_metadata": {
+          "query": "TRUNCATE TABLE  [dbo].[DLBSRFBatching]",
+          "param_map": {},
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  },
+  "Package\\Staging 2": {
+    "task_metadata": {
+      "Package\\Staging 2\\Get LastId (InterBranch)": {
+        "task_metadata": {
+          "query": "Exec [Staging].[Get_LastValue] ?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "RecordSource12",
+              "direction": "Input"
+            }
+          },
+          "result_set": {
+            "LastValue": null,
+            "null": null
+          }
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Staging 2\\Load Label_Interbranch_Stg": {
+        "task_metadata": {
+          "task_dependency_map": {
+            "Package\\Staging 2\\Load Label_Interbranch_Stg\\Get Error Details.Outputs[Error Columns]": [
+              "Package\\Staging 2\\Load Label_Interbranch_Stg\\Save Error.Inputs[OLE DB Destination Input]"
+            ],
+            "Package\\Staging 2\\Load Label_Interbranch_Stg\\Label_Interbranch_Stg (Bulk load).Outputs[OLE DB Destination Error Output]": [
+              "Package\\Staging 2\\Load Label_Interbranch_Stg\\Label_Interbranch_Stg.Inputs[OLE DB Destination Input]"
+            ],
+            "Package\\Staging 2\\Load Label_Interbranch_Stg\\Label_Interbranch_Stg.Outputs[OLE DB Destination Error Output]": [
+              "Package\\Staging 2\\Load Label_Interbranch_Stg\\Get Error Details.Inputs[Input 0]"
+            ],
+            "Package\\Staging 2\\Load Label_Interbranch_Stg\\Load Label_Interbranch_Stg.Outputs[OLE DB Source Output]": [
+              "Package\\Staging 2\\Load Label_Interbranch_Stg\\Label_Interbranch_Stg (Bulk load).Inputs[OLE DB Destination Input]"
+            ]
+          },
+          "exec_order": {
+            "Package\\Staging 2\\Load Label_Interbranch_Stg\\Get Error Details.Outputs[Error Columns]": 1,
+            "Package\\Staging 2\\Load Label_Interbranch_Stg\\Load Label_Interbranch_Stg.Outputs[OLE DB Source Output]": 1,
+            "Package\\Staging 2\\Load Label_Interbranch_Stg\\Label_Interbranch_Stg.Outputs[OLE DB Destination Error Output]": 1,
+            "Package\\Staging 2\\Load Label_Interbranch_Stg\\Label_Interbranch_Stg (Bulk load).Outputs[OLE DB Destination Error Output]": 1,
+            "Package\\Staging 2\\Load Label_Interbranch_Stg\\Save Error.Inputs[OLE DB Destination Input]": 2,
+            "Package\\Staging 2\\Load Label_Interbranch_Stg\\Label_Interbranch_Stg (Bulk load).Inputs[OLE DB Destination Input]": 2,
+            "Package\\Staging 2\\Load Label_Interbranch_Stg\\Get Error Details.Inputs[Input 0]": 2,
+            "Package\\Staging 2\\Load Label_Interbranch_Stg\\Label_Interbranch_Stg.Inputs[OLE DB Destination Input]": 2
+          },
+          "per_component_data": {
+            "Package\\Staging 2\\Load Label_Interbranch_Stg\\Label_Interbranch_Stg": {
+              "component_type": "Microsoft.OLEDBDestination",
+              "component_info": {
+                "table_name": "Label_Interbranch_Stg",
+                "schema_name": "Staging"
+              }
+            },
+            "Package\\Staging 2\\Load Label_Interbranch_Stg\\Label_Interbranch_Stg (Bulk load)": {
+              "component_type": "Microsoft.OLEDBDestination",
+              "component_info": {
+                "table_name": "Label_Interbranch_Stg",
+                "schema_name": "Staging"
+              }
+            },
+            "Package\\Staging 2\\Load Label_Interbranch_Stg\\Load Label_Interbranch_Stg": {
+              "component_type": "Microsoft.OLEDBSource",
+              "component_info": {
+                "sql_command": "DECLARE @LastBatchID INT = ?;\nDECLARE @RecordSource varchar(50) = ?;\nDECLARE @Batchsize Int = 5000000;\nDECLARE @CountryCode Int = 0;\n\nIF @RecordSource = 'InterBranchAU'  SET @CountryCode = 1;\nIF @RecordSource = 'InterBranchNZ'  SET @CountryCode = 6;\n\nSET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;\n\nSELECT  TOP (@Batchsize)\n@CountryCode as 'CountryCode',\nCASE @CountryCode WHEN 1 THEN 'Australia' WHEN 6 THEN 'New Zealand' END AS [Country],\nd.[LabelNo],\nd.[Franchise] as 'InvoiceFromRF',\ni.[PickupRFCode] as 'InvoiceToRF',\nd.[BatchId],\n(CASE WHEN d.[Franchise] = i.PickupRFCode THEN 'Internal' ELSE 'Invoiced' END) as Category,\ni.[Date],\nd.[InvoiceNumber],\nd.ProductId ,\nconvert(date,d.[CourierDate]) as 'DeliveryDate',\nd.[CourierTime] as 'DeliveryTime',\nconvert(decimal(10,2),v.[DeliveryCostPerProduct]) as 'Price'\n\nFROM [Fastway].[dbo].invbtch b WITH (NOLOCK)\n\nINNER JOIN [invhead] i WITH (NOLOCK) on  b.BatchId = i.InvoiceBatchID and b.CountryCode = i.Country \nINNER JOIN  [Fastway].[dbo].[labels] d WITH (NOLOCK) ON ISNULL(d.BatchID,0) = b.BatchID and d.InvoiceNumber = i.InvoiceNumber and d.CountryCode = b.countryCode and d.InvoiceFranchiseAccountNumber = i.DeliveryFranchisee\nLEFT JOIN prods p WITH (NOLOCK) on d.ProductId = p.ProductId and d.CountryCode = p.CountryCode\nLEFT JOIN invdet v WITH (NOLOCK) on d.InvoiceNumber = v.InvoiceNumber and i.DeliveryFranchisee = v.DeliveryFranchisee and i.Country = v.CountryCode and p.LabelPrefix = v.Prefix\n\nWHERE b.CountryCode = @CountryCode  and d.PickupDelivery = 'D'\nAND b.BatchID = @LastBatchID\nAND b.released = 1",
+                "inline_positional_params": true,
+                "inline_positional_params_mapping": {}
+              }
+            },
+            "Package\\Staging 2\\Load Label_Interbranch_Stg\\Save Error": {
+              "component_type": "Microsoft.OLEDBDestination",
+              "component_info": {
+                "table_name": "SourceData_Err",
+                "schema_name": "Staging"
+              }
+            }
+          }
+        },
+        "task_type": "Microsoft.Pipeline"
+      },
+      "Package\\Staging 2\\Set LastValue (InterBranch)": {
+        "task_metadata": {
+          "query": "DECLARE @RecordSource varchar(50)  = ?;\nDECLARE @LastBatchID int = ?;\nDECLARE @NoRows int = 0;\n\nSELECT @NoRows = COUNT(*) FROM [Staging].[Label_Interbranch_Stg]\n\nUPDATE [Staging].[LoadControl]\nSET LastValue = CONVERT(Varchar(15), @LastBatchID + 1)\nWHERE RecordSource = @RecordSource\nAND @NoRows > 0",
+          "param_map": {
+            "param_0": {
+              "variable_name": "RecordSource12",
+              "direction": "Input"
+            },
+            "param_1": {
+              "variable_name": "LastBatchId12",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Staging 2\\Truncate Label_Interbranch_Stg": {
+        "task_metadata": {
+          "query": "TRUNCATE TABLE [Staging].[Label_Interbranch_Stg];\n\n",
+          "param_map": {},
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  }
+}

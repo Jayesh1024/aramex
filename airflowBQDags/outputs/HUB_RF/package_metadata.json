@@ -1,0 +1,145 @@
+{
+  "package_name": "HUB_RF",
+  "executables": {
+    "Package\\Final": {
+      "task_metadata": {
+        "Package\\Final\\Load HUB_RF": {
+          "task_metadata": {
+            "query": "Exec [dv].[Load_HUB_RF] ?,?",
+            "param_map": {
+              "param_0": {
+                "variable_name": "ProcessId",
+                "direction": "Input"
+              },
+              "param_1": {
+                "variable_name": "RecordSource",
+                "direction": "Input"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Final\\Load SAT_RF": {
+          "task_metadata": {
+            "query": "Exec [dv].[Load_SAT_RF] ?,?",
+            "param_map": {
+              "param_0": {
+                "variable_name": "ProcessId",
+                "direction": "Input"
+              },
+              "param_1": {
+                "variable_name": "RecordSource",
+                "direction": "Input"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        }
+      },
+      "task_type": "STOCK:SEQUENCE"
+    },
+    "Package\\Staging": {
+      "task_metadata": {
+        "Package\\Staging\\Load Franchisee_Stg": {
+          "task_metadata": {
+            "task_dependency_map": {
+              "Package\\Staging\\Load Franchisee_Stg\\Get Error Details": [
+                "Package\\Staging\\Load Franchisee_Stg\\Save Error"
+              ],
+              "Package\\Staging\\Load Franchisee_Stg\\Franchisee_Stg (Bulk Insert)": [
+                "Package\\Staging\\Load Franchisee_Stg\\Franchisee_Stg"
+              ],
+              "Package\\Staging\\Load Franchisee_Stg\\Franchisee_Stg": [
+                "Package\\Staging\\Load Franchisee_Stg\\Get Error Details"
+              ],
+              "Package\\Staging\\Load Franchisee_Stg\\Franchisee data (Fastway)": [
+                "Package\\Staging\\Load Franchisee_Stg\\Franchisee_Stg (Bulk Insert)"
+              ]
+            },
+            "exec_order": {
+              "Package\\Staging\\Load Franchisee_Stg\\Franchisee data (Fastway)": 1,
+              "Package\\Staging\\Load Franchisee_Stg\\Franchisee_Stg (Bulk Insert)": 2,
+              "Package\\Staging\\Load Franchisee_Stg\\Franchisee_Stg": 3,
+              "Package\\Staging\\Load Franchisee_Stg\\Get Error Details": 4,
+              "Package\\Staging\\Load Franchisee_Stg\\Save Error": 5
+            },
+            "per_component_data": {
+              "Package\\Staging\\Load Franchisee_Stg\\Franchisee data (Fastway)": {
+                "component_type": "Microsoft.OLEDBSource",
+                "component_info": {
+                  "sql_command": "SELECT\n    [FranchiseeCode], f.[CountryCode], c.[Country], f.[RFId], \n    f.[Name], f.[Email], f.[LegalTradingEntity], f.[ABN], f.[ACN], f.[TaxNumber],\n    f.[Add1], f.[Add2], f.[Add3], f.[Add4], f.[Phone], f.[Fax],\n    f.[FranchiseEnquiryEmail], f.[State], f.[Suburb], f.[PostCode], \n    f.[Phone2], f.[AccountsEmail], f.[FMSType],\n    [CompanyOwnedRF],\n    [UsingWebFMSBanking]\nFROM [Fastway].[dbo].[Franchisee] f \nLEFT JOIN [Fastway].[dbo].[Country] c ON c.[Code] = f.[CountryCode];",
+                  "connection_names": [
+                    "Project.ConnectionManagers[KRILLIN_Fastway]"
+                  ],
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": "SourceDataQuery",
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": "User::SourceDataQuery",
+                    "variables_used_distinct": [
+                      "SourceDataQuery"
+                    ]
+                  }
+                }
+              },
+              "Package\\Staging\\Load Franchisee_Stg\\Franchisee_Stg": {
+                "component_type": "Microsoft.OLEDBDestination",
+                "component_info": {
+                  "table_name": "Franchisee_Stg",
+                  "schema_name": "Staging",
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": []
+                  }
+                }
+              },
+              "Package\\Staging\\Load Franchisee_Stg\\Franchisee_Stg (Bulk Insert)": {
+                "component_type": "Microsoft.OLEDBDestination",
+                "component_info": {
+                  "table_name": "Franchisee_Stg",
+                  "schema_name": "Staging",
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": []
+                  }
+                }
+              },
+              "Package\\Staging\\Load Franchisee_Stg\\Save Error": {
+                "component_type": "Microsoft.OLEDBDestination",
+                "component_info": {
+                  "table_name": "SourceData_Err",
+                  "schema_name": "Staging",
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": []
+                  }
+                }
+              }
+            }
+          },
+          "task_type": "Microsoft.Pipeline"
+        },
+        "Package\\Staging\\Truncate Franchisee_Stg": {
+          "task_metadata": {
+            "query": "TRUNCATE TABLE [Staging].[Franchisee_Stg]",
+            "param_map": {},
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        }
+      },
+      "task_type": "STOCK:SEQUENCE"
+    }
+  }
+}

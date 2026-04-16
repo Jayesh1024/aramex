@@ -1,0 +1,880 @@
+{
+  "description": "Heuristic classification from outputs/*/package_metadata.json (recursive control-flow task counts).",
+  "simplicity_scale": {
+    "simple": "Low task volume, few branches, little or no sub-package orchestration (score ~\u226428).",
+    "medium": "Typical staging+load packages, several data flows / sequences (score ~29\u201395).",
+    "complex": "Many parallel branches, many data flows, and/or heavy Execute Package use (score ~>95)."
+  },
+  "pattern_definitions": {
+    "data_vault_hub_satellite": "Hub/satellite style: many staging branches + Execute SQL Load_* into dv/staging.",
+    "data_vault_link_or_relation": "Link-style relationship loads (LNK_*).",
+    "data_vault_satellite_or_overrides": "Satellite or override SAT packages.",
+    "fact_or_kpi_mart_load": "Fact / KPI / delivery: proc-driven loads, often staging then final.",
+    "hybrid_sql_and_dataflow_etl": "Mix of Execute SQL and Data Flow Tasks.",
+    "dataflow_heavy_etl": "Data Flow Tasks dominate movement.",
+    "high_parallelism_staging": "Very many sequence branches / sources (e.g. large HUB packages).",
+    "subpackage_orchestration": "Many Execute Package tasks coordinate other packages.",
+    "maintenance_or_dba_tooling": "DB maintenance, copy, connectivity tests.",
+    "export_or_reporting": "Export / reporting oriented names.",
+    "interim_or_bridge_staging": "Interim fact/link staging.",
+    "operational_load_orchestration": "LoadControl-style multi-package runners.",
+    "domain_specific_incremental_load": "Domain-named incremental loads (invoices, RF, pricing).",
+    "generic_proc_orchestration": "Fallback: mostly Execute SQL without stronger name signal."
+  },
+  "packages": [
+    {
+      "output_folder": "ConnectStringTest",
+      "package_name": "ConnectStringTest",
+      "metrics": {
+        "execute_sql_tasks": 1,
+        "data_flow_tasks": 1,
+        "sequence_containers": 0,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 9,
+      "simplicity": "simple",
+      "primary_etl_pattern": "maintenance_or_dba_tooling",
+      "etl_patterns": [
+        {
+          "id": "maintenance_or_dba_tooling",
+          "note": "DB maintenance, copy, or connectivity utilities"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "DB_Copy_Table",
+      "package_name": "DB_Copy_Table",
+      "metrics": {
+        "execute_sql_tasks": 3,
+        "data_flow_tasks": 5,
+        "sequence_containers": 1,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 46,
+      "simplicity": "medium",
+      "primary_etl_pattern": "maintenance_or_dba_tooling",
+      "etl_patterns": [
+        {
+          "id": "maintenance_or_dba_tooling",
+          "note": "DB maintenance, copy, or connectivity utilities"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "DB_Maintenance",
+      "package_name": "DB_Maintenance",
+      "metrics": {
+        "execute_sql_tasks": 3,
+        "data_flow_tasks": 0,
+        "sequence_containers": 2,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 9,
+      "simplicity": "simple",
+      "primary_etl_pattern": "maintenance_or_dba_tooling",
+      "etl_patterns": [
+        {
+          "id": "maintenance_or_dba_tooling",
+          "note": "DB maintenance, copy, or connectivity utilities"
+        }
+      ]
+    },
+    {
+      "output_folder": "DLS_Manual_Pricing",
+      "package_name": "DLS_Manual_Pricing",
+      "metrics": {
+        "execute_sql_tasks": 6,
+        "data_flow_tasks": 1,
+        "sequence_containers": 1,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 17,
+      "simplicity": "simple",
+      "primary_etl_pattern": "domain_specific_incremental_load",
+      "etl_patterns": [
+        {
+          "id": "domain_specific_incremental_load",
+          "note": "Named domain staging + incremental loads"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "Export_KPI_Performance",
+      "package_name": "Export_KPI_Performance",
+      "metrics": {
+        "execute_sql_tasks": 3,
+        "data_flow_tasks": 2,
+        "sequence_containers": 2,
+        "execute_package_tasks": 0,
+        "script_tasks": 1
+      },
+      "complexity_score": 31,
+      "simplicity": "medium",
+      "primary_etl_pattern": "export_or_reporting",
+      "etl_patterns": [
+        {
+          "id": "export_or_reporting",
+          "note": "Export / reporting oriented workloads"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "Fact_Delivery_Performance",
+      "package_name": "Fact_Delivery_Performance",
+      "metrics": {
+        "execute_sql_tasks": 2,
+        "data_flow_tasks": 0,
+        "sequence_containers": 0,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 2,
+      "simplicity": "simple",
+      "primary_etl_pattern": "fact_or_kpi_mart_load",
+      "etl_patterns": [
+        {
+          "id": "fact_or_kpi_mart_load",
+          "note": "Fact / KPI / delivery style proc-driven loads"
+        }
+      ]
+    },
+    {
+      "output_folder": "Fact_KPI",
+      "package_name": "Fact_KPI",
+      "metrics": {
+        "execute_sql_tasks": 7,
+        "data_flow_tasks": 0,
+        "sequence_containers": 2,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 13,
+      "simplicity": "simple",
+      "primary_etl_pattern": "fact_or_kpi_mart_load",
+      "etl_patterns": [
+        {
+          "id": "fact_or_kpi_mart_load",
+          "note": "Fact / KPI / delivery style proc-driven loads"
+        }
+      ]
+    },
+    {
+      "output_folder": "Fact_KPI_Dashboard",
+      "package_name": "Fact_KPI_Dashboard",
+      "metrics": {
+        "execute_sql_tasks": 12,
+        "data_flow_tasks": 4,
+        "sequence_containers": 6,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 62,
+      "simplicity": "medium",
+      "primary_etl_pattern": "fact_or_kpi_mart_load",
+      "etl_patterns": [
+        {
+          "id": "fact_or_kpi_mart_load",
+          "note": "Fact / KPI / delivery style proc-driven loads"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "Fact_KPI_Dashboard2",
+      "package_name": "Fact_KPI_Dashboard2",
+      "metrics": {
+        "execute_sql_tasks": 12,
+        "data_flow_tasks": 3,
+        "sequence_containers": 5,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 51,
+      "simplicity": "medium",
+      "primary_etl_pattern": "fact_or_kpi_mart_load",
+      "etl_patterns": [
+        {
+          "id": "fact_or_kpi_mart_load",
+          "note": "Fact / KPI / delivery style proc-driven loads"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "Fact_Scan_KPI",
+      "package_name": "Fact_Scan_KPI",
+      "metrics": {
+        "execute_sql_tasks": 5,
+        "data_flow_tasks": 0,
+        "sequence_containers": 2,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 11,
+      "simplicity": "simple",
+      "primary_etl_pattern": "fact_or_kpi_mart_load",
+      "etl_patterns": [
+        {
+          "id": "fact_or_kpi_mart_load",
+          "note": "Fact / KPI / delivery style proc-driven loads"
+        }
+      ]
+    },
+    {
+      "output_folder": "HUB_Address",
+      "package_name": "HUB_Address",
+      "metrics": {
+        "execute_sql_tasks": 6,
+        "data_flow_tasks": 0,
+        "sequence_containers": 2,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 12,
+      "simplicity": "simple",
+      "primary_etl_pattern": "data_vault_hub_satellite",
+      "etl_patterns": [
+        {
+          "id": "data_vault_hub_satellite",
+          "note": "DV hub / satellite style staging + Load_* procs"
+        }
+      ]
+    },
+    {
+      "output_folder": "HUB_BLKContainerManifest",
+      "package_name": "HUB_BLKContainerManifest",
+      "metrics": {
+        "execute_sql_tasks": 7,
+        "data_flow_tasks": 2,
+        "sequence_containers": 2,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 29,
+      "simplicity": "medium",
+      "primary_etl_pattern": "data_vault_hub_satellite",
+      "etl_patterns": [
+        {
+          "id": "data_vault_hub_satellite",
+          "note": "DV hub / satellite style staging + Load_* procs"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "HUB_CF",
+      "package_name": "HUB_CF",
+      "metrics": {
+        "execute_sql_tasks": 3,
+        "data_flow_tasks": 1,
+        "sequence_containers": 2,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 17,
+      "simplicity": "simple",
+      "primary_etl_pattern": "data_vault_hub_satellite",
+      "etl_patterns": [
+        {
+          "id": "data_vault_hub_satellite",
+          "note": "DV hub / satellite style staging + Load_* procs"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "HUB_Customer",
+      "package_name": "HUB_Customer",
+      "metrics": {
+        "execute_sql_tasks": 7,
+        "data_flow_tasks": 5,
+        "sequence_containers": 2,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 53,
+      "simplicity": "medium",
+      "primary_etl_pattern": "data_vault_hub_satellite",
+      "etl_patterns": [
+        {
+          "id": "data_vault_hub_satellite",
+          "note": "DV hub / satellite style staging + Load_* procs"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "HUB_Invoice",
+      "package_name": "HUB_Invoice",
+      "metrics": {
+        "execute_sql_tasks": 13,
+        "data_flow_tasks": 4,
+        "sequence_containers": 4,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 57,
+      "simplicity": "medium",
+      "primary_etl_pattern": "data_vault_hub_satellite",
+      "etl_patterns": [
+        {
+          "id": "data_vault_hub_satellite",
+          "note": "DV hub / satellite style staging + Load_* procs"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "HUB_Label",
+      "package_name": "HUB_Label",
+      "metrics": {
+        "execute_sql_tasks": 55,
+        "data_flow_tasks": 13,
+        "sequence_containers": 19,
+        "execute_package_tasks": 2,
+        "script_tasks": 0
+      },
+      "complexity_score": 240,
+      "simplicity": "complex",
+      "primary_etl_pattern": "high_parallelism_staging",
+      "etl_patterns": [
+        {
+          "id": "data_vault_hub_satellite",
+          "note": "DV hub / satellite style staging + Load_* procs"
+        },
+        {
+          "id": "high_parallelism_staging",
+          "note": "Many parallel sequence branches feeding staging"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "HUB_Label(old)",
+      "package_name": "HUB_Label",
+      "metrics": {
+        "execute_sql_tasks": 35,
+        "data_flow_tasks": 6,
+        "sequence_containers": 12,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 119,
+      "simplicity": "complex",
+      "primary_etl_pattern": "high_parallelism_staging",
+      "etl_patterns": [
+        {
+          "id": "data_vault_hub_satellite",
+          "note": "DV hub / satellite style staging + Load_* procs"
+        },
+        {
+          "id": "high_parallelism_staging",
+          "note": "Many parallel sequence branches feeding staging"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "HUB_Label_2",
+      "package_name": "HUB_Label_2",
+      "metrics": {
+        "execute_sql_tasks": 6,
+        "data_flow_tasks": 2,
+        "sequence_containers": 3,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 31,
+      "simplicity": "medium",
+      "primary_etl_pattern": "data_vault_hub_satellite",
+      "etl_patterns": [
+        {
+          "id": "data_vault_hub_satellite",
+          "note": "DV hub / satellite style staging + Load_* procs"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "HUB_Label_MF_ONLY",
+      "package_name": "Package1",
+      "metrics": {
+        "execute_sql_tasks": 7,
+        "data_flow_tasks": 1,
+        "sequence_containers": 2,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 21,
+      "simplicity": "simple",
+      "primary_etl_pattern": "data_vault_hub_satellite",
+      "etl_patterns": [
+        {
+          "id": "data_vault_hub_satellite",
+          "note": "DV hub / satellite style staging + Load_* procs"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "HUB_Product",
+      "package_name": "HUB_Product",
+      "metrics": {
+        "execute_sql_tasks": 7,
+        "data_flow_tasks": 3,
+        "sequence_containers": 5,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 46,
+      "simplicity": "medium",
+      "primary_etl_pattern": "data_vault_hub_satellite",
+      "etl_patterns": [
+        {
+          "id": "data_vault_hub_satellite",
+          "note": "DV hub / satellite style staging + Load_* procs"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "HUB_RF",
+      "package_name": "HUB_RF",
+      "metrics": {
+        "execute_sql_tasks": 3,
+        "data_flow_tasks": 1,
+        "sequence_containers": 2,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 17,
+      "simplicity": "simple",
+      "primary_etl_pattern": "data_vault_hub_satellite",
+      "etl_patterns": [
+        {
+          "id": "data_vault_hub_satellite",
+          "note": "DV hub / satellite style staging + Load_* procs"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "HUB_ScanStatus",
+      "package_name": "HUB_ScanStatus",
+      "metrics": {
+        "execute_sql_tasks": 3,
+        "data_flow_tasks": 1,
+        "sequence_containers": 2,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 17,
+      "simplicity": "simple",
+      "primary_etl_pattern": "data_vault_hub_satellite",
+      "etl_patterns": [
+        {
+          "id": "data_vault_hub_satellite",
+          "note": "DV hub / satellite style staging + Load_* procs"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "HUB_ServiceCon",
+      "package_name": "HUB_ServiceCon",
+      "metrics": {
+        "execute_sql_tasks": 8,
+        "data_flow_tasks": 1,
+        "sequence_containers": 2,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 22,
+      "simplicity": "simple",
+      "primary_etl_pattern": "data_vault_hub_satellite",
+      "etl_patterns": [
+        {
+          "id": "data_vault_hub_satellite",
+          "note": "DV hub / satellite style staging + Load_* procs"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "HUB_ServiceItem",
+      "package_name": "HUB_ServiceItem",
+      "metrics": {
+        "execute_sql_tasks": 3,
+        "data_flow_tasks": 1,
+        "sequence_containers": 2,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 17,
+      "simplicity": "simple",
+      "primary_etl_pattern": "data_vault_hub_satellite",
+      "etl_patterns": [
+        {
+          "id": "data_vault_hub_satellite",
+          "note": "DV hub / satellite style staging + Load_* procs"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "HUB_ZenTickets",
+      "package_name": "HUB_ZenTickets",
+      "metrics": {
+        "execute_sql_tasks": 6,
+        "data_flow_tasks": 1,
+        "sequence_containers": 2,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 20,
+      "simplicity": "simple",
+      "primary_etl_pattern": "data_vault_hub_satellite",
+      "etl_patterns": [
+        {
+          "id": "data_vault_hub_satellite",
+          "note": "DV hub / satellite style staging + Load_* procs"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "Interim_Fact_Scan_KPI",
+      "package_name": "Interim_Fact_Scan_KPI",
+      "metrics": {
+        "execute_sql_tasks": 7,
+        "data_flow_tasks": 0,
+        "sequence_containers": 2,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 13,
+      "simplicity": "simple",
+      "primary_etl_pattern": "interim_or_bridge_staging",
+      "etl_patterns": [
+        {
+          "id": "interim_or_bridge_staging",
+          "note": "Intermediate facts/links before core marts"
+        }
+      ]
+    },
+    {
+      "output_folder": "Interim_LNK_Scan",
+      "package_name": "Interim_LNK_Scan",
+      "metrics": {
+        "execute_sql_tasks": 16,
+        "data_flow_tasks": 2,
+        "sequence_containers": 4,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 44,
+      "simplicity": "medium",
+      "primary_etl_pattern": "interim_or_bridge_staging",
+      "etl_patterns": [
+        {
+          "id": "interim_or_bridge_staging",
+          "note": "Intermediate facts/links before core marts"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "LNK_Label_Product_ServiceItem",
+      "package_name": "LNK_Label_Product_ServiceItem",
+      "metrics": {
+        "execute_sql_tasks": 4,
+        "data_flow_tasks": 0,
+        "sequence_containers": 2,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 10,
+      "simplicity": "simple",
+      "primary_etl_pattern": "data_vault_link_or_relation",
+      "etl_patterns": [
+        {
+          "id": "data_vault_link_or_relation",
+          "note": "Link / relationship loads"
+        }
+      ]
+    },
+    {
+      "output_folder": "LNK_RuralOnFowards",
+      "package_name": "LNK_RuralOnFowards",
+      "metrics": {
+        "execute_sql_tasks": 5,
+        "data_flow_tasks": 1,
+        "sequence_containers": 2,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 19,
+      "simplicity": "simple",
+      "primary_etl_pattern": "data_vault_link_or_relation",
+      "etl_patterns": [
+        {
+          "id": "data_vault_link_or_relation",
+          "note": "Link / relationship loads"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "Load FWFastLabel_Invoices",
+      "package_name": "Package1",
+      "metrics": {
+        "execute_sql_tasks": 7,
+        "data_flow_tasks": 2,
+        "sequence_containers": 2,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 29,
+      "simplicity": "medium",
+      "primary_etl_pattern": "domain_specific_incremental_load",
+      "etl_patterns": [
+        {
+          "id": "domain_specific_incremental_load",
+          "note": "Named domain staging + incremental loads"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "LoadControl",
+      "package_name": "LoadControl",
+      "metrics": {
+        "execute_sql_tasks": 4,
+        "data_flow_tasks": 0,
+        "sequence_containers": 5,
+        "execute_package_tasks": 12,
+        "script_tasks": 1
+      },
+      "complexity_score": 169,
+      "simplicity": "complex",
+      "primary_etl_pattern": "subpackage_orchestration",
+      "etl_patterns": [
+        {
+          "id": "subpackage_orchestration",
+          "note": "Control flow mostly coordinates other SSIS packages"
+        },
+        {
+          "id": "operational_load_orchestration",
+          "note": "Multi-package or multi-table operational runners"
+        }
+      ]
+    },
+    {
+      "output_folder": "LoadGokuTables",
+      "package_name": "LoadGokuTables",
+      "metrics": {
+        "execute_sql_tasks": 10,
+        "data_flow_tasks": 3,
+        "sequence_containers": 3,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 43,
+      "simplicity": "medium",
+      "primary_etl_pattern": "operational_load_orchestration",
+      "etl_patterns": [
+        {
+          "id": "operational_load_orchestration",
+          "note": "Multi-package or multi-table operational runners"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "RFBatchingInvoiceLog",
+      "package_name": "RFBatchingInvoiceLog",
+      "metrics": {
+        "execute_sql_tasks": 1,
+        "data_flow_tasks": 2,
+        "sequence_containers": 2,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 23,
+      "simplicity": "simple",
+      "primary_etl_pattern": "domain_specific_incremental_load",
+      "etl_patterns": [
+        {
+          "id": "domain_specific_incremental_load",
+          "note": "Named domain staging + incremental loads"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    },
+    {
+      "output_folder": "SAT_Overrides",
+      "package_name": "SAT_Overrides",
+      "metrics": {
+        "execute_sql_tasks": 6,
+        "data_flow_tasks": 4,
+        "sequence_containers": 4,
+        "execute_package_tasks": 0,
+        "script_tasks": 0
+      },
+      "complexity_score": 50,
+      "simplicity": "medium",
+      "primary_etl_pattern": "data_vault_satellite_or_overrides",
+      "etl_patterns": [
+        {
+          "id": "data_vault_satellite_or_overrides",
+          "note": "Satellite or override loads"
+        },
+        {
+          "id": "hybrid_sql_and_dataflow_etl",
+          "note": "Execute SQL tasks plus Data Flow Tasks"
+        }
+      ]
+    }
+  ],
+  "packages_by_primary_pattern": {
+    "data_vault_hub_satellite": [
+      "HUB_Address",
+      "HUB_BLKContainerManifest",
+      "HUB_CF",
+      "HUB_Customer",
+      "HUB_Invoice",
+      "HUB_Label_2",
+      "HUB_Label_MF_ONLY",
+      "HUB_Product",
+      "HUB_RF",
+      "HUB_ScanStatus",
+      "HUB_ServiceCon",
+      "HUB_ServiceItem",
+      "HUB_ZenTickets"
+    ],
+    "data_vault_link_or_relation": [
+      "LNK_Label_Product_ServiceItem",
+      "LNK_RuralOnFowards"
+    ],
+    "data_vault_satellite_or_overrides": [
+      "SAT_Overrides"
+    ],
+    "domain_specific_incremental_load": [
+      "DLS_Manual_Pricing",
+      "Load FWFastLabel_Invoices",
+      "RFBatchingInvoiceLog"
+    ],
+    "export_or_reporting": [
+      "Export_KPI_Performance"
+    ],
+    "fact_or_kpi_mart_load": [
+      "Fact_Delivery_Performance",
+      "Fact_KPI",
+      "Fact_KPI_Dashboard",
+      "Fact_KPI_Dashboard2",
+      "Fact_Scan_KPI"
+    ],
+    "high_parallelism_staging": [
+      "HUB_Label",
+      "HUB_Label(old)"
+    ],
+    "interim_or_bridge_staging": [
+      "Interim_Fact_Scan_KPI",
+      "Interim_LNK_Scan"
+    ],
+    "maintenance_or_dba_tooling": [
+      "ConnectStringTest",
+      "DB_Copy_Table",
+      "DB_Maintenance"
+    ],
+    "operational_load_orchestration": [
+      "LoadGokuTables"
+    ],
+    "subpackage_orchestration": [
+      "LoadControl"
+    ]
+  }
+}

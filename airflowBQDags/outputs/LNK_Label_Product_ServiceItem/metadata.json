@@ -1,0 +1,71 @@
+{
+  "Package\\Final": {
+    "task_metadata": {
+      "Package\\Final\\Load LNK_Label_Product_ServiceItem": {
+        "task_metadata": {
+          "query": "Exec [dv].[Load_LNK_Label_Product_ServiceItem] ?,?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            },
+            "param_1": {
+              "variable_name": "RecordSource",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Final\\Load LSAT_Label_Product_ServiceItem": {
+        "task_metadata": {
+          "query": "Exec [dv].[Load_LSAT_Label_Product_ServiceItem] ?,?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            },
+            "param_1": {
+              "variable_name": "RecordSource",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  },
+  "Package\\Staging": {
+    "task_metadata": {
+      "Package\\Staging\\Load Label_Product_ServiceItem_Stg": {
+        "task_metadata": {
+          "query": "Exec [dv].[Load_Label_Product_ServiceItem_Stg] ?,?",
+          "param_map": {
+            "param_0": {
+              "variable_name": "ProcessId",
+              "direction": "Input"
+            },
+            "param_1": {
+              "variable_name": "RecordSource",
+              "direction": "Input"
+            }
+          },
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      },
+      "Package\\Staging\\Truncate Label_Product_ServiceItem_Stg": {
+        "task_metadata": {
+          "query": "TRUNCATE TABLE [Staging].[Label_Product_ServiceItem_Stg]",
+          "param_map": {},
+          "result_set": {}
+        },
+        "task_type": "Microsoft.ExecuteSQLTask"
+      }
+    },
+    "task_type": "STOCK:SEQUENCE"
+  }
+}

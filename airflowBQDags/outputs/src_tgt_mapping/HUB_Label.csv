@@ -1,0 +1,51 @@
+package_name,dataflow_executable_ref_id,referred_server_name,referred_database_name,referred_schema_name,referred_table_name,destination_server_name,destination_database_name,destination_schema_name,destination_table_name
+HUB_Label,Package\Staging\Source1 (LabelMaster)\Load LabelMaster_Stg,VEGETA,FastwayReports,dbo,TrackAndTraceDataP,CUBE,FastwayDW,Staging,LabelMaster_Stg
+HUB_Label,Package\Staging\Source1 (LabelMaster)\Load LabelMaster_Stg,VEGETA,FastwayReports,dbo,TrackAndTraceDataP,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source1 (LabelMaster)\Load LabelMaster_Stg,VEGETA,FastwayReports,dbo,LabelMaster,CUBE,FastwayDW,Staging,LabelMaster_Stg
+HUB_Label,Package\Staging\Source1 (LabelMaster)\Load LabelMaster_Stg,VEGETA,FastwayReports,dbo,LabelMaster,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source1 (LabelMaster)\Load LabelMaster_Stg,VEGETA,FastwayReports,dbo,Scan,CUBE,FastwayDW,Staging,LabelMaster_Stg
+HUB_Label,Package\Staging\Source1 (LabelMaster)\Load LabelMaster_Stg,VEGETA,FastwayReports,dbo,Scan,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source10 (EBAY) _EBAY\Load Ebay_labels_Stg,GOKU,OnlineEnquiries_NEW,dbo,vw_ebay_labels,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source10 (EBAY) _EBAY\Load Ebay_labels_Stg,GOKU,OnlineEnquiries_NEW,dbo,vw_ebay_labels,CUBE,FastwayDW,Staging,Ebay_Labels_Stg
+HUB_Label,Package\Staging\Source11 (MyFastwaySrv) _MF 2\Load fl_ConItemSrv_Stg,KRILLIN,FWFastlabel,dbo,fl_ConItem,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source11 (MyFastwaySrv) _MF 2\Load fl_ConItemSrv_Stg,KRILLIN,FWFastlabel,dbo,fl_ConItem,CUBE,FastwayDW,Staging,fl_ConItemSrv_Stg
+HUB_Label,Package\Staging\Source11 (MyFastwaySrv) _MF 2\Load fl_ConItemSrv_Stg,KRILLIN,FWFastlabel,dbo,fl_Con,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source11 (MyFastwaySrv) _MF 2\Load fl_ConItemSrv_Stg,KRILLIN,FWFastlabel,dbo,fl_Con,CUBE,FastwayDW,Staging,fl_ConItemSrv_Stg
+HUB_Label,Package\Staging\Source11 (MyFastwaySrv) _MF 2\Load fl_ConItemSrv_Stg,KRILLIN,FWFastlabel,dbo,fl_ConItemSrv,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source11 (MyFastwaySrv) _MF 2\Load fl_ConItemSrv_Stg,KRILLIN,FWFastlabel,dbo,fl_ConItemSrv,CUBE,FastwayDW,Staging,fl_ConItemSrv_Stg
+HUB_Label,Package\Staging\Source13 (PickupRequests)\Load Pickup Requests (AU),GOKU,FastwayGlobal_1,PickupDashboard,PickupRequest,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source13 (PickupRequests)\Load Pickup Requests (AU),GOKU,FastwayGlobal_1,PickupDashboard,PickupRequest,CUBE,FastwayDW,Staging,PickupRequest_Stg
+HUB_Label,Package\Staging\Source13 (PickupRequests)\Load Pickup Requests (NZ),GOKU,FastwayGlobal_6,PickupDashboard,PickupRequest,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source13 (PickupRequests)\Load Pickup Requests (NZ),GOKU,FastwayGlobal_6,PickupDashboard,PickupRequest,CUBE,FastwayDW,Staging,PickupRequest_Stg
+HUB_Label,Package\Staging\Source13 (PickupRequests)\Load Pickup Requests (SA),GOKU,FastwayGlobal_24,PickupDashboard,PickupRequest,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source13 (PickupRequests)\Load Pickup Requests (SA),GOKU,FastwayGlobal_24,PickupDashboard,PickupRequest,CUBE,FastwayDW,Staging,PickupRequest_Stg
+HUB_Label,Package\Staging\Source2 (DynamicLabel) _DL\Load API_RF_AdHocLabel_AllocationHistory_Stg,GOKU,OnlineEnquiries_NEW,dbo,API_RF_AdHocLabel_AllocationHistory,CUBE,FastwayDW,Staging,API_RF_AdHocLabel_AllocationHistory_Stg
+HUB_Label,Package\Staging\Source2 (DynamicLabel) _DL\Load API_RF_AdHocLabel_AllocationHistory_Stg,GOKU,OnlineEnquiries_NEW,dbo,API_RF_AdHocLabel_AllocationHistory,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source3 (FastLabel) _FL\Load tblFastLabel_Consignment_Stg,GOKU,OnlineEnquiries_NEW,dbo,tblFastLabel_Consignment_Items,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source3 (FastLabel) _FL\Load tblFastLabel_Consignment_Stg,GOKU,OnlineEnquiries_NEW,dbo,tblFastLabel_Consignment_Items,CUBE,FastwayDW,Staging,tblFastLabel_Consignment_Stg
+HUB_Label,Package\Staging\Source3 (FastLabel) _FL\Load tblFastLabel_Consignment_Stg,GOKU,OnlineEnquiries_NEW,dbo,tblFastLabel_Consignment,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source3 (FastLabel) _FL\Load tblFastLabel_Consignment_Stg,GOKU,OnlineEnquiries_NEW,dbo,tblFastLabel_Consignment,CUBE,FastwayDW,Staging,tblFastLabel_Consignment_Stg
+HUB_Label,Package\Staging\Source3 (FastLabel) _FL\Load tblFastLabel_Consignment_Stg,GOKU,OnlineEnquiries_NEW,dbo,tblFastLabel_Book_Detail,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source3 (FastLabel) _FL\Load tblFastLabel_Consignment_Stg,GOKU,OnlineEnquiries_NEW,dbo,tblFastLabel_Book_Detail,CUBE,FastwayDW,Staging,tblFastLabel_Consignment_Stg
+HUB_Label,Package\Staging\Source4 (MyFastway) _MF\Load fl_ConItem_Stg,KRILLIN,FWFastlabel,dbo,fl_ConItem,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source4 (MyFastway) _MF\Load fl_ConItem_Stg,KRILLIN,FWFastlabel,dbo,fl_ConItem,CUBE,FastwayDW,Staging,fl_ConItem_Stg
+HUB_Label,Package\Staging\Source4 (MyFastway) _MF\Load fl_ConItem_Stg,KRILLIN,FWFastlabel,dbo,fl_Con,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source4 (MyFastway) _MF\Load fl_ConItem_Stg,KRILLIN,FWFastlabel,dbo,fl_Con,CUBE,FastwayDW,Staging,fl_ConItem_Stg
+HUB_Label,Package\Staging\Source4 (MyFastway) _MF\Load fl_ConItem_Stg,KRILLIN,FWFastlabel,dbo,fl_ConItemSum,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source4 (MyFastway) _MF\Load fl_ConItem_Stg,KRILLIN,FWFastlabel,dbo,fl_ConItemSum,CUBE,FastwayDW,Staging,fl_ConItem_Stg
+HUB_Label,Package\Staging\Source5 (HDManifest) _IFS\Load HDManifests_Stg,KRILLIN,Fastway,dbo,HDManifests,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source5 (HDManifest) _IFS\Load HDManifests_Stg,KRILLIN,Fastway,dbo,HDManifests,CUBE,FastwayDW,Staging,HDManifests_Stg
+HUB_Label,Package\Staging\Source6 (FastLabelEnterprise) _FLE\Load ConsignmentItem_Stg,KRILLIN,FastLabelServer,dbo,ConsignmentLabel,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source6 (FastLabelEnterprise) _FLE\Load ConsignmentItem_Stg,KRILLIN,FastLabelServer,dbo,ConsignmentLabel,CUBE,FastwayDW,Staging,ConsignmentItem_Stg
+HUB_Label,Package\Staging\Source6 (FastLabelEnterprise) _FLE\Load ConsignmentItem_Stg,KRILLIN,FastLabelServer,dbo,Consignment,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source6 (FastLabelEnterprise) _FLE\Load ConsignmentItem_Stg,KRILLIN,FastLabelServer,dbo,Consignment,CUBE,FastwayDW,Staging,ConsignmentItem_Stg
+HUB_Label,Package\Staging\Source6 (FastLabelEnterprise) _FLE\Load ConsignmentItem_Stg,KRILLIN,FastLabelServer,dbo,CustomerMap,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source6 (FastLabelEnterprise) _FLE\Load ConsignmentItem_Stg,KRILLIN,FastLabelServer,dbo,CustomerMap,CUBE,FastwayDW,Staging,ConsignmentItem_Stg
+HUB_Label,Package\Staging\Source6 (FastLabelEnterprise) _FLE\Load ConsignmentItem_Stg,KRILLIN,FastLabelServer,dbo,ConsignmentItem,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source6 (FastLabelEnterprise) _FLE\Load ConsignmentItem_Stg,KRILLIN,FastLabelServer,dbo,ConsignmentItem,CUBE,FastwayDW,Staging,ConsignmentItem_Stg
+HUB_Label,Package\Staging\Source7 (Temando) _TMD\Load API_Temando_RequestLabel_Stg,GOKU,OnlineEnquiries_NEW,dbo,API_Temando_RequestLabel,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source7 (Temando) _TMD\Load API_Temando_RequestLabel_Stg,GOKU,OnlineEnquiries_NEW,dbo,API_Temando_RequestLabel,CUBE,FastwayDW,Staging,API_Temando_RequestLabel_Stg
+HUB_Label,Package\Staging\Source8 (ReceiverPays) _RP\Load tblOnlineEnquiry_RP_Stg,GOKU,OnlineEnquiries_NEW,dbo,tblOnlineEnquiry_RP,CUBE,FastwayDW,Staging,tblOnlineEnquiry_RP_Stg
+HUB_Label,Package\Staging\Source8 (ReceiverPays) _RP\Load tblOnlineEnquiry_RP_Stg,GOKU,OnlineEnquiries_NEW,dbo,tblOnlineEnquiry_RP,CUBE,FastwayDW,Staging,SourceData_Err
+HUB_Label,Package\Staging\Source8 (ReceiverPays) _RP\Load tblOnlineEnquiry_RP_Stg,GOKU,OnlineEnquiries_NEW,dbo,tblOnlineEnquiry_RP_Parcels,CUBE,FastwayDW,Staging,tblOnlineEnquiry_RP_Stg
+HUB_Label,Package\Staging\Source8 (ReceiverPays) _RP\Load tblOnlineEnquiry_RP_Stg,GOKU,OnlineEnquiries_NEW,dbo,tblOnlineEnquiry_RP_Parcels,CUBE,FastwayDW,Staging,SourceData_Err

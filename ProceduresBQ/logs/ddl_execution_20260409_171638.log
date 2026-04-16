@@ -1,0 +1,38 @@
+2026-04-09 17:16:38  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 17:16:38  INFO        DDL Execution — BigQuery
+2026-04-09 17:16:38  INFO        Started      : 2026-04-09 17:16:38
+2026-04-09 17:16:38  INFO        Project      : searce-sandbox-da-delivery
+2026-04-09 17:16:38  INFO        BQ location  : US
+2026-04-09 17:16:38  INFO        SQL dir      : /Users/jhalak.jain/Desktop/Searce - Aramex/aramex/ProceduresBQ/Rendered BQ
+2026-04-09 17:16:38  INFO        Credentials  : /Users/jhalak.jain/.config/gcloud/application_default_credentials.json
+2026-04-09 17:16:38  INFO        SQL files    : 14
+2026-04-09 17:16:38  INFO        Max Workers  : 5
+2026-04-09 17:16:38  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 17:16:38  INFO      
+2026-04-09 17:16:38  INFO        Results
+2026-04-09 17:16:38  INFO      ────────────────────────────────────────────────────────────────────────
+2026-04-09 17:16:41  INFO      [SUCCESS] BQ_Load_HUB_Customer.sql
+2026-04-09 17:16:41  INFO      [SUCCESS] BQ_Load_HUB_BLKContainerManifestContents.sql
+2026-04-09 17:16:41  INFO      [SUCCESS] BQ_Load_HUB_Container.sql
+2026-04-09 17:16:41  INFO      [SUCCESS] BQ_Load_HUB_CF.sql
+2026-04-09 17:16:41  INFO      [SUCCESS] BQ_Load_HUB_Address.sql
+2026-04-09 17:16:44  INFO      [SUCCESS] BQ_Load_HUB_Invoice.sql
+2026-04-09 17:16:44  INFO      [SUCCESS] BQ_Load_HUB_Product.sql
+2026-04-09 17:16:44  INFO      [SUCCESS] BQ_Load_HUB_Label.sql
+2026-04-09 17:16:44  INFO      [SUCCESS] BQ_Load_Hub_Account.sql
+2026-04-09 17:16:44  INFO      [SUCCESS] BQ_Load_HUB_RF.sql
+2026-04-09 17:16:46  INFO      [SUCCESS] BQ_Load_SAT_Label_Allocation_RP.sql
+2026-04-09 17:16:46  INFO      [SUCCESS] BQ_Load_SAT_Label_Allocation_TAS.sql
+2026-04-09 17:16:46  INFO      [SUCCESS] BQ_Load_SAT_Label_Allocation_MF.sql
+2026-04-09 17:16:46  INFO      [SUCCESS] BQ_Load_SAT_Label_Allocation_TMD.sql
+2026-04-09 17:16:46  INFO      
+2026-04-09 17:16:46  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 17:16:46  INFO        SUMMARY
+2026-04-09 17:16:46  INFO        Finished : 2026-04-09 17:16:46
+2026-04-09 17:16:46  INFO        Elapsed  : 0m 7s
+2026-04-09 17:16:46  INFO        Success  : 14
+2026-04-09 17:16:46  INFO        Failed   : 0
+2026-04-09 17:16:46  INFO        Total    : 14
+2026-04-09 17:16:46  INFO      ════════════════════════════════════════════════════════════════════════
+2026-04-09 17:16:46  INFO      
+2026-04-09 17:16:46  INFO      Full log saved to: logs/ddl_execution_20260409_171638.log

@@ -1,0 +1,1986 @@
+﻿<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="5/27/2024"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="DESKTOP-1260P"
+  DTS:CreatorName="DESKTOP-1260P\Barry"
+  DTS:DTSID="{AC6330BD-078D-42E0-94C5-E73A736D78CD}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="16.0.5397.1"
+  DTS:LocaleID="3081"
+  DTS:ObjectName="HUB_BLKContainerManifest"
+  DTS:PackageType="5"
+  DTS:VersionBuild="79"
+  DTS:VersionGUID="{D3F06E7B-4C6F-4D06-A918-2D14088BABE7}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:PackageParameters>
+    <DTS:PackageParameter
+      DTS:CreationName=""
+      DTS:DataType="11"
+      DTS:DTSID="{3FC6684F-AE7A-4E60-86B5-3DEA3D42192A}"
+      DTS:ObjectName="DisableFinal">
+      <DTS:Property
+        DTS:DataType="11"
+        DTS:Name="ParameterValue">0</DTS:Property>
+    </DTS:PackageParameter>
+    <DTS:PackageParameter
+      DTS:CreationName=""
+      DTS:DataType="11"
+      DTS:DTSID="{4DC78471-AB77-421B-A592-55B4C268F049}"
+      DTS:ObjectName="DisableStage">
+      <DTS:Property
+        DTS:DataType="11"
+        DTS:Name="ParameterValue">0</DTS:Property>
+    </DTS:PackageParameter>
+    <DTS:PackageParameter
+      DTS:CreationName=""
+      DTS:DataType="8"
+      DTS:DTSID="{87DB162B-F2BC-4AB5-97D0-1F9B224AEFCE}"
+      DTS:ObjectName="RecordSource">
+      <DTS:Property
+        DTS:DataType="8"
+        DTS:Name="ParameterValue">BLK_ManifestContents</DTS:Property>
+    </DTS:PackageParameter>
+  </DTS:PackageParameters>
+  <DTS:Variables>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{EB745EC1-2ED2-444C-A45A-6781846CEE0E}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="LastID">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{6D056AF9-F5F9-4629-8604-AFCE28A915D9}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="LastScanDate">
+      <DTS:VariableValue
+        DTS:DataType="8"
+        xml:space="preserve"></DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{CE29BFFB-8D49-4309-B50F-33DD469CD069}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="ProcessId">
+      <DTS:VariableValue
+        DTS:DataType="20">0</DTS:VariableValue>
+    </DTS:Variable>
+  </DTS:Variables>
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\Final"
+      DTS:CreationName="STOCK:SEQUENCE"
+      DTS:Description="Sequence Container"
+      DTS:DTSID="{f4d63fd7-34d4-4d8b-81b6-10ccdd2c5f8a}"
+      DTS:ExecutableType="STOCK:SEQUENCE"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Final">
+      <DTS:Variables />
+      <DTS:PropertyExpression
+        DTS:Name="Disable">@[$Package::DisableFinal]</DTS:PropertyExpression>
+      <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package\Final\Load HUB_BLKContainerManifestLabel"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{7eba7512-99d9-4603-9596-1efdb698bb3c}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Load HUB_BLKContainerManifestLabel"
+          DTS:ThreadHint="0">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
+              SQLTask:SqlStatementSource="EXEC [dv].[Load_HUB_BLKContainerManifestContents] ?,?" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="User::ProcessId"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="3"
+                SQLTask:ParameterSize="-1" />
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="1"
+                SQLTask:DtsVariableName="$Package::RecordSource"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="130"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\Final\Load SAT_BLKContainerManifest"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{47c75dc7-0cb0-4398-8055-58b2367806e5}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Load SAT_BLKContainerManifest"
+          DTS:ThreadHint="1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
+              SQLTask:BypassPrepare="False"
+              SQLTask:SqlStatementSource="EXEC [dv].[Load_SAT_BLKContainerManifest] ?,?" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="User::ProcessId"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="3"
+                SQLTask:ParameterSize="-1" />
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="1"
+                SQLTask:DtsVariableName="$Package::RecordSource"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="130"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\Final\Load SAT_BLKContainerManifestContent"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{2e20270c-a433-446c-b78c-8bec68d4c950}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Load SAT_BLKContainerManifestContent"
+          DTS:ThreadHint="1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
+              SQLTask:SqlStatementSource="EXEC [dv].[Load_SAT_BLKContainerManifestContents] ?,?" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="User::ProcessId"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="3"
+                SQLTask:ParameterSize="-1" />
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="1"
+                SQLTask:DtsVariableName="$Package::RecordSource"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="130"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\Final\Update LoadControl LastScanDate (BLK_ManifestID)"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{26aae72d-de0d-474b-a064-fa8265d0f2e4}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Update LoadControl LastScanDate (BLK_ManifestID)"
+          DTS:ThreadHint="0">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
+              SQLTask:BypassPrepare="False"
+              SQLTask:SqlStatementSource="DECLARE @Source varchar(50) = ?;&#xA;DECLARE @LastScanDate datetime;&#xA;&#xA;SELECT @LastScanDate = MAX([ScanDate]) From [Staging].[BLK_ContainerManifestContents_Stg]&#xA;&#xA;UPDATE [Staging].[LoadControl] &#xA;SET LastValue = CONVERT(varchar(30), @LastScanDate)&#xA;WHERE [RecordSource] = @Source " xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="$Package::RecordSource"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="130"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+      <DTS:PrecedenceConstraints>
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\Final.PrecedenceConstraints[Constraint]"
+          DTS:CreationName=""
+          DTS:DTSID="{4a6e0cf4-0b9a-4ba2-baaa-ff17f7e6399a}"
+          DTS:From="Package\Final\Load HUB_BLKContainerManifestLabel"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint"
+          DTS:To="Package\Final\Update LoadControl LastScanDate (BLK_ManifestID)" />
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\Final.PrecedenceConstraints[Constraint 1]"
+          DTS:CreationName=""
+          DTS:DTSID="{7A76BA77-463F-4593-8CA6-AC4C9FD5146A}"
+          DTS:From="Package\Final\Load SAT_BLKContainerManifest"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint 1"
+          DTS:To="Package\Final\Load SAT_BLKContainerManifestContent" />
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\Final.PrecedenceConstraints[Constraint 2]"
+          DTS:CreationName=""
+          DTS:DTSID="{F5E0FBD2-A379-4DCC-B5A8-A275E04851D2}"
+          DTS:From="Package\Final\Load SAT_BLKContainerManifestContent"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint 2"
+          DTS:To="Package\Final\Update LoadControl LastScanDate (BLK_ManifestID)" />
+      </DTS:PrecedenceConstraints>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Get ProcessID"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{96ff71d0-fa44-4541-8283-f99ae4d9845a}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Get ProcessID"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
+          SQLTask:BypassPrepare="False"
+          SQLTask:SqlStatementSource="SELECT ProcessID =  MIN(ProcessID) - 1 FROM Staging.LoadLog &#xA;WHERE ProcessID &lt; -99999"
+          SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="ProcessID"
+            SQLTask:DtsVariableName="User::ProcessId" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Staging"
+      DTS:CreationName="STOCK:SEQUENCE"
+      DTS:Description="Sequence Container"
+      DTS:DTSID="{f076bf27-e302-4095-a82b-e4cf71b05171}"
+      DTS:ExecutableType="STOCK:SEQUENCE"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Staging">
+      <DTS:Variables />
+      <DTS:PropertyExpression
+        DTS:Name="Disable">@[$Package::DisableStage]</DTS:PropertyExpression>
+      <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package\Staging\Get Last ContainerContents LastScanDate"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{d38db2df-2638-48d1-925e-1e0d9bca7f93}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Get Last ContainerContents LastScanDate"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2012; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="0">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
+              SQLTask:SqlStatementSource="Exec [Staging].[Get_LastValue] ?"
+              SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ResultBinding
+                SQLTask:ResultName="LastValue"
+                SQLTask:DtsVariableName="User::LastScanDate" />
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="$Package::RecordSource"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="130"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\Staging\Load ContainerContents"
+          DTS:CreationName="Microsoft.Pipeline"
+          DTS:Description="Data Flow Task"
+          DTS:DTSID="{bf5ac118-fa1d-41b7-b4c7-5b61b8eb24f6}"
+          DTS:ExecutableType="Microsoft.Pipeline"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Load ContainerContents"
+          DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <pipeline
+              version="1">
+              <components>
+                <component
+                  refId="Package\Staging\Load ContainerContents\OLE DB Destination"
+                  componentClassID="Microsoft.OLEDBDestination"
+                  contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+                  description="OLE DB Destination"
+                  name="OLE DB Destination"
+                  usesDispositions="true"
+                  version="4">
+                  <properties>
+                    <property
+                      dataType="System.Int32"
+                      description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                      name="CommandTimeout">0</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the name of the database object used to open a rowset."
+                      name="OpenRowset">[Staging].[BLK_ContainerManifestContents_Stg]</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the variable that contains the name of the database object used to open a rowset."
+                      name="OpenRowsetVariable"></property>
+                    <property
+                      dataType="System.String"
+                      description="The SQL command to be executed."
+                      name="SqlCommand"
+                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91">SELECT 
+       [ZenDeskTicketId]
+      ,[LabelNo]
+      ,[Subject]
+      ,[CreatedDate]
+      ,[CreatedTime]
+      ,[TicketType]
+      ,[Issue]
+      ,[Solved]
+  FROM [Fastway].[dbo].[ZEN_Tickets]</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the column code page to use when code page information is unavailable from the data source."
+                      name="DefaultCodePage">1252</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Forces the use of the DefaultCodePage property value when describing character data."
+                      name="AlwaysUseDefaultCodePage">false</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the mode used to access the database."
+                      name="AccessMode"
+                      typeConverter="AccessMode">3</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                      name="FastLoadKeepIdentity">false</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                      name="FastLoadKeepNulls">false</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                      name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                      name="FastLoadMaxInsertCommitSize">2147483647</property>
+                  </properties>
+                  <connections>
+                    <connection
+                      refId="Package\Staging\Load ContainerContents\OLE DB Destination.Connections[OleDbConnection]"
+                      connectionManagerID="{66292261-9521-45A6-ACCA-54377A482A00}:external"
+                      connectionManagerRefId="Project.ConnectionManagers[CUBE.FastwayDW]"
+                      description="The OLE DB runtime connection used to access the database."
+                      name="OleDbConnection" />
+                  </connections>
+                  <inputs>
+                    <input
+                      refId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input]"
+                      errorOrTruncationOperation="Insert"
+                      errorRowDisposition="FailComponent"
+                      hasSideEffects="true"
+                      name="OLE DB Destination Input">
+                      <inputColumns>
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[LabelNo]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="12"
+                          cachedName="LabelNo"
+                          externalMetadataColumnId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[LabelNo]"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[LabelNo]" />
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[ContainerManifestId]"
+                          cachedDataType="i4"
+                          cachedName="ContainerManifestId"
+                          externalMetadataColumnId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ContainerManifestId]"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[ContainerManifestId]" />
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[ScanDate]"
+                          cachedDataType="dbTimeStamp"
+                          cachedName="ScanDate"
+                          externalMetadataColumnId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ScanDate]"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[ScanDate]" />
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[ScanUserId]"
+                          cachedDataType="i4"
+                          cachedName="ScanUserId"
+                          externalMetadataColumnId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ScanUserId]"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[ScanUserId]" />
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Destination]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="5"
+                          cachedName="Destination"
+                          externalMetadataColumnId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Destination]"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[Destination]" />
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[MixedManifestId]"
+                          cachedDataType="i4"
+                          cachedName="MixedManifestId"
+                          externalMetadataColumnId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[MixedManifestId]"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[MixedManifestId]" />
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Weight]"
+                          cachedDataType="r8"
+                          cachedName="Weight"
+                          externalMetadataColumnId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Weight]"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[Weight]" />
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[CF]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="3"
+                          cachedName="CF"
+                          externalMetadataColumnId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[CF]"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[CF]" />
+                      </inputColumns>
+                      <externalMetadataColumns
+                        isUsed="True">
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[LabelNo]"
+                          codePage="1252"
+                          dataType="str"
+                          length="12"
+                          name="LabelNo" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ContainerManifestId]"
+                          dataType="i4"
+                          name="ContainerManifestId" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ScanDate]"
+                          dataType="dbTimeStamp"
+                          name="ScanDate" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ScanUserId]"
+                          dataType="i4"
+                          name="ScanUserId" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Destination]"
+                          codePage="1252"
+                          dataType="str"
+                          length="5"
+                          name="Destination" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[MixedManifestId]"
+                          dataType="i4"
+                          name="MixedManifestId" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Weight]"
+                          dataType="numeric"
+                          name="Weight"
+                          precision="18"
+                          scale="5" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[CF]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          name="CF" />
+                      </externalMetadataColumns>
+                    </input>
+                  </inputs>
+                  <outputs>
+                    <output
+                      refId="Package\Staging\Load ContainerContents\OLE DB Destination.Outputs[OLE DB Destination Error Output]"
+                      exclusionGroup="1"
+                      isErrorOut="true"
+                      name="OLE DB Destination Error Output"
+                      synchronousInputId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input]">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                          name="ErrorCode"
+                          specialFlags="1" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                          name="ErrorColumn"
+                          specialFlags="2" />
+                      </outputColumns>
+                      <externalMetadataColumns />
+                    </output>
+                  </outputs>
+                </component>
+                <component
+                  refId="Package\Staging\Load ContainerContents\OLE DB Source"
+                  componentClassID="Microsoft.OLEDBSource"
+                  contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+                  description="OLE DB Source"
+                  name="OLE DB Source"
+                  usesDispositions="true"
+                  version="7">
+                  <properties>
+                    <property
+                      dataType="System.Int32"
+                      description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                      name="CommandTimeout">0</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the name of the database object used to open a rowset."
+                      name="OpenRowset">[dbo].[ZEN_Tickets]</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the variable that contains the name of the database object used to open a rowset."
+                      name="OpenRowsetVariable"></property>
+                    <property
+                      dataType="System.String"
+                      description="The SQL command to be executed."
+                      name="SqlCommand"
+                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91">DECLARE @LastScanDate varchar(50) = ?;
+--CONVERT(Datetime,'2023-05-01T00:00:00');
+
+SELECT TOP 200000
+       MC.[ContainerManifestId]
+      ,[LabelNo]
+      ,[ScanDate]
+      ,[ScanUserId]
+      ,MC.[Destination]
+      ,[MixedManifestId]
+      ,[Weight]
+      ,[CF]
+  FROM [Fastway].[dbo].[BLK_ContainerManifestContents] MC 
+ JOIN [Fastway].[dbo].[BLK_ContainerManifest] M ON M.ContainerManifestId = MC.ContainerManifestId
+WHERE [ScanDate] &gt; @LastScanDate</property>
+                    <property
+                      dataType="System.String"
+                      description="The variable that contains the SQL command to be executed."
+                      name="SqlCommandVariable"></property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the column code page to use when code page information is unavailable from the data source."
+                      name="DefaultCodePage">1252</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Forces the use of the DefaultCodePage property value when describing character data."
+                      name="AlwaysUseDefaultCodePage">false</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the mode used to access the database."
+                      name="AccessMode"
+                      typeConverter="AccessMode">2</property>
+                    <property
+                      dataType="System.String"
+                      description="The mappings between the parameters in the SQL command and variables."
+                      name="ParameterMapping">"Parameter0:Input",{6D056AF9-F5F9-4629-8604-AFCE28A915D9};</property>
+                  </properties>
+                  <connections>
+                    <connection
+                      refId="Package\Staging\Load ContainerContents\OLE DB Source.Connections[OleDbConnection]"
+                      connectionManagerID="{7BE0BAD7-C4E3-4C8B-B147-DFD9B94F82A8}:external"
+                      connectionManagerRefId="Project.ConnectionManagers[KRILLIN_Fastway]"
+                      description="The OLE DB runtime connection used to access the database."
+                      name="OleDbConnection" />
+                  </connections>
+                  <outputs>
+                    <output
+                      refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output]"
+                      name="OLE DB Source Output">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[LabelNo]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[LabelNo]"
+                          length="12"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[LabelNo]"
+                          name="LabelNo"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[ContainerManifestId]"
+                          dataType="i4"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[ContainerManifestId]"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[ContainerManifestId]"
+                          name="ContainerManifestId"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[ScanDate]"
+                          dataType="dbTimeStamp"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[ScanDate]"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[ScanDate]"
+                          name="ScanDate"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[ScanUserId]"
+                          dataType="i4"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[ScanUserId]"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[ScanUserId]"
+                          name="ScanUserId"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[Destination]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Destination]"
+                          length="5"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[Destination]"
+                          name="Destination"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[MixedManifestId]"
+                          dataType="i4"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[MixedManifestId]"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[MixedManifestId]"
+                          name="MixedManifestId"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[Weight]"
+                          dataType="r8"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Weight]"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[Weight]"
+                          name="Weight"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[CF]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[CF]"
+                          length="3"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].Columns[CF]"
+                          name="CF"
+                          truncationRowDisposition="FailComponent" />
+                      </outputColumns>
+                      <externalMetadataColumns
+                        isUsed="True">
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[LabelNo]"
+                          codePage="1252"
+                          dataType="str"
+                          length="12"
+                          name="LabelNo" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[ContainerManifestId]"
+                          dataType="i4"
+                          name="ContainerManifestId" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[ScanDate]"
+                          dataType="dbTimeStamp"
+                          name="ScanDate" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[ScanUserId]"
+                          dataType="i4"
+                          name="ScanUserId" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Destination]"
+                          codePage="1252"
+                          dataType="str"
+                          length="5"
+                          name="Destination" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[MixedManifestId]"
+                          dataType="i4"
+                          name="MixedManifestId" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Weight]"
+                          dataType="r8"
+                          name="Weight" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[CF]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          name="CF" />
+                      </externalMetadataColumns>
+                    </output>
+                    <output
+                      refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Error Output]"
+                      isErrorOut="true"
+                      name="OLE DB Source Error Output">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ContainerManifestId]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ContainerManifestId]"
+                          name="ContainerManifestId" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[LabelNo]"
+                          codePage="1252"
+                          dataType="str"
+                          length="12"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[LabelNo]"
+                          name="LabelNo" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ScanDate]"
+                          dataType="dbTimeStamp"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ScanDate]"
+                          name="ScanDate" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ScanUserId]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ScanUserId]"
+                          name="ScanUserId" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Destination]"
+                          codePage="1252"
+                          dataType="str"
+                          length="5"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Destination]"
+                          name="Destination" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[MixedManifestId]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[MixedManifestId]"
+                          name="MixedManifestId" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Weight]"
+                          dataType="r8"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Weight]"
+                          name="Weight" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[CF]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[CF]"
+                          name="CF" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                          name="ErrorCode"
+                          specialFlags="1" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                          name="ErrorColumn"
+                          specialFlags="2" />
+                      </outputColumns>
+                      <externalMetadataColumns />
+                    </output>
+                  </outputs>
+                </component>
+              </components>
+              <paths>
+                <path
+                  refId="Package\Staging\Load ContainerContents.Paths[OLE DB Source Output]"
+                  endId="Package\Staging\Load ContainerContents\OLE DB Destination.Inputs[OLE DB Destination Input]"
+                  name="OLE DB Source Output"
+                  startId="Package\Staging\Load ContainerContents\OLE DB Source.Outputs[OLE DB Source Output]" />
+              </paths>
+            </pipeline>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\Staging\Load ContainerManifest"
+          DTS:CreationName="Microsoft.Pipeline"
+          DTS:Description="Data Flow Task"
+          DTS:DTSID="{8e921406-902f-41bb-a67d-4d28e4616f3f}"
+          DTS:ExecutableType="Microsoft.Pipeline"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Load ContainerManifest"
+          DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <pipeline
+              version="1">
+              <components>
+                <component
+                  refId="Package\Staging\Load ContainerManifest\OLE DB Destination"
+                  componentClassID="Microsoft.OLEDBDestination"
+                  contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+                  description="OLE DB Destination"
+                  name="OLE DB Destination"
+                  usesDispositions="true"
+                  version="4">
+                  <properties>
+                    <property
+                      dataType="System.Int32"
+                      description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                      name="CommandTimeout">0</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the name of the database object used to open a rowset."
+                      name="OpenRowset">[Staging].[BLK_ContainerManifest_Stg]</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the variable that contains the name of the database object used to open a rowset."
+                      name="OpenRowsetVariable"></property>
+                    <property
+                      dataType="System.String"
+                      description="The SQL command to be executed."
+                      name="SqlCommand"
+                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the column code page to use when code page information is unavailable from the data source."
+                      name="DefaultCodePage">1252</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Forces the use of the DefaultCodePage property value when describing character data."
+                      name="AlwaysUseDefaultCodePage">false</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the mode used to access the database."
+                      name="AccessMode"
+                      typeConverter="AccessMode">3</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                      name="FastLoadKeepIdentity">false</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                      name="FastLoadKeepNulls">false</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                      name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                      name="FastLoadMaxInsertCommitSize">2147483647</property>
+                  </properties>
+                  <connections>
+                    <connection
+                      refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Connections[OleDbConnection]"
+                      connectionManagerID="{66292261-9521-45A6-ACCA-54377A482A00}:external"
+                      connectionManagerRefId="Project.ConnectionManagers[CUBE.FastwayDW]"
+                      description="The OLE DB runtime connection used to access the database."
+                      name="OleDbConnection" />
+                  </connections>
+                  <inputs>
+                    <input
+                      refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input]"
+                      errorOrTruncationOperation="Insert"
+                      errorRowDisposition="FailComponent"
+                      hasSideEffects="true"
+                      name="OLE DB Destination Input">
+                      <inputColumns>
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[ContainerManifestId]"
+                          cachedDataType="i4"
+                          cachedName="ContainerManifestId"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ContainerManifestId]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[ContainerManifestId]" />
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[ContainerId]"
+                          cachedDataType="i4"
+                          cachedName="ContainerId"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ContainerId]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[ContainerId]" />
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[ContainerBarcode]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="30"
+                          cachedName="ContainerBarcode"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ContainerBarcode]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[ContainerBarcode]" />
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Location]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="3"
+                          cachedName="Location"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Location]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[Location]" />
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Destination]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="5"
+                          cachedName="Destination"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Destination]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[Destination]" />
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[TotalParcels]"
+                          cachedDataType="i4"
+                          cachedName="TotalParcels"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[TotalParcels]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[TotalParcels]" />
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Status]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="1"
+                          cachedName="Status"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Status]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[Status]" />
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[ActionDate]"
+                          cachedDataType="dbTimeStamp"
+                          cachedName="ActionDate"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ActionDate]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[ActionDate]" />
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[IsMixed]"
+                          cachedDataType="bool"
+                          cachedName="IsMixed"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[IsMixed]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[IsMixed]" />
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[MixedUnknownDest]"
+                          cachedDataType="i4"
+                          cachedName="MixedUnknownDest"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[MixedUnknownDest]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[MixedUnknownDest]" />
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[CurrentLocation]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="3"
+                          cachedName="CurrentLocation"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[CurrentLocation]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[CurrentLocation]" />
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[CountryCode]"
+                          cachedDataType="i4"
+                          cachedName="CountryCode"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[CountryCode]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[CountryCode]" />
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Sortation]"
+                          cachedDataType="bool"
+                          cachedName="Sortation"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Sortation]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[Sortation]" />
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[SortationStatus]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="1"
+                          cachedName="SortationStatus"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[SortationStatus]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[SortationStatus]" />
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[SortationOpen]"
+                          cachedDataType="dbTimeStamp"
+                          cachedName="SortationOpen"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[SortationOpen]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[SortationOpen]" />
+                        <inputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[SortationClosed]"
+                          cachedDataType="dbTimeStamp"
+                          cachedName="SortationClosed"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[SortationClosed]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[SortationClosed]" />
+                      </inputColumns>
+                      <externalMetadataColumns
+                        isUsed="True">
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ContainerManifestId]"
+                          dataType="i4"
+                          name="ContainerManifestId" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ContainerId]"
+                          dataType="i4"
+                          name="ContainerId" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ContainerBarcode]"
+                          codePage="1252"
+                          dataType="str"
+                          length="30"
+                          name="ContainerBarcode" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Location]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          name="Location" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Destination]"
+                          codePage="1252"
+                          dataType="str"
+                          length="5"
+                          name="Destination" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[TotalParcels]"
+                          dataType="i4"
+                          name="TotalParcels" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Status]"
+                          codePage="1252"
+                          dataType="str"
+                          length="1"
+                          name="Status" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ActionDate]"
+                          dataType="dbTimeStamp"
+                          name="ActionDate" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[IsMixed]"
+                          dataType="bool"
+                          name="IsMixed" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[MixedUnknownDest]"
+                          dataType="i4"
+                          name="MixedUnknownDest" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[CurrentLocation]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          name="CurrentLocation" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[CountryCode]"
+                          dataType="i4"
+                          name="CountryCode" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Sortation]"
+                          dataType="bool"
+                          name="Sortation" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[SortationStatus]"
+                          codePage="1252"
+                          dataType="str"
+                          length="1"
+                          name="SortationStatus" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[SortationOpen]"
+                          dataType="dbTimeStamp"
+                          name="SortationOpen" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[SortationClosed]"
+                          dataType="dbTimeStamp"
+                          name="SortationClosed" />
+                      </externalMetadataColumns>
+                    </input>
+                  </inputs>
+                  <outputs>
+                    <output
+                      refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Outputs[OLE DB Destination Error Output]"
+                      exclusionGroup="1"
+                      isErrorOut="true"
+                      name="OLE DB Destination Error Output"
+                      synchronousInputId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input]">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                          name="ErrorCode"
+                          specialFlags="1" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                          name="ErrorColumn"
+                          specialFlags="2" />
+                      </outputColumns>
+                      <externalMetadataColumns />
+                    </output>
+                  </outputs>
+                </component>
+                <component
+                  refId="Package\Staging\Load ContainerManifest\OLE DB Source"
+                  componentClassID="Microsoft.OLEDBSource"
+                  contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+                  description="OLE DB Source"
+                  name="OLE DB Source"
+                  usesDispositions="true"
+                  version="7">
+                  <properties>
+                    <property
+                      dataType="System.Int32"
+                      description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                      name="CommandTimeout">0</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the name of the database object used to open a rowset."
+                      name="OpenRowset">[dbo].[ZEN_Tickets]</property>
+                    <property
+                      dataType="System.String"
+                      description="Specifies the variable that contains the name of the database object used to open a rowset."
+                      name="OpenRowsetVariable"></property>
+                    <property
+                      dataType="System.String"
+                      description="The SQL command to be executed."
+                      name="SqlCommand"
+                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91">SELECT [ContainerManifestId]
+      ,[ContainerId]
+      ,[ContainerBarcode]
+      ,[Location]
+      ,[Destination]
+      ,[TotalParcels]
+      ,[Status]
+      ,[ActionDate]
+      ,[IsMixed]
+      ,[MixedUnknownDest]
+      ,[CurrentLocation]
+      ,[CountryCode]
+      ,[Sortation]
+      ,[SortationStatus]
+      ,[SortationOpen]
+      ,[SortationClosed]
+  FROM [Fastway].[dbo].[BLK_ContainerManifest]</property>
+                    <property
+                      dataType="System.String"
+                      description="The variable that contains the SQL command to be executed."
+                      name="SqlCommandVariable"></property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the column code page to use when code page information is unavailable from the data source."
+                      name="DefaultCodePage">1252</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="Forces the use of the DefaultCodePage property value when describing character data."
+                      name="AlwaysUseDefaultCodePage">false</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the mode used to access the database."
+                      name="AccessMode"
+                      typeConverter="AccessMode">2</property>
+                    <property
+                      dataType="System.String"
+                      description="The mappings between the parameters in the SQL command and variables."
+                      name="ParameterMapping">"Parameter0:Input",{EB745EC1-2ED2-444C-A45A-6781846CEE0E};</property>
+                  </properties>
+                  <connections>
+                    <connection
+                      refId="Package\Staging\Load ContainerManifest\OLE DB Source.Connections[OleDbConnection]"
+                      connectionManagerID="{7BE0BAD7-C4E3-4C8B-B147-DFD9B94F82A8}:external"
+                      connectionManagerRefId="Project.ConnectionManagers[KRILLIN_Fastway]"
+                      description="The OLE DB runtime connection used to access the database."
+                      name="OleDbConnection" />
+                  </connections>
+                  <outputs>
+                    <output
+                      refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output]"
+                      name="OLE DB Source Output">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[ContainerManifestId]"
+                          dataType="i4"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[ContainerManifestId]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[ContainerManifestId]"
+                          name="ContainerManifestId"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[ContainerId]"
+                          dataType="i4"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[ContainerId]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[ContainerId]"
+                          name="ContainerId"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[ContainerBarcode]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[ContainerBarcode]"
+                          length="30"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[ContainerBarcode]"
+                          name="ContainerBarcode"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[Location]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Location]"
+                          length="3"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[Location]"
+                          name="Location"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[Destination]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Destination]"
+                          length="5"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[Destination]"
+                          name="Destination"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[TotalParcels]"
+                          dataType="i4"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[TotalParcels]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[TotalParcels]"
+                          name="TotalParcels"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[Status]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Status]"
+                          length="1"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[Status]"
+                          name="Status"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[ActionDate]"
+                          dataType="dbTimeStamp"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[ActionDate]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[ActionDate]"
+                          name="ActionDate"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[IsMixed]"
+                          dataType="bool"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[IsMixed]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[IsMixed]"
+                          name="IsMixed"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[MixedUnknownDest]"
+                          dataType="i4"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[MixedUnknownDest]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[MixedUnknownDest]"
+                          name="MixedUnknownDest"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[CurrentLocation]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[CurrentLocation]"
+                          length="3"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[CurrentLocation]"
+                          name="CurrentLocation"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[CountryCode]"
+                          dataType="i4"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[CountryCode]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[CountryCode]"
+                          name="CountryCode"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[Sortation]"
+                          dataType="bool"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Sortation]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[Sortation]"
+                          name="Sortation"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[SortationStatus]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[SortationStatus]"
+                          length="1"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[SortationStatus]"
+                          name="SortationStatus"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[SortationOpen]"
+                          dataType="dbTimeStamp"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[SortationOpen]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[SortationOpen]"
+                          name="SortationOpen"
+                          truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[SortationClosed]"
+                          dataType="dbTimeStamp"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[SortationClosed]"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].Columns[SortationClosed]"
+                          name="SortationClosed"
+                          truncationRowDisposition="FailComponent" />
+                      </outputColumns>
+                      <externalMetadataColumns
+                        isUsed="True">
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[ContainerManifestId]"
+                          dataType="i4"
+                          name="ContainerManifestId" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[ContainerId]"
+                          dataType="i4"
+                          name="ContainerId" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[ContainerBarcode]"
+                          codePage="1252"
+                          dataType="str"
+                          length="30"
+                          name="ContainerBarcode" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Location]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          name="Location" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Destination]"
+                          codePage="1252"
+                          dataType="str"
+                          length="5"
+                          name="Destination" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[TotalParcels]"
+                          dataType="i4"
+                          name="TotalParcels" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Status]"
+                          codePage="1252"
+                          dataType="str"
+                          length="1"
+                          name="Status" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[ActionDate]"
+                          dataType="dbTimeStamp"
+                          name="ActionDate" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[IsMixed]"
+                          dataType="bool"
+                          name="IsMixed" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[MixedUnknownDest]"
+                          dataType="i4"
+                          name="MixedUnknownDest" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[CurrentLocation]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          name="CurrentLocation" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[CountryCode]"
+                          dataType="i4"
+                          name="CountryCode" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Sortation]"
+                          dataType="bool"
+                          name="Sortation" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[SortationStatus]"
+                          codePage="1252"
+                          dataType="str"
+                          length="1"
+                          name="SortationStatus" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[SortationOpen]"
+                          dataType="dbTimeStamp"
+                          name="SortationOpen" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[SortationClosed]"
+                          dataType="dbTimeStamp"
+                          name="SortationClosed" />
+                      </externalMetadataColumns>
+                    </output>
+                    <output
+                      refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output]"
+                      isErrorOut="true"
+                      name="OLE DB Source Error Output">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ContainerManifestId]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ContainerManifestId]"
+                          name="ContainerManifestId" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ContainerId]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ContainerId]"
+                          name="ContainerId" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ContainerBarcode]"
+                          codePage="1252"
+                          dataType="str"
+                          length="30"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ContainerBarcode]"
+                          name="ContainerBarcode" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Location]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Location]"
+                          name="Location" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Destination]"
+                          codePage="1252"
+                          dataType="str"
+                          length="5"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Destination]"
+                          name="Destination" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[TotalParcels]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[TotalParcels]"
+                          name="TotalParcels" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Status]"
+                          codePage="1252"
+                          dataType="str"
+                          length="1"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Status]"
+                          name="Status" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ActionDate]"
+                          dataType="dbTimeStamp"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ActionDate]"
+                          name="ActionDate" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[IsMixed]"
+                          dataType="bool"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[IsMixed]"
+                          name="IsMixed" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[MixedUnknownDest]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[MixedUnknownDest]"
+                          name="MixedUnknownDest" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[CurrentLocation]"
+                          codePage="1252"
+                          dataType="str"
+                          length="3"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[CurrentLocation]"
+                          name="CurrentLocation" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[CountryCode]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[CountryCode]"
+                          name="CountryCode" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Sortation]"
+                          dataType="bool"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Sortation]"
+                          name="Sortation" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[SortationStatus]"
+                          codePage="1252"
+                          dataType="str"
+                          length="1"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[SortationStatus]"
+                          name="SortationStatus" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[SortationOpen]"
+                          dataType="dbTimeStamp"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[SortationOpen]"
+                          name="SortationOpen" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[SortationClosed]"
+                          dataType="dbTimeStamp"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[SortationClosed]"
+                          name="SortationClosed" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                          name="ErrorCode"
+                          specialFlags="1" />
+                        <outputColumn
+                          refId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                          dataType="i4"
+                          lineageId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                          name="ErrorColumn"
+                          specialFlags="2" />
+                      </outputColumns>
+                      <externalMetadataColumns />
+                    </output>
+                  </outputs>
+                </component>
+              </components>
+              <paths>
+                <path
+                  refId="Package\Staging\Load ContainerManifest.Paths[OLE DB Source Output]"
+                  endId="Package\Staging\Load ContainerManifest\OLE DB Destination.Inputs[OLE DB Destination Input]"
+                  name="OLE DB Source Output"
+                  startId="Package\Staging\Load ContainerManifest\OLE DB Source.Outputs[OLE DB Source Output]" />
+              </paths>
+            </pipeline>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\Staging\Truncate BLK_Manifest_Stg"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{63f52867-825e-478d-86fe-039e7d525e9f}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Truncate BLK_Manifest_Stg"
+          DTS:ThreadHint="0">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
+              SQLTask:SqlStatementSource="TRUNCATE TABLE [Staging].[BLK_ContainerManifest_Stg];&#xA;TRUNCATE TABLE [Staging]. [BLK_ContainerManifestContents_Stg];" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+      <DTS:PrecedenceConstraints>
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\Staging.PrecedenceConstraints[Constraint]"
+          DTS:CreationName=""
+          DTS:DTSID="{A7177183-56F6-46DE-93E9-9F3CCEB43D3E}"
+          DTS:From="Package\Staging\Load ContainerManifest"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint"
+          DTS:To="Package\Staging\Get Last ContainerContents LastScanDate" />
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\Staging.PrecedenceConstraints[Constraint 1]"
+          DTS:CreationName=""
+          DTS:DTSID="{A8AAFEF1-9941-4E37-8EC3-5D2471DCB2BD}"
+          DTS:From="Package\Staging\Get Last ContainerContents LastScanDate"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint 1"
+          DTS:To="Package\Staging\Load ContainerContents" />
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\Staging.PrecedenceConstraints[Constraint 2]"
+          DTS:CreationName=""
+          DTS:DTSID="{DFCECFAF-F3B3-4491-AAFC-E272CF46BE2D}"
+          DTS:From="Package\Staging\Truncate BLK_Manifest_Stg"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint 2"
+          DTS:To="Package\Staging\Load ContainerManifest" />
+      </DTS:PrecedenceConstraints>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{C608137C-C63D-4762-8E5E-2530D415FFB8}"
+      DTS:From="Package\Get ProcessID"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\Staging" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 1]"
+      DTS:CreationName=""
+      DTS:DTSID="{F21FBA1B-34DB-4066-86B3-ED9D68769F1B}"
+      DTS:From="Package\Staging"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 1"
+      DTS:To="Package\Final" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="32" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="273,42"
+          Id="Package\Final\Load HUB_BLKContainerManifestLabel"
+          TopLeft="23,24" />
+        <NodeLayout
+          Size="244,42"
+          Id="Package\Final\Load SAT_BLKContainerManifest"
+          TopLeft="321,23" />
+        <NodeLayout
+          Size="283,42"
+          Id="Package\Final\Load SAT_BLKContainerManifestContent"
+          TopLeft="300,153" />
+        <NodeLayout
+          Size="339,42"
+          Id="Package\Final\Update LoadControl LastScanDate (BLK_ManifestID)"
+          TopLeft="155,259" />
+        <EdgeLayout
+          Id="Package\Final.PrecedenceConstraints[Constraint]"
+          TopLeft="159.5,66">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="109.833333333333,193"
+              Start="0,0"
+              End="109.833333333333,185.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,111.25601879037" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,111.25601879037"
+                    Point2="0,115.25601879037"
+                    Point3="4,115.25601879037" />
+                  <mssgle:LineSegment
+                    End="105.833333333333,115.25601879037" />
+                  <mssgle:CubicBezierSegment
+                    Point1="105.833333333333,115.25601879037"
+                    Point2="109.833333333333,115.25601879037"
+                    Point3="109.833333333333,119.25601879037" />
+                  <mssgle:LineSegment
+                    End="109.833333333333,185.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Final.PrecedenceConstraints[Constraint 1]"
+          TopLeft="442.25,65">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,88"
+              Start="0,0"
+              End="0,80.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,80.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Final.PrecedenceConstraints[Constraint 2]"
+          TopLeft="441.5,195">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-61.8333333333334,64"
+              Start="0,0"
+              End="-61.8333333333334,56.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,34.2196124486201" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,34.2196124486201"
+                    Point2="0,38.2196124486201"
+                    Point3="-4,38.2196124486201" />
+                  <mssgle:LineSegment
+                    End="-57.8333333333334,38.2196124486201" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-57.8333333333334,38.2196124486201"
+                    Point2="-61.8333333333334,38.2196124486201"
+                    Point3="-61.8333333333334,42.2196124486201" />
+                  <mssgle:LineSegment
+                    End="-61.8333333333334,56.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <ContainerLayout
+          HeaderHeight="43"
+          IsExpanded="True"
+          PanelSize="627,354"
+          Size="627,397"
+          Id="Package\Final"
+          TopLeft="500,111" />
+        <NodeLayout
+          Size="150,42"
+          Id="Package\Get ProcessID"
+          TopLeft="153,23.5" />
+        <NodeLayout
+          Size="287,42"
+          Id="Package\Staging\Get Last ContainerContents LastScanDate"
+          TopLeft="14,198" />
+        <NodeLayout
+          Size="198,42"
+          Id="Package\Staging\Load ContainerContents"
+          TopLeft="55,291" />
+        <NodeLayout
+          Size="196,42"
+          Id="Package\Staging\Load ContainerManifest"
+          TopLeft="61,107" />
+        <NodeLayout
+          Size="216,42"
+          Id="Package\Staging\Truncate BLK_Manifest_Stg"
+          TopLeft="45,23" />
+        <EdgeLayout
+          Id="Package\Staging.PrecedenceConstraints[Constraint 1]"
+          TopLeft="155.75,240">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,51"
+              Start="0,0"
+              End="0,43.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,43.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Staging.PrecedenceConstraints[Constraint 2]"
+          TopLeft="156,65">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,42"
+              Start="0,0"
+              End="0,34.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,34.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Staging.PrecedenceConstraints[Constraint]"
+          TopLeft="158.25,149">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,49"
+              Start="0,0"
+              End="0,41.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,41.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <ContainerLayout
+          HeaderHeight="43"
+          IsExpanded="True"
+          PanelSize="387,357"
+          Size="387,400"
+          Id="Package\Staging"
+          TopLeft="71,110" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="228,65.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="36.5,44.5"
+              Start="0,0"
+              End="36.5,37">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,18.25" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,18.25"
+                    Point2="0,22.25"
+                    Point3="4,22.25" />
+                  <mssgle:LineSegment
+                    End="32.5,22.25" />
+                  <mssgle:CubicBezierSegment
+                    Point1="32.5,22.25"
+                    Point2="36.5,22.25"
+                    Point3="36.5,26.25" />
+                  <mssgle:LineSegment
+                    End="36.5,37" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 1]"
+          TopLeft="458,309.75">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="42,0"
+              Start="0,0"
+              End="34.5,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="34.5,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+  <TaskHost
+    design-time-name="Package\Staging\Load ContainerContents">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="177,42"
+          Id="Package\Staging\Load ContainerContents\OLE DB Destination"
+          TopLeft="377,80" />
+        <NodeLayout
+          Size="157,42"
+          Id="Package\Staging\Load ContainerContents\OLE DB Source"
+          TopLeft="115,82" />
+        <EdgeLayout
+          Id="Package\Staging\Load ContainerContents.Paths[OLE DB Source Output]"
+          TopLeft="272,102">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="105,0"
+              Start="0,0"
+              End="97.5,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="97.5,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\Staging\Load ContainerContents\OLE DB Destination">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\Staging\Load ContainerContents\OLE DB Source">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <TaskHost
+    design-time-name="Package\Staging\Load ContainerManifest">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="157,42"
+          Id="Package\Staging\Load ContainerManifest\OLE DB Source"
+          TopLeft="115,82" />
+        <NodeLayout
+          Size="177,42"
+          Id="Package\Staging\Load ContainerManifest\OLE DB Destination"
+          TopLeft="354,82" />
+        <EdgeLayout
+          Id="Package\Staging\Load ContainerManifest.Paths[OLE DB Source Output]"
+          TopLeft="272,103">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="82,0"
+              Start="0,0"
+              End="74.5,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="74.5,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\Staging\Load ContainerManifest\OLE DB Destination">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\Staging\Load ContainerManifest\OLE DB Source">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>
