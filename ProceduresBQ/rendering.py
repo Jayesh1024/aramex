@@ -38,8 +38,6 @@ for filename in os.listdir(input_folder):
 
         print(f"✓ Rendered: {filename}")
 
-<<<<<<< HEAD
+
 print("\nAll done! Check the Render folder.")
-=======
-print("\nAll done! Check the rendered_SPs folder.")
->>>>>>> 4a7fc4e5fbf77ded87d9a5fdeb90a91ecc95e984
+
