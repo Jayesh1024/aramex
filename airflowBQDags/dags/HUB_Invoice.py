@@ -12,6 +12,8 @@ from airflow.operators.empty import EmptyOperator
 from airflow.utils.task_group import TaskGroup
 
 PACKAGE_NAME = "HUB_Invoice"
+SP_DATASET_ID = "Aramex_oceania_SP"
+PROJECT_ID = "searce-sandbox-da-delivery"
 
 with DAG(
     dag_id="ssis_skeleton_hub_invoice",
@@ -74,7 +76,22 @@ with DAG(
         op_19 = EmptyOperator(task_id="package_staging_load_fms_invoicelines_stg")
 
         # ref_id: Package\\Staging\\Truncate Staging tables
-        op_20 = EmptyOperator(task_id="package_staging_truncate_staging_tables")
+        op_20 = BigQueryInsertJobOperator(
+            task_id="package_staging_truncate_staging_tables",
+            configuration={
+                "query": {
+                    "query": """
+                        TRUNCATE TABLE `{PROJECT_ID}.{SP_DATASET_ID}.staging_FMS_InvoiceHead_Stg`;
+                        TRUNCATE TABLE `{PROJECT_ID}.{SP_DATASET_ID}.staging_FMS_InvoiceLines_Stg`;
+                        TRUNCATE TABLE `{PROJECT_ID}.{SP_DATASET_ID}.staging_FMS_InvoiceBooks_Stg`;
+                        TRUNCATE TABLE `{PROJECT_ID}.{SP_DATASET_ID}.staging_FastwayLabels_Stg`;
+                    """,
+                    "useLegacySql": False,
+                }
+            },
+            gcp_conn_id="google_cloud_default",
+        )
+
 
     with TaskGroup(group_id="tg_package_staging_undtcktinvoice"):
         # STOCK:SEQUENCE — ref_id: Package\\Staging UndTcktInvoice
