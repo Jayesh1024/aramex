@@ -1,2 +1,3 @@
 ProceduresBQ/venv/
 airflowBQDags/dags/__pycache__
+airflowBQDags/dags/utils/__pycache__
