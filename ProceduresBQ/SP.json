@@ -1,0 +1,294 @@
+[
+    {
+        "sp_name": "Staging_Get_ExportReportHtml",
+        "sp_params": [
+            {
+                "param_name": "p_ProcessId",
+                "param_type": "INT64"
+            }
+        ]
+    },
+    {
+        "sp_name": "rpt_GetDeliveryDate",
+        "sp_params": [
+            {
+                "param_name": "p_ArrivalDate",
+                "param_type": "DATETIME"
+            },
+            {
+                "param_name": "p_PickupRF",
+                "param_type": "STRING"
+            },
+            {
+                "param_name": "p_Suburb",
+                "param_type": "STRING"
+            },
+            {
+                "param_name": "p_Postcode",
+                "param_type": "INT64"
+            },
+            {
+                "param_name": "p_DeliveryDate",
+                "param_type": "DATE"
+            },
+            {
+                "param_name": "p_DeliveryCycle",
+                "param_type": "STRING"
+            }
+        ]
+    },
+    {
+        "sp_name": "rpt_GetParcelMovement",
+        "sp_params": [
+            {
+                "param_name": "p_CountryCode",
+                "param_type": "INT64"
+            },
+            {
+                "param_name": "p_InvoiceFromDate",
+                "param_type": "DATE"
+            },
+            {
+                "param_name": "p_InvoiceToDate",
+                "param_type": "DATE"
+            }
+        ]
+    },
+    {
+        "sp_name": "rpt_GetParcelMovementDetailsAll",
+        "sp_params": [
+            {
+                "param_name": "p_CountryCode",
+                "param_type": "INT64"
+            },
+            {
+                "param_name": "p_InvoiceFromDate",
+                "param_type": "DATE"
+            }
+        ]
+    },
+    {
+        "sp_name": "interimStaging_Interim_Load_Scans_Stg",
+        "sp_params": [
+            {
+                "param_name": "p_ProcessId",
+                "param_type": "INT64"
+            }
+        ]
+    },
+    {
+        "sp_name": "interimStaging_Set_LastValue",
+        "sp_params": [
+            {
+                "param_name": "p_RecordSource",
+                "param_type": "STRING"
+            },
+            {
+                "param_name": "p_ColumnName",
+                "param_type": "STRING"
+            },
+            {
+                "param_name": "p_LastValue",
+                "param_type": "STRING"
+            },
+            {
+                "param_name": "p_Force",
+                "param_type": "BOOL"
+            }
+        ]
+    },
+    {
+        "sp_name": "Staging_Load_CF_Productivity_AU",
+        "sp_params": [
+            {
+                "param_name": "p_ProcessId",
+                "param_type": "INT64"
+            }
+        ]
+    },
+    {
+        "sp_name": "Staging_Load_CF_Productivity_NZ",
+        "sp_params": [
+            {
+                "param_name": "p_ProcessId",
+                "param_type": "INT64"
+            }
+        ]
+    },
+    {
+        "sp_name": "dbo_Load_Fact_KPI_Performance",
+        "sp_params": [
+            {
+                "param_name": "p_ProcessID",
+                "param_type": "INT64"
+            }
+        ]
+    },
+    {
+        "sp_name": "dbo_Load_Fact_KPI_Priority",
+        "sp_params": [
+            {
+                "param_name": "p_ProcessId",
+                "param_type": "INT64"
+            }
+        ]
+    },
+    {
+        "sp_name": "dbo_Load_Fact_Scan_KPI",
+        "sp_params": [
+            {
+                "param_name": "p_ProcessId",
+                "param_type": "INT64"
+            }
+        ]
+    },
+    {
+        "sp_name": "dbo_Load_FMS_RFBatchingPerformanceBonus",
+        "sp_params": [
+            {
+                "param_name": "p_ProcessId",
+                "param_type": "INT64"
+            }
+        ]
+    },
+    {
+        "sp_name": "dbo_Load_FMS_RFBatchingPerformanceBonus2",
+        "sp_params": [
+            {
+                "param_name": "p_ProcessId",
+                "param_type": "INT64"
+            }
+        ]
+    },
+    {
+        "sp_name": "Staging_Load_Label_Product_ServiceItem_Stg",
+        "sp_params": [
+            {
+                "param_name": "p_ProcessId",
+                "param_type": "INT64"
+            }
+        ]
+    },
+    {
+        "sp_name": "dv_Load_SAT_Label_Distribution",
+        "sp_params": [
+            {
+                "param_name": "p_ProcessId",
+                "param_type": "INT64"
+            },
+            {
+                "param_name": "p_RecordSource",
+                "param_type": "STRING"
+            }
+        ]
+    },
+    {
+        "sp_name": "dv_Load_SAT_Product",
+        "sp_params": [
+            {
+                "param_name": "p_ProcessId",
+                "param_type": "INT64"
+            },
+            {
+                "param_name": "p_RecordSource",
+                "param_type": "STRING"
+            }
+        ]
+    },
+    {
+        "sp_name": "dv_Load_SAT_RF",
+        "sp_params": [
+            {
+                "param_name": "p_ProcessId",
+                "param_type": "INT64"
+            },
+            {
+                "param_name": "p_RecordSource",
+                "param_type": "STRING"
+            }
+        ]
+    },
+    {
+        "sp_name": "Staging_SaveLog",
+        "sp_params": [
+            {
+                "param_name": "p_Component",
+                "param_type": "STRING"
+            },
+            {
+                "param_name": "p_ProcessId",
+                "param_type": "INT64"
+            },
+            {
+                "param_name": "p_Started",
+                "param_type": "DATETIME"
+            },
+            {
+                "param_name": "p_Ended",
+                "param_type": "DATETIME"
+            },
+            {
+                "param_name": "p_Result",
+                "param_type": "STRING"
+            },
+            {
+                "param_name": "p_ErrorMessage",
+                "param_type": "STRING"
+            },
+            {
+                "param_name": "p_Inserted",
+                "param_type": "INT64"
+            },
+            {
+                "param_name": "p_Updated",
+                "param_type": "INT64"
+            },
+            {
+                "param_name": "p_Errors",
+                "param_type": "INT64"
+            }
+        ]
+    },
+    {
+        "sp_name": "Staging_Set_LastValue_All",
+        "sp_params": []
+    },
+    {
+        "sp_name": "Staging_Set_LastValue",
+        "sp_params": [
+            {
+                "param_name": "p_RecordSource",
+                "param_type": "STRING"
+            },
+            {
+                "param_name": "p_ColumnName",
+                "param_type": "STRING"
+            },
+            {
+                "param_name": "p_LastValue",
+                "param_type": "STRING"
+            },
+            {
+                "param_name": "p_Force",
+                "param_type": "BOOL"
+            }
+        ]
+    },
+    {
+        "sp_name": "Staging_Load_Missing_AttemptedAndActual_DeliveryScans",
+        "sp_params": [
+            {
+                "param_name": "p_ProcessId",
+                "param_type": "INT64"
+            },
+            {
+                "param_name": "p_StartDate",
+                "param_type": "STRING"
+            },
+            {
+                "param_name": "p_EndDate",
+                "param_type": "STRING"
+            }
+        ]
+    }
+]
