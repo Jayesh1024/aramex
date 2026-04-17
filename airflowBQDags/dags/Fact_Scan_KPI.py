@@ -1,16 +1,24 @@
 """
-Skeleton DAG for SSIS package: Fact_Scan_KPI
-Generated from executable_dependencies.json — EmptyOperator only, no business logic.
-Sequence containers (STOCK:SEQUENCE) are wrapped in TaskGroup.
+Completed DAG for SSIS package: Fact_Scan_KPI
+Migration: SSIS -> BigQuery
+
+Table names use schema_tablename (e.g. Staging_KPI_Labels_Stg). Procedures use schema_proc (e.g. dbo_Load_Fact_Scan_KPI,
+Staging_Load_KPI_Labels_Stg). Precedence follows executable_dependencies.json (Staging chain, then Final).
+
+No RecordSource in package metadata.
 """
 from __future__ import annotations
 
 from datetime import datetime
 
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
+# --- Project Configuration ---
+PROJECT_ID = "searce-sandbox-da-delivery"
+SP_DATASET_ID = "Aramex_oceania_SP"
+TARGET_DATASET_ID = "Aramex_oceania"
 PACKAGE_NAME = "Fact_Scan_KPI"
 
 with DAG(
@@ -19,34 +27,80 @@ with DAG(
     schedule=None,
     catchup=False,
     tags=["ssis", "skeleton", "fact_scan_kpi"],
+    params={
+        "process_id": 1,
+        "since_scan_date": "2019-01-01",
+        "until_scan_date": "2019-01-01",
+        "use_scan_dates": 0,
+    },
 ) as dag:
 
-    # --- control flow (nested TaskGroup per sequence container) ---
-    with TaskGroup(group_id="tg_package_final"):
-        # STOCK:SEQUENCE — ref_id: Package\\Final
-        op_0 = EmptyOperator(task_id="package_final")
-
-        # ref_id: Package\\Final\\Load Fact_Scan_KPI
-        op_1 = EmptyOperator(task_id="package_final_load_fact_scan_kpi")
-
+    # --- Package\Staging ---
     with TaskGroup(group_id="tg_package_staging"):
-        # STOCK:SEQUENCE — ref_id: Package\\Staging
-        op_2 = EmptyOperator(task_id="package_staging")
+        # STOCK:SEQUENCE — ref_id: Package\Staging
 
-        # ref_id: Package\\Staging\\Defrag Indexes
-        op_3 = EmptyOperator(task_id="package_staging_defrag_indexes")
+        # ref_id: Package\Staging\Truncate KPI Staging Tables — [Staging].[KPI_Labels_Stg], [Staging].[Fact_Scan_KPI_Stg]
+        op_1 = BigQueryInsertJobOperator(
+            task_id="package_staging_truncate_kpi_staging_tables",
+            configuration={
+                "query": {
+                    "query": (
+                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_KPI_Labels_Stg`;\n"
+                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_Fact_Scan_KPI_Stg`;"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Staging\\Load Fact_Scan_KPI_Stg
-        op_4 = EmptyOperator(task_id="package_staging_load_fact_scan_kpi_stg")
+        # ref_id: Package\Staging\Load KPI_Labels_Stg — Exec [Staging].[Load_KPI_Labels_Stg] (ProcessId, SinceScanDate, UntilScanDate, UseScanDates)
+        op_2 = BigQueryInsertJobOperator(
+            task_id="package_staging_load_kpi_labels_stg",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_KPI_Labels_Stg`("
+                        "{{ params.process_id }}, "
+                        "'{{ params.since_scan_date }}', '{{ params.until_scan_date }}', "
+                        "{{ params.use_scan_dates }});"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Staging\\Load KPI_Labels_Stg
-        op_5 = EmptyOperator(task_id="package_staging_load_kpi_labels_stg")
+        # ref_id: Package\Staging\Load Fact_Scan_KPI_Stg — Exec [Staging].[Load_Fact_Scan_KPI_Stg]
+        op_3 = BigQueryInsertJobOperator(
+            task_id="package_staging_load_fact_scan_kpi_stg",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_Fact_Scan_KPI_Stg`("
+                        "{{ params.process_id }});"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Staging\\Truncate KPI Staging Tables
-        op_6 = EmptyOperator(task_id="package_staging_truncate_kpi_staging_tables")
 
-    # --- precedence (upstream >> downstream) ---
-    op_2 >> op_0
-    op_4 >> op_3
-    op_5 >> op_4
-    op_6 >> op_5
+    # --- Package\Final ---
+    with TaskGroup(group_id="tg_package_final"):
+        # STOCK:SEQUENCE — ref_id: Package\Final
+
+        # ref_id: Package\Final\Load Fact_Scan_KPI — Exec [dbo].[Load_Fact_Scan_KPI]
+        op_4 = BigQueryInsertJobOperator(
+            task_id="package_final_load_fact_scan_kpi",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Load_Fact_Scan_KPI`("
+                        "{{ params.process_id }});"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
+
+    # --- Precedence (executable_dependencies: Truncate → KPI_Labels → Fact_Scan_KPI_Stg → Defrag → Final) ---
+    op_1 >> op_2 >> op_3 >> op_4

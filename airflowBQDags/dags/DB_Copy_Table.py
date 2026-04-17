@@ -1,16 +1,27 @@
 """
-Skeleton DAG for SSIS package: DB_Copy_Table
-Generated from executable_dependencies.json — EmptyOperator only, no business logic.
-Sequence containers (STOCK:SEQUENCE) are wrapped in TaskGroup.
+Completed DAG for SSIS package: DB_Copy_Table
+Migration: SSIS -> BigQuery
+
+Top-level tasks have no edges in executable_dependencies.json; Load FMS_InvoiceHead must precede Data Flow Task
+(metadata: Data Flow reads Staging.FMS_InvoiceHead_Stg_All filled by Load FMS_InvoiceHead). Copy Table and
+FMS_UndTcktInvoice_Load are modeled as independent loads. Sequence Container: Truncate → Get Next ID (inline SELECT)
+→ Load iLocate → Update LNK_Scan (CALL SPs). SSIS binds Get Next ID result to Load/Update; use params.ilocate_last_id
+until you wire XCom or merge logic in BigQuery.
+
+Schema_table / schema_proc naming (e.g. Working_Load_iLocate_Stg, dv_Load_Copy_SAT_Label_Allocation_DL).
 """
 from __future__ import annotations
 
 from datetime import datetime
 
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
+# --- Project Configuration ---
+PROJECT_ID = "searce-sandbox-da-delivery"
+SP_DATASET_ID = "Aramex_oceania_SP"
+TARGET_DATASET_ID = "Aramex_oceania"
 PACKAGE_NAME = "DB_Copy_Table"
 
 with DAG(

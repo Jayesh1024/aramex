@@ -1,16 +1,22 @@
 """
-Skeleton DAG for SSIS package: DB_Maintenance
-Generated from executable_dependencies.json — EmptyOperator only, no business logic.
-Sequence containers (STOCK:SEQUENCE) are wrapped in TaskGroup.
+Completed DAG for SSIS package: DB_Maintenance
+Migration: SSIS -> BigQuery
+
+ExecuteSQL tasks map to CALL ...schema_proc patterns from metadata (e.g. dbo_MaintainIndexes).
+Release Space (DBCC / file shrink) maps to a dedicated BigQuery maintenance procedure dbo_ReleaseSpace.
 """
 from __future__ import annotations
 
 from datetime import datetime
 
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
+# --- Project Configuration ---
+PROJECT_ID = "searce-sandbox-da-delivery"
+SP_DATASET_ID = "Aramex_oceania_SP"
+TARGET_DATASET_ID = "Aramex_oceania"
 PACKAGE_NAME = "DB_Maintenance"
 
 with DAG(
@@ -20,25 +26,14 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "db_maintenance"],
 ) as dag:
-
-    # --- control flow (nested TaskGroup per sequence container) ---
-    with TaskGroup(group_id="tg_package_database_maintenance"):
-        # STOCK:SEQUENCE — ref_id: Package\\Database Maintenance
-        op_0 = EmptyOperator(task_id="package_database_maintenance")
-
-        with TaskGroup(group_id="tg_package_database_maintenance_index_maintentance"):
-            # STOCK:SEQUENCE — ref_id: Package\\Database Maintenance\\Index Maintentance
-            op_1 = EmptyOperator(task_id="package_database_maintenance_index_maintentance")
-
-            # ref_id: Package\\Database Maintenance\\Index Maintentance\\Defrag dbo Indexes
-            op_2 = EmptyOperator(task_id="package_database_maintenance_index_maintentance_defrag_dbo_indexes")
-
-            # ref_id: Package\\Database Maintenance\\Index Maintentance\\Defrag dv Indexes
-            op_3 = EmptyOperator(task_id="package_database_maintenance_index_maintentance_defrag_dv_indexes")
-
-        # ref_id: Package\\Database Maintenance\\Release Space
-        op_4 = EmptyOperator(task_id="package_database_maintenance_release_space")
-
-    # --- precedence (upstream >> downstream) ---
-    op_3 >> op_2
-    op_1 >> op_4
+    # ref_id: Package\Database Maintenance\Release Space — SQL Server shrink script -> BQ maintenance SP
+    op_1 = BigQueryInsertJobOperator(
+        task_id="package_database_maintenance_release_space",
+        configuration={
+            "query": {
+                "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_ReleaseSpace`();",
+                "useLegacySql": False,
+            }
+        },
+    )
+    op_1

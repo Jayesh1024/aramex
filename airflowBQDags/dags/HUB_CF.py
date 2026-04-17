@@ -1,17 +1,24 @@
 """
-Skeleton DAG for SSIS package: HUB_CF
-Generated from executable_dependencies.json — EmptyOperator only, no business logic.
-Sequence containers (STOCK:SEQUENCE) are wrapped in TaskGroup.
+Completed DAG for SSIS package: HUB_CF
+Migration: SSIS -> BigQuery
+Formatting: Jinja2 Templating for Parameters
+
+Table / procedure names use schema_object from metadata (e.g. Staging_Courier_Stg, dv_Load_HUB_CF).
 """
 from __future__ import annotations
 
 from datetime import datetime
 
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
+# --- Project Configuration ---
+PROJECT_ID = "searce-sandbox-da-delivery"
+SP_DATASET_ID = "Aramex_oceania_SP"
+TARGET_DATASET_ID = "Aramex_oceania"
 PACKAGE_NAME = "HUB_CF"
+RECORD_SOURCE_1 = "RecordSource"
 
 with DAG(
     dag_id="ssis_skeleton_hub_cf",
@@ -19,29 +26,65 @@ with DAG(
     schedule=None,
     catchup=False,
     tags=["ssis", "skeleton", "hub_cf"],
+    params={
+        "process_id": 1,
+        "record_source": RECORD_SOURCE_1,
+    },
 ) as dag:
 
-    # --- control flow (nested TaskGroup per sequence container) ---
-    with TaskGroup(group_id="tg_package_final"):
-        # STOCK:SEQUENCE — ref_id: Package\\Final
-        op_0 = EmptyOperator(task_id="package_final")
-
-        # ref_id: Package\\Final\\Load CF_HUB
-        op_1 = EmptyOperator(task_id="package_final_load_cf_hub")
-
-        # ref_id: Package\\Final\\Load CF_SAT
-        op_2 = EmptyOperator(task_id="package_final_load_cf_sat")
-
+    # --- Package\Staging ---
     with TaskGroup(group_id="tg_package_staging"):
-        # STOCK:SEQUENCE — ref_id: Package\\Staging
-        op_3 = EmptyOperator(task_id="package_staging")
+        # STOCK:SEQUENCE — ref_id: Package\Staging
 
-        # ref_id: Package\\Staging\\Load Courier_Stg
-        op_4 = EmptyOperator(task_id="package_staging_load_courier_stg")
+        # ref_id: Package\Staging\Truncate Courier_Stg — metadata: TRUNCATE TABLE [Staging].[Courier_Stg]
+        op_4 = BigQueryInsertJobOperator(
+            task_id="package_staging_truncate_courier_stg",
+            configuration={
+                "query": {
+                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_Courier_Stg`",
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Staging\\Truncate Courier_Stg
-        op_5 = EmptyOperator(task_id="package_staging_truncate_courier_stg")
+        # ref_id: Package\Staging\Load Courier_Stg — destination Staging.Courier_Stg (BQ: SP replaces SSIS pipeline)
+        op_3 = BigQueryInsertJobOperator(
+            task_id="package_staging_load_courier_stg",
+            configuration={
+                "query": {
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_Courier_Stg`();",
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-    # --- precedence (upstream >> downstream) ---
-    op_3 >> op_0
-    op_5 >> op_4
+        
+
+    # --- Package\Final ---
+    with TaskGroup(group_id="tg_package_final"):
+        # STOCK:SEQUENCE — ref_id: Package\Final
+
+        # ref_id: Package\Final\Load CF_HUB — Exec [dv].[Load_HUB_CF] ?,?
+        op_1 = BigQueryInsertJobOperator(
+            task_id="package_final_load_cf_hub",
+            configuration={
+                "query": {
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_CF`({{ params.process_id }}, '{{ params.record_source }}');",
+                    "useLegacySql": False,
+                }
+            },
+        )
+
+        # ref_id: Package\Final\Load CF_SAT — Exec [dv].[Load_SAT_CF] ?,?
+        op_2 = BigQueryInsertJobOperator(
+            task_id="package_final_load_cf_sat",
+            configuration={
+                "query": {
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_CF`({{ params.process_id }}, '{{ params.record_source }}');",
+                    "useLegacySql": False,
+                }
+            },
+        )
+
+    # --- Precedence ---
+    op_4 >> op_3 >> [op_1, op_2]

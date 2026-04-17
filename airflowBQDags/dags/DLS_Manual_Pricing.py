@@ -1,17 +1,31 @@
 """
-Skeleton DAG for SSIS package: DLS_Manual_Pricing
-Generated from executable_dependencies.json — EmptyOperator only, no business logic.
-Sequence containers (STOCK:SEQUENCE) are wrapped in TaskGroup.
+Completed DAG for SSIS package: DLS_Manual_Pricing
+Migration: SSIS -> BigQuery
+
+Precedence from executable_dependencies.json (single sequence under Source2 (DynamicLabel) _DL).
+
+RecordSource-style inputs use metadata variable_name: param uses RecordSource2 → RECORD_SOURCE_1 / params.record_source_1
+(see Get LastId, Load Lastest Priced Invoices).
+
+Insert Into … (large TRUNCATE/INSERT in metadata) and Update Dim_Label (UPDATE script) map to BigQuery procedures.
+Get Next ProcessID uses an inline SELECT (ExecuteSQLTask query, not EXEC). SSIS variable chaining for LastID / NextProcessId
+is approximated with params.adhoc_history_last_id and params.process_id — adjust or add XCom if you need exact SSIS binding.
 """
 from __future__ import annotations
 
 from datetime import datetime
 
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
+# --- Project Configuration ---
+PROJECT_ID = "searce-sandbox-da-delivery"
+SP_DATASET_ID = "Aramex_oceania_SP"
+TARGET_DATASET_ID = "Aramex_oceania"
 PACKAGE_NAME = "DLS_Manual_Pricing"
+# metadata: Get LastId / Load Lastest Priced Invoices — variable_name RecordSource2 (1st record-source placeholder)
+RECORD_SOURCE_1 = "RecordSource2"
 
 with DAG(
     dag_id="ssis_skeleton_dls_manual_pricing",
@@ -19,38 +33,108 @@ with DAG(
     schedule=None,
     catchup=False,
     tags=["ssis", "skeleton", "dls_manual_pricing"],
+    params={
+        "process_id": 1,
+        "record_source_1": RECORD_SOURCE_1,
+        "adhoc_history_last_id": 0,
+    },
 ) as dag:
 
-    # --- control flow (nested TaskGroup per sequence container) ---
     with TaskGroup(group_id="tg_package_source2_dynamiclabel_dl"):
-        # STOCK:SEQUENCE — ref_id: Package\\Source2 (DynamicLabel) _DL
-        op_0 = EmptyOperator(task_id="package_source2_dynamiclabel_dl")
+        # STOCK:SEQUENCE — ref_id: Package\Source2 (DynamicLabel) _DL
 
-        # ref_id: Package\\Source2 (DynamicLabel) _DL\\Get LastId (DynamicLabel)
-        op_1 = EmptyOperator(task_id="package_source2_dynamiclabel_dl_get_lastid_dynamiclabel")
+        # ref_id: …\Truncate API_RF_AdHocLabel_AllocationHistory_Stg_Weekly
+        op_1 = BigQueryInsertJobOperator(
+            task_id="package_source2_dynamiclabel_dl_truncate_api_rf_adhoclabel_allocationhistory_stg_weekly",
+            configuration={
+                "query": {
+                    "query": (
+                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_API_RF_AdHocLabel_AllocationHistory_Stg_Weekly`;"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Source2 (DynamicLabel) _DL\\Get Next ProcessID
-        op_2 = EmptyOperator(task_id="package_source2_dynamiclabel_dl_get_next_processid")
+        # ref_id: …\Get LastId (DynamicLabel) — Exec [Staging].[Get_LastValue] ? (RecordSource2)
+        op_2 = BigQueryInsertJobOperator(
+            task_id="package_source2_dynamiclabel_dl_get_lastid_dynamiclabel",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Get_LastValue`("
+                        "'{{ params.record_source_1 }}');"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Source2 (DynamicLabel) _DL\\Insert Into API_RF_AdHocLabel_AllocationHistory_Stg
-        op_3 = EmptyOperator(task_id="package_source2_dynamiclabel_dl_insert_into_api_rf_adhoclabel_allocationhistory_stg")
+        # ref_id: …\Load API_RF_AdHocLabel_AllocationHistory_Stg_Weekly — pipeline → Staging (BQ: SP; ? LastID → param)
+        op_3 = BigQueryInsertJobOperator(
+            task_id="package_source2_dynamiclabel_dl_load_api_rf_adhoclabel_allocationhistory_stg_weekly",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_API_RF_AdHocLabel_AllocationHistory_Stg_Weekly`("
+                        "{{ params.adhoc_history_last_id }});"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg_Weekly
-        op_4 = EmptyOperator(task_id="package_source2_dynamiclabel_dl_load_api_rf_adhoclabel_allocationhistory_stg_weekly")
+        # ref_id: …\Insert Into API_RF_AdHocLabel_AllocationHistory_Stg — metadata TRUNCATE+INSERT script (BQ: SP)
+        op_4 = BigQueryInsertJobOperator(
+            task_id="package_source2_dynamiclabel_dl_insert_into_api_rf_adhoclabel_allocationhistory_stg",
+            configuration={
+                "query": {
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_API_RF_AdHocLabel_AllocationHistory_Stg`();",
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Source2 (DynamicLabel) _DL\\Load Lastest Priced Invoices
-        op_5 = EmptyOperator(task_id="package_source2_dynamiclabel_dl_load_lastest_priced_invoices")
+        # ref_id: …\Get Next ProcessID — metadata inline DECLARE/SELECT from Staging.LoadLog
+        op_5 = BigQueryInsertJobOperator(
+            task_id="package_source2_dynamiclabel_dl_get_next_processid",
+            configuration={
+                "query": {
+                    "query": (
+                        f"SELECT COALESCE(MAX(ProcessId), 0) + 1 AS NextProcessId "
+                        f"FROM `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_LoadLog`;"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Source2 (DynamicLabel) _DL\\Truncate API_RF_AdHocLabel_AllocationHistory_Stg_Weekly
-        op_6 = EmptyOperator(task_id="package_source2_dynamiclabel_dl_truncate_api_rf_adhoclabel_allocationhistory_stg_weekly")
+        # ref_id: …\Load Lastest Priced Invoices — Exec [dv].[Load_SAT_Label_Allocation_DL] ?,? (ProcessId, RecordSource2)
+        op_6 = BigQueryInsertJobOperator(
+            task_id="package_source2_dynamiclabel_dl_load_lastest_priced_invoices",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_DL`("
+                        "{{ params.process_id }}, '{{ params.record_source_1 }}');"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Source2 (DynamicLabel) _DL\\Update Dim_Label
-        op_7 = EmptyOperator(task_id="package_source2_dynamiclabel_dl_update_dim_label")
+        # ref_id: …\Update Dim_Label — metadata UPDATE … WHERE ProcessId = ? (BQ: SP)
+        op_7 = BigQueryInsertJobOperator(
+            task_id="package_source2_dynamiclabel_dl_update_dim_label",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Load_Dim_Label.`("
+                        "{{ params.process_id }});"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-    # --- precedence (upstream >> downstream) ---
-    op_6 >> op_1
-    op_3 >> op_2
-    op_4 >> op_3
-    op_1 >> op_4
-    op_2 >> op_5
-    op_5 >> op_7
+        op_1 >> op_2 >> op_3 >> op_4 >> op_5 >> op_6 >> op_7

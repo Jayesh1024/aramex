@@ -1,16 +1,22 @@
 """
-Skeleton DAG for SSIS package: RFBatchingInvoiceLog
-Generated from executable_dependencies.json — EmptyOperator only, no business logic.
-Sequence containers (STOCK:SEQUENCE) are wrapped in TaskGroup.
+Completed DAG for SSIS package: RFBatchingInvoiceLog
+Migration: SSIS -> BigQuery
+Formatting: Jinja2 Templating for Parameters
+
+Table / procedure names use schema_object from metadata.json (e.g. Staging_RFBatchingInvoiceLog_Stg, dv_Load_LNK_RFBatchingInvoiceLog).
 """
 from __future__ import annotations
 
 from datetime import datetime
 
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
+# --- Project Configuration ---
+PROJECT_ID = "searce-sandbox-da-delivery"
+SP_DATASET_ID = "Aramex_oceania_SP"
+TARGET_DATASET_ID = "Aramex_oceania"
 PACKAGE_NAME = "RFBatchingInvoiceLog"
 
 with DAG(
@@ -21,24 +27,50 @@ with DAG(
     tags=["ssis", "skeleton", "rfbatchinginvoicelog"],
 ) as dag:
 
-    # --- control flow (nested TaskGroup per sequence container) ---
-    with TaskGroup(group_id="tg_package_final"):
-        # STOCK:SEQUENCE — ref_id: Package\\Final
-        op_0 = EmptyOperator(task_id="package_final")
-
-        # ref_id: Package\\Final\\Load  LNK_RFBatchingInvoiceLog
-        op_1 = EmptyOperator(task_id="package_final_load_lnk_rfbatchinginvoicelog")
-
+    # --- Package\Staging ---
     with TaskGroup(group_id="tg_package_staging"):
-        # STOCK:SEQUENCE — ref_id: Package\\Staging
-        op_2 = EmptyOperator(task_id="package_staging")
+        # STOCK:SEQUENCE — ref_id: Package\Staging
 
-        # ref_id: Package\\Staging\\Load RFBatchingInvoice_Stg
-        op_3 = EmptyOperator(task_id="package_staging_load_rfbatchinginvoice_stg")
+        # ref_id: Package\Staging\Truncate RFBatchingInvoiceLog_Stg — metadata.json: [Staging].[RFBatchingInvoiceLog_Stg], [dv].[LNK_RFBatchingInvoiceLog]
+        op_4 = BigQueryInsertJobOperator(
+            task_id="package_staging_truncate_rfbatchinginvoicelog_stg",
+            configuration={
+                "query": {
+                    "query": (
+                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_RFBatchingInvoiceLog_Stg`;\n"
+                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.dv_LNK_RFBatchingInvoiceLog`;"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Staging\\Truncate RFBatchingInvoiceLog_Stg
-        op_4 = EmptyOperator(task_id="package_staging_truncate_rfbatchinginvoicelog_stg")
+        # ref_id: Package\Staging\Load RFBatchingInvoice_Stg — destination Staging.RFBatchingInvoiceLog_Stg (BQ: SP replaces SSIS pipeline)
+        op_3 = BigQueryInsertJobOperator(
+            task_id="package_staging_load_rfbatchinginvoice_stg",
+            configuration={
+                "query": {
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_RFBatchingInvoiceLog_Stg`();",
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-    # --- precedence (upstream >> downstream) ---
-    op_2 >> op_0
-    op_4 >> op_3
+
+    # --- Package\Final ---
+    with TaskGroup(group_id="tg_package_final"):
+        # STOCK:SEQUENCE — ref_id: Package\Final
+
+        # ref_id: Package\Final\Load  LNK_RFBatchingInvoiceLog — destination dv.LNK_RFBatchingInvoiceLog (BQ: SP replaces SSIS pipeline)
+        op_1 = BigQueryInsertJobOperator(
+            task_id="package_final_load_lnk_rfbatchinginvoicelog",
+            configuration={
+                "query": {
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LNK_RFBatchingInvoiceLog`();",
+                    "useLegacySql": False,
+                }
+            },
+        )
+
+    # --- Precedence ---
+    op_4 >> op_3 >> op_1

@@ -16,9 +16,21 @@ from utils.getValue import get_last_value
 from airflow.operators.python import PythonOperator
 
 PACKAGE_NAME = "HUB_Label"
+PROCESS_ID = -207
+# RecordSource values from HUB_Label.dtsx package parameters (Staging_LoadControl keys)
 RECORD_SOURCE_1 = "LabelMaster"
+RECORD_SOURCE_2 = "DynamicLabel"
+RECORD_SOURCE_3 = "FastLabel"
+RECORD_SOURCE_4 = "MyFastway"
+RECORD_SOURCE_5 = "HDManifestID"
+RECORD_SOURCE_6 = "FastLabelEnterprise"
+RECORD_SOURCE_7 = "Temando"
+RECORD_SOURCE_8 = "ReceiverPays"
+RECORD_SOURCE_10 = "EBAY"
+RECORD_SOURCE_11 = "MyFastwaySrv"
 SP_DATASET_ID = "Aramex_oceania_SP"
 PROJECT_ID = "searce-sandbox-da-delivery"
+TARGET_DATASET_ID = "Aramex_oceania"
 with DAG(
     dag_id="ssis_skeleton_hub_label",
     start_date=datetime(2024, 1, 1),
@@ -28,32 +40,58 @@ with DAG(
 ) as dag:
 
     # --- control flow (nested TaskGroup per sequence container) ---
-    with TaskGroup(group_id="tg_package_final_load_hub"):
-        # STOCK:SEQUENCE — ref_id: Package\\Final (Load HUB)
-        op_0 = EmptyOperator(task_id="package_final_load_hub")
 
-        # ref_id: Package\\Final (Load HUB)\\Defrag HUB_Label Indexes
-        op_1 = EmptyOperator(task_id="package_final_load_hub_defrag_hub_label_indexes")
-
-        # ref_id: Package\\Final (Load HUB)\\Load HUB_Label
-        op_2 = EmptyOperator(task_id="package_final_load_hub_load_hub_label")
+    op_2 = BigQueryInsertJobOperator(
+        task_id="package_final_load_hub_load_hub_label",
+        configuration={
+            "query": {
+                "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_Label`({PROCESS_ID});",
+                "useLegacySql": False,
+            }
+        },
+    )
 
     with TaskGroup(group_id="tg_package_final_load_sat_allocation"):
-        # STOCK:SEQUENCE — ref_id: Package\\Final (Load SAT_Allocation)
-        op_3 = EmptyOperator(task_id="package_final_load_sat_allocation")
-
-        # ref_id: Package\\Final (Load SAT_Allocation)\\Load SAT_Label_Allocation
-        op_4 = EmptyOperator(task_id="package_final_load_sat_allocation_load_sat_label_allocation")
+        # ref_id: Package\\Final (Load SAT_Allocation)\\Truncate SAT_Label_Allocation_Stg
+        op_6 = BigQueryInsertJobOperator(
+            task_id="package_final_load_sat_allocation_truncate_sat_label_allocation_stg",
+            configuration={
+                "query": {
+                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_SAT_Label_Allocation_Stg`",
+                    "useLegacySql": False,
+                }
+            }
+        )
 
         # ref_id: Package\\Final (Load SAT_Allocation)\\Load SAT_Label_Allocation_Stg
-        op_5 = EmptyOperator(task_id="package_final_load_sat_allocation_load_sat_label_allocation_stg")
+        op_5 = BigQueryInsertJobOperator(
+            task_id="package_final_load_sat_allocation_load_sat_label_allocation_stg",
+            configuration={
+                "query": {
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.staging_Load_SAT_Label_Allocation_Stg`({PROCESS_ID});", #TODO: Check if the name sp name is correct
+                    "useLegacySql": False,
+                }
+            }
+        )
 
-        # ref_id: Package\\Final (Load SAT_Allocation)\\Truncate SAT_Label_Allocation_Stg
-        op_6 = EmptyOperator(task_id="package_final_load_sat_allocation_truncate_sat_label_allocation_stg")
+        # ref_id: Package\\Final (Load SAT_Allocation)\\Load SAT_Label_Allocation
+        op_4 = BigQueryInsertJobOperator(
+            task_id="package_final_load_sat_allocation_load_sat_label_allocation",
+            configuration={
+                "query": {
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation`({PROCESS_ID});",
+                    "useLegacySql": False,
+                }
+            }
+        )
+
+        
+
+        
 
     with TaskGroup(group_id="tg_package_final_load_sat_distribution"):
         # STOCK:SEQUENCE — ref_id: Package\\Final (Load SAT_Distribution)
-        op_7 = EmptyOperator(task_id="package_final_load_sat_distribution")
+        # op_7 = EmptyOperator(task_id="package_final_load_sat_distribution")
 
         # ref_id: Package\\Final (Load SAT_Distribution)\\Load SAT_Label_Distribution
         op_8 = EmptyOperator(task_id="package_final_load_sat_distribution_load_sat_label_distribution")
@@ -62,8 +100,6 @@ with DAG(
         op_9 = EmptyOperator(task_id="package_final_load_sat_distribution_set_lastdate_labelmaster")
 
     with TaskGroup(group_id="tg_package_final_load_sat_label_allocation"):
-        # STOCK:SEQUENCE — ref_id: Package\\Final (Load SAT_Label_Allocation_*)
-        op_10 = EmptyOperator(task_id="package_final_load_sat_label_allocation")
 
         with TaskGroup(group_id="tg_package_final_load_sat_label_allocation_group_1"):
             # STOCK:SEQUENCE — ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 1
@@ -107,8 +143,6 @@ with DAG(
             op_23 = EmptyOperator(task_id="package_final_load_sat_label_allocation_group_2_set_lastid_ifs")
 
         with TaskGroup(group_id="tg_package_final_load_sat_label_allocation_group_3"):
-            # STOCK:SEQUENCE — ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 3
-            op_24 = EmptyOperator(task_id="package_final_load_sat_label_allocation_group_3")
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Load SAT_Label_Allocation_FL
             op_25 = EmptyOperator(task_id="package_final_load_sat_label_allocation_group_3_load_sat_label_allocation_fl")
@@ -135,12 +169,10 @@ with DAG(
     op_32 = EmptyOperator(task_id="package_lnk_label_product_serviceitem")
 
     with TaskGroup(group_id="tg_package_staging"):
-        # STOCK:SEQUENCE — ref_id: Package\\Staging
+        # STOCK:SEQUENCE — ref_id: Package\\Staging (join after each source branch completes)
         op_33 = EmptyOperator(task_id="package_staging")
 
         with TaskGroup(group_id="tg_package_staging_source1_labelmaster"):
-            # STOCK:SEQUENCE — ref_id: Package\\Staging\\Source1 (LabelMaster)
-            op_34 = EmptyOperator(task_id="package_staging_source1_labelmaster")
 
             # ref_id: Package\\Staging\\Source1 (LabelMaster)\\Get LastDate (LabelMaster)
             op_35 = PythonOperator(
@@ -151,8 +183,6 @@ with DAG(
                     "dataset_id": SP_DATASET_ID,
                     "record_source": RECORD_SOURCE_1,
                 },
-                
-
             )
 
             # ref_id: Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg
@@ -160,237 +190,500 @@ with DAG(
                 task_id="package_staging_source1_labelmaster_load_labelmaster_stg",
                 configuration={
                     "query": {
-                        "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_LabelMaster_Stg` ({{{{ti.xcom_pull(task_ids='{op_35.task_id}')}}}})",
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_LabelMaster_Stg` "
+                            f"(SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_35.task_id}') }}}}' AS DATETIME))"
+                        ),
                         "useLegacySql": False,
                     }
-                }
+                },
             )
 
-            # ref_id: Package\\Staging\\Source1 (LabelMaster)\\Rebuild Indexes 1
-            op_37 = EmptyOperator(task_id="package_staging_source1_labelmaster_rebuild_indexes_1")
 
             # ref_id: Package\\Staging\\Source1 (LabelMaster)\\Truncate LabelMaster_Stg
             op_38 = BigQueryInsertJobOperator(
                 task_id="package_staging_source1_labelmaster_truncate_labelmaster_stg",
                 configuration={
                     "query": {
-                        "query": f"TRUNCATE TABLE `{PROJECT_ID}.{SP_DATASET_ID}.Staging.LabelMaster_Stg`",
+                        "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_LabelMaster_Stg`",
                         "useLegacySql": False,
                     }
                 }
             )
 
         with TaskGroup(group_id="tg_package_staging_source10_ebay_ebay"):
-            # STOCK:SEQUENCE — ref_id: Package\\Staging\\Source10 (EBAY) _EBAY
-            op_39 = EmptyOperator(task_id="package_staging_source10_ebay_ebay")
-
             # ref_id: Package\\Staging\\Source10 (EBAY) _EBAY\\Get LastID (EBAY)
-            op_40 = EmptyOperator(task_id="package_staging_source10_ebay_ebay_get_lastid_ebay")
+            op_40 = PythonOperator(
+                task_id="package_staging_source10_ebay_ebay_get_lastid_ebay",
+                python_callable=get_last_value,
+                op_kwargs={
+                    "project_id": PROJECT_ID,
+                    "dataset_id": SP_DATASET_ID,
+                    "record_source": RECORD_SOURCE_10,
+                },
+            )
 
             # ref_id: Package\\Staging\\Source10 (EBAY) _EBAY\\Load Ebay_labels_Stg
-            op_41 = EmptyOperator(task_id="package_staging_source10_ebay_ebay_load_ebay_labels_stg")
-
-            # ref_id: Package\\Staging\\Source10 (EBAY) _EBAY\\Rebuild Indexes 10
-            op_42 = EmptyOperator(task_id="package_staging_source10_ebay_ebay_rebuild_indexes_10")
+            op_41 = BigQueryInsertJobOperator(
+                task_id="package_staging_source10_ebay_ebay_load_ebay_labels_stg",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_Ebay_Labels_Stg` "
+                            f"({{{{ ti.xcom_pull(task_ids='{op_40.task_id}') }}}})"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Staging\\Source10 (EBAY) _EBAY\\Truncate Ebay_labels_Stg
-            op_43 = EmptyOperator(task_id="package_staging_source10_ebay_ebay_truncate_ebay_labels_stg")
+            op_43 = BigQueryInsertJobOperator(
+                task_id="package_staging_source10_ebay_ebay_truncate_ebay_labels_stg",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_Ebay_Labels_Stg`"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
         with TaskGroup(group_id="tg_package_staging_source11_myfastwaysrv_mf_2"):
-            # STOCK:SEQUENCE — ref_id: Package\\Staging\\Source11 (MyFastwaySrv) _MF 2
-            op_44 = EmptyOperator(task_id="package_staging_source11_myfastwaysrv_mf_2")
-
             # ref_id: Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Get LastDate (MyFastway)
-            op_45 = EmptyOperator(task_id="package_staging_source11_myfastwaysrv_mf_2_get_lastdate_myfastway")
+            op_45 = PythonOperator(
+                task_id="package_staging_source11_myfastwaysrv_mf_2_get_lastdate_myfastway",
+                python_callable=get_last_value,
+                op_kwargs={
+                    "project_id": PROJECT_ID,
+                    "dataset_id": SP_DATASET_ID,
+                    "record_source": RECORD_SOURCE_11,
+                },
+            )
 
             # ref_id: Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Load fl_ConItemSrv_Stg
-            op_46 = EmptyOperator(task_id="package_staging_source11_myfastwaysrv_mf_2_load_fl_conitemsrv_stg")
-
-            # ref_id: Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Rebuild Indexes 11
-            op_47 = EmptyOperator(task_id="package_staging_source11_myfastwaysrv_mf_2_rebuild_indexes_11")
+            op_46 = BigQueryInsertJobOperator(
+                task_id="package_staging_source11_myfastwaysrv_mf_2_load_fl_conitemsrv_stg",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_ConItemSrv_Stg` "
+                            f"(SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_45.task_id}') }}}}' AS DATETIME))"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Truncate fl_ConItemSrv_Stg
-            op_48 = EmptyOperator(task_id="package_staging_source11_myfastwaysrv_mf_2_truncate_fl_conitemsrv_stg")
+            op_48 = BigQueryInsertJobOperator(
+                task_id="package_staging_source11_myfastwaysrv_mf_2_truncate_fl_conitemsrv_stg",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_fl_ConItemSrv_Stg`"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
         with TaskGroup(group_id="tg_package_staging_source13_pickuprequests"):
-            # STOCK:SEQUENCE — ref_id: Package\\Staging\\Source13 (PickupRequests)
-            op_49 = EmptyOperator(task_id="package_staging_source13_pickuprequests")
-
             # ref_id: Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (AU)
-            op_50 = EmptyOperator(task_id="package_staging_source13_pickuprequests_load_pickup_requests_au")
+            op_50 = BigQueryInsertJobOperator(
+                task_id="package_staging_source13_pickuprequests_load_pickup_requests_au",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_PickupRequest_Stg` ()"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (NZ)
-            op_51 = EmptyOperator(task_id="package_staging_source13_pickuprequests_load_pickup_requests_nz")
+            op_51 = BigQueryInsertJobOperator(
+                task_id="package_staging_source13_pickuprequests_load_pickup_requests_nz",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_PickupRequest_Stg__2` ()"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (SA)
-            op_52 = EmptyOperator(task_id="package_staging_source13_pickuprequests_load_pickup_requests_sa")
+            op_52 = BigQueryInsertJobOperator(
+                task_id="package_staging_source13_pickuprequests_load_pickup_requests_sa",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_PickupRequest_Stg__3` ()"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Staging\\Source13 (PickupRequests)\\Truncate Staging Tables
-            op_53 = EmptyOperator(task_id="package_staging_source13_pickuprequests_truncate_staging_tables")
+            op_53 = BigQueryInsertJobOperator(
+                task_id="package_staging_source13_pickuprequests_truncate_staging_tables",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_PickupRequest_Stg`"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
         with TaskGroup(group_id="tg_package_staging_source2_dynamiclabel_dl"):
-            # STOCK:SEQUENCE — ref_id: Package\\Staging\\Source2 (DynamicLabel) _DL
-            op_54 = EmptyOperator(task_id="package_staging_source2_dynamiclabel_dl")
 
             # ref_id: Package\\Staging\\Source2 (DynamicLabel) _DL\\Get LastId (DynamicLabel)
-            op_55 = EmptyOperator(task_id="package_staging_source2_dynamiclabel_dl_get_lastid_dynamiclabel")
+            op_55 = PythonOperator(
+                task_id="package_staging_source2_dynamiclabel_dl_get_lastid_dynamiclabel",
+                python_callable=get_last_value,
+                op_kwargs={
+                    "project_id": PROJECT_ID,
+                    "dataset_id": SP_DATASET_ID,
+                    "record_source": RECORD_SOURCE_2,
+                }
+            )
 
             # ref_id: Package\\Staging\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg
-            op_56 = EmptyOperator(task_id="package_staging_source2_dynamiclabel_dl_load_api_rf_adhoclabel_allocationhistory_stg")
+            op_56 = BigQueryInsertJobOperator(
+                task_id="package_staging_source2_dynamiclabel_dl_load_api_rf_adhoclabel_allocationhistory_stg",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_API_RF_AdHocLabel_AllocationHistory_Stg` "
+                            f"({{{{ ti.xcom_pull(task_ids='{op_55.task_id}') }}}})"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
-            # ref_id: Package\\Staging\\Source2 (DynamicLabel) _DL\\Rebuild Indexes 2
-            op_57 = EmptyOperator(task_id="package_staging_source2_dynamiclabel_dl_rebuild_indexes_2")
 
             # ref_id: Package\\Staging\\Source2 (DynamicLabel) _DL\\Truncate API_RF_AdHocLabel_AllocationHistory_Stg
-            op_58 = EmptyOperator(task_id="package_staging_source2_dynamiclabel_dl_truncate_api_rf_adhoclabel_allocationhistory_stg")
+            op_58 = BigQueryInsertJobOperator(
+                task_id="package_staging_source2_dynamiclabel_dl_truncate_api_rf_adhoclabel_allocationhistory_stg",
+                configuration={
+                    "query": {
+                        "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_API_RF_AdHocLabel_AllocationHistory_Stg`",
+                        "useLegacySql": False,
+                    }
+                }
+            )
 
         with TaskGroup(group_id="tg_package_staging_source3_fastlabel_fl"):
-            # STOCK:SEQUENCE — ref_id: Package\\Staging\\Source3 (FastLabel) _FL
-            op_59 = EmptyOperator(task_id="package_staging_source3_fastlabel_fl")
-
             # ref_id: Package\\Staging\\Source3 (FastLabel) _FL\\Get LastDate (FastLabel)
-            op_60 = EmptyOperator(task_id="package_staging_source3_fastlabel_fl_get_lastdate_fastlabel")
+            op_60 = PythonOperator(
+                task_id="package_staging_source3_fastlabel_fl_get_lastdate_fastlabel",
+                python_callable=get_last_value,
+                op_kwargs={
+                    "project_id": PROJECT_ID,
+                    "dataset_id": SP_DATASET_ID,
+                    "record_source": RECORD_SOURCE_3,
+                },
+            )
 
             # ref_id: Package\\Staging\\Source3 (FastLabel) _FL\\Load tblFastLabel_Consignment_Stg
-            op_61 = EmptyOperator(task_id="package_staging_source3_fastlabel_fl_load_tblfastlabel_consignment_stg")
-
-            # ref_id: Package\\Staging\\Source3 (FastLabel) _FL\\Rebuild Indexes 3
-            op_62 = EmptyOperator(task_id="package_staging_source3_fastlabel_fl_rebuild_indexes_3")
+            op_61 = BigQueryInsertJobOperator(
+                task_id="package_staging_source3_fastlabel_fl_load_tblfastlabel_consignment_stg",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_tblFastLabel_Consignment_Stg` "
+                            f"(SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_60.task_id}') }}}}' AS DATETIME))"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Staging\\Source3 (FastLabel) _FL\\Truncate tblFastLabel_Consignment_Stg
-            op_63 = EmptyOperator(task_id="package_staging_source3_fastlabel_fl_truncate_tblfastlabel_consignment_stg")
+            op_63 = BigQueryInsertJobOperator(
+                task_id="package_staging_source3_fastlabel_fl_truncate_tblfastlabel_consignment_stg",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_tblFastLabel_Consignment_Stg`"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
         with TaskGroup(group_id="tg_package_staging_source4_myfastway_mf"):
-            # STOCK:SEQUENCE — ref_id: Package\\Staging\\Source4 (MyFastway) _MF
-            op_64 = EmptyOperator(task_id="package_staging_source4_myfastway_mf")
-
             # ref_id: Package\\Staging\\Source4 (MyFastway) _MF\\Get LastDate (MyFastway)
-            op_65 = EmptyOperator(task_id="package_staging_source4_myfastway_mf_get_lastdate_myfastway")
+            op_65 = PythonOperator(
+                task_id="package_staging_source4_myfastway_mf_get_lastdate_myfastway",
+                python_callable=get_last_value,
+                op_kwargs={
+                    "project_id": PROJECT_ID,
+                    "dataset_id": SP_DATASET_ID,
+                    "record_source": RECORD_SOURCE_4,
+                },
+            )
 
             # ref_id: Package\\Staging\\Source4 (MyFastway) _MF\\Load fl_ConItem_Stg
-            op_66 = EmptyOperator(task_id="package_staging_source4_myfastway_mf_load_fl_conitem_stg")
-
-            # ref_id: Package\\Staging\\Source4 (MyFastway) _MF\\Rebuild Indexes 4
-            op_67 = EmptyOperator(task_id="package_staging_source4_myfastway_mf_rebuild_indexes_4")
+            op_66 = BigQueryInsertJobOperator(
+                task_id="package_staging_source4_myfastway_mf_load_fl_conitem_stg",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_ConItem_Stg` "
+                            f"(SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_65.task_id}') }}}}' AS DATETIME))"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Staging\\Source4 (MyFastway) _MF\\Truncate fl_ConItem_Stg
-            op_68 = EmptyOperator(task_id="package_staging_source4_myfastway_mf_truncate_fl_conitem_stg")
+            op_68 = BigQueryInsertJobOperator(
+                task_id="package_staging_source4_myfastway_mf_truncate_fl_conitem_stg",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_fl_ConItem_Stg`"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
         with TaskGroup(group_id="tg_package_staging_source5_hdmanifest_ifs"):
-            # STOCK:SEQUENCE — ref_id: Package\\Staging\\Source5 (HDManifest) _IFS
-            op_69 = EmptyOperator(task_id="package_staging_source5_hdmanifest_ifs")
-
             # ref_id: Package\\Staging\\Source5 (HDManifest) _IFS\\Get LastID(IFS)
-            op_70 = EmptyOperator(task_id="package_staging_source5_hdmanifest_ifs_get_lastid_ifs")
+            op_70 = PythonOperator(
+                task_id="package_staging_source5_hdmanifest_ifs_get_lastid_ifs",
+                python_callable=get_last_value,
+                op_kwargs={
+                    "project_id": PROJECT_ID,
+                    "dataset_id": SP_DATASET_ID,
+                    "record_source": RECORD_SOURCE_5,
+                },
+            )
 
             # ref_id: Package\\Staging\\Source5 (HDManifest) _IFS\\Load HDManifests_Stg
-            op_71 = EmptyOperator(task_id="package_staging_source5_hdmanifest_ifs_load_hdmanifests_stg")
-
-            # ref_id: Package\\Staging\\Source5 (HDManifest) _IFS\\Rebuild Indexes 5
-            op_72 = EmptyOperator(task_id="package_staging_source5_hdmanifest_ifs_rebuild_indexes_5")
+            op_71 = BigQueryInsertJobOperator(
+                task_id="package_staging_source5_hdmanifest_ifs_load_hdmanifests_stg",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_HDManifests_Stg` "
+                            f"({{{{ ti.xcom_pull(task_ids='{op_70.task_id}') }}}})"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Staging\\Source5 (HDManifest) _IFS\\Truncate HDManifests_Stg
-            op_73 = EmptyOperator(task_id="package_staging_source5_hdmanifest_ifs_truncate_hdmanifests_stg")
+            op_73 = BigQueryInsertJobOperator(
+                task_id="package_staging_source5_hdmanifest_ifs_truncate_hdmanifests_stg",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_HDManifests_Stg`"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
         with TaskGroup(group_id="tg_package_staging_source6_fastlabelenterprise_fle"):
-            # STOCK:SEQUENCE — ref_id: Package\\Staging\\Source6 (FastLabelEnterprise) _FLE
-            op_74 = EmptyOperator(task_id="package_staging_source6_fastlabelenterprise_fle")
-
             # ref_id: Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Get LastDate (FastLabelEnterprise)
-            op_75 = EmptyOperator(task_id="package_staging_source6_fastlabelenterprise_fle_get_lastdate_fastlabelenterprise")
+            op_75 = PythonOperator(
+                task_id="package_staging_source6_fastlabelenterprise_fle_get_lastdate_fastlabelenterprise",
+                python_callable=get_last_value,
+                op_kwargs={
+                    "project_id": PROJECT_ID,
+                    "dataset_id": SP_DATASET_ID,
+                    "record_source": RECORD_SOURCE_6,
+                },
+            )
 
             # ref_id: Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Load ConsignmentItem_Stg
-            op_76 = EmptyOperator(task_id="package_staging_source6_fastlabelenterprise_fle_load_consignmentitem_stg")
-
-            # ref_id: Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Rebuild Indexes 6
-            op_77 = EmptyOperator(task_id="package_staging_source6_fastlabelenterprise_fle_rebuild_indexes_6")
+            op_76 = BigQueryInsertJobOperator(
+                task_id="package_staging_source6_fastlabelenterprise_fle_load_consignmentitem_stg",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_ConsignmentItem_Stg` "
+                            f"(SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_75.task_id}') }}}}' AS DATETIME))"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Truncate ConsignmentItem_Stg
-            op_78 = EmptyOperator(task_id="package_staging_source6_fastlabelenterprise_fle_truncate_consignmentitem_stg")
+            op_78 = BigQueryInsertJobOperator(
+                task_id="package_staging_source6_fastlabelenterprise_fle_truncate_consignmentitem_stg",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_ConsignmentItem_Stg`"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
         with TaskGroup(group_id="tg_package_staging_source7_temando_tmd"):
-            # STOCK:SEQUENCE — ref_id: Package\\Staging\\Source7 (Temando) _TMD
-            op_79 = EmptyOperator(task_id="package_staging_source7_temando_tmd")
-
             # ref_id: Package\\Staging\\Source7 (Temando) _TMD\\Get LastId (Temando)
-            op_80 = EmptyOperator(task_id="package_staging_source7_temando_tmd_get_lastid_temando")
+            op_80 = PythonOperator(
+                task_id="package_staging_source7_temando_tmd_get_lastid_temando",
+                python_callable=get_last_value,
+                op_kwargs={
+                    "project_id": PROJECT_ID,
+                    "dataset_id": SP_DATASET_ID,
+                    "record_source": RECORD_SOURCE_7,
+                },
+            )
 
             # ref_id: Package\\Staging\\Source7 (Temando) _TMD\\Load API_Temando_RequestLabel_Stg
-            op_81 = EmptyOperator(task_id="package_staging_source7_temando_tmd_load_api_temando_requestlabel_stg")
-
-            # ref_id: Package\\Staging\\Source7 (Temando) _TMD\\Rebuild Indexes 7
-            op_82 = EmptyOperator(task_id="package_staging_source7_temando_tmd_rebuild_indexes_7")
+            op_81 = BigQueryInsertJobOperator(
+                task_id="package_staging_source7_temando_tmd_load_api_temando_requestlabel_stg",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_API_Temando_RequestLabel_Stg` "
+                            f"({{{{ ti.xcom_pull(task_ids='{op_80.task_id}') }}}})"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Staging\\Source7 (Temando) _TMD\\Truncate API_Temando_RequestLabel_Stg
-            op_83 = EmptyOperator(task_id="package_staging_source7_temando_tmd_truncate_api_temando_requestlabel_stg")
+            op_83 = BigQueryInsertJobOperator(
+                task_id="package_staging_source7_temando_tmd_truncate_api_temando_requestlabel_stg",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_API_Temando_RequestLabel_Stg`"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
         with TaskGroup(group_id="tg_package_staging_source8_receiverpays_rp"):
-            # STOCK:SEQUENCE — ref_id: Package\\Staging\\Source8 (ReceiverPays) _RP
-            op_84 = EmptyOperator(task_id="package_staging_source8_receiverpays_rp")
-
             # ref_id: Package\\Staging\\Source8 (ReceiverPays) _RP\\Get LastID  (ReceiverPays)
-            op_85 = EmptyOperator(task_id="package_staging_source8_receiverpays_rp_get_lastid_receiverpays")
+            op_85 = PythonOperator(
+                task_id="package_staging_source8_receiverpays_rp_get_lastid_receiverpays",
+                python_callable=get_last_value,
+                op_kwargs={
+                    "project_id": PROJECT_ID,
+                    "dataset_id": SP_DATASET_ID,
+                    "record_source": RECORD_SOURCE_8,
+                },
+            )
 
             # ref_id: Package\\Staging\\Source8 (ReceiverPays) _RP\\Load tblOnlineEnquiry_RP_Stg
-            op_86 = EmptyOperator(task_id="package_staging_source8_receiverpays_rp_load_tblonlineenquiry_rp_stg")
-
-            # ref_id: Package\\Staging\\Source8 (ReceiverPays) _RP\\Rebuild Indexes 8
-            op_87 = EmptyOperator(task_id="package_staging_source8_receiverpays_rp_rebuild_indexes_8")
+            op_86 = BigQueryInsertJobOperator(
+                task_id="package_staging_source8_receiverpays_rp_load_tblonlineenquiry_rp_stg",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_tblOnlineEnquiry_RP_Stg` "
+                            f"({{{{ ti.xcom_pull(task_ids='{op_85.task_id}') }}}})"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Staging\\Source8 (ReceiverPays) _RP\\Truncate tblOnlineEnquiry_RP_Stg
-            op_88 = EmptyOperator(task_id="package_staging_source8_receiverpays_rp_truncate_tblonlineenquiry_rp_stg")
+            op_88 = BigQueryInsertJobOperator(
+                task_id="package_staging_source8_receiverpays_rp_truncate_tblonlineenquiry_rp_stg",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_tblOnlineEnquiry_RP_Stg`"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
     # --- precedence (upstream >> downstream) ---
-    op_33 >> op_0
-    op_2 >> op_1
-    op_33 >> op_3
+    # Sink of each nested staging TaskGroup (last task along the current >> chain)
+    _staging_branch_last_tasks = (
+        op_36,
+        op_41,
+        op_46,
+        op_52,
+        op_56,
+        op_61,
+        op_66,
+        op_71,
+        op_76,
+        op_81,
+        op_86,
+    )
+    for _stg_last in _staging_branch_last_tasks:
+        _stg_last >> op_33
+    op_33 >> op_2
+    op_33 >> op_6
+    op_33 >> op_31
+    op_33 >> op_32
+
     op_5 >> op_4
     op_6 >> op_5
-    op_0 >> op_7
+    op_2 >> op_8
     op_8 >> op_9
-    op_3 >> op_10
+    op_4 >> op_13
+    op_4 >> op_12
+    op_4 >> op_14
     op_12 >> op_15
     op_13 >> op_16
     op_14 >> op_17
-    op_11 >> op_18
+    op_15 >> op_11
+    op_16 >> op_11
+    op_17 >> op_11
+    op_11 >> op_19
+    op_11 >> op_20
+    op_11 >> op_21
+    op_18 >> op_25
+    op_18 >> op_26
+    op_18 >> op_27
     op_20 >> op_22
+    op_22 >> op_18
+    op_23 >> op_18
+    op_21 >> op_18
     op_19 >> op_23
-    op_18 >> op_24
     op_25 >> op_28
     op_26 >> op_29
     op_27 >> op_30
-    op_33 >> op_31
-    op_33 >> op_32
     op_38 >> op_35
     op_35 >> op_36
-    op_36 >> op_37
     op_43 >> op_40
     op_40 >> op_41
-    op_41 >> op_42
     op_48 >> op_45
     op_45 >> op_46
-    op_46 >> op_47
     op_53 >> op_50
     op_50 >> op_51
     op_51 >> op_52
     op_58 >> op_55
     op_55 >> op_56
-    op_56 >> op_57
     op_63 >> op_60
     op_60 >> op_61
-    op_61 >> op_62
     op_68 >> op_65
     op_65 >> op_66
-    op_66 >> op_67
     op_73 >> op_70
     op_70 >> op_71
-    op_71 >> op_72
     op_78 >> op_75
     op_75 >> op_76
-    op_76 >> op_77
     op_83 >> op_80
     op_80 >> op_81
-    op_81 >> op_82
     op_88 >> op_85
     op_85 >> op_86
-    op_86 >> op_87
