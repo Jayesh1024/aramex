@@ -1,0 +1,128 @@
+[
+  {
+    "sp_name": "dbo_Load_Fact_Delivery_Performance",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" },
+      { "param_name": "p_Force", "param_type": "INT64" }
+    ]
+  },
+  {
+    "sp_name": "dbo_Load_Fact_Delivery_Performance2",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" },
+      { "param_name": "p_Force", "param_type": "INT64" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_FL_InvoiceHeader",
+    "sp_params": [
+      { "param_name": "p_ProcessId", "param_type": "INT64" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_FL_InvoicePayment",
+    "sp_params": [
+      { "param_name": "p_ProcessId", "param_type": "INT64" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_Label_Invoices",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" },
+      { "param_name": "p_Start_Date", "param_type": "STRING" },
+      { "param_name": "p_End_Date", "param_type": "STRING" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_Label_Product_ServiceItem_Stg",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_Label_Product_ServiceItem_Stg_Interim",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_LSAT_InvoiceLine",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_LSAT_InvoiceHead",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_SAT_Address",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_SAL_Customer",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_Product_ServiceCon_Stg",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_LSAT_Product_ServiceCon",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_LSAT_Label_Product_ServiceItem",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_LSAT_Label_InterBranch",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_Missing_SAT_Label_Allocation_IFS",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_SAT_Label_Allocation_DL",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" }
+    ]
+  },
+  {
+    "sp_name": "dv_Load_SAT_Label_Allocation",
+    "sp_params": [
+      { "param_name": "p_ProcessID", "param_type": "INT64" }
+    ]
+  },
+  {
+    "sp_name": "dbo_MaintainIndexes",
+    "sp_params": [
+      { "param_name": "p_Operation", "param_type": "STRING" },
+      { "param_name": "p_SchemaName", "param_type": "STRING" },
+      { "param_name": "p_TableName", "param_type": "STRING" },
+      { "param_name": "p_IndexName", "param_type": "STRING" },
+      { "param_name": "p_Whatif", "param_type": "INT64" }
+    ]
+  },
+  {
+    "sp_name": "dbo_MaintainKPICodes",
+    "sp_params": []
+  }
+]
