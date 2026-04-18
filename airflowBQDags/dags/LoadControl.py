@@ -1,11 +1,26 @@
 """
 DAG for SSIS package: LoadControl (GCP / BigQuery).
 
-GCP naming: SSIS schemas dv, dbo, Staging map to BigQuery identifiers by replacing only
-the dot (e.g. [Staging].[LoadLog] → Staging_LoadLog, [Staging].[SaveLog] → Staging_SaveLog).
+LoadControl is the top-level orchestrator; every other HUB / Dim / Maintenance
+SSIS package runs as an `Microsoft.ExecutePackageTask` under this one. In
+Airflow we implement those with `TriggerDagRunOperator`, each targeting the
+corresponding `ssis_skeleton_*` child DAG. The two inline `Microsoft.ExecuteSQLTask`
+steps (Get Next ProcessID, Reserve ProcessID) become a PythonOperator + a
+BigQueryInsertJobOperator calling `Staging_SaveLog`. The final
+`Microsoft.ScriptTask` (Send Email) has no BigQuery/Airflow equivalent and is
+left as an `EmptyOperator` placeholder — same blocker as
+`Export_KPI_Performance` (see DAG_COMPLETION_NOTES.md).
 
-SSIS «Get Misceallaneous data» runs child package Miscellaneous.dtsx → TriggerDagRunOperator
-to `params.miscellaneous_dag_id` (deploy that DAG or override the param).
+GCP naming: SSIS schemas dv, dbo, Staging map to BigQuery identifiers by
+replacing the dot (e.g. [Staging].[LoadLog] → `Staging_LoadLog`,
+[dbo].[Load_Dim_Label] → `dbo_Load_Dim_Label`).
+
+Child-DAG parameter propagation: the `process_id` allocated by Get Next
+ProcessID is broadcast to every triggered child DAG via `conf={"process_id": ...}`.
+Child DAGs currently expose `process_id` only through `DAG(params=...)`; they
+will need a small follow-up change to read from `dag_run.conf.get("process_id")`
+when it is set (flagged in DAG_COMPLETION_NOTES.md — the existing default of 1
+is used when LoadControl is not the parent).
 """
 from __future__ import annotations
 
@@ -21,8 +36,13 @@ from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_next_process_id
 
 PACKAGE_NAME = "LoadControl"
-SP_DATASET_ID = "Aramex_oceania_SP"
 PROJECT_ID = "searce-sandbox-da-delivery"
+SP_DATASET_ID = "Aramex_oceania_SP"
+TARGET_DATASET_ID = "Aramex_oceania"
+
+_GET_PROCESSID_XCOM = (
+    "{{ ti.xcom_pull(task_ids='package_get_next_processid') }}"
+)
 
 with DAG(
     dag_id="ssis_skeleton_loadcontrol",
@@ -31,35 +51,42 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "loadcontrol"],
     params={
-        # SSIS $Package::DisableLNKLoad (default 0 in LoadControl.dtsx)
         "disable_lnk_load": False,
-        # Child of ExecutePackageTask «Get Misceallaneous data» → Miscellaneous.dtsx
         "miscellaneous_dag_id": "ssis_skeleton_miscellaneous",
+        "db_maintenance_dag_id": "ssis_skeleton_db_maintenance",
+        "fact_kpi_dag_id": "ssis_skeleton_fact_kpi",
+        "hub_cf_dag_id": "ssis_skeleton_hub_cf",
+        "hub_customer_dag_id": "ssis_skeleton_hub_customer",
+        "hub_product_dag_id": "ssis_skeleton_hub_product",
+        "hub_rf_dag_id": "ssis_skeleton_hub_rf",
+        "hub_scanstatus_dag_id": "ssis_skeleton_hub_scanstatus",
+        "hub_serviceitem_dag_id": "ssis_skeleton_hub_serviceitem",
+        "hub_invoice_dag_id": "ssis_skeleton_hub_invoice",
+        "hub_label_dag_id": "ssis_skeleton_hub_label",
+        "hub_servicecon_dag_id": "ssis_skeleton_hub_servicecon",
     },
 ) as dag:
 
-    # ref_id: Package\Get Next ProcessID — SSIS: ExecuteSQLTask; BQ: Staging_LoadLog
     op_3 = PythonOperator(
         task_id="package_get_next_processid",
         python_callable=get_next_process_id,
         op_kwargs={
             "project_id": PROJECT_ID,
-            "dataset_id": SP_DATASET_ID,
+            "dataset_id": TARGET_DATASET_ID,
         },
     )
 
-    # ref_id: Package\Get Misceallaneous data — SSIS: ExecutePackageTask → Miscellaneous.dtsx
     op_2 = TriggerDagRunOperator(
         task_id="package_get_misceallaneous_data",
         trigger_dag_id="{{ params.miscellaneous_dag_id }}",
         wait_for_completion=True,
-        reset_dag_run=False,
-        conf={"process_id": "{{ ti.xcom_pull(task_ids='package_get_next_processid') }}"},
+        poke_interval=30,
+        reset_dag_run=True,
+        conf={"process_id": _GET_PROCESSID_XCOM},
     )
 
-    # ref_id: Package\Reserve ProcessID — SSIS batch + EXEC [Staging].[SaveLog]; BQ: script + CALL Staging_SaveLog
     _reserve_process_sql = (
-        "DECLARE process_id INT64 DEFAULT {{ ti.xcom_pull(task_ids='package_get_next_processid') }};\n"
+        f"DECLARE process_id INT64 DEFAULT {_GET_PROCESSID_XCOM};\n"
         "DECLARE disable_lnk_load BOOL DEFAULT "
         "{% if params.disable_lnk_load %}TRUE{% else %}FALSE{% endif %};\n"
         "DECLARE component STRING;\n"
@@ -71,8 +98,8 @@ with DAG(
         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_SaveLog`(\n"
         "  component,\n"
         "  process_id,\n"
-        "  CURRENT_TIMESTAMP(),\n"
-        "  CAST(NULL AS TIMESTAMP),\n"
+        "  CURRENT_DATETIME(),\n"
+        "  CAST(NULL AS DATETIME),\n"
         "  CAST(NULL AS STRING),\n"
         "  '',\n"
         "  CAST(0 AS INT64)\n"
@@ -87,80 +114,171 @@ with DAG(
                 "useLegacySql": False,
             }
         },
-        gcp_conn_id="google_cloud_default",
     )
 
-    # --- control flow (nested TaskGroup per sequence container) ---
-    with TaskGroup(group_id="tg_package_database_maintenance"):
-        # STOCK:SEQUENCE — ref_id: Package\Database Maintenance
-        op_0 = EmptyOperator(task_id="package_database_maintenance")
+    with TaskGroup(group_id="tg_package_load_hub_tables") as tg_load_hub_tables:
+        with TaskGroup(
+            group_id="tg_package_load_hub_tables_full_reload"
+        ) as tg_full_reload:
+            op_9 = TriggerDagRunOperator(
+                task_id="package_load_hub_tables_full_reload_hub_cf",
+                trigger_dag_id="{{ params.hub_cf_dag_id }}",
+                wait_for_completion=True,
+                poke_interval=30,
+                reset_dag_run=True,
+                conf={"process_id": _GET_PROCESSID_XCOM},
+            )
 
-        # ref_id: Package\Database Maintenance\DB Maintenance
-        op_1 = EmptyOperator(task_id="package_database_maintenance_db_maintenance")
+            op_10 = TriggerDagRunOperator(
+                task_id="package_load_hub_tables_full_reload_hub_customer",
+                trigger_dag_id="{{ params.hub_customer_dag_id }}",
+                wait_for_completion=True,
+                poke_interval=30,
+                reset_dag_run=True,
+                conf={"process_id": _GET_PROCESSID_XCOM},
+            )
 
-    with TaskGroup(group_id="tg_package_load_dim_tables"):
-        # STOCK:SEQUENCE — ref_id: Package\Load Dim tables
-        op_4 = EmptyOperator(task_id="package_load_dim_tables")
+            op_11 = TriggerDagRunOperator(
+                task_id="package_load_hub_tables_full_reload_hub_product",
+                trigger_dag_id="{{ params.hub_product_dag_id }}",
+                wait_for_completion=True,
+                poke_interval=30,
+                reset_dag_run=True,
+                conf={"process_id": _GET_PROCESSID_XCOM},
+            )
 
-        # ref_id: Package\Load Dim tables\Fact_KPI
-        op_5 = EmptyOperator(task_id="package_load_dim_tables_fact_kpi")
+            op_12 = TriggerDagRunOperator(
+                task_id="package_load_hub_tables_full_reload_hub_rf",
+                trigger_dag_id="{{ params.hub_rf_dag_id }}",
+                wait_for_completion=True,
+                poke_interval=30,
+                reset_dag_run=True,
+                conf={"process_id": _GET_PROCESSID_XCOM},
+            )
 
-        # ref_id: Package\Load Dim tables\Load Dim_Label
-        op_6 = EmptyOperator(task_id="package_load_dim_tables_load_dim_label")
+            op_13 = TriggerDagRunOperator(
+                task_id="package_load_hub_tables_full_reload_hub_scanstatus",
+                trigger_dag_id="{{ params.hub_scanstatus_dag_id }}",
+                wait_for_completion=True,
+                poke_interval=30,
+                reset_dag_run=True,
+                conf={"process_id": _GET_PROCESSID_XCOM},
+            )
 
-    with TaskGroup(group_id="tg_package_load_hub_tables"):
-        # STOCK:SEQUENCE — ref_id: Package\Load HUB tables
-        op_7 = EmptyOperator(task_id="package_load_hub_tables")
+            op_14 = TriggerDagRunOperator(
+                task_id="package_load_hub_tables_full_reload_hub_serviceitem",
+                trigger_dag_id="{{ params.hub_serviceitem_dag_id }}",
+                wait_for_completion=True,
+                poke_interval=30,
+                reset_dag_run=True,
+                conf={"process_id": _GET_PROCESSID_XCOM},
+            )
 
-        with TaskGroup(group_id="tg_package_load_hub_tables_full_reload"):
-            # STOCK:SEQUENCE — ref_id: Package\Load HUB tables\Full Reload
             op_8 = EmptyOperator(task_id="package_load_hub_tables_full_reload")
 
-            # ref_id: Package\Load HUB tables\Full Reload\HUB_CF
-            op_9 = EmptyOperator(task_id="package_load_hub_tables_full_reload_hub_cf")
+            [op_9, op_10, op_11, op_12, op_13, op_14] >> op_8
 
-            # ref_id: Package\Load HUB tables\Full Reload\HUB_Customer
-            op_10 = EmptyOperator(task_id="package_load_hub_tables_full_reload_hub_customer")
+        op_15 = TriggerDagRunOperator(
+            task_id="package_load_hub_tables_hub_invoice",
+            trigger_dag_id="{{ params.hub_invoice_dag_id }}",
+            wait_for_completion=True,
+            poke_interval=30,
+            reset_dag_run=True,
+            conf={"process_id": _GET_PROCESSID_XCOM},
+        )
 
-            # ref_id: Package\Load HUB tables\Full Reload\HUB_Product
-            op_11 = EmptyOperator(task_id="package_load_hub_tables_full_reload_hub_product")
+        op_16 = TriggerDagRunOperator(
+            task_id="package_load_hub_tables_hub_label",
+            trigger_dag_id="{{ params.hub_label_dag_id }}",
+            wait_for_completion=True,
+            poke_interval=30,
+            reset_dag_run=True,
+            conf={"process_id": _GET_PROCESSID_XCOM},
+        )
 
-            # ref_id: Package\Load HUB tables\Full Reload\HUB_RF
-            op_12 = EmptyOperator(task_id="package_load_hub_tables_full_reload_hub_rf")
+        op_17 = TriggerDagRunOperator(
+            task_id="package_load_hub_tables_hub_servicecon",
+            trigger_dag_id="{{ params.hub_servicecon_dag_id }}",
+            wait_for_completion=True,
+            poke_interval=30,
+            reset_dag_run=True,
+            conf={"process_id": _GET_PROCESSID_XCOM},
+        )
 
-            # ref_id: Package\Load HUB tables\Full Reload\HUB_ScanStatus
-            op_13 = EmptyOperator(task_id="package_load_hub_tables_full_reload_hub_scanstatus")
+        op_7 = EmptyOperator(task_id="package_load_hub_tables")
 
-            # ref_id: Package\Load HUB tables\Full Reload\HUB_ServiceItem
-            op_14 = EmptyOperator(task_id="package_load_hub_tables_full_reload_hub_serviceitem")
+        op_8 >> [op_15, op_16, op_17] >> op_7
 
-        # ref_id: Package\Load HUB tables\HUB_Invoice
-        op_15 = EmptyOperator(task_id="package_load_hub_tables_hub_invoice")
+    with TaskGroup(group_id="tg_package_load_dim_tables") as tg_load_dim_tables:
+        op_5 = TriggerDagRunOperator(
+            task_id="package_load_dim_tables_fact_kpi",
+            trigger_dag_id="{{ params.fact_kpi_dag_id }}",
+            wait_for_completion=True,
+            poke_interval=30,
+            reset_dag_run=True,
+            conf={"process_id": _GET_PROCESSID_XCOM},
+        )
 
-        # ref_id: Package\Load HUB tables\HUB_Label
-        op_16 = EmptyOperator(task_id="package_load_hub_tables_hub_label")
+        op_6 = BigQueryInsertJobOperator(
+            task_id="package_load_dim_tables_load_dim_label",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Load_Dim_Label`("
+                        f"{_GET_PROCESSID_XCOM}, "
+                        f"SAFE_CAST('{{{{ data_interval_start }}}}' AS DATETIME));"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\Load HUB tables\HUB_ServiceCon
-        op_17 = EmptyOperator(task_id="package_load_hub_tables_hub_servicecon")
+        op_4 = EmptyOperator(task_id="package_load_dim_tables")
 
-    with TaskGroup(group_id="tg_package_send_notification_email"):
-        # STOCK:SEQUENCE — ref_id: Package\Send Notification Email
-        op_19 = EmptyOperator(task_id="package_send_notification_email")
+        [op_5, op_6] >> op_4
 
-        # ref_id: Package\Send Notification Email\Get Summary Data
-        op_20 = EmptyOperator(task_id="package_send_notification_email_get_summary_data")
+    with TaskGroup(
+        group_id="tg_package_database_maintenance"
+    ) as tg_database_maintenance:
+        op_1 = TriggerDagRunOperator(
+            task_id="package_database_maintenance_db_maintenance",
+            trigger_dag_id="{{ params.db_maintenance_dag_id }}",
+            wait_for_completion=True,
+            poke_interval=30,
+            reset_dag_run=True,
+            conf={"process_id": _GET_PROCESSID_XCOM},
+        )
 
-        # ref_id: Package\Send Notification Email\Send Email
+        op_0 = EmptyOperator(task_id="package_database_maintenance")
+
+        op_1 >> op_0
+
+    with TaskGroup(
+        group_id="tg_package_send_notification_email"
+    ) as tg_send_notification_email:
+        op_20 = BigQueryInsertJobOperator(
+            task_id="package_send_notification_email_get_summary_data",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Get_LoadReportHtml`("
+                        f"{_GET_PROCESSID_XCOM}, "
+                        f"CAST('{{{{ dag_run.id }}}}' AS INT64));"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
+
         op_21 = EmptyOperator(task_id="package_send_notification_email_send_email")
 
-    # --- precedence (upstream >> downstream) ---
-    op_4 >> op_0
+        op_19 = EmptyOperator(task_id="package_send_notification_email")
+
+        op_20 >> op_21 >> op_19
+
     op_3 >> op_2
-    op_7 >> op_4
-    op_18 >> op_7
-    op_8 >> op_15
-    op_8 >> op_16
-    op_8 >> op_17
     op_3 >> op_18
-    op_0 >> op_19
-    op_20 >> op_21
+    op_18 >> tg_load_hub_tables
+    tg_load_hub_tables >> tg_load_dim_tables
+    tg_load_dim_tables >> tg_database_maintenance
+    tg_database_maintenance >> tg_send_notification_email

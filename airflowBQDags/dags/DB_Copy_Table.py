@@ -15,6 +15,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from airflow import DAG
+from airflow.operators.empty import EmptyOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 

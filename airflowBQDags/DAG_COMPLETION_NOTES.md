@@ -447,6 +447,65 @@ _(populated as each DAG is completed — see the tail of this document.)_
   SP call in BQ — confirm.
 - `RECORD_SOURCE` default "RecordSource" (placeholder).
 
+### LoadControl
+- Completed. Top-level orchestrator.
+- `Get Next ProcessID` — `PythonOperator` + `utils.getValue.get_next_process_id`
+  (SSIS: `SELECT MAX(ProcessId) + 1 FROM Staging.LoadLog`; the helper
+  matches this convention against `Aramex_oceania.Staging_LoadLog`).
+- `Reserve ProcessID` — single `BigQueryInsertJobOperator` executing a BQ
+  script: declares `@ProcessID` / `@DisableLnkLoad`, computes the
+  `Component` string (`'Load Labels - Job Start'` vs `'Load TrackAndTrace - Job Start'`),
+  then `CALL Staging_SaveLog(...)` with NULL `@Ended`, NULL `@Result`,
+  empty error, `Inserted = 0`. Preserves SSIS semantics exactly.
+- `Get Misceallaneous data` / `DB Maintenance` / `Fact_KPI` / every HUB task
+  — `TriggerDagRunOperator` targeting the matching `ssis_skeleton_*` DAG.
+  `wait_for_completion=True` so the parent blocks until each child finishes
+  (matches SSIS ExecutePackageTask blocking semantics).
+- **`process_id` propagation to children** — passed to every
+  `TriggerDagRunOperator` via `conf={"process_id": "<xcom>"}`. **Follow-up
+  required**: the child DAGs (HUB_Invoice, HUB_Label, etc.) currently read
+  `process_id` from `DAG(params=...)` with default `1`, not from
+  `dag_run.conf`. Until the child DAGs are updated, the conf is ignored
+  and each child runs with `process_id=1`. One-line patch per child DAG:
+  replace `{{ params.process_id }}` with
+  `{{ dag_run.conf.get('process_id', params.process_id) }}`.
+- `Load Dim_Label` — `CALL dbo_Load_Dim_Label(ProcessID, ChangedSince)`
+  where `ChangedSince` = `{{ data_interval_start }}`. SSIS binds SSIS
+  variable `StartTime`; the actual SSIS variable initialiser is not in
+  the extracted metadata, so I used the DAG run's logical interval start
+  (the Airflow-idiomatic "start of this batch" marker). SP signature
+  confirmed from `ProceduresBQ/BQ_GOLD_2/rendered/dbo_Load_Dim_Label.sql`.
+- `Send Notification Email\Get Summary Data` — `CALL Staging_Get_LoadReportHtml(ProcessID, ExecutionID)`.
+  SSIS passes `ServerExecutionID` (int). Airflow has no direct equivalent;
+  used `dag_run.id` (autoincrement int) as the closest analogue. The
+  SP returns a single row with `HtmlBody, BodyTable1..3` columns, all
+  destined for the Send Email ScriptTask below — which we can't migrate —
+  so the result set is not consumed downstream. Leaving the CALL in place
+  preserves the SP's side-effects (logging / staging table writes) if any.
+- **`Send Email` — NOT MIGRATED.** `Microsoft.ScriptTask` (arbitrary
+  C#/VB .NET SMTP logic, same blocker class as Export_KPI_Performance).
+  Rendered as `EmptyOperator` with a todo. To complete: wire an
+  `EmailOperator` / `SmtpHook` + template once the original script is
+  translated and SMTP credentials are configured in Airflow connections.
+- **Miscellaneous child DAG** — SSIS `Get Misceallaneous data` calls the
+  `Miscellaneous.dtsx` package, for which no Airflow DAG
+  (`ssis_skeleton_miscellaneous`) exists in the repo. The trigger is wired
+  and parameterised via `params.miscellaneous_dag_id` so it can be
+  overridden per run or deployed later; today the task will fail until
+  that child DAG exists. Same applies (to a lesser degree) to
+  `DB_Maintenance` — `DB_Maintenance.py` exists but all its tasks are
+  `EmptyOperator`s.
+- Precedence rewritten for semantic correctness while keeping existing
+  `op_X` ids:
+  * `op_3 >> op_2`, `op_3 >> op_18`
+  * Full Reload: 6 triggers in parallel → `op_8` join gate
+  * HUB Invoice / Label / ServiceCon: fan out from `op_8`, join at `op_7`
+  * Dim tables: Fact_KPI + Dim_Label in parallel, join at `op_4`
+  * DB Maintenance then Send Notification: serial
+  The original skeleton wired the sequence-container "entry" EmptyOps
+  directly to each other (`op_4 >> op_0`, `op_7 >> op_4`, etc.) without
+  any internal wiring, so children never ran. Fixed.
+
 ### LoadPickupRequests_AU / NZ / SA
 - **NOT COMPLETED.** No `.dtsx`, no `airflowBQDags/dags/*.py` skeleton,
   no `airflowBQDags/outputs/<name>/package_metadata.json` — only a CSV
