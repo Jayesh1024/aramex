@@ -1,0 +1,76 @@
+{
+  "Package\\Check if Secondary": {
+    "type": "Microsoft.ExecuteSQLTask",
+    "downstream_dependencies": [
+      "Package\\Get Last CT Version"
+    ],
+    "upstream_dependencies": []
+  },
+  "Package\\Get Last CT Version": {
+    "type": "Microsoft.ExecuteSQLTask",
+    "downstream_dependencies": [
+      "Package\\Get Next CT Version"
+    ],
+    "upstream_dependencies": [
+      "Package\\Check if Secondary"
+    ]
+  },
+  "Package\\Get Next CT Version": {
+    "type": "Microsoft.ExecuteSQLTask",
+    "downstream_dependencies": [
+      "Package\\Pickup Requests"
+    ],
+    "upstream_dependencies": [
+      "Package\\Get Last CT Version"
+    ]
+  },
+  "Package\\Pickup Requests": {
+    "executables": {
+      "Package\\Pickup Requests\\Copy Country Staging to PickupRequest_Stg": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Pickup Requests\\Get PickupRequests (NZ)"
+        ]
+      },
+      "Package\\Pickup Requests\\Get PickupRequests (NZ)": {
+        "type": "Microsoft.Pipeline",
+        "downstream_dependencies": [
+          "Package\\Pickup Requests\\Copy Country Staging to PickupRequest_Stg",
+          "Package\\Pickup Requests\\Load Target Table"
+        ],
+        "upstream_dependencies": [
+          "Package\\Pickup Requests\\Truncate PickupRequests_Stg"
+        ]
+      },
+      "Package\\Pickup Requests\\Load Target Table": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [],
+        "upstream_dependencies": [
+          "Package\\Pickup Requests\\Get PickupRequests (NZ)"
+        ]
+      },
+      "Package\\Pickup Requests\\Truncate PickupRequests_Stg": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Pickup Requests\\Get PickupRequests (NZ)"
+        ],
+        "upstream_dependencies": []
+      }
+    },
+    "type": "STOCK:SEQUENCE",
+    "downstream_dependencies": [
+      "Package\\Set Next CT_Version"
+    ],
+    "upstream_dependencies": [
+      "Package\\Get Next CT Version"
+    ]
+  },
+  "Package\\Set Next CT_Version": {
+    "type": "Microsoft.ExecuteSQLTask",
+    "downstream_dependencies": [],
+    "upstream_dependencies": [
+      "Package\\Pickup Requests"
+    ]
+  }
+}

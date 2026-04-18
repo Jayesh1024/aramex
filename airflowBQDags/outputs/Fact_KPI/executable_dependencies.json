@@ -4,7 +4,7 @@
       "Package\\Final\\Load Fact KPI Labels": {
         "type": "Microsoft.ExecuteSQLTask",
         "downstream_dependencies": [
-          "Package\\Final\\Load Fact_KPI_Priority"
+          "Package\\Final\\Set LastDate"
         ],
         "upstream_dependencies": [],
         "referred_stored_proc": [
@@ -25,6 +25,15 @@
         "type": "Microsoft.ExecuteSQLTask",
         "downstream_dependencies": [
           "Package\\Final\\Load Fact KPI Performance"
+        ],
+        "upstream_dependencies": [
+          "Package\\Final\\Set LastDate"
+        ]
+      },
+      "Package\\Final\\Set LastDate": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Final\\Load Fact_KPI_Priority"
         ],
         "upstream_dependencies": [
           "Package\\Final\\Load Fact KPI Labels"

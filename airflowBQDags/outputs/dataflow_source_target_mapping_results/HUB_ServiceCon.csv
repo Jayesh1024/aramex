@@ -1,5 +1,0 @@
-package_name,dataflow_executable_ref_id,referred_server_name,referred_database_name,referred_schema_name,referred_table_name,destination_server_name,destination_database_name,destination_schema_name,destination_table_name
-HUB_ServiceCon,Package\Staging\Load fl_ConSrv_Stg,KRILLIN,FWFastlabel,dbo,fl_Con,CUBE,FastwayDW,Staging,SourceData_Err
-HUB_ServiceCon,Package\Staging\Load fl_ConSrv_Stg,KRILLIN,FWFastlabel,dbo,fl_Con,CUBE,FastwayDW,Staging,fl_ConSrv_Stg
-HUB_ServiceCon,Package\Staging\Load fl_ConSrv_Stg,KRILLIN,FWFastlabel,dbo,fl_ConSrv,CUBE,FastwayDW,Staging,SourceData_Err
-HUB_ServiceCon,Package\Staging\Load fl_ConSrv_Stg,KRILLIN,FWFastlabel,dbo,fl_ConSrv,CUBE,FastwayDW,Staging,fl_ConSrv_Stg

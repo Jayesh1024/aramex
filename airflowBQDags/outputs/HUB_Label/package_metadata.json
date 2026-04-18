@@ -1417,13 +1417,15 @@
                   "Package\\Staging\\Source4 (MyFastway) _MF\\Load fl_ConItem_Stg\\fl_ConItem (Fastway)": {
                     "component_type": "Microsoft.OLEDBSource",
                     "component_info": {
-                      "sql_command": "DECLARE @startDate datetime = ?;\nDECLARE @startDate2 datetime;\nDECLARE  @ConId bigint;\n\nSET @startDate2  = DATEADD(DAY, -60,GETDATE());\n\nSELECT TOP 1 @ConId = ConId\nFROM [FWFastlabel].dbo.fl_Con (NOLOCK)\nWHERE CreatedOn >= @StartDate2\nORDER BY CreatedOn\n\nSELECT\nci.[Label],\ncon.ConId,\nci.ConItemId,\nci.[LineNo],\ncon.CountryId,\ncon.CreatedOn,\ncon.CustomerId,\nci.FromRf,\nci.FromCf,\nci.ToRf,\nci.ToCf,\nci.FMSInvoiceNo,\nci.FMSInvoiceDate,\ncis.Reference,\ncis.Quantity,\ncis.ProductId,\ncis.WeightDead,\ncis.WeightCubic,\ncis.WeightPriced,\ncis.Width,\ncis.Length,\ncis.Height,\ncon.FromBusinessName,\ncon.FromContactName,\ncon.FromStreetAddress,\ncon.FromLocality,\ncon.FromStateOrProvince,\ncon.FromPostalCode,\ncon.FromCountry,\ncon.FromPhoneNumber,\ncon.FromEmail,\ncon.FromLat,\ncon.FromLng,\ncon.ToBusinessName,\ncon.ToContactName,\ncon.ToStreetAddress,\ncon.ToLocality,\ncon.ToStateOrProvince,\ncon.ToPostalCode,\ncon.ToCountry,\ncon.ToPhoneNumber,\ncon.ToEmail,\ncon.ToLat,\ncon.ToLng,\ncon.RealisedDate,\nci.BasePrice,\nci.ExcessPrice,\nci.PickUpPriceTotal,\nci.DeliveryPriceTotal,\nci.BasePriceComm,\nci.ExcessPriceComm,\nci.BasePriceDiscounted,\nci.ExcessPriceDiscounted,\nci.ItemPrice,\nci.ServicePrice,\nci.PLBSBatchId,\nci.PLBSInvoiceNo,\nci.PLBSInvoiceDate,\nci.PLBSPrice,\nci.PLBSTax,\nci.PLBSTotal,\nci.DLBSBatchId,\nci.DLBSInvoiceNo,\nci.DLBSInvoiceDate,\nci.DLBSPrice,\nci.DLBSTax,\nci.DLBSTotal,\nci.LineHaulPrice,\nci.LineHaulTax,\nci.LineHaulTotal,\nci.[Zone],\ncis.SatchelSize,\ncis.WeightPriceTypeId,\nci.SubDepot,\nci.ToRfSubDepotCode,\nci.BareProfileId,\ncon.UpdatedOn as ConUpdatedOn,\nci.UpdatedOn as ConItemUpdatedOn,\ncis.Price AS ItemSumPrice,\ncis.Tax AS ItemSumTax,\ncis.Total AS ItemSumTotal,\ncis.PackageTypeId AS ItemSumPackageTypeId,\nci.LabelExternal\n--cis.DescriptionOfGoods as ItemSumDescriptionOfGoods,\n--cis.DeclaredValue,\n--cis.HSCodeInternal,\n--cis.HSCodeExternal\nFROM [FWFastlabel].[dbo].[fl_Con] con with (NOLOCK) \nJOIN [FWFastlabel].[dbo].[fl_ConItemSum] cis with (NOLOCK) on cis.ConId = con.ConId\nJOIN [FWFastlabel].[dbo].[fl_ConItem] ci with (NOLOCK) on ci.ConId = cis.ConId and ci.[LineNo] = cis.[LineNo]\nWHERE con.ConId >= @ConId",
+                      "sql_command": "DECLARE @startDate datetime = ?;\nDECLARE @WindowDays int = ?;\nDECLARE @AlternateLargeWinDoW int  = ?;\n\nDECLARE @startDate2 datetime;\nDECLARE  @ConId bigint;\n\n--Get window of 60 days on @WindowDays (default Sunday) to process any late changes\nIF ( DATEPART(Dw,GETDATE()) = @AlternateLargeWinDoW ) \n    SET @startDate2  = DATEADD(DAY, -60,GETDATE());\nELSE\n--Otherwise default to @WindowDays (default 7)\n    SET @startDate2  = DATEADD(DAY, @WindowDays * -1,GETDATE());\n\nSELECT TOP 1 @ConId = ConId\nFROM [FWFastlabel].dbo.fl_Con (NOLOCK)\nWHERE CreatedOn >= @StartDate2\nORDER BY CreatedOn\n\nSELECT\nci.[Label],\ncon.ConId,\nci.ConItemId,\nci.[LineNo],\ncon.CountryId,\ncon.CreatedOn,\ncon.CustomerId,\nci.FromRf,\nci.FromCf,\nci.ToRf,\nci.ToCf,\nci.FMSInvoiceNo,\nci.FMSInvoiceDate,\ncis.Reference,\ncis.Quantity,\ncis.ProductId,\ncis.WeightDead,\ncis.WeightCubic,\ncis.WeightPriced,\ncis.Width,\ncis.Length,\ncis.Height,\ncon.FromBusinessName,\ncon.FromContactName,\ncon.FromStreetAddress,\ncon.FromLocality,\ncon.FromStateOrProvince,\ncon.FromPostalCode,\ncon.FromCountry,\ncon.FromPhoneNumber,\ncon.FromEmail,\ncon.FromLat,\ncon.FromLng,\ncon.ToBusinessName,\ncon.ToContactName,\ncon.ToStreetAddress,\ncon.ToLocality,\ncon.ToStateOrProvince,\ncon.ToPostalCode,\ncon.ToCountry,\ncon.ToPhoneNumber,\ncon.ToEmail,\ncon.ToLat,\ncon.ToLng,\nCOALESCE(ci.RealisedDate, con.RealisedDate) AS RealisedDate,\nci.BasePrice,\nci.ExcessPrice,\nci.PickUpPriceTotal,\nci.DeliveryPriceTotal,\nci.BasePriceComm,\nci.ExcessPriceComm,\nci.BasePriceDiscounted,\nci.ExcessPriceDiscounted,\nci.ItemPrice,\nci.ServicePrice,\nci.PLBSBatchId,\nci.PLBSInvoiceNo,\nci.PLBSInvoiceDate,\nci.PLBSPrice,\nci.PLBSTax,\nci.PLBSTotal,\nci.DLBSBatchId,\nci.DLBSInvoiceNo,\nci.DLBSInvoiceDate,\nci.DLBSPrice,\nci.DLBSTax,\nci.DLBSTotal,\nci.LineHaulPrice,\nci.LineHaulTax,\nci.LineHaulTotal,\nci.[Zone],\ncis.SatchelSize,\ncis.WeightPriceTypeId,\nci.SubDepot,\nci.ToRfSubDepotCode,\nci.BareProfileId,\ncon.UpdatedOn as ConUpdatedOn,\nci.UpdatedOn as ConItemUpdatedOn,\ncis.Price AS ItemSumPrice,\ncis.Tax AS ItemSumTax,\ncis.Total AS ItemSumTotal,\ncis.PackageTypeId AS ItemSumPackageTypeId,\nci.LabelExternal\n--cis.DescriptionOfGoods as ItemSumDescriptionOfGoods,\n--cis.DeclaredValue,\n--cis.HSCodeInternal,\n--cis.HSCodeExternal\nFROM [FWFastlabel].[dbo].[fl_Con] con with (NOLOCK) \nJOIN [FWFastlabel].[dbo].[fl_ConItemSum] cis with (NOLOCK) on cis.ConId = con.ConId\nJOIN [FWFastlabel].[dbo].[fl_ConItem] ci with (NOLOCK) on ci.ConId = cis.ConId and ci.[LineNo] = cis.[LineNo]\nWHERE con.ConId >= @ConId",
                       "connection_names": [
                         "Project.ConnectionManagers[KRILLIN_Fastway]"
                       ],
                       "inline_positional_params": true,
                       "inline_positional_params_mapping": {
-                        "param_1": "LastDate4"
+                        "param_1": "LastDate4",
+                        "param_2": "(unresolved:{21D4C15B-C3E6-4633-BF7A-382BFA55E873})",
+                        "param_3": "(unresolved:{91065BA7-B1A3-4B28-8D34-AD79B07FBDCB})"
                       },
                       "variables_used": {
                         "open_rowset_variable": null,
@@ -2028,6 +2030,14 @@
         }
       },
       "task_type": "STOCK:SEQUENCE"
+    },
+    "Package\\Truncate PickupRequest_stg": {
+      "task_metadata": {
+        "query": "TRUNCATE TABLE [Staging].[PickupRequest_Stg];\n",
+        "param_map": {},
+        "result_set": {}
+      },
+      "task_type": "Microsoft.ExecuteSQLTask"
     }
   }
 }
