@@ -56,12 +56,15 @@ I modelled every new DAG on the already-shipped, canonical-looking files:
 - **Naming** — SQL Server `schema.object` → BigQuery `schema_object`
   (preserving case). Routines use the same convention
   (e.g. `dv_Load_HUB_Address`, `Staging_Load_Label_Address_Stg`).
-- **Index maintenance** — BigQuery has no indexes, so
-  `Rebuild Indexes` / `Defragment` / `MaintainIndexes` SSIS tasks are rendered
-  as `EmptyOperator` placeholders with an explanatory comment, preserving the
-  original precedence graph but contributing no work. This matches the
-  existing behaviour in `Fact_Scan_KPI.py` (Defrag dropped) and is consistent
-  with the tracker note that `dbo_MaintainIndexes` is redundant per Sreekar.
+- **Index maintenance & DB maintenance — fully removed (per user direction).**
+  BigQuery has no indexes and no files to shrink, so every
+  `Rebuild Indexes` / `Defrag Indexes` / `MaintainIndexes` / `Release Space`
+  task has been deleted from the DAGs — not stubbed as an `EmptyOperator`.
+  Downstream precedence edges were rewired so the remaining tasks keep the
+  same ordering. The standalone `DB_Maintenance.py` DAG was deleted
+  entirely, and the `Database Maintenance` `TaskGroup` in `LoadControl.py`
+  (which triggered it) was dropped. See §7 below for the full list of
+  affected files.
 
 ## 3. Parameterisation strategy (per user instruction)
 
@@ -513,4 +516,191 @@ _(populated as each DAG is completed — see the tail of this document.)_
   `airflowBQDags/outputs/dataflow_source_target_mapping_results/`.
 - See §5 above; needs metadata regeneration before any code can be
   written.
+
+## 7. SQL Server DB-maintenance / index-maintenance cleanup
+
+Per user direction, BigQuery has no indexes and no shrink/release concept,
+so every SSIS maintenance task has been removed from the DAGs (not stubbed).
+Changes:
+
+| File | Change |
+|---|---|
+| `DB_Maintenance.py` | **Deleted** (whole DAG was `dbo_ReleaseSpace` + `dbo_MaintainIndexes`). |
+| `LoadControl.py` | Removed `tg_package_database_maintenance` TaskGroup, the child `TriggerDagRunOperator` for `ssis_skeleton_db_maintenance`, and the `db_maintenance_dag_id` param. Precedence now goes `tg_load_dim_tables >> tg_send_notification_email` directly. |
+| `HUB_Address.py` | Removed `op_4` (`package_final_load_hub_address_rebuild_indexes`). `tg_final` now has `op_1` / `op_3` as parallel roots, `op_3 >> op_2`. Dropped `EmptyOperator` import. |
+| `HUB_ServiceCon.py` | Removed `op_8` (`package_staging_rebuild_indexes_13`). Precedence: `op_10 >> op_6 >> op_9 >> op_7`. Dropped `EmptyOperator` import. |
+| `HUB_Label_MF_ONLY.py` | Removed `op_8` (`package_source4_..._rebuild_indexes_4`). Precedence: `op_9 >> op_7`. Dropped `EmptyOperator` import. |
+| `Fact_KPI.py` | Removed `op_5` (`package_staging_defrag_indexes`). Precedence: `op_8 >> op_7 >> op_6`. Dropped `EmptyOperator` import. |
+| `Fact_KPI_Dashboard.py` | Removed `op_18` (Staging 2 defrag). Precedence within Staging 2: `op_21 >> op_19 >> op_20`. `EmptyOperator` import kept — other sequence-gate EmptyOperators still exist. |
+| `Fact_KPI_Dashboard2.py` | Removed `op_11` (Staging 2 defrag). Precedence: `op_14 >> op_12 >> op_13`. Import kept for the same reason. |
+| `Interim_Fact_Scan_KPI.py` | Removed `op_4` (defrag). Precedence: `op_5 >> op_8 >> op_7 >> op_6`. Dropped `EmptyOperator` import. |
+| `Interim_LNK_Scan.py` | Removed three index tasks: `op_15` (Staging defrag), `op_1` (HUB_Location defrag), `op_4` (LNK_Scan defrag). Rewired `op_21 >> op_17 >> op_20` (was `... >> op_15`), `op_2 >> tg_lnk` (was `op_2 >> op_1 >> tg_lnk`), `op_6 >> op_7 >> op_9` (dropped `op_6 >> op_4`). Dropped `EmptyOperator` import. |
+| `HUB_Label_old.py` | Flagged as NOT COMPLETED but still had 8 stub index ops. Removed `op_1`, `op_21`, `op_26`, `op_31`, `op_36`, `op_41`, `op_46`, `op_51` and their leaf precedence edges. Skeleton otherwise untouched. |
+
+`Fact_Scan_KPI.py` is not in the table above — it was already `Done` and the
+defrag task was already dropped in that pass; only a stale comment remains.
+
+## 8. Redundant sequence-container "entry" EmptyOperator cleanup
+
+Per user direction, any `EmptyOperator(task_id="<group_id minus 'tg_'>")` that
+served as a bare sequence-container entry stub has been removed from the
+completed DAGs. These were SSIS `STOCK:SEQUENCE` carry-overs — in Airflow the
+surrounding `TaskGroup` already provides the same fan-in/fan-out semantics, so
+the inner stub is redundant and just clutters the Graph view / task list.
+
+In scope: DAGs already migrated in earlier passes. Out of scope (intentionally
+left alone) are the skeleton-only / blocker-flagged DAGs whose gates currently
+encode cross-group precedence edges that would need a separate restructuring
+pass: `HUB_Label_old.py` (NOT COMPLETED, §4 and §7), `HUB_Label.py` (WIP by
+Jayesh), `LoadGokuTables.py` and `Export_KPI_Performance.py` (both blocked, §4),
+and `DB_Copy_Table.py` (SKIP per Jayesh). Those remain untouched.
+
+| File | Removed ops | Rewiring |
+|---|---|---|
+| `LoadControl.py` | `op_8 package_load_hub_tables_full_reload`, `op_7 package_load_hub_tables`, `op_4 package_load_dim_tables`, `op_19 package_send_notification_email` | Full Reload → HUB group: replaced `[op_9..14] >> op_8 >> [op_15,16,17] >> op_7` with `tg_full_reload >> [op_15, op_16, op_17]`. Dim group: dropped `[op_5, op_6] >> op_4` (nothing consumed `op_4`; group-level `tg_load_dim_tables >> tg_send_notification_email` still covers downstream). Notification group: `op_20 >> op_21 >> op_19` → `op_20 >> op_21`. `op_21` (Send Email / `Microsoft.ScriptTask`) intentionally kept as `EmptyOperator` — it's the non-migratable SMTP task, not a group-id stub (task_id is `package_send_notification_email_send_email`, not `package_send_notification_email`). |
+| `Fact_KPI_Dashboard.py` | `op_4 package_staging`, `op_10 package_staging_initial`, `op_5 package_staging_3`, `op_0 package_load_interim_labels` | Initial: dropped `op_4 >> op_10 >> op_11` — `op_11` is now the sole task in `tg_initial`. Staging 3: `op_5 >> op_9 >> op_6 >> op_8 >> op_7` → `op_9 >> op_6 >> op_8 >> op_7`. Interim labels: `op_0 >> op_3 >> op_1 >> op_2` → `op_3 >> op_1 >> op_2`. Also dropped redundant `op_10 >> tg_stg1` / `op_10 >> tg_stg2` — the more specific `op_11 >> tg_stg1` / `op_11 >> tg_stg2` edges below already cover those. `EmptyOperator` import dropped. |
+| `Fact_KPI_Dashboard2.py` | `op_4 package_staging`, `op_0 package_load_interim_labels` | Staging: `op_4 >> op_5` dropped; `op_5 >> [tg_stg1, tg_stg2, tg_stg3]` retained. Interim labels: `op_0 >> op_3 >> op_1 >> op_2` → `op_3 >> op_1 >> op_2`. `EmptyOperator` import dropped. |
+
+Verification: `airflow dags list-import-errors` is empty; all three DAGs still
+parse (`airflow dags list` shows `ssis_skeleton_loadcontrol`,
+`ssis_skeleton_fact_kpi_dashboard`, `ssis_skeleton_fact_kpi_dashboard2`); and
+`airflow tasks list ssis_skeleton_loadcontrol` no longer contains any of the
+four removed gate task_ids — only `package_send_notification_email_send_email`
+remains as an `EmptyOperator`, which is the intentional ScriptTask blocker, not
+a group-id stub.
+
+## 9. HUB_Label completion (finish remaining EmptyOperator stubs)
+
+Jayesh had completed the Staging branches (Source1..Source8, Source10, Source11,
+Source13) and the Final\\Load HUB and Final\\Load SAT_Allocation containers.
+This pass fills in the still-stubbed tasks in `HUB_Label.py` — the "done" parts
+were not touched.
+
+What changed in `HUB_Label.py`:
+
+| Container | Old | New |
+|---|---|---|
+| Final\\Load SAT_Distribution — op_8 | `EmptyOperator` | `BigQueryInsertJobOperator` calling `dv_Load_SAT_Label_Distribution(PROCESS_ID, 'LabelMaster')` |
+| Final\\Load SAT_Distribution — op_9 | `EmptyOperator` | `BigQueryInsertJobOperator` calling `Staging_Set_LastValue('LabelMaster')` |
+| Final\\Load SAT_Label_Allocation\\Group 1 — op_12, op_13, op_14 | `EmptyOperator` | `dv_Load_SAT_Label_Allocation_{DL, EBAY, FLE}` (FLE also passes `'FastLabelEnterprise'`) |
+| Final\\Load SAT_Label_Allocation\\Group 1 — op_15, op_16, op_17 | `EmptyOperator` | `Staging_Set_LastValue('{DynamicLabel, EBAY, FastLabelEnterprise}')` |
+| Final\\Load SAT_Label_Allocation\\Group 2 — op_19, op_20, op_21 | `EmptyOperator` | `dv_Load_SAT_Label_Allocation_{IFS, MF}` + `dv_Load_SAT_Label_PickupRequests` (IFS/MF also pass their RecordSource string) |
+| Final\\Load SAT_Label_Allocation\\Group 2 — op_22, op_23 | `EmptyOperator` | `Staging_Set_LastValue('{MyFastway, HDManifestID}')` |
+| Final\\Load SAT_Label_Allocation\\Group 3 — op_25, op_26, op_27 | `EmptyOperator` | `dv_Load_SAT_Label_Allocation_{FL, RP, TMD}` (RP/TMD also pass their RecordSource) |
+| Final\\Load SAT_Label_Allocation\\Group 3 — op_28, op_29, op_30 | `EmptyOperator` | `Staging_Set_LastValue('{FastLabel, ReceiverPays, Temando}')` |
+| Package\\HUB_Address — op_31 | `EmptyOperator` | `TriggerDagRunOperator(trigger_dag_id='ssis_skeleton_hub_address', wait_for_completion=True)` |
+| Package\\LNK_Label_Product_ServiceItem — op_32 | `EmptyOperator` | `TriggerDagRunOperator(trigger_dag_id='ssis_skeleton_lnk_label_product_serviceitem', wait_for_completion=True)` |
+
+Removed gate stubs (per §8 policy):
+
+* `op_11 package_final_load_sat_label_allocation_group_1` (redundant with
+  `tg_package_final_load_sat_label_allocation_group_1`).
+* `op_18 package_final_load_sat_label_allocation_group_2` (redundant with
+  `tg_package_final_load_sat_label_allocation_group_2`).
+
+Rewiring: the original `op_15/16/17 >> op_11 >> op_19/20/21` and
+`op_22/23/op_21 >> op_18 >> op_25/26/27` fan-in/fan-out chains became explicit
+TaskGroup-level precedence:
+
+```
+tg_sat_label_allocation_group_1 >> tg_sat_label_allocation_group_2 >> tg_sat_label_allocation_group_3
+```
+
+Intentionally NOT touched in `HUB_Label.py`:
+
+* `op_33 package_staging` — part of the already-done fan-in/fan-out for the
+  Source* branches. Replacing it with pure TaskGroup-level deps would require
+  reshaping the already-completed Jayesh wiring. Left alone per
+  "complete only where it is left".
+
+SP signatures (all verified against `ProceduresBQ/BQ_GOLD_2/rendered/*.sql`):
+
+* `dv_Load_SAT_Label_Distribution(p_ProcessId INT64, p_RecordSource STRING)`
+* `dv_Load_SAT_Label_Allocation_DL(p_ProcessID INT64)` — no RecordSource
+* `dv_Load_SAT_Label_Allocation_EBAY(p_ProcessID INT64)` — no RecordSource
+* `dv_Load_SAT_Label_Allocation_FL(p_ProcessID INT64)` — no RecordSource
+* `dv_Load_SAT_Label_Allocation_FLE(ProcessID INT64, RecordSource STRING)`
+* `dv_Load_SAT_Label_Allocation_IFS(ProcessID INT64, RecordSource STRING)` — passed `'HDManifestID'`
+* `dv_Load_SAT_Label_Allocation_MF(p_ProcessID INT64, p_RecordSource STRING)` — signature kept but internal static used, still pass `'MyFastway'` for safety
+* `dv_Load_SAT_Label_Allocation_RP(p_ProcessID INT64, p_RecordSource STRING)` — ditto, pass `'ReceiverPays'`
+* `dv_Load_SAT_Label_Allocation_TMD(p_ProcessID INT64, p_RecordSource STRING)` — pass `'Temando'`
+* `dv_Load_SAT_Label_PickupRequests(p_ProcessID INT64)` — no RecordSource
+* `Staging_Set_LastValue(RecordSource STRING)` — called with a single-arg form as per HUB_Invoice precedent (§2)
+
+RecordSource → SSIS `$Package::RecordSourceN` mapping (from the package params
+that were already declared at the top of the file):
+
+| Constant | Value | SSIS dtsx key | Used by |
+|---|---|---|---|
+| `RECORD_SOURCE_1` | `LabelMaster` | Source1 | op_8, op_9 |
+| `RECORD_SOURCE_2` | `DynamicLabel` | Source2 | op_15 |
+| `RECORD_SOURCE_3` | `FastLabel` | Source3 | op_28 |
+| `RECORD_SOURCE_4` | `MyFastway` | Source4 | op_20, op_22 |
+| `RECORD_SOURCE_5` | `HDManifestID` | Source5 (HDManifest/IFS) | op_19, op_23 |
+| `RECORD_SOURCE_6` | `FastLabelEnterprise` | Source6 | op_14, op_17 |
+| `RECORD_SOURCE_7` | `Temando` | Source7 | op_27, op_30 |
+| `RECORD_SOURCE_8` | `ReceiverPays` | Source8 | op_26, op_29 |
+| `RECORD_SOURCE_10` | `EBAY` | Source10 | op_16 |
+
+Ambiguities surfaced in this pass:
+
+* The Jayesh staging blocks call SPs named `sp_load_Staging_<Table>_Stg` (e.g.
+  `sp_load_Staging_LabelMaster_Stg`), while the HUB_Invoice precedent uses
+  `Staging_load_<Table>_Stg`. Both forms appear in the codebase; the Jayesh
+  names were not touched (see "Do not touch what is done"). No action required
+  in this pass, but flagged for the validation sweep.
+* `op_5 package_final_load_sat_allocation_load_sat_label_allocation_stg` in
+  the "done" Jayesh section already has a `#TODO: Check if the name sp name is
+  correct` comment for `staging_Load_SAT_Label_Allocation_Stg`. Not touched.
+
+Verification:
+
+* `python3 -m py_compile airflowBQDags/dags/HUB_Label.py` — OK.
+* `airflow dags list-import-errors` — empty (no import failures).
+* `airflow tasks list ssis_skeleton_hub_label` — confirmed all 20 new tasks
+  are present (2 in `tg_sat_distribution`, 6 × 3 in
+  `tg_sat_label_allocation.tg_group_{1,2,3}`, plus `package_hub_address` and
+  `package_lnk_label_product_serviceitem`), and the removed `op_11` / `op_18`
+  gate task_ids are absent.
+
+## 10. TaskGroup-level dependency sweep (tg >> tg)
+
+Per the user's "for each DAG add the task group dependencies where it is not
+there" directive, every completed DAG with two or more sibling `TaskGroup`s
+now has at least one explicit `tg_* >> tg_*` edge at the DAG body level. The
+cross-group semantics were already correct via task-level edges (truncate →
+stg → final chains); this pass only makes the intent explicit in the Graph
+view and removes the "no visible tg>>tg" smell.
+
+DAGs updated in this pass (added `as tg_<name>` to existing `TaskGroup(...)`
+declarations and an explicit `tg_staging >> tg_final` / analogous edge at the
+bottom of the DAG body):
+
+| File | Added edges |
+|---|---|
+| `HUB_Invoice.py` | `tg_staging >> tg_final`; `tg_staging_undtckt >> tg_final_undtckt` |
+| `LNK_Label_Product_ServiceItem.py` | `tg_staging >> tg_final` |
+| `HUB_ScanStatus.py` | `tg_staging >> tg_final` |
+| `HUB_ServiceItem.py` | `tg_staging >> tg_final` |
+| `HUB_CF.py` | `tg_staging >> tg_final` |
+| `HUB_RF.py` | `tg_staging >> tg_final` |
+| `Fact_Scan_KPI.py` | `tg_staging >> tg_final` |
+| `RFBatchingInvoiceLog.py` | `tg_staging >> tg_final` |
+| `HUB_Label.py` | `tg_sat_label_allocation_group_1 >> tg_sat_label_allocation_group_2 >> tg_sat_label_allocation_group_3` (see §9) |
+
+DAGs that were already wired correctly (no change needed — edges found in
+source): `Fact_KPI.py`, `Fact_KPI_Dashboard.py`, `Fact_KPI_Dashboard2.py`,
+`LoadControl.py`, `Interim_Fact_Scan_KPI.py`, `Interim_LNK_Scan.py`,
+`HUB_Label_MF_ONLY.py`, `HUB_ServiceCon.py`, `HUB_Address.py`, `SAT_Overrides.py`
+(four TGs, two independent pipelines each pair-wired — `tg_cust_stg >> tg_cust_final`
+and `tg_zones_stg >> tg_zones_final`), `Load FWFastLabel_Invoices.py`,
+`LNK_RuralOnFowards.py`, `HUB_Label_2.py`, `HUB_ZenTickets.py`,
+`HUB_BLKContainerManifest.py`, `HUB_Product.py`, `HUB_Customer.py`.
+
+Out of scope (not completed DAGs): `HUB_Label_old.py` (skeleton, §4 / §7),
+`DB_Copy_Table.py` (SKIP, 1 TG only), `DLS_Manual_Pricing.py` (1 TG),
+`LoadGokuTables.py` and `Export_KPI_Performance.py` (blocker-flagged, §4).
+
+Verification: `airflow dags list-import-errors` is empty after the sweep;
+`python3 -m py_compile` passes for every file in the table above.
 

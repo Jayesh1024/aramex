@@ -8,7 +8,6 @@ Overall flow (from executable_dependencies.json):
     Staging 1      -> [MyFastway] Truncate -> Get LastDate -> Load fl_MF_Interim_Stg
                       (pipeline) -> Data Flow Task (load fl_ConItem_Stg)
     Staging 2      -> [TrackAndTrace] Truncate -> Get LastScanID -> Load TAT_Stg
-                      -> Defrag Indexes (BQ no-op)
   Staging 3        -> [ConItemSrv] Truncate -> Get Start Date -> Load fl_ConItemSrv_Stg
                       -> Load Product ServiceItem_Stg (SP)
   Load Interim Labels (final):
@@ -24,7 +23,6 @@ from __future__ import annotations
 from datetime import datetime
 
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.hooks.bigquery import BigQueryHook
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
@@ -101,11 +99,9 @@ with DAG(
 
     with TaskGroup(group_id="tg_package_staging") as tg_staging:
         # STOCK:SEQUENCE — ref_id: Package\Staging
-        op_4 = EmptyOperator(task_id="package_staging")
 
         with TaskGroup(group_id="tg_package_staging_initial") as tg_initial:
             # STOCK:SEQUENCE — ref_id: Package\Staging\Initial
-            op_10 = EmptyOperator(task_id="package_staging_initial")
 
             # ref_id: Package\Staging\Initial\Get Next ProcessID
             op_11 = PythonOperator(
@@ -116,7 +112,6 @@ with DAG(
                     "dataset_id": TARGET_DATASET_ID,
                 },
             )
-            op_10 >> op_11
 
         with TaskGroup(group_id="tg_package_staging_staging_1") as tg_stg1:
             # STOCK:SEQUENCE — ref_id: Package\Staging\Staging 1
@@ -212,18 +207,10 @@ with DAG(
                 },
             )
 
-            # ref_id: Package\Staging\Staging 2\Defrag TrackAndTrace_stg Indexes — BQ no-op
-            op_18 = EmptyOperator(task_id="package_staging_staging_2_defrag_trackandtrace_stg_indexes")
-
-            op_21 >> op_19 >> op_20 >> op_18
-
-        op_4 >> op_10
-        op_10 >> tg_stg1
-        op_10 >> tg_stg2
+            op_21 >> op_19 >> op_20
 
     with TaskGroup(group_id="tg_package_staging_3") as tg_stg3:
         # STOCK:SEQUENCE — ref_id: Package\Staging 3
-        op_5 = EmptyOperator(task_id="package_staging_3")
 
         # ref_id: Package\Staging 3\Truncate fl_conitmsrv_stg
         op_9 = BigQueryInsertJobOperator(
@@ -275,11 +262,10 @@ with DAG(
             },
         )
 
-        op_5 >> op_9 >> op_6 >> op_8 >> op_7
+        op_9 >> op_6 >> op_8 >> op_7
 
     with TaskGroup(group_id="tg_package_load_interim_labels") as tg_final:
         # STOCK:SEQUENCE — ref_id: Package\Load Interim Labels
-        op_0 = EmptyOperator(task_id="package_load_interim_labels")
 
         # ref_id: Package\Load Interim Labels\Load Interim_KPI_Labels_Src_Stg — Exec Mini_FastwayDW.[Staging].[Load_Fact_KPI_Interim_Src_Stg] ProcessId
         op_3 = BigQueryInsertJobOperator(
@@ -323,7 +309,7 @@ with DAG(
             },
         )
 
-        op_0 >> op_3 >> op_1 >> op_2
+        op_3 >> op_1 >> op_2
 
     op_11 >> tg_stg1
     op_11 >> tg_stg2

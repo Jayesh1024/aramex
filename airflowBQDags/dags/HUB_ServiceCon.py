@@ -7,10 +7,8 @@ Notes:
     [dv].[Load_LNK_Product_ServiceCon], and "Load SAT_ServiceCon" calls
     [dv].[Load_LSAT_Product_ServiceCon]. Task ids mirror the SSIS labels.
   * "Rebuild Indexes 13" and the "DISABLE index" tail of
-    "Truncate fl_ConSrv_Stg" call `[dbo].[MaintainIndexes]` which the team
-    confirmed is redundant (tracker comment for DB_Maintenance). Rebuild
-    Indexes rendered as EmptyOperator; the DISABLE line is dropped from
-    the truncate query (TRUNCATE preserved).
+    "Truncate fl_ConSrv_Stg" have been dropped entirely — BigQuery has no
+    indexes. The TRUNCATE is preserved.
   * SSIS $Package::RecordSource13 bound to `params.record_source`; default
     = "RecordSource" (see DAG_COMPLETION_NOTES.md for rationale).
 """
@@ -19,7 +17,6 @@ from __future__ import annotations
 from datetime import datetime
 
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
@@ -66,9 +63,6 @@ with DAG(
             },
         )
 
-        # ref_id: Package\Staging\Rebuild Indexes 13 — BQ has no indexes, no-op.
-        op_8 = EmptyOperator(task_id="package_staging_rebuild_indexes_13")
-
         # ref_id: Package\Staging\Truncate Product_ServiceCon_Stg
         op_9 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_product_servicecon_stg",
@@ -94,7 +88,7 @@ with DAG(
             },
         )
 
-        op_10 >> op_6 >> op_8 >> op_9 >> op_7
+        op_10 >> op_6 >> op_9 >> op_7
 
     with TaskGroup(group_id="tg_package_final") as tg_final:
         # STOCK:SEQUENCE — ref_id: Package\Final

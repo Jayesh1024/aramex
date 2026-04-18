@@ -26,9 +26,6 @@ with DAG(
         # STOCK:SEQUENCE — ref_id: Package\\Final (Load HUB)
         op_0 = EmptyOperator(task_id="package_final_load_hub")
 
-        # ref_id: Package\\Final (Load HUB)\\Defrag HUB_Label Indexes
-        op_1 = EmptyOperator(task_id="package_final_load_hub_defrag_hub_label_indexes")
-
         # ref_id: Package\\Final (Load HUB)\\Load HUB_Label
         op_2 = EmptyOperator(task_id="package_final_load_hub_load_hub_label")
 
@@ -91,9 +88,6 @@ with DAG(
             # ref_id: Package\\Staging\\Load SAT_Allocation_Stg\\Load SAT_Label_Allocation_Stg
             op_20 = EmptyOperator(task_id="package_staging_load_sat_allocation_stg_load_sat_label_allocation_stg")
 
-            # ref_id: Package\\Staging\\Load SAT_Allocation_Stg\\Rebuild Indexes
-            op_21 = EmptyOperator(task_id="package_staging_load_sat_allocation_stg_rebuild_indexes")
-
             # ref_id: Package\\Staging\\Load SAT_Allocation_Stg\\Truncate SAT_Label_Allocation_Stg
             op_22 = EmptyOperator(task_id="package_staging_load_sat_allocation_stg_truncate_sat_label_allocation_stg")
 
@@ -106,9 +100,6 @@ with DAG(
 
             # ref_id: Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg
             op_25 = EmptyOperator(task_id="package_staging_source1_labelmaster_load_labelmaster_stg")
-
-            # ref_id: Package\\Staging\\Source1 (LabelMaster)\\Rebuild Indexes 1
-            op_26 = EmptyOperator(task_id="package_staging_source1_labelmaster_rebuild_indexes_1")
 
             # ref_id: Package\\Staging\\Source1 (LabelMaster)\\Truncate LabelMaster_Stg
             op_27 = EmptyOperator(task_id="package_staging_source1_labelmaster_truncate_labelmaster_stg")
@@ -123,9 +114,6 @@ with DAG(
             # ref_id: Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Load API_RF_AdHocLabel_AllocationHistory_Stg
             op_30 = EmptyOperator(task_id="package_staging_source2_api_rf_adhoclabel_allocationhistory_stg_load_api_rf_adhoclabel_allocationhistory_stg")
 
-            # ref_id: Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Rebuild Indexes 2
-            op_31 = EmptyOperator(task_id="package_staging_source2_api_rf_adhoclabel_allocationhistory_stg_rebuild_indexes_2")
-
             # ref_id: Package\\Staging\\Source2 (API_RF_AdHocLabel_AllocationHistory_Stg)\\Truncate API_RF_AdHocLabel_AllocationHistory_Stg
             op_32 = EmptyOperator(task_id="package_staging_source2_api_rf_adhoclabel_allocationhistory_stg_truncate_api_rf_adhoclabel_allocationhistory_stg")
 
@@ -138,9 +126,6 @@ with DAG(
 
             # ref_id: Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Load tblFastLabel_Consignment_Stg
             op_35 = EmptyOperator(task_id="package_staging_source3_tblfastlabel_consignment_fl_load_tblfastlabel_consignment_stg")
-
-            # ref_id: Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Rebuild Indexes 3
-            op_36 = EmptyOperator(task_id="package_staging_source3_tblfastlabel_consignment_fl_rebuild_indexes_3")
 
             # ref_id: Package\\Staging\\Source3 (tblFastLabel_Consignment) _FL\\Truncate tblFastLabel_Consignment_Stg
             op_37 = EmptyOperator(task_id="package_staging_source3_tblfastlabel_consignment_fl_truncate_tblfastlabel_consignment_stg")
@@ -155,9 +140,6 @@ with DAG(
             # ref_id: Package\\Staging\\Source4 (fl_ConItem) _MF\\Load fl_ConItem_Stg
             op_40 = EmptyOperator(task_id="package_staging_source4_fl_conitem_mf_load_fl_conitem_stg")
 
-            # ref_id: Package\\Staging\\Source4 (fl_ConItem) _MF\\Rebuild Indexes 4
-            op_41 = EmptyOperator(task_id="package_staging_source4_fl_conitem_mf_rebuild_indexes_4")
-
             # ref_id: Package\\Staging\\Source4 (fl_ConItem) _MF\\Truncate fl_ConItem_Stg
             op_42 = EmptyOperator(task_id="package_staging_source4_fl_conitem_mf_truncate_fl_conitem_stg")
 
@@ -170,9 +152,6 @@ with DAG(
 
             # ref_id: Package\\Staging\\Source5 (HDManifests) _IFS\\Load HDManifests_Stg
             op_45 = EmptyOperator(task_id="package_staging_source5_hdmanifests_ifs_load_hdmanifests_stg")
-
-            # ref_id: Package\\Staging\\Source5 (HDManifests) _IFS\\Rebuild Indexes 5
-            op_46 = EmptyOperator(task_id="package_staging_source5_hdmanifests_ifs_rebuild_indexes_5")
 
             # ref_id: Package\\Staging\\Source5 (HDManifests) _IFS\\Truncate HDManifests_Stg
             op_47 = EmptyOperator(task_id="package_staging_source5_hdmanifests_ifs_truncate_hdmanifests_stg")
@@ -187,15 +166,11 @@ with DAG(
             # ref_id: Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Load ConsignmentItem_Stg
             op_50 = EmptyOperator(task_id="package_staging_source6_consignmentitem_fle_load_consignmentitem_stg")
 
-            # ref_id: Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Rebuild Indexes 6
-            op_51 = EmptyOperator(task_id="package_staging_source6_consignmentitem_fle_rebuild_indexes_6")
-
             # ref_id: Package\\Staging\\Source6 (ConsignmentItem) _FLE\\Truncate ConsignmentItem_Stg
             op_52 = EmptyOperator(task_id="package_staging_source6_consignmentitem_fle_truncate_consignmentitem_stg")
 
     # --- precedence (upstream >> downstream) ---
     op_18 >> op_0
-    op_2 >> op_1
     op_3 >> op_9
     op_10 >> op_14
     op_11 >> op_15
@@ -211,22 +186,15 @@ with DAG(
     op_38 >> op_19
     op_48 >> op_19
     op_22 >> op_20
-    op_20 >> op_21
     op_27 >> op_24
     op_24 >> op_25
-    op_25 >> op_26
     op_32 >> op_29
     op_29 >> op_30
-    op_30 >> op_31
     op_37 >> op_34
     op_34 >> op_35
-    op_35 >> op_36
     op_42 >> op_39
     op_39 >> op_40
-    op_40 >> op_41
     op_47 >> op_44
     op_44 >> op_45
-    op_45 >> op_46
     op_52 >> op_49
     op_49 >> op_50
-    op_50 >> op_51

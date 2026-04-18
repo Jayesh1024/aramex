@@ -16,7 +16,6 @@ from __future__ import annotations
 from datetime import datetime
 
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.hooks.bigquery import BigQueryHook
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
@@ -117,10 +116,7 @@ with DAG(
             },
         )
 
-        # ref_id: Package\Staging\Defrag Indexes — BQ no-op
-        op_4 = EmptyOperator(task_id="package_staging_defrag_indexes")
-
-        op_5 >> op_8 >> op_7 >> op_6 >> op_4
+        op_5 >> op_8 >> op_7 >> op_6
 
     with TaskGroup(group_id="tg_package_final") as tg_final:
         # STOCK:SEQUENCE — ref_id: Package\Final

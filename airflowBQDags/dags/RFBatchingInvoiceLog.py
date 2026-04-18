@@ -28,7 +28,7 @@ with DAG(
 ) as dag:
 
     # --- Package\Staging ---
-    with TaskGroup(group_id="tg_package_staging"):
+    with TaskGroup(group_id="tg_package_staging") as tg_staging:
         # STOCK:SEQUENCE — ref_id: Package\Staging
 
         # ref_id: Package\Staging\Truncate RFBatchingInvoiceLog_Stg — metadata.json: [Staging].[RFBatchingInvoiceLog_Stg], [dv].[LNK_RFBatchingInvoiceLog]
@@ -58,7 +58,7 @@ with DAG(
 
 
     # --- Package\Final ---
-    with TaskGroup(group_id="tg_package_final"):
+    with TaskGroup(group_id="tg_package_final") as tg_final:
         # STOCK:SEQUENCE — ref_id: Package\Final
 
         # ref_id: Package\Final\Load  LNK_RFBatchingInvoiceLog — destination dv.LNK_RFBatchingInvoiceLog (BQ: SP replaces SSIS pipeline)
@@ -74,3 +74,6 @@ with DAG(
 
     # --- Precedence ---
     op_4 >> op_3 >> op_1
+
+    # TaskGroup-level precedence
+    tg_staging >> tg_final

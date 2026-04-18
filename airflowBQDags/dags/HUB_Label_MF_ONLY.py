@@ -13,15 +13,14 @@ the two downstream dv.* loads, and finally calls `Staging_Set_LastValue`
 bound to RecordSource4.
 
 `Rebuild Indexes 4` and the inline `DISABLE` tail of `Truncate fl_ConItem_Stg`
-both call [dbo].[MaintainIndexes] — treated as a BQ no-op (see
-DAG_COMPLETION_NOTES.md).
+both called [dbo].[MaintainIndexes] — dropped entirely, BigQuery has no
+indexes.
 """
 from __future__ import annotations
 
 from datetime import datetime
 
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
@@ -81,10 +80,7 @@ with DAG(
             },
         )
 
-        # ref_id: Package\Source4 (MyFastway) _MF\Rebuild Indexes 4 — BQ no-op.
-        op_8 = EmptyOperator(task_id="package_source4_myfastway_mf_rebuild_indexes_4")
-
-        op_9 >> op_7 >> op_8
+        op_9 >> op_7
 
     with TaskGroup(group_id="tg_package_sequence_container") as tg_sequence:
         # STOCK:SEQUENCE — ref_id: Package\Sequence Container

@@ -1,15 +1,20 @@
 """
 DAG for SSIS package: LoadControl (GCP / BigQuery).
 
-LoadControl is the top-level orchestrator; every other HUB / Dim / Maintenance
-SSIS package runs as an `Microsoft.ExecutePackageTask` under this one. In
-Airflow we implement those with `TriggerDagRunOperator`, each targeting the
+LoadControl is the top-level orchestrator; every other HUB / Dim SSIS
+package runs as an `Microsoft.ExecutePackageTask` under this one. In Airflow
+we implement those with `TriggerDagRunOperator`, each targeting the
 corresponding `ssis_skeleton_*` child DAG. The two inline `Microsoft.ExecuteSQLTask`
 steps (Get Next ProcessID, Reserve ProcessID) become a PythonOperator + a
 BigQueryInsertJobOperator calling `Staging_SaveLog`. The final
 `Microsoft.ScriptTask` (Send Email) has no BigQuery/Airflow equivalent and is
 left as an `EmptyOperator` placeholder — same blocker as
 `Export_KPI_Performance` (see DAG_COMPLETION_NOTES.md).
+
+The SSIS `Database Maintenance` sequence container (Rebuild/Defrag indexes,
+Release Space) has been dropped entirely — BigQuery is a columnar, storage-
+decoupled engine with no indexes to maintain and no files to shrink, so those
+tasks have no equivalent and there is no child DAG to trigger for them.
 
 GCP naming: SSIS schemas dv, dbo, Staging map to BigQuery identifiers by
 replacing the dot (e.g. [Staging].[LoadLog] → `Staging_LoadLog`,
@@ -53,7 +58,6 @@ with DAG(
     params={
         "disable_lnk_load": False,
         "miscellaneous_dag_id": "ssis_skeleton_miscellaneous",
-        "db_maintenance_dag_id": "ssis_skeleton_db_maintenance",
         "fact_kpi_dag_id": "ssis_skeleton_fact_kpi",
         "hub_cf_dag_id": "ssis_skeleton_hub_cf",
         "hub_customer_dag_id": "ssis_skeleton_hub_customer",
@@ -174,10 +178,6 @@ with DAG(
                 conf={"process_id": _GET_PROCESSID_XCOM},
             )
 
-            op_8 = EmptyOperator(task_id="package_load_hub_tables_full_reload")
-
-            [op_9, op_10, op_11, op_12, op_13, op_14] >> op_8
-
         op_15 = TriggerDagRunOperator(
             task_id="package_load_hub_tables_hub_invoice",
             trigger_dag_id="{{ params.hub_invoice_dag_id }}",
@@ -205,9 +205,7 @@ with DAG(
             conf={"process_id": _GET_PROCESSID_XCOM},
         )
 
-        op_7 = EmptyOperator(task_id="package_load_hub_tables")
-
-        op_8 >> [op_15, op_16, op_17] >> op_7
+        tg_full_reload >> [op_15, op_16, op_17]
 
     with TaskGroup(group_id="tg_package_load_dim_tables") as tg_load_dim_tables:
         op_5 = TriggerDagRunOperator(
@@ -233,26 +231,6 @@ with DAG(
             },
         )
 
-        op_4 = EmptyOperator(task_id="package_load_dim_tables")
-
-        [op_5, op_6] >> op_4
-
-    with TaskGroup(
-        group_id="tg_package_database_maintenance"
-    ) as tg_database_maintenance:
-        op_1 = TriggerDagRunOperator(
-            task_id="package_database_maintenance_db_maintenance",
-            trigger_dag_id="{{ params.db_maintenance_dag_id }}",
-            wait_for_completion=True,
-            poke_interval=30,
-            reset_dag_run=True,
-            conf={"process_id": _GET_PROCESSID_XCOM},
-        )
-
-        op_0 = EmptyOperator(task_id="package_database_maintenance")
-
-        op_1 >> op_0
-
     with TaskGroup(
         group_id="tg_package_send_notification_email"
     ) as tg_send_notification_email:
@@ -272,13 +250,10 @@ with DAG(
 
         op_21 = EmptyOperator(task_id="package_send_notification_email_send_email")
 
-        op_19 = EmptyOperator(task_id="package_send_notification_email")
-
-        op_20 >> op_21 >> op_19
+        op_20 >> op_21
 
     op_3 >> op_2
     op_3 >> op_18
     op_18 >> tg_load_hub_tables
     tg_load_hub_tables >> tg_load_dim_tables
-    tg_load_dim_tables >> tg_database_maintenance
-    tg_database_maintenance >> tg_send_notification_email
+    tg_load_dim_tables >> tg_send_notification_email

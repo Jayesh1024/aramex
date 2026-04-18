@@ -2,9 +2,10 @@
 Completed DAG for SSIS package: Fact_KPI
 Migration: SSIS -> BigQuery
 
-Staging flow: Truncate -> Load KPI_Labels_Src_Stg -> Load Fact_KPI_Daily_Stg
-              -> Defrag Indexes (BQ no-op).
+Staging flow: Truncate -> Load KPI_Labels_Src_Stg -> Load Fact_KPI_Daily_Stg.
 Final flow  : Load Fact KPI Labels -> Load Fact_KPI_Priority -> Load Fact KPI Performance.
+
+The SSIS "Defrag Indexes" task has been dropped — BigQuery has no indexes.
 
 SPs resolved against `ProceduresBQ/sp_json.json` and `SP.json`:
   * Staging_Load_Fact_KPI_Src_Stg(p_ProcessID INT64, p_StartDateOverRide STRING, p_EndDateOverRide STRING)
@@ -23,7 +24,6 @@ from __future__ import annotations
 from datetime import datetime
 
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
@@ -94,10 +94,7 @@ with DAG(
             },
         )
 
-        # ref_id: Package\Staging\Defrag Indexes — BQ no-op
-        op_5 = EmptyOperator(task_id="package_staging_defrag_indexes")
-
-        op_8 >> op_7 >> op_6 >> op_5
+        op_8 >> op_7 >> op_6
 
     with TaskGroup(group_id="tg_package_final") as tg_final:
         # STOCK:SEQUENCE — ref_id: Package\Final

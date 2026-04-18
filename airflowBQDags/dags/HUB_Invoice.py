@@ -43,7 +43,7 @@ with DAG(
 ) as dag:
 
     # --- control flow (nested TaskGroup per sequence container) ---
-    with TaskGroup(group_id="tg_package_final"):
+    with TaskGroup(group_id="tg_package_final") as tg_final:
         # STOCK:SEQUENCE — ref_id: Package\\Final (no package_final empty; staging loads >> first task)
 
         # ref_id: Package\\Final\\Load HUB_Invoice — SSIS: Exec [dv].[Load_HUB_Invoice] ProcessId, RecordSource
@@ -147,7 +147,7 @@ with DAG(
             gcp_conn_id="google_cloud_default",
         )
 
-    with TaskGroup(group_id="tg_package_final_undtcktinvoice"):
+    with TaskGroup(group_id="tg_package_final_undtcktinvoice") as tg_final_undtckt:
         # STOCK:SEQUENCE — ref_id: Package\\Final UndTcktInvoice (no package_final_undtcktinvoice empty; staging load >> first task)
 
         # ref_id: Package\\Final UndTcktInvoice\\Load UndTckt Invoice — SSIS: Exec [dbo].[Load_UndTckt_Invoice] ProcessId
@@ -178,7 +178,7 @@ with DAG(
             gcp_conn_id="google_cloud_default",
         )
 
-    with TaskGroup(group_id="tg_package_staging"):
+    with TaskGroup(group_id="tg_package_staging") as tg_staging:
         # STOCK:SEQUENCE — ref_id: Package\\Staging (no package_staging empty; parallel loads >> package_final_load_hub_invoice)
 
         # ref_id: Package\\Staging\\Truncate Staging tables
@@ -258,7 +258,7 @@ with DAG(
         )
 
 
-    with TaskGroup(group_id="tg_package_staging_undtcktinvoice"):
+    with TaskGroup(group_id="tg_package_staging_undtcktinvoice") as tg_staging_undtckt:
         # STOCK:SEQUENCE — ref_id: Package\\Staging UndTcktInvoice (no package_staging_undtcktinvoice empty)
 
         # ref_id: Package\\Staging UndTcktInvoice\\Truncate Staging tables — SSIS: TRUNCATE [Staging].[FMS_UndTcktInvoice_Stg]
@@ -318,3 +318,8 @@ with DAG(
     op_15 >> op_14
     op_14 >> op_13
     op_13 >> op_2
+
+    # TaskGroup-level precedence (cross-group edges are already encoded above
+    # via task-level wiring; this makes the overall flow explicit in the DAG graph).
+    tg_staging >> tg_final
+    tg_staging_undtckt >> tg_final_undtckt

@@ -1,7 +1,25 @@
 """
-Skeleton DAG for SSIS package: HUB_Label
-Generated from executable_dependencies.json — EmptyOperator only, no business logic.
-Sequence containers (STOCK:SEQUENCE) are wrapped in TaskGroup.
+DAG for SSIS package: HUB_Label.
+
+Migrated from the original SSIS .dtsx to BigQuery. Earlier work (by Jayesh)
+completed the Staging\\Source1..Source8, Source10, Source11, Source13 branches
+and the Final\\Load HUB and Final\\Load SAT_Allocation containers. This pass
+finishes the remaining `EmptyOperator` stubs:
+
+* Final\\Load SAT_Distribution — `dv_Load_SAT_Label_Distribution` + `Staging_Set_LastValue`.
+* Final\\Load SAT_Label_Allocation\\Group 1/2/3 — 3 × (Loads + Set LastDate),
+  with the three groups chained via TaskGroup-level precedence
+  (`tg_group_1 >> tg_group_2 >> tg_group_3`) in place of the removed
+  sequence-container `STOCK:SEQUENCE` EmptyOperator gates (op_11, op_18).
+* `Microsoft.ExecutePackageTask` calls to `HUB_Address.dtsx` and
+  `LNK_Label_Product_ServiceItem.dtsx` become `TriggerDagRunOperator` targeting
+  the corresponding `ssis_skeleton_*` child DAGs with
+  `wait_for_completion=True`.
+
+`op_33` (package_staging gate) was left in place — it is part of the already
+completed wiring (fan-in from every Source* branch, fan-out to HUB_Label /
+SAT_Allocation / HUB_Address / LNK_Label_Product_ServiceItem) and replacing it
+with pure TaskGroup-level deps would require restructuring the done logic.
 """
 from __future__ import annotations
 
@@ -9,11 +27,11 @@ from datetime import datetime
 
 from airflow import DAG
 from airflow.operators.empty import EmptyOperator
-from airflow.utils.task_group import TaskGroup
-from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
-from airflow.providers.google.cloud.hooks.bigquery import BigQueryHook
-from utils.getValue import get_last_value
 from airflow.operators.python import PythonOperator
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
+from airflow.utils.task_group import TaskGroup
+from utils.getValue import get_last_value
 
 PACKAGE_NAME = "HUB_Label"
 PROCESS_ID = -207
@@ -89,84 +107,312 @@ with DAG(
 
         
 
-    with TaskGroup(group_id="tg_package_final_load_sat_distribution"):
-        # STOCK:SEQUENCE — ref_id: Package\\Final (Load SAT_Distribution)
-        # op_7 = EmptyOperator(task_id="package_final_load_sat_distribution")
+    with TaskGroup(group_id="tg_package_final_load_sat_distribution") as tg_sat_distribution:
 
         # ref_id: Package\\Final (Load SAT_Distribution)\\Load SAT_Label_Distribution
-        op_8 = EmptyOperator(task_id="package_final_load_sat_distribution_load_sat_label_distribution")
+        # SSIS: Exec [dv].[Load_SAT_Label_Distribution] ProcessID, 'LabelMaster'
+        op_8 = BigQueryInsertJobOperator(
+            task_id="package_final_load_sat_distribution_load_sat_label_distribution",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Distribution`"
+                        f"({PROCESS_ID}, '{RECORD_SOURCE_1}');"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
         # ref_id: Package\\Final (Load SAT_Distribution)\\Set LastDate (LabelMaster)
-        op_9 = EmptyOperator(task_id="package_final_load_sat_distribution_set_lastdate_labelmaster")
+        # SSIS: Exec [Staging].[Set_LastValue] 'LabelMaster'
+        op_9 = BigQueryInsertJobOperator(
+            task_id="package_final_load_sat_distribution_set_lastdate_labelmaster",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
+                        f"('{RECORD_SOURCE_1}');"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-    with TaskGroup(group_id="tg_package_final_load_sat_label_allocation"):
+    with TaskGroup(group_id="tg_package_final_load_sat_label_allocation") as tg_sat_label_allocation:
 
-        with TaskGroup(group_id="tg_package_final_load_sat_label_allocation_group_1"):
-            # STOCK:SEQUENCE — ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 1
-            op_11 = EmptyOperator(task_id="package_final_load_sat_label_allocation_group_1")
+        with TaskGroup(group_id="tg_package_final_load_sat_label_allocation_group_1") as tg_sat_label_allocation_group_1:
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 1\\Load SAT_Label_Allocation_DL
-            op_12 = EmptyOperator(task_id="package_final_load_sat_label_allocation_group_1_load_sat_label_allocation_dl")
+            # SSIS: Exec [dv].[Load_SAT_Label_Allocation_DL] ProcessID
+            op_12 = BigQueryInsertJobOperator(
+                task_id="package_final_load_sat_label_allocation_group_1_load_sat_label_allocation_dl",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_DL`"
+                            f"({PROCESS_ID});"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 1\\Load SAT_Label_Allocation_EBAY
-            op_13 = EmptyOperator(task_id="package_final_load_sat_label_allocation_group_1_load_sat_label_allocation_ebay")
+            # SSIS: Exec [dv].[Load_SAT_Label_Allocation_EBAY] ProcessID
+            op_13 = BigQueryInsertJobOperator(
+                task_id="package_final_load_sat_label_allocation_group_1_load_sat_label_allocation_ebay",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_EBAY`"
+                            f"({PROCESS_ID});"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 1\\Load SAT_Label_Allocation_FLE
-            op_14 = EmptyOperator(task_id="package_final_load_sat_label_allocation_group_1_load_sat_label_allocation_fle")
+            # SSIS: Exec [dv].[Load_SAT_Label_Allocation_FLE] ProcessID, 'FastLabelEnterprise'
+            op_14 = BigQueryInsertJobOperator(
+                task_id="package_final_load_sat_label_allocation_group_1_load_sat_label_allocation_fle",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_FLE`"
+                            f"({PROCESS_ID}, '{RECORD_SOURCE_6}');"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 1\\Set LastDate (DynamicLabel)
-            op_15 = EmptyOperator(task_id="package_final_load_sat_label_allocation_group_1_set_lastdate_dynamiclabel")
+            op_15 = BigQueryInsertJobOperator(
+                task_id="package_final_load_sat_label_allocation_group_1_set_lastdate_dynamiclabel",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
+                            f"('{RECORD_SOURCE_2}');"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 1\\Set LastDate (EBAY)
-            op_16 = EmptyOperator(task_id="package_final_load_sat_label_allocation_group_1_set_lastdate_ebay")
+            op_16 = BigQueryInsertJobOperator(
+                task_id="package_final_load_sat_label_allocation_group_1_set_lastdate_ebay",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
+                            f"('{RECORD_SOURCE_10}');"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 1\\Set LastDate (FastLabelEnterprise)
-            op_17 = EmptyOperator(task_id="package_final_load_sat_label_allocation_group_1_set_lastdate_fastlabelenterprise")
+            op_17 = BigQueryInsertJobOperator(
+                task_id="package_final_load_sat_label_allocation_group_1_set_lastdate_fastlabelenterprise",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
+                            f"('{RECORD_SOURCE_6}');"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
-        with TaskGroup(group_id="tg_package_final_load_sat_label_allocation_group_2"):
-            # STOCK:SEQUENCE — ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 2
-            op_18 = EmptyOperator(task_id="package_final_load_sat_label_allocation_group_2")
+        with TaskGroup(group_id="tg_package_final_load_sat_label_allocation_group_2") as tg_sat_label_allocation_group_2:
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 2\\Load SAT_Label_Allocation_IFS
-            op_19 = EmptyOperator(task_id="package_final_load_sat_label_allocation_group_2_load_sat_label_allocation_ifs")
+            # SSIS: Exec [dv].[Load_SAT_Label_Allocation_IFS] ProcessID, 'HDManifestID'
+            op_19 = BigQueryInsertJobOperator(
+                task_id="package_final_load_sat_label_allocation_group_2_load_sat_label_allocation_ifs",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_IFS`"
+                            f"({PROCESS_ID}, '{RECORD_SOURCE_5}');"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 2\\Load SAT_Label_Allocation_MF
-            op_20 = EmptyOperator(task_id="package_final_load_sat_label_allocation_group_2_load_sat_label_allocation_mf")
+            # SSIS: Exec [dv].[Load_SAT_Label_Allocation_MF] ProcessID, 'MyFastway'
+            op_20 = BigQueryInsertJobOperator(
+                task_id="package_final_load_sat_label_allocation_group_2_load_sat_label_allocation_mf",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_MF`"
+                            f"({PROCESS_ID}, '{RECORD_SOURCE_4}');"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 2\\Load SAT_Label_Pickup_Requests
-            op_21 = EmptyOperator(task_id="package_final_load_sat_label_allocation_group_2_load_sat_label_pickup_requests")
+            # SSIS: Exec [dv].[Load_SAT_Label_PickupRequests] ProcessID
+            op_21 = BigQueryInsertJobOperator(
+                task_id="package_final_load_sat_label_allocation_group_2_load_sat_label_pickup_requests",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_PickupRequests`"
+                            f"({PROCESS_ID});"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 2\\Set LastDate (MyFastway)
-            op_22 = EmptyOperator(task_id="package_final_load_sat_label_allocation_group_2_set_lastdate_myfastway")
+            op_22 = BigQueryInsertJobOperator(
+                task_id="package_final_load_sat_label_allocation_group_2_set_lastdate_myfastway",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
+                            f"('{RECORD_SOURCE_4}');"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 2\\Set LastID (IFS)
-            op_23 = EmptyOperator(task_id="package_final_load_sat_label_allocation_group_2_set_lastid_ifs")
+            op_23 = BigQueryInsertJobOperator(
+                task_id="package_final_load_sat_label_allocation_group_2_set_lastid_ifs",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
+                            f"('{RECORD_SOURCE_5}');"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
-        with TaskGroup(group_id="tg_package_final_load_sat_label_allocation_group_3"):
+        with TaskGroup(group_id="tg_package_final_load_sat_label_allocation_group_3") as tg_sat_label_allocation_group_3:
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Load SAT_Label_Allocation_FL
-            op_25 = EmptyOperator(task_id="package_final_load_sat_label_allocation_group_3_load_sat_label_allocation_fl")
+            # SSIS: Exec [dv].[Load_SAT_Label_Allocation_FL] ProcessID
+            op_25 = BigQueryInsertJobOperator(
+                task_id="package_final_load_sat_label_allocation_group_3_load_sat_label_allocation_fl",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_FL`"
+                            f"({PROCESS_ID});"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Load SAT_Label_Allocation_RP
-            op_26 = EmptyOperator(task_id="package_final_load_sat_label_allocation_group_3_load_sat_label_allocation_rp")
+            # SSIS: Exec [dv].[Load_SAT_Label_Allocation_RP] ProcessID, 'ReceiverPays'
+            op_26 = BigQueryInsertJobOperator(
+                task_id="package_final_load_sat_label_allocation_group_3_load_sat_label_allocation_rp",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_RP`"
+                            f"({PROCESS_ID}, '{RECORD_SOURCE_8}');"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Load SAT_Label_Allocation_TMD
-            op_27 = EmptyOperator(task_id="package_final_load_sat_label_allocation_group_3_load_sat_label_allocation_tmd")
+            # SSIS: Exec [dv].[Load_SAT_Label_Allocation_TMD] ProcessID, 'Temando'
+            op_27 = BigQueryInsertJobOperator(
+                task_id="package_final_load_sat_label_allocation_group_3_load_sat_label_allocation_tmd",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_TMD`"
+                            f"({PROCESS_ID}, '{RECORD_SOURCE_7}');"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Set LastDate (FastLabel)
-            op_28 = EmptyOperator(task_id="package_final_load_sat_label_allocation_group_3_set_lastdate_fastlabel")
+            op_28 = BigQueryInsertJobOperator(
+                task_id="package_final_load_sat_label_allocation_group_3_set_lastdate_fastlabel",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
+                            f"('{RECORD_SOURCE_3}');"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Set LastDate (ReceiverPays)
-            op_29 = EmptyOperator(task_id="package_final_load_sat_label_allocation_group_3_set_lastdate_receiverpays")
+            op_29 = BigQueryInsertJobOperator(
+                task_id="package_final_load_sat_label_allocation_group_3_set_lastdate_receiverpays",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
+                            f"('{RECORD_SOURCE_8}');"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Set LastDate (Temando)
-            op_30 = EmptyOperator(task_id="package_final_load_sat_label_allocation_group_3_set_lastdate_temando")
+            op_30 = BigQueryInsertJobOperator(
+                task_id="package_final_load_sat_label_allocation_group_3_set_lastdate_temando",
+                configuration={
+                    "query": {
+                        "query": (
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
+                            f"('{RECORD_SOURCE_7}');"
+                        ),
+                        "useLegacySql": False,
+                    }
+                },
+            )
 
-    # ref_id: Package\\HUB_Address
-    op_31 = EmptyOperator(task_id="package_hub_address")
+    # ref_id: Package\\HUB_Address — SSIS Microsoft.ExecutePackageTask (HUB_Address.dtsx)
+    op_31 = TriggerDagRunOperator(
+        task_id="package_hub_address",
+        trigger_dag_id="ssis_skeleton_hub_address",
+        wait_for_completion=True,
+        poke_interval=30,
+        reset_dag_run=True,
+        conf={"process_id": PROCESS_ID},
+    )
 
-    # ref_id: Package\\LNK_Label_Product_ServiceItem
-    op_32 = EmptyOperator(task_id="package_lnk_label_product_serviceitem")
+    # ref_id: Package\\LNK_Label_Product_ServiceItem — SSIS Microsoft.ExecutePackageTask (LNK_Label_Product_ServiceItem.dtsx)
+    op_32 = TriggerDagRunOperator(
+        task_id="package_lnk_label_product_serviceitem",
+        trigger_dag_id="ssis_skeleton_lnk_label_product_serviceitem",
+        wait_for_completion=True,
+        poke_interval=30,
+        reset_dag_run=True,
+        conf={"process_id": PROCESS_ID},
+    )
 
     with TaskGroup(group_id="tg_package_staging"):
         # STOCK:SEQUENCE — ref_id: Package\\Staging (join after each source branch completes)
@@ -647,23 +893,17 @@ with DAG(
     op_12 >> op_15
     op_13 >> op_16
     op_14 >> op_17
-    op_15 >> op_11
-    op_16 >> op_11
-    op_17 >> op_11
-    op_11 >> op_19
-    op_11 >> op_20
-    op_11 >> op_21
-    op_18 >> op_25
-    op_18 >> op_26
-    op_18 >> op_27
     op_20 >> op_22
-    op_22 >> op_18
-    op_23 >> op_18
-    op_21 >> op_18
     op_19 >> op_23
     op_25 >> op_28
     op_26 >> op_29
     op_27 >> op_30
+
+    # TaskGroup-level precedence (was routed through removed `op_11` / `op_18`
+    # STOCK:SEQUENCE gates). Chaining the three Allocation subgroups preserves
+    # the original SSIS ordering: Group 1 (DL, EBAY, FLE) -> Group 2 (IFS, MF,
+    # Pickup Requests) -> Group 3 (FL, RP, TMD).
+    tg_sat_label_allocation_group_1 >> tg_sat_label_allocation_group_2 >> tg_sat_label_allocation_group_3
     op_38 >> op_35
     op_35 >> op_36
     op_43 >> op_40

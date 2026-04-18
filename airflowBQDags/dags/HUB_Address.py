@@ -7,20 +7,15 @@ Tables use TARGET_DATASET_ID (Aramex_oceania). Stored procedures live under
 SP_DATASET_ID (Aramex_oceania_SP) and follow schema_proc naming
 (dv_Load_HUB_Address, Staging_Load_Label_Address_Stg, ...).
 
-Notes:
-  * SSIS "Rebuild Indexes" ALTERs IX_AddressHSK on Staging.Label_Address_Stg.
-    BigQuery has no indexes, so this is rendered as a no-op EmptyOperator that
-    preserves the original precedence but contributes no work. See
-    DAG_COMPLETION_NOTES.md §2.
-  * sp_config.json lists dv_Load_HUB_Address as taking a single p_ProcessID
-    argument (no RecordSource), matching the .dtsx param_map.
+Note: sp_config.json lists dv_Load_HUB_Address as taking a single p_ProcessID
+argument (no RecordSource), matching the .dtsx param_map. The SSIS
+"Rebuild Indexes" task has been dropped — BigQuery has no indexes.
 """
 from __future__ import annotations
 
 from datetime import datetime
 
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
@@ -73,11 +68,6 @@ with DAG(
     with TaskGroup(group_id="tg_package_final_load_hub_address") as tg_final:
         # STOCK:SEQUENCE — ref_id: Package\Final (Load HUB_Address)
 
-        # ref_id: Package\Final (Load HUB_Address)\Rebuild Indexes
-        op_4 = EmptyOperator(
-            task_id="package_final_load_hub_address_rebuild_indexes",
-        )
-
         # ref_id: Package\Final (Load HUB_Address)\Load HUB_Address
         # SSIS: Exec [dv].[Load_HUB_Address] ProcessId
         op_1 = BigQueryInsertJobOperator(
@@ -123,7 +113,6 @@ with DAG(
             },
         )
 
-        op_4 >> [op_1, op_3]
         op_3 >> op_2
 
     tg_staging >> tg_final

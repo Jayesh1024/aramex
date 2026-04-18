@@ -15,7 +15,6 @@ from __future__ import annotations
 from datetime import datetime
 
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.hooks.bigquery import BigQueryHook
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
@@ -139,12 +138,9 @@ with DAG(
             },
         )
 
-        # ref_id: Package\Staging\Defrag TrackAndTrace_stg Indexes — BQ no-op
-        op_15 = EmptyOperator(task_id="package_staging_defrag_trackandtrace_stg_indexes")
-
         op_18 >> op_21
         op_21 >> op_16 >> op_19
-        op_21 >> op_17 >> op_20 >> op_15
+        op_21 >> op_17 >> op_20
 
     with TaskGroup(group_id="tg_package_final") as tg_final:
         # STOCK:SEQUENCE — ref_id: Package\Final
@@ -162,9 +158,6 @@ with DAG(
                 }
             },
         )
-
-        # ref_id: Package\Final\Defrag HUB_Location Indexes — BQ no-op
-        op_1 = EmptyOperator(task_id="package_final_defrag_hub_location_indexes")
 
         with TaskGroup(group_id="tg_package_final_load_lnk") as tg_lnk:
             # STOCK:SEQUENCE — ref_id: Package\Final\Load LNK
@@ -225,9 +218,6 @@ with DAG(
                 },
             )
 
-            # ref_id: Package\Final\Load LNK\Defrag LNK_Scan Indexes — BQ no-op
-            op_4 = EmptyOperator(task_id="package_final_load_lnk_defrag_lnk_scan_indexes")
-
             # ref_id: Package\Final\Load LNK\Load LNK_Scan_Signatures — dv_Load_LNK_Scan_Signature(ProcessId)
             op_7 = BigQueryInsertJobOperator(
                 task_id="package_final_load_lnk_load_lnk_scan_signatures",
@@ -257,7 +247,6 @@ with DAG(
             )
 
             op_10 >> op_5 >> op_8 >> op_6
-            op_6 >> op_4
             op_6 >> op_7 >> op_9
 
         with TaskGroup(group_id="tg_package_final_load_signatureai") as tg_sigai:
@@ -293,7 +282,7 @@ with DAG(
 
             op_12 >> op_13
 
-        op_2 >> op_1 >> tg_lnk
+        op_2 >> tg_lnk
         tg_lnk >> tg_sigai
 
     tg_staging >> tg_final

@@ -23,7 +23,6 @@ from __future__ import annotations
 from datetime import datetime
 
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.hooks.bigquery import BigQueryHook
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
@@ -114,7 +113,6 @@ with DAG(
 
     with TaskGroup(group_id="tg_package_staging") as tg_staging:
         # STOCK:SEQUENCE — ref_id: Package\Staging
-        op_4 = EmptyOperator(task_id="package_staging")
 
         # ref_id: Package\Staging\Get Next ProcessID — negative sentinel (-30000) scheme
         op_5 = PythonOperator(
@@ -206,10 +204,7 @@ with DAG(
                 },
             )
 
-            # ref_id: Package\Staging\Staging 2\Defrag TrackAndTrace_stg Indexes — BQ no-op
-            op_11 = EmptyOperator(task_id="package_staging_staging_2_defrag_trackandtrace_stg_indexes")
-
-            op_14 >> op_12 >> op_13 >> op_11
+            op_14 >> op_12 >> op_13
 
         with TaskGroup(group_id="tg_package_staging_staging_3") as tg_stg3:
 
@@ -264,12 +259,10 @@ with DAG(
 
             op_19 >> op_16 >> op_18 >> op_17
 
-        op_4 >> op_5
         op_5 >> [tg_stg1, tg_stg2, tg_stg3]
 
     with TaskGroup(group_id="tg_package_load_interim_labels") as tg_final:
         # STOCK:SEQUENCE — ref_id: Package\Load Interim Labels
-        op_0 = EmptyOperator(task_id="package_load_interim_labels")
 
         # ref_id: Package\Load Interim Labels\Load Interim_KPI_Labels_Src_Stg — [Staging].[Load_Fact_KPI_Interim_Src_Stg] ProcessId
         op_3 = BigQueryInsertJobOperator(
@@ -313,6 +306,6 @@ with DAG(
             },
         )
 
-        op_0 >> op_3 >> op_1 >> op_2
+        op_3 >> op_1 >> op_2
 
     tg_staging >> tg_final

@@ -33,7 +33,7 @@ with DAG(
 ) as dag:
 
     # --- Package\Staging ---
-    with TaskGroup(group_id="tg_package_staging"):
+    with TaskGroup(group_id="tg_package_staging") as tg_staging:
         # STOCK:SEQUENCE — ref_id: Package\Staging
 
         # ref_id: Package\Staging\Truncate Franchisee_Stg — metadata: TRUNCATE TABLE [Staging].[Franchisee_Stg]
@@ -59,7 +59,7 @@ with DAG(
         )
 
     # --- Package\Final ---
-    with TaskGroup(group_id="tg_package_final"):
+    with TaskGroup(group_id="tg_package_final") as tg_final:
         # STOCK:SEQUENCE — ref_id: Package\Final
 
         # ref_id: Package\Final\Load HUB_RF — Exec [dv].[Load_HUB_RF] ?,? (param_1 → RECORD_SOURCE_1)
@@ -86,3 +86,6 @@ with DAG(
 
     # --- Precedence ---
     op_4 >> op_3 >> [op_1, op_2]
+
+    # TaskGroup-level precedence
+    tg_staging >> tg_final

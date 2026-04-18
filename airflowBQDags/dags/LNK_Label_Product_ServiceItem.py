@@ -40,7 +40,7 @@ with DAG(
 ) as dag:
 
     # --- Package\Staging ---
-    with TaskGroup(group_id="tg_package_staging"):
+    with TaskGroup(group_id="tg_package_staging") as tg_staging:
         # STOCK:SEQUENCE — ref_id: Package\Staging
 
         # ref_id: Package\Staging\Truncate Label_Product_ServiceItem_Stg — TRUNCATE [Staging].[Label_Product_ServiceItem_Stg]
@@ -70,7 +70,7 @@ with DAG(
 
 
     # --- Package\Final ---
-    with TaskGroup(group_id="tg_package_final"):
+    with TaskGroup(group_id="tg_package_final") as tg_final:
         # STOCK:SEQUENCE — ref_id: Package\Final
 
         # ref_id: Package\Final\Load LNK_Label_Product_ServiceItem — Exec [dv].[Load_LNK_Label_Product_ServiceItem] ?,?
@@ -103,3 +103,6 @@ with DAG(
 
 
     op_4 >> op_3 >> op_2 >> op_1
+
+    # TaskGroup-level precedence
+    tg_staging >> tg_final
