@@ -17,9 +17,9 @@ from datetime import datetime
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.providers.google.cloud.hooks.bigquery import BigQueryHook
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
+from utils.getValue import allocate_negative_sentinel_processid
 
 PROJECT_ID = "searce-sandbox-da-delivery"
 SP_DATASET_ID = "Aramex_oceania_SP"
@@ -29,17 +29,6 @@ PACKAGE_NAME = "Interim_Fact_Scan_KPI"
 RECORD_SOURCE_3 = "RecordSource"
 
 _TASK_ID_GET_PROCESS_ID = "tg_package_staging.package_staging_get_processid"
-
-
-def _allocate_processid(project_id: str, dataset_id: str) -> int:
-    hook = BigQueryHook(project_id=project_id)
-    query = (
-        "SELECT IFNULL(MIN(ProcessID), -99999) - 1 AS ProcessID "
-        f"FROM `{project_id}.{dataset_id}.Staging_LoadLog` "
-        "WHERE ProcessID < -99999"
-    )
-    df = hook.get_df(sql=query, dialect="standard")
-    return int(df.iloc[0, 0])
 
 
 with DAG(
@@ -64,7 +53,7 @@ with DAG(
         # ref_id: Package\Staging\Get ProcessID — negative sentinel (< -99999)
         op_5 = PythonOperator(
             task_id="package_staging_get_processid",
-            python_callable=_allocate_processid,
+            python_callable=allocate_negative_sentinel_processid,
             op_kwargs={
                 "project_id": PROJECT_ID,
                 "dataset_id": TARGET_DATASET_ID,

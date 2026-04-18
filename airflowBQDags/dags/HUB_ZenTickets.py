@@ -19,10 +19,9 @@ from datetime import datetime
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.providers.google.cloud.hooks.bigquery import BigQueryHook
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
-from utils.getValue import get_last_value
+from utils.getValue import allocate_negative_sentinel_processid, get_last_value
 
 PROJECT_ID = "searce-sandbox-da-delivery"
 SP_DATASET_ID = "Aramex_oceania_SP"
@@ -34,19 +33,6 @@ ZENLOG_RECORD_SOURCE = "ZenLog"
 
 _TASK_ID_GET_PROCESS_ID = "tg_package_staging.package_staging_get_processid"
 _TASK_ID_GET_LAST_RUN = "tg_package_staging.package_staging_get_last_run_date_zenlog"
-
-
-def _allocate_zen_processid(project_id: str, dataset_id: str) -> int:
-    """Same negative-sentinel scheme as HUB_BLKContainerManifest:
-        SELECT MIN(ProcessID) - 1 FROM Staging.LoadLog WHERE ProcessID < -99999."""
-    hook = BigQueryHook(project_id=project_id)
-    query = (
-        "SELECT IFNULL(MIN(ProcessID), -99999) - 1 AS ProcessID "
-        f"FROM `{project_id}.{dataset_id}.Staging_LoadLog` "
-        "WHERE ProcessID < -99999"
-    )
-    df = hook.get_df(sql=query, dialect="standard")
-    return int(df.iloc[0, 0])
 
 
 with DAG(
@@ -65,7 +51,7 @@ with DAG(
 
         op_6 = PythonOperator(
             task_id="package_staging_get_processid",
-            python_callable=_allocate_zen_processid,
+            python_callable=allocate_negative_sentinel_processid,
             op_kwargs={
                 "project_id": PROJECT_ID,
                 "dataset_id": TARGET_DATASET_ID,

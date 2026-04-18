@@ -23,10 +23,9 @@ from datetime import datetime
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.providers.google.cloud.hooks.bigquery import BigQueryHook
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
-from utils.getValue import get_last_value
+from utils.getValue import get_last_value, get_max_process_id
 
 PROJECT_ID = "searce-sandbox-da-delivery"
 SP_DATASET_ID = "Aramex_oceania_SP"
@@ -34,17 +33,6 @@ TARGET_DATASET_ID = "Aramex_oceania"
 PACKAGE_NAME = "LNK_RuralOnFowards"
 
 RECORD_SOURCE_14 = "RecordSource"
-
-
-def _get_max_processid(project_id: str, dataset_id: str) -> int:
-    hook = BigQueryHook(project_id=project_id)
-    query = (
-        f"SELECT IFNULL(MAX(ProcessID), 0) AS ProcessID "
-        f"FROM `{project_id}.{dataset_id}.Staging_LoadLog`"
-    )
-    df = hook.get_df(sql=query, dialect="standard")
-    return int(df.iloc[0, 0])
-
 
 _TASK_ID_GET_PROCESS_ID = "tg_package_sequence_container.package_sequence_container_get_processid"
 _TASK_ID_GET_LASTDATE = "tg_package_load_la_ruraonforwards.package_load_la_ruraonforwards_get_lastdate_la_ruralonforwards"
@@ -71,7 +59,7 @@ with DAG(
         # ref_id: Package\Sequence Container\Get ProcessID — SELECT MAX(ProcessID) FROM Staging.LoadLog
         op_7 = PythonOperator(
             task_id="package_sequence_container_get_processid",
-            python_callable=_get_max_processid,
+            python_callable=get_max_process_id,
             op_kwargs={
                 "project_id": PROJECT_ID,
                 "dataset_id": TARGET_DATASET_ID,

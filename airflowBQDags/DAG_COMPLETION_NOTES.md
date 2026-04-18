@@ -704,3 +704,39 @@ Out of scope (not completed DAGs): `HUB_Label_old.py` (skeleton, §4 / §7),
 Verification: `airflow dags list-import-errors` is empty after the sweep;
 `python3 -m py_compile` passes for every file in the table above.
 
+---
+
+## 11. `python_callable` extraction into `utils/getValue.py`
+
+Per repo convention — **DAG files must wire graphs, not define callables** —
+every function previously passed as `python_callable=...` has been moved out of
+the DAG module and consolidated into `dags/utils/getValue.py`. DAGs now only
+import and reference those helpers.
+
+### New helpers in `utils/getValue.py`
+
+| Helper | SSIS task it mirrors | Used by |
+|---|---|---|
+| `get_last_value(project_id, dataset_id, record_source)` | `[Staging].[Get_LastValue]` (single-value) | pre-existing; unchanged |
+| `get_next_process_id(project_id, dataset_id)` | LoadControl «Get Next ProcessID» (`MAX+1`) | pre-existing; unchanged |
+| `allocate_dashboard_processid(project_id, dataset_id)` | Fact_KPI_Dashboard/Dashboard2 «Get Next ProcessID» (`-30000` cap scheme) | `Fact_KPI_Dashboard.py`, `Fact_KPI_Dashboard2.py` |
+| `allocate_negative_sentinel_processid(project_id, dataset_id)` | Interim/BLK/Zen «Get ProcessID» (`MIN(ProcessID)-1 WHERE ProcessID < -99999`) | `Interim_Fact_Scan_KPI.py`, `Interim_LNK_Scan.py`, `HUB_ZenTickets.py`, `HUB_BLKContainerManifest.py` |
+| `get_max_process_id(project_id, dataset_id)` | LNK_RuralOnFowards «Get ProcessID» (`MAX(ProcessID)`) | `LNK_RuralOnFowards.py` |
+| `get_max_id(project_id, dataset_id, table_name, id_column="ID")` | Fact_KPI_Dashboard «Get LastScanID» (`MAX(ID) FROM <table>`) | `Fact_KPI_Dashboard.py` |
+| `get_last_value_scans(project_id, dataset_id, record_source, calc_method, max_days)` | `[Staging].[Get_LastValue_Scans]` (3-column SP; pulls `LastDate`) | `Fact_KPI_Dashboard2.py` |
+| `get_yesterday_eod_iso()` | SSIS `DATEADD(DAY, -1, GETDATE())` + `'T23:59:59.999'` literal | `Fact_KPI_Dashboard.py`, `Fact_KPI_Dashboard2.py` |
+
+### DAGs updated (inline `def _*` removed)
+
+`Fact_KPI_Dashboard.py`, `Fact_KPI_Dashboard2.py`, `Interim_Fact_Scan_KPI.py`,
+`Interim_LNK_Scan.py`, `LNK_RuralOnFowards.py`, `HUB_ZenTickets.py`,
+`HUB_BLKContainerManifest.py` all dropped their private `_allocate_*`,
+`_get_*` and `_*_processid` functions. Direct `BigQueryHook` imports were
+removed from these DAGs too since they no longer issue raw BQ queries at
+module scope.
+
+No task behaviour changes — the extracted helpers are byte-for-byte equivalent
+to the originals (with `_allocate_*_processid` duplicates collapsed into the
+two distinct schemes above). `python3 -m py_compile` passes and no lints are
+introduced.
+

@@ -24,10 +24,14 @@ from datetime import datetime
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.providers.google.cloud.hooks.bigquery import BigQueryHook
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
-from utils.getValue import get_last_value
+from utils.getValue import (
+    allocate_dashboard_processid,
+    get_last_value,
+    get_max_id,
+    get_yesterday_eod_iso,
+)
 
 PROJECT_ID = "searce-sandbox-da-delivery"
 SP_DATASET_ID = "Aramex_oceania_SP"
@@ -42,42 +46,6 @@ _TASK_ID_GET_PROCESS_ID = "tg_package_staging.tg_package_staging_initial.package
 _TASK_ID_GET_LAST_MF = "tg_package_staging.tg_package_staging_staging_1.package_staging_staging_1_get_lastdate_myfastway"
 _TASK_ID_GET_LASTSCANID = "tg_package_staging.tg_package_staging_staging_2.package_staging_staging_2_get_lastscanid_trackandtrace"
 _TASK_ID_GET_STARTDATE = "tg_package_staging_3.package_staging_3_get_start_date"
-
-
-def _allocate_dashboard_processid(project_id: str, dataset_id: str) -> int:
-    """Mirrors SSIS Package\\Staging\\Initial\\Get Next ProcessID:
-        DECLARE @ProcessId Int;
-        SELECT @ProcessId = IIF(MIN(ProcessId) > -30000, -30000, MIN(ProcessId))
-        FROM [Staging].[LoadLog];
-        SELECT IsNull(@ProcessId, 0) - 1 AS NextProcessId;
-    """
-    hook = BigQueryHook(project_id=project_id)
-    query = (
-        "WITH s AS ("
-        "  SELECT MIN(ProcessId) AS min_pid "
-        f"  FROM `{project_id}.{dataset_id}.Staging_LoadLog` "
-        ") "
-        "SELECT IFNULL(IF(min_pid > -30000, -30000, min_pid), 0) - 1 AS NextProcessId "
-        "FROM s"
-    )
-    df = hook.get_df(sql=query, dialect="standard")
-    return int(df.iloc[0, 0])
-
-
-def _get_last_scan_id(project_id: str, dataset_id: str) -> int:
-    """SSIS: SELECT LastID = MAX(ID) From Staging.TrackAndTrace_Stg"""
-    hook = BigQueryHook(project_id=project_id)
-    query = f"SELECT IFNULL(MAX(ID), 0) AS LastId FROM `{project_id}.{dataset_id}.Staging_TrackAndTrace_Stg`"
-    df = hook.get_df(sql=query, dialect="standard")
-    return int(df.iloc[0, 0])
-
-
-def _get_start_date() -> str:
-    """SSIS: SET @returnDate = CONVERT(varchar(10), DATEADD(DAY, -1, GETDATE()), 120) + 'T23:59:59.999';"""
-    from datetime import datetime as _dt, timedelta as _td
-
-    d = _dt.utcnow().date() - _td(days=1)
-    return f"{d.isoformat()}T23:59:59.999"
 
 
 with DAG(
@@ -106,7 +74,7 @@ with DAG(
             # ref_id: Package\Staging\Initial\Get Next ProcessID
             op_11 = PythonOperator(
                 task_id="package_staging_initial_get_next_processid",
-                python_callable=_allocate_dashboard_processid,
+                python_callable=allocate_dashboard_processid,
                 op_kwargs={
                     "project_id": PROJECT_ID,
                     "dataset_id": TARGET_DATASET_ID,
@@ -185,10 +153,12 @@ with DAG(
             # ref_id: Package\Staging\Staging 2\Get LastScanID (TrackAndTrace) — SELECT MAX(ID) ...
             op_19 = PythonOperator(
                 task_id="package_staging_staging_2_get_lastscanid_trackandtrace",
-                python_callable=_get_last_scan_id,
+                python_callable=get_max_id,
                 op_kwargs={
                     "project_id": PROJECT_ID,
                     "dataset_id": TARGET_DATASET_ID,
+                    "table_name": "Staging_TrackAndTrace_Stg",
+                    "id_column": "ID",
                 },
             )
 
@@ -229,7 +199,7 @@ with DAG(
         # ref_id: Package\Staging 3\Get Start Date — Python scalar push
         op_6 = PythonOperator(
             task_id="package_staging_3_get_start_date",
-            python_callable=_get_start_date,
+            python_callable=get_yesterday_eod_iso,
         )
 
         # ref_id: Package\Staging 3\Load fl_ConItemSrv_Stg — pipeline -> inferred SP (StartDate, ISOCountryCodes)
