@@ -1,17 +1,53 @@
 """
-Skeleton DAG for SSIS package: LNK_RuralOnFowards
-Generated from executable_dependencies.json — EmptyOperator only, no business logic.
-Sequence containers (STOCK:SEQUENCE) are wrapped in TaskGroup.
+Completed DAG for SSIS package: LNK_RuralOnFowards
+Migration: SSIS -> BigQuery
+
+Flow:
+  Get ProcessID (MAX) -> Truncate -> Get LastDate -> Load LA_RuralOnforwards_Stg
+    -> dv_Load_LNK_RuralOnforwards -> Set LastDate.
+
+Notes:
+  * Get ProcessID uses MAX(ProcessID) (NOT MAX+1) — mirrored verbatim.
+  * Pipeline `Data Flow Task` loads Staging.LA_RuralOnforwards_Stg via SQL
+    that requires (LastDate, StartDate, EndDate) — inferred SP
+    `Staging_load_LA_RuralOnforwards_Stg(LastDate, StartDate, EndDate)`.
+    SSIS defaults unresolved StartDate/EndDate to '1900-01-01'; same here.
+  * `Execute SQL Task` just calls `[dv].[Load_LNK_RuralOnforwards]` (no
+    params in the SSIS execution; ResultSet returns NextDate but is unused
+    downstream in this DAG).
+  * RecordSource14 default not available in metadata.
 """
 from __future__ import annotations
 
 from datetime import datetime
 
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
+from airflow.operators.python import PythonOperator
+from airflow.providers.google.cloud.hooks.bigquery import BigQueryHook
+from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
+from utils.getValue import get_last_value
 
+PROJECT_ID = "searce-sandbox-da-delivery"
+SP_DATASET_ID = "Aramex_oceania_SP"
+TARGET_DATASET_ID = "Aramex_oceania"
 PACKAGE_NAME = "LNK_RuralOnFowards"
+
+RECORD_SOURCE_14 = "RecordSource"
+
+
+def _get_max_processid(project_id: str, dataset_id: str) -> int:
+    hook = BigQueryHook(project_id=project_id)
+    query = (
+        f"SELECT IFNULL(MAX(ProcessID), 0) AS ProcessID "
+        f"FROM `{project_id}.{dataset_id}.Staging_LoadLog`"
+    )
+    df = hook.get_df(sql=query, dialect="standard")
+    return int(df.iloc[0, 0])
+
+
+_TASK_ID_GET_PROCESS_ID = "tg_package_sequence_container.package_sequence_container_get_processid"
+_TASK_ID_GET_LASTDATE = "tg_package_load_la_ruraonforwards.package_load_la_ruraonforwards_get_lastdate_la_ruralonforwards"
 
 with DAG(
     dag_id="ssis_skeleton_lnk_ruralonfowards",
@@ -19,38 +55,95 @@ with DAG(
     schedule=None,
     catchup=False,
     tags=["ssis", "skeleton", "lnk_ruralonfowards"],
+    params={
+        "record_source_14": RECORD_SOURCE_14,
+        "start_date": "1900-01-01",
+        "end_date": "1900-01-01",
+    },
 ) as dag:
 
-    # --- control flow (nested TaskGroup per sequence container) ---
-    with TaskGroup(group_id="tg_package_load_la_ruraonforwards"):
-        # STOCK:SEQUENCE — ref_id: Package\\Load LA_RuraOnForwards
-        op_0 = EmptyOperator(task_id="package_load_la_ruraonforwards")
+    _xcom_processid = f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_PROCESS_ID}') }}}}"
+    _xcom_lastdate = f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LASTDATE}') }}}}"
 
-        # ref_id: Package\\Load LA_RuraOnForwards\\Data Flow Task
-        op_1 = EmptyOperator(task_id="package_load_la_ruraonforwards_data_flow_task")
+    with TaskGroup(group_id="tg_package_sequence_container") as tg_seq:
+        # STOCK:SEQUENCE — ref_id: Package\Sequence Container
 
-        # ref_id: Package\\Load LA_RuraOnForwards\\Execute SQL Task
-        op_2 = EmptyOperator(task_id="package_load_la_ruraonforwards_execute_sql_task")
+        # ref_id: Package\Sequence Container\Get ProcessID — SELECT MAX(ProcessID) FROM Staging.LoadLog
+        op_7 = PythonOperator(
+            task_id="package_sequence_container_get_processid",
+            python_callable=_get_max_processid,
+            op_kwargs={
+                "project_id": PROJECT_ID,
+                "dataset_id": TARGET_DATASET_ID,
+            },
+        )
 
-        # ref_id: Package\\Load LA_RuraOnForwards\\Get LastDate (LA_RuralOnforwards)
-        op_3 = EmptyOperator(task_id="package_load_la_ruraonforwards_get_lastdate_la_ruralonforwards")
+    with TaskGroup(group_id="tg_package_load_la_ruraonforwards") as tg_load:
+        # STOCK:SEQUENCE — ref_id: Package\Load LA_RuraOnForwards
 
-        # ref_id: Package\\Load LA_RuraOnForwards\\Set LastDate
-        op_4 = EmptyOperator(task_id="package_load_la_ruraonforwards_set_lastdate")
+        # ref_id: Package\Load LA_RuraOnForwards\Truncate Staging Tables
+        op_5 = BigQueryInsertJobOperator(
+            task_id="package_load_la_ruraonforwards_truncate_staging_tables",
+            configuration={
+                "query": {
+                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_LA_RuralOnforwards_Stg`;",
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Load LA_RuraOnForwards\\Truncate Staging Tables
-        op_5 = EmptyOperator(task_id="package_load_la_ruraonforwards_truncate_staging_tables")
+        # ref_id: Package\Load LA_RuraOnForwards\Get LastDate (LA_RuralOnforwards) — [Staging].[Get_LastValue] RecordSource14
+        op_3 = PythonOperator(
+            task_id="package_load_la_ruraonforwards_get_lastdate_la_ruralonforwards",
+            python_callable=get_last_value,
+            op_kwargs={
+                "project_id": PROJECT_ID,
+                "dataset_id": SP_DATASET_ID,
+                "record_source": "{{ params.record_source_14 }}",
+            },
+        )
 
-    with TaskGroup(group_id="tg_package_sequence_container"):
-        # STOCK:SEQUENCE — ref_id: Package\\Sequence Container
-        op_6 = EmptyOperator(task_id="package_sequence_container")
+        # ref_id: Package\Load LA_RuraOnForwards\Data Flow Task — pipeline -> inferred SP (LastDate, StartDate, EndDate)
+        op_1 = BigQueryInsertJobOperator(
+            task_id="package_load_la_ruraonforwards_data_flow_task",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_LA_RuralOnforwards_Stg`("
+                        f"SAFE_CAST('{_xcom_lastdate}' AS DATE), "
+                        f"SAFE_CAST('{{{{ params.start_date }}}}' AS DATE), "
+                        f"SAFE_CAST('{{{{ params.end_date }}}}' AS DATE));"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Sequence Container\\Get ProcessID
-        op_7 = EmptyOperator(task_id="package_sequence_container_get_processid")
+        # ref_id: Package\Load LA_RuraOnForwards\Execute SQL Task — EXEC [dv].[Load_LNK_RuralOnforwards] (no params)
+        op_2 = BigQueryInsertJobOperator(
+            task_id="package_load_la_ruraonforwards_execute_sql_task",
+            configuration={
+                "query": {
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LNK_RuralOnforwards`();",
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-    # --- precedence (upstream >> downstream) ---
-    op_6 >> op_0
-    op_3 >> op_1
-    op_1 >> op_2
-    op_5 >> op_3
-    op_2 >> op_4
+        # ref_id: Package\Load LA_RuraOnForwards\Set LastDate — Staging_Set_LastValue(RecordSource14)
+        op_4 = BigQueryInsertJobOperator(
+            task_id="package_load_la_ruraonforwards_set_lastdate",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                        f"'{{{{ params.record_source_14 }}}}');"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
+
+        op_5 >> op_3 >> op_1 >> op_2 >> op_4
+
+    tg_seq >> tg_load

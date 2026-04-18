@@ -1,17 +1,32 @@
 """
-Skeleton DAG for SSIS package: Load FWFastLabel_Invoices
-Generated from executable_dependencies.json — EmptyOperator only, no business logic.
-Sequence containers (STOCK:SEQUENCE) are wrapped in TaskGroup.
+Completed DAG for SSIS package: Load FWFastLabel_Invoices
+Migration: SSIS -> BigQuery
+
+Two parallel staging pipelines (InvoiceHeader / InvoicePayment), each with
+its own Get LastDate -> Load Stg -> Final Load -> Set Last Value.
+
+ProcessId is accepted as a DAG param (SSIS does not allocate one here).
 """
 from __future__ import annotations
 
 from datetime import datetime
 
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
+from airflow.operators.python import PythonOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
+from utils.getValue import get_last_value
 
+PROJECT_ID = "searce-sandbox-da-delivery"
+SP_DATASET_ID = "Aramex_oceania_SP"
+TARGET_DATASET_ID = "Aramex_oceania"
 PACKAGE_NAME = "Load FWFastLabel_Invoices"
+
+RECORD_SOURCE_1 = "RecordSource"
+RECORD_SOURCE_2 = "RecordSource2"
+
+_TASK_ID_GET_LAST_HEADER = "tg_package_staging.package_staging_get_last_invoiceheaderdate"
+_TASK_ID_GET_LAST_PAYMENT = "tg_package_staging.package_staging_get_last_invoicepaymentdate"
 
 with DAG(
     dag_id="ssis_skeleton_load_fwfastlabel_invoices",
@@ -19,49 +34,146 @@ with DAG(
     schedule=None,
     catchup=False,
     tags=["ssis", "skeleton", "load fwfastlabel_invoices"],
+    params={
+        "process_id": 1,
+        "record_source_1": RECORD_SOURCE_1,
+        "record_source_2": RECORD_SOURCE_2,
+    },
 ) as dag:
 
-    # --- control flow (nested TaskGroup per sequence container) ---
-    with TaskGroup(group_id="tg_package_final"):
-        # STOCK:SEQUENCE — ref_id: Package\\Final
-        op_0 = EmptyOperator(task_id="package_final")
+    _xcom_last_header = f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LAST_HEADER}') }}}}"
+    _xcom_last_payment = f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LAST_PAYMENT}') }}}}"
 
-        # ref_id: Package\\Final\\Load LSAT_FL_InvoiceHeader
-        op_1 = EmptyOperator(task_id="package_final_load_lsat_fl_invoiceheader")
+    with TaskGroup(group_id="tg_package_staging") as tg_staging:
+        # STOCK:SEQUENCE — ref_id: Package\Staging
 
-        # ref_id: Package\\Final\\Load LSAT_FL_InvoicePayment
-        op_2 = EmptyOperator(task_id="package_final_load_lsat_fl_invoicepayment")
+        # ref_id: Package\Staging\Truncate Staging tables
+        op_10 = BigQueryInsertJobOperator(
+            task_id="package_staging_truncate_staging_tables",
+            configuration={
+                "query": {
+                    "query": (
+                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_fl_InvoiceHeader_Stg`;\n"
+                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_fl_InvoicePayment_Stg`;"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Final\\Set Last InvoiceHeaderDate
-        op_3 = EmptyOperator(task_id="package_final_set_last_invoiceheaderdate")
+        # ref_id: Package\Staging\Get Last InvoiceHeaderDate — [Staging].[Get_LastValue] RecordSource1
+        op_6 = PythonOperator(
+            task_id="package_staging_get_last_invoiceheaderdate",
+            python_callable=get_last_value,
+            op_kwargs={
+                "project_id": PROJECT_ID,
+                "dataset_id": SP_DATASET_ID,
+                "record_source": "{{ params.record_source_1 }}",
+            },
+        )
 
-        # ref_id: Package\\Final\\Set Last InvoicePaymentDate
-        op_4 = EmptyOperator(task_id="package_final_set_last_invoicepaymentdate")
+        # ref_id: Package\Staging\Get Last InvoicePaymentDate — [Staging].[Get_LastValue] RecordSource2
+        op_7 = PythonOperator(
+            task_id="package_staging_get_last_invoicepaymentdate",
+            python_callable=get_last_value,
+            op_kwargs={
+                "project_id": PROJECT_ID,
+                "dataset_id": SP_DATASET_ID,
+                "record_source": "{{ params.record_source_2 }}",
+            },
+        )
 
-    with TaskGroup(group_id="tg_package_staging"):
-        # STOCK:SEQUENCE — ref_id: Package\\Staging
-        op_5 = EmptyOperator(task_id="package_staging")
+        # ref_id: Package\Staging\Load fl_InvoiceHeader_Stg — pipeline -> inferred SP (LastHeaderDate)
+        op_8 = BigQueryInsertJobOperator(
+            task_id="package_staging_load_fl_invoiceheader_stg",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_fl_InvoiceHeader_Stg`("
+                        f"SAFE_CAST('{_xcom_last_header}' AS DATETIME));"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Staging\\Get Last InvoiceHeaderDate
-        op_6 = EmptyOperator(task_id="package_staging_get_last_invoiceheaderdate")
+        # ref_id: Package\Staging\Load fl_InvoicePayment_Stg — pipeline -> inferred SP (LastPaymentDate)
+        op_9 = BigQueryInsertJobOperator(
+            task_id="package_staging_load_fl_invoicepayment_stg",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_fl_InvoicePayment_Stg`("
+                        f"SAFE_CAST('{_xcom_last_payment}' AS DATETIME));"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Staging\\Get Last InvoicePaymentDate
-        op_7 = EmptyOperator(task_id="package_staging_get_last_invoicepaymentdate")
+        op_10 >> op_6 >> op_8
+        op_10 >> op_7 >> op_9
 
-        # ref_id: Package\\Staging\\Load fl_InvoiceHeader_Stg
-        op_8 = EmptyOperator(task_id="package_staging_load_fl_invoiceheader_stg")
+    with TaskGroup(group_id="tg_package_final") as tg_final:
+        # STOCK:SEQUENCE — ref_id: Package\Final
 
-        # ref_id: Package\\Staging\\Load fl_InvoicePayment_Stg
-        op_9 = EmptyOperator(task_id="package_staging_load_fl_invoicepayment_stg")
+        # ref_id: Package\Final\Load LSAT_FL_InvoiceHeader — [dv].[Load_FL_InvoiceHeader] ProcessId, RecordSource1
+        op_1 = BigQueryInsertJobOperator(
+            task_id="package_final_load_lsat_fl_invoiceheader",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_FL_InvoiceHeader`("
+                        f"{{{{ params.process_id }}}}, '{{{{ params.record_source_1 }}}}');"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Staging\\Truncate Staging tables
-        op_10 = EmptyOperator(task_id="package_staging_truncate_staging_tables")
+        # ref_id: Package\Final\Set Last InvoiceHeaderDate — Staging_Set_LastValue(RecordSource1)
+        op_3 = BigQueryInsertJobOperator(
+            task_id="package_final_set_last_invoiceheaderdate",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                        f"'{{{{ params.record_source_1 }}}}');"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-    # --- precedence (upstream >> downstream) ---
-    op_5 >> op_0
-    op_1 >> op_3
-    op_2 >> op_4
-    op_10 >> op_6
-    op_10 >> op_7
-    op_6 >> op_8
-    op_7 >> op_9
+        # ref_id: Package\Final\Load LSAT_FL_InvoicePayment — [dv].[Load_FL_InvoicePayment] ProcessId, RecordSource2
+        op_2 = BigQueryInsertJobOperator(
+            task_id="package_final_load_lsat_fl_invoicepayment",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_FL_InvoicePayment`("
+                        f"{{{{ params.process_id }}}}, '{{{{ params.record_source_2 }}}}');"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
+
+        # ref_id: Package\Final\Set Last InvoicePaymentDate — Staging_Set_LastValue(RecordSource2)
+        op_4 = BigQueryInsertJobOperator(
+            task_id="package_final_set_last_invoicepaymentdate",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                        f"'{{{{ params.record_source_2 }}}}');"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
+
+        op_1 >> op_3
+        op_2 >> op_4
+
+    tg_staging >> tg_final

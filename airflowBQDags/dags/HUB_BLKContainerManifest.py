@@ -1,17 +1,64 @@
 """
-Skeleton DAG for SSIS package: HUB_BLKContainerManifest
-Generated from executable_dependencies.json — EmptyOperator only, no business logic.
-Sequence containers (STOCK:SEQUENCE) are wrapped in TaskGroup.
+Completed DAG for SSIS package: HUB_BLKContainerManifest
+Migration: SSIS -> BigQuery
+Formatting: Jinja2 Templating + XCom for runtime values
+
+Notes on the non-standard pieces of this package:
+  * `Package\Get ProcessID` is NOT the usual LoadControl `Get Next ProcessID`
+    logic. SSIS runs:
+        SELECT MIN(ProcessID) - 1 FROM Staging.LoadLog WHERE ProcessID < -99999
+    to allocate a *negative* sentinel ProcessId exclusive to this package.
+    Implemented here as a PythonOperator that mirrors that query verbatim and
+    pushes the result through XCom (downstream tasks read via
+    `ti.xcom_pull`). If `params.process_id` is non-null on a manual trigger
+    it wins; otherwise the task computes one.
+  * `Package\Staging\Get Last ContainerContents LastScanDate` calls the
+    shared Staging_Get_LastValue SP (mirroring HUB_Invoice) and feeds the
+    result into the ContainerContents staging pipeline.
+  * `Update LoadControl LastScanDate (BLK_ManifestID)` is an SSIS ExecuteSQL
+    task that recomputes MAX(ScanDate) on the staging table and writes it
+    back into Staging.LoadControl. Translated directly to a BQ UPDATE
+    statement with a correlated subquery.
+  * The two staging pipelines (`Load ContainerContents`, `Load ContainerManifest`)
+    are wrapped as BQ SPs following the HUB_CF convention; the
+    ContainerContents pipeline takes a LastScanDate argument because the
+    SSIS OLEDBSource does.
 """
 from __future__ import annotations
 
 from datetime import datetime
 
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
+from airflow.operators.python import PythonOperator
+from airflow.providers.google.cloud.hooks.bigquery import BigQueryHook
+from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
+from utils.getValue import get_last_value
 
+PROJECT_ID = "searce-sandbox-da-delivery"
+SP_DATASET_ID = "Aramex_oceania_SP"
+TARGET_DATASET_ID = "Aramex_oceania"
 PACKAGE_NAME = "HUB_BLKContainerManifest"
+# SSIS $Package::RecordSource — default unavailable in extracted metadata,
+# following repo-wide convention.
+RECORD_SOURCE_1 = "RecordSource"
+_TASK_ID_GET_PROCESS_ID = "package_get_processid"
+_TASK_ID_GET_LAST_SCAN = "tg_package_staging.package_staging_get_last_containercontents_lastscandate"
+
+
+def _allocate_blk_processid(project_id: str, dataset_id: str) -> int:
+    """Mirror SSIS Package\\Get ProcessID:
+        SELECT MIN(ProcessID) - 1 FROM Staging.LoadLog WHERE ProcessID < -99999
+    Starts from -100000 when no prior sentinel exists."""
+    hook = BigQueryHook(project_id=project_id)
+    query = (
+        "SELECT IFNULL(MIN(ProcessID), -99999) - 1 AS ProcessID "
+        f"FROM `{project_id}.{dataset_id}.Staging_LoadLog` "
+        "WHERE ProcessID < -99999"
+    )
+    df = hook.get_df(sql=query, dialect="standard")
+    return int(df.iloc[0, 0])
+
 
 with DAG(
     dag_id="ssis_skeleton_hub_blkcontainermanifest",
@@ -19,50 +66,147 @@ with DAG(
     schedule=None,
     catchup=False,
     tags=["ssis", "skeleton", "hub_blkcontainermanifest"],
+    params={
+        "record_source": RECORD_SOURCE_1,
+    },
 ) as dag:
 
-    # --- control flow (nested TaskGroup per sequence container) ---
-    with TaskGroup(group_id="tg_package_final"):
-        # STOCK:SEQUENCE — ref_id: Package\\Final
-        op_0 = EmptyOperator(task_id="package_final")
+    # ref_id: Package\Get ProcessID — negative sentinel scheme (min - 1 over < -99999).
+    op_5 = PythonOperator(
+        task_id=_TASK_ID_GET_PROCESS_ID,
+        python_callable=_allocate_blk_processid,
+        op_kwargs={
+            "project_id": PROJECT_ID,
+            "dataset_id": TARGET_DATASET_ID,
+        },
+    )
 
-        # ref_id: Package\\Final\\Load HUB_BLKContainerManifestLabel
-        op_1 = EmptyOperator(task_id="package_final_load_hub_blkcontainermanifestlabel")
+    with TaskGroup(group_id="tg_package_staging") as tg_staging:
+        # STOCK:SEQUENCE — ref_id: Package\Staging
 
-        # ref_id: Package\\Final\\Load SAT_BLKContainerManifest
-        op_2 = EmptyOperator(task_id="package_final_load_sat_blkcontainermanifest")
+        # ref_id: Package\Staging\Truncate BLK_Manifest_Stg
+        # SSIS truncates both staging tables in one task.
+        op_10 = BigQueryInsertJobOperator(
+            task_id="package_staging_truncate_blk_manifest_stg",
+            configuration={
+                "query": {
+                    "query": (
+                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_BLK_ContainerManifest_Stg`;\n"
+                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_BLK_ContainerManifestContents_Stg`;"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Final\\Load SAT_BLKContainerManifestContent
-        op_3 = EmptyOperator(task_id="package_final_load_sat_blkcontainermanifestcontent")
+        # ref_id: Package\Staging\Load ContainerManifest (Pipeline -> SP, no params)
+        op_9 = BigQueryInsertJobOperator(
+            task_id="package_staging_load_containermanifest",
+            configuration={
+                "query": {
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_BLK_ContainerManifest_Stg`();",
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Final\\Update LoadControl LastScanDate (BLK_ManifestID)
-        op_4 = EmptyOperator(task_id="package_final_update_loadcontrol_lastscandate_blk_manifestid")
+        # ref_id: Package\Staging\Get Last ContainerContents LastScanDate
+        # SSIS: Exec [Staging].[Get_LastValue] RecordSource -> scalar LastScanDate.
+        op_7 = PythonOperator(
+            task_id="package_staging_get_last_containercontents_lastscandate",
+            python_callable=get_last_value,
+            op_kwargs={
+                "project_id": PROJECT_ID,
+                "dataset_id": SP_DATASET_ID,
+                "record_source": "{{ params.record_source }}",
+            },
+        )
 
-    # ref_id: Package\\Get ProcessID
-    op_5 = EmptyOperator(task_id="package_get_processid")
+        # ref_id: Package\Staging\Load ContainerContents (Pipeline -> SP, takes LastScanDate)
+        op_8 = BigQueryInsertJobOperator(
+            task_id="package_staging_load_containercontents",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_BLK_ContainerManifestContents_Stg`("
+                        f"SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LAST_SCAN}') }}}}' AS DATETIME));"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-    with TaskGroup(group_id="tg_package_staging"):
-        # STOCK:SEQUENCE — ref_id: Package\\Staging
-        op_6 = EmptyOperator(task_id="package_staging")
+        op_10 >> op_9 >> op_7 >> op_8
 
-        # ref_id: Package\\Staging\\Get Last ContainerContents LastScanDate
-        op_7 = EmptyOperator(task_id="package_staging_get_last_containercontents_lastscandate")
+    with TaskGroup(group_id="tg_package_final") as tg_final:
+        # STOCK:SEQUENCE — ref_id: Package\Final
 
-        # ref_id: Package\\Staging\\Load ContainerContents
-        op_8 = EmptyOperator(task_id="package_staging_load_containercontents")
+        _xcom_processid = f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_PROCESS_ID}') }}}}"
 
-        # ref_id: Package\\Staging\\Load ContainerManifest
-        op_9 = EmptyOperator(task_id="package_staging_load_containermanifest")
+        # ref_id: Package\Final\Load HUB_BLKContainerManifestLabel
+        # SSIS: EXEC [dv].[Load_HUB_BLKContainerManifestContents] ProcessId, RecordSource
+        op_1 = BigQueryInsertJobOperator(
+            task_id="package_final_load_hub_blkcontainermanifestlabel",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_BLKContainerManifestContents`("
+                        f"{_xcom_processid}, '{{{{ params.record_source }}}}');"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Staging\\Truncate BLK_Manifest_Stg
-        op_10 = EmptyOperator(task_id="package_staging_truncate_blk_manifest_stg")
+        # ref_id: Package\Final\Load SAT_BLKContainerManifest — EXEC [dv].[Load_SAT_BLKContainerManifest] ?,?
+        op_2 = BigQueryInsertJobOperator(
+            task_id="package_final_load_sat_blkcontainermanifest",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_BLKContainerManifest`("
+                        f"{_xcom_processid}, '{{{{ params.record_source }}}}');"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-    # --- precedence (upstream >> downstream) ---
-    op_6 >> op_0
-    op_2 >> op_3
-    op_1 >> op_4
-    op_3 >> op_4
-    op_5 >> op_6
-    op_9 >> op_7
-    op_7 >> op_8
-    op_10 >> op_9
+        # ref_id: Package\Final\Load SAT_BLKContainerManifestContent — EXEC [dv].[Load_SAT_BLKContainerManifestContents] ?,?
+        op_3 = BigQueryInsertJobOperator(
+            task_id="package_final_load_sat_blkcontainermanifestcontent",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_BLKContainerManifestContents`("
+                        f"{_xcom_processid}, '{{{{ params.record_source }}}}');"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
+
+        # ref_id: Package\Final\Update LoadControl LastScanDate (BLK_ManifestID)
+        # SSIS: correlated UPDATE of Staging.LoadControl.LastValue with
+        #        MAX(ScanDate) from Staging.BLK_ContainerManifestContents_Stg.
+        op_4 = BigQueryInsertJobOperator(
+            task_id="package_final_update_loadcontrol_lastscandate_blk_manifestid",
+            configuration={
+                "query": {
+                    "query": (
+                        f"UPDATE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_LoadControl` lc "
+                        "SET lc.LastValue = CAST(("
+                        "SELECT CAST(MAX(ScanDate) AS STRING) "
+                        f"FROM `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_BLK_ContainerManifestContents_Stg`"
+                        ") AS STRING) "
+                        "WHERE lc.RecordSource = '{{ params.record_source }}';"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
+
+        op_2 >> op_3
+        [op_1, op_3] >> op_4
+
+    op_5 >> tg_staging >> tg_final

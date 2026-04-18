@@ -1,7 +1,20 @@
 """
-Skeleton DAG for SSIS package: HUB_Label_MF_ONLY
-Generated from executable_dependencies.json — EmptyOperator only, no business logic.
-Sequence containers (STOCK:SEQUENCE) are wrapped in TaskGroup.
+Completed DAG for SSIS package: HUB_Label_MF_ONLY
+Migration: SSIS -> BigQuery
+
+Shape:
+  * Package\Source4 (MyFastway) _MF  -> Package\Sequence Container
+
+The Source4 task group loads the `fl_ConItem_Stg` staging table from MyFastway
+(pipeline wrapped as `Staging_Load_fl_ConItem_Stg`). The main Sequence
+Container truncates ten staging tables (preserved as a single multi-statement
+TRUNCATE to match SSIS), loads the SAT_Label_Allocation staging row set, runs
+the two downstream dv.* loads, and finally calls `Staging_Set_LastValue`
+bound to RecordSource4.
+
+`Rebuild Indexes 4` and the inline `DISABLE` tail of `Truncate fl_ConItem_Stg`
+both call [dbo].[MaintainIndexes] — treated as a BQ no-op (see
+DAG_COMPLETION_NOTES.md).
 """
 from __future__ import annotations
 
@@ -9,9 +22,28 @@ from datetime import datetime
 
 from airflow import DAG
 from airflow.operators.empty import EmptyOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
+PROJECT_ID = "searce-sandbox-da-delivery"
+SP_DATASET_ID = "Aramex_oceania_SP"
+TARGET_DATASET_ID = "Aramex_oceania"
 PACKAGE_NAME = "HUB_Label_MF_ONLY"
+# SSIS $Package::RecordSource4 — default not in metadata; using repo-wide convention.
+RECORD_SOURCE_4 = "RecordSource"
+
+_STAGING_TABLES_TO_TRUNCATE = [
+    "Staging_SAT_Label_Allocation_Stg",
+    "Staging_LabelMaster_Stg",
+    "Staging_API_RF_AdHocLabel_AllocationHistory_Stg",
+    "Staging_tblFastLabel_Consignment_Stg",
+    "Staging_HDManifests_Stg",
+    "Staging_ConsignmentItem_Stg",
+    "Staging_tblOnlineEnquiry_RP_Stg",
+    "Staging_PickupRequest_Stg",
+    "Staging_Ebay_labels_Stg",
+    "Staging_fl_ConItemSrv_Stg",
+]
 
 with DAG(
     dag_id="ssis_skeleton_hub_label_mf_only",
@@ -19,46 +51,113 @@ with DAG(
     schedule=None,
     catchup=False,
     tags=["ssis", "skeleton", "hub_label_mf_only"],
+    params={
+        "process_id": 1,
+        "record_source": RECORD_SOURCE_4,
+    },
 ) as dag:
 
-    # --- control flow (nested TaskGroup per sequence container) ---
-    with TaskGroup(group_id="tg_package_sequence_container"):
-        # STOCK:SEQUENCE — ref_id: Package\\Sequence Container
-        op_0 = EmptyOperator(task_id="package_sequence_container")
+    with TaskGroup(group_id="tg_package_source4_myfastway_mf") as tg_source4:
+        # STOCK:SEQUENCE — ref_id: Package\Source4 (MyFastway) _MF
 
-        # ref_id: Package\\Sequence Container\\Load SAT_Label_Allocation
-        op_1 = EmptyOperator(task_id="package_sequence_container_load_sat_label_allocation")
+        op_9 = BigQueryInsertJobOperator(
+            task_id="package_source4_myfastway_mf_truncate_fl_conitem_stg",
+            configuration={
+                "query": {
+                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_fl_ConItem_Stg`;",
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Sequence Container\\Load SAT_Label_Allocation_MF
-        op_2 = EmptyOperator(task_id="package_sequence_container_load_sat_label_allocation_mf")
+        # ref_id: Package\Source4 (MyFastway) _MF\Load fl_ConItem_Stg (Pipeline -> SP)
+        op_7 = BigQueryInsertJobOperator(
+            task_id="package_source4_myfastway_mf_load_fl_conitem_stg",
+            configuration={
+                "query": {
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_fl_ConItem_Stg`();",
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Sequence Container\\Load SAT_Label_Allocation_Stg
-        op_3 = EmptyOperator(task_id="package_sequence_container_load_sat_label_allocation_stg")
-
-        # ref_id: Package\\Sequence Container\\Set LastDate (MyFastway)
-        op_4 = EmptyOperator(task_id="package_sequence_container_set_lastdate_myfastway")
-
-        # ref_id: Package\\Sequence Container\\Truncate SAT_Label_Allocation_Stg
-        op_5 = EmptyOperator(task_id="package_sequence_container_truncate_sat_label_allocation_stg")
-
-    with TaskGroup(group_id="tg_package_source4_myfastway_mf"):
-        # STOCK:SEQUENCE — ref_id: Package\\Source4 (MyFastway) _MF
-        op_6 = EmptyOperator(task_id="package_source4_myfastway_mf")
-
-        # ref_id: Package\\Source4 (MyFastway) _MF\\Load fl_ConItem_Stg
-        op_7 = EmptyOperator(task_id="package_source4_myfastway_mf_load_fl_conitem_stg")
-
-        # ref_id: Package\\Source4 (MyFastway) _MF\\Rebuild Indexes 4
+        # ref_id: Package\Source4 (MyFastway) _MF\Rebuild Indexes 4 — BQ no-op.
         op_8 = EmptyOperator(task_id="package_source4_myfastway_mf_rebuild_indexes_4")
 
-        # ref_id: Package\\Source4 (MyFastway) _MF\\Truncate fl_ConItem_Stg
-        op_9 = EmptyOperator(task_id="package_source4_myfastway_mf_truncate_fl_conitem_stg")
+        op_9 >> op_7 >> op_8
 
-    # --- precedence (upstream >> downstream) ---
-    op_6 >> op_0
-    op_3 >> op_1
-    op_1 >> op_2
-    op_5 >> op_3
-    op_2 >> op_4
-    op_9 >> op_7
-    op_7 >> op_8
+    with TaskGroup(group_id="tg_package_sequence_container") as tg_sequence:
+        # STOCK:SEQUENCE — ref_id: Package\Sequence Container
+
+        op_5 = BigQueryInsertJobOperator(
+            task_id="package_sequence_container_truncate_sat_label_allocation_stg",
+            configuration={
+                "query": {
+                    "query": "\n".join(
+                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.{tbl}`;"
+                        for tbl in _STAGING_TABLES_TO_TRUNCATE
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
+
+        # ref_id: Package\Sequence Container\Load SAT_Label_Allocation_Stg — Exec [Staging].[Load_SAT_Label_Allocation_Stg] ProcessId
+        op_3 = BigQueryInsertJobOperator(
+            task_id="package_sequence_container_load_sat_label_allocation_stg",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_SAT_Label_Allocation_Stg`("
+                        f"{{{{ params.process_id }}}});"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
+
+        # ref_id: Package\Sequence Container\Load SAT_Label_Allocation — Exec [dv].[Load_SAT_Label_Allocation] ProcessId
+        op_1 = BigQueryInsertJobOperator(
+            task_id="package_sequence_container_load_sat_label_allocation",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation`("
+                        f"{{{{ params.process_id }}}});"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
+
+        # ref_id: Package\Sequence Container\Load SAT_Label_Allocation_MF — Exec [dv].[Load_SAT_Label_Allocation_MF] ProcessId, RecordSource4
+        op_2 = BigQueryInsertJobOperator(
+            task_id="package_sequence_container_load_sat_label_allocation_mf",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_MF`("
+                        f"{{{{ params.process_id }}}}, '{{{{ params.record_source }}}}');"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
+
+        # ref_id: Package\Sequence Container\Set LastDate (MyFastway) — Staging_Set_LastValue(RecordSource4)
+        op_4 = BigQueryInsertJobOperator(
+            task_id="package_sequence_container_set_lastdate_myfastway",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                        f"'{{{{ params.record_source }}}}');"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
+
+        op_5 >> op_3 >> op_1 >> op_2 >> op_4
+
+    tg_source4 >> tg_sequence

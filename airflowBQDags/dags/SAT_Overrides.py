@@ -1,17 +1,33 @@
 """
-Skeleton DAG for SSIS package: SAT_Overrides
-Generated from executable_dependencies.json — EmptyOperator only, no business logic.
-Sequence containers (STOCK:SEQUENCE) are wrapped in TaskGroup.
+Completed DAG for SSIS package: SAT_Overrides
+Migration: SSIS -> BigQuery
+
+Two parallel branches:
+  * Customer Overrides   — Truncate -> Load Stg pipeline -> Load SAT Customer
+  * Zones Overrides      — Truncate Zones + Truncate Zone Overrides
+                            -> Load fl_Zones + Load Zone Satchel Overrides
+                            + Load Zone Weight Overrides
+                            -> Load SAT Zones -> Load SAT Zone Overrides
+
+All pipelines are simple "SELECT * FROM src -> INSERT stg" patterns without
+LastDate filtering. Inferred SPs follow `Staging_load_<TableName>`.
+
+RecordSource defaults not in metadata.
 """
 from __future__ import annotations
 
 from datetime import datetime
 
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
+PROJECT_ID = "searce-sandbox-da-delivery"
+SP_DATASET_ID = "Aramex_oceania_SP"
+TARGET_DATASET_ID = "Aramex_oceania"
 PACKAGE_NAME = "SAT_Overrides"
+
+RECORD_SOURCE = "RecordSource"
 
 with DAG(
     dag_id="ssis_skeleton_sat_overrides",
@@ -19,60 +35,161 @@ with DAG(
     schedule=None,
     catchup=False,
     tags=["ssis", "skeleton", "sat_overrides"],
+    params={
+        "process_id": 1,
+        "record_source": RECORD_SOURCE,
+    },
 ) as dag:
 
-    # --- control flow (nested TaskGroup per sequence container) ---
-    with TaskGroup(group_id="tg_package_customer_overrides_final"):
-        # STOCK:SEQUENCE — ref_id: Package\\Customer Overrides - Final
-        op_0 = EmptyOperator(task_id="package_customer_overrides_final")
+    with TaskGroup(group_id="tg_package_customer_overrides_staging") as tg_cust_stg:
+        # STOCK:SEQUENCE — ref_id: Package\Customer Overrides - Staging
 
-        # ref_id: Package\\Customer Overrides - Final\\Load SAT_CustomerPriceOverride
-        op_1 = EmptyOperator(task_id="package_customer_overrides_final_load_sat_customerpriceoverride")
+        # ref_id: ...\Truncate Customer Overrides
+        op_4 = BigQueryInsertJobOperator(
+            task_id="package_customer_overrides_staging_truncate_customer_overrides",
+            configuration={
+                "query": {
+                    "query": (
+                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_fl_PriceListCustomerOverride_Stg`;\n"
+                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.dv_SAT_FL_PriceListCustomerOverride`;"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-    with TaskGroup(group_id="tg_package_customer_overrides_staging"):
-        # STOCK:SEQUENCE — ref_id: Package\\Customer Overrides - Staging
-        op_2 = EmptyOperator(task_id="package_customer_overrides_staging")
+        # ref_id: ...\Load Customer Price Overrides — pipeline -> inferred SP
+        op_3 = BigQueryInsertJobOperator(
+            task_id="package_customer_overrides_staging_load_customer_price_overrides",
+            configuration={
+                "query": {
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_fl_PriceListCustomerOverride_Stg`();",
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Customer Overrides - Staging\\Load Customer Price Overrides
-        op_3 = EmptyOperator(task_id="package_customer_overrides_staging_load_customer_price_overrides")
+        op_4 >> op_3
 
-        # ref_id: Package\\Customer Overrides - Staging\\Truncate Customer Overrides
-        op_4 = EmptyOperator(task_id="package_customer_overrides_staging_truncate_customer_overrides")
+    with TaskGroup(group_id="tg_package_customer_overrides_final") as tg_cust_final:
+        # STOCK:SEQUENCE — ref_id: Package\Customer Overrides - Final
 
-    with TaskGroup(group_id="tg_package_zones_overrides_final"):
-        # STOCK:SEQUENCE — ref_id: Package\\Zones Overrides - Final
-        op_5 = EmptyOperator(task_id="package_zones_overrides_final")
+        # ref_id: ...\Load SAT_CustomerPriceOverride — dv_Load_SAT_FL_PriceListCustomerOverride(ProcessId, RecordSource)
+        op_1 = BigQueryInsertJobOperator(
+            task_id="package_customer_overrides_final_load_sat_customerpriceoverride",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_FL_PriceListCustomerOverride`("
+                        f"{{{{ params.process_id }}}}, '{{{{ params.record_source }}}}');"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Zones Overrides - Final\\Load SAT Zone Overrides
-        op_6 = EmptyOperator(task_id="package_zones_overrides_final_load_sat_zone_overrides")
+    with TaskGroup(group_id="tg_package_zones_overrides_staging") as tg_zones_stg:
+        # STOCK:SEQUENCE — ref_id: Package\Zones Overrides- Staging
 
-        # ref_id: Package\\Zones Overrides - Final\\Load SAT Zones
-        op_7 = EmptyOperator(task_id="package_zones_overrides_final_load_sat_zones")
+        # ref_id: ...\Truncate Zones
+        op_13 = BigQueryInsertJobOperator(
+            task_id="package_zones_overrides_staging_truncate_zones",
+            configuration={
+                "query": {
+                    "query": (
+                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_fl_Zones_Stg`;\n"
+                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.dv_SAT_FL_Zones`;\n"
+                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.dv_SAT_FL_ServiceZoneOverride`;"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-    with TaskGroup(group_id="tg_package_zones_overrides_staging"):
-        # STOCK:SEQUENCE — ref_id: Package\\Zones Overrides- Staging
-        op_8 = EmptyOperator(task_id="package_zones_overrides_staging")
+        # ref_id: ...\Truncate Zone Overrides
+        op_12 = BigQueryInsertJobOperator(
+            task_id="package_zones_overrides_staging_truncate_zone_overrides",
+            configuration={
+                "query": {
+                    "query": (
+                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_fl_ServiceZoneSatchelOverride_Stg`;\n"
+                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_fl_ServiceZoneWeightOverride_Stg`;\n"
+                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.dv_SAT_FL_ServiceZoneOverride`;"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Zones Overrides- Staging\\Load fl_Zones
-        op_11 = EmptyOperator(task_id="package_zones_overrides_staging_load_fl_zones")
+        # ref_id: ...\Load fl_Zones — pipeline -> inferred SP
+        op_11 = BigQueryInsertJobOperator(
+            task_id="package_zones_overrides_staging_load_fl_zones",
+            configuration={
+                "query": {
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_fl_Zones_Stg`();",
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Zones Overrides- Staging\\Load Zone Satchel Overiides
-        op_9 = EmptyOperator(task_id="package_zones_overrides_staging_load_zone_satchel_overiides")
+        # ref_id: ...\Load Zone Satchel Overiides — pipeline -> inferred SP
+        op_9 = BigQueryInsertJobOperator(
+            task_id="package_zones_overrides_staging_load_zone_satchel_overiides",
+            configuration={
+                "query": {
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_fl_ServiceZoneSatchelOverride_Stg`();",
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Zones Overrides- Staging\\Load Zone Weight Overiides
-        op_10 = EmptyOperator(task_id="package_zones_overrides_staging_load_zone_weight_overiides")
+        # ref_id: ...\Load Zone Weight Overiides — pipeline -> inferred SP
+        op_10 = BigQueryInsertJobOperator(
+            task_id="package_zones_overrides_staging_load_zone_weight_overiides",
+            configuration={
+                "query": {
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_fl_ServiceZoneWeightOverride_Stg`();",
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Zones Overrides- Staging\\Truncate Zone Overrides
-        op_12 = EmptyOperator(task_id="package_zones_overrides_staging_truncate_zone_overrides")
+        op_13 >> op_11
+        op_12 >> op_9
+        op_12 >> op_10
 
-        # ref_id: Package\\Zones Overrides- Staging\\Truncate Zones
-        op_13 = EmptyOperator(task_id="package_zones_overrides_staging_truncate_zones")
+    with TaskGroup(group_id="tg_package_zones_overrides_final") as tg_zones_final:
+        # STOCK:SEQUENCE — ref_id: Package\Zones Overrides - Final
 
-    # --- precedence (upstream >> downstream) ---
-    op_2 >> op_0
-    op_4 >> op_3
-    op_8 >> op_5
-    op_7 >> op_6
-    op_13 >> op_11
-    op_12 >> op_9
-    op_12 >> op_10
+        # ref_id: ...\Load SAT Zones — dv_Load_SAT_FL_Zones(ProcessId, RecordSource)
+        op_7 = BigQueryInsertJobOperator(
+            task_id="package_zones_overrides_final_load_sat_zones",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_FL_Zones`("
+                        f"{{{{ params.process_id }}}}, '{{{{ params.record_source }}}}');"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
+
+        # ref_id: ...\Load SAT Zone Overrides — dv_Load_SAT_FL_Zone_Overrides(ProcessId, RecordSource)
+        op_6 = BigQueryInsertJobOperator(
+            task_id="package_zones_overrides_final_load_sat_zone_overrides",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_FL_Zone_Overrides`("
+                        f"{{{{ params.process_id }}}}, '{{{{ params.record_source }}}}');"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
+
+        op_7 >> op_6
+
+    tg_cust_stg >> tg_cust_final
+    tg_zones_stg >> tg_zones_final

@@ -1,7 +1,19 @@
 """
-Skeleton DAG for SSIS package: HUB_Address
-Generated from executable_dependencies.json — EmptyOperator only, no business logic.
-Sequence containers (STOCK:SEQUENCE) are wrapped in TaskGroup.
+Completed DAG for SSIS package: HUB_Address
+Migration: SSIS -> BigQuery
+Formatting: Jinja2 Templating for Parameters
+
+Tables use TARGET_DATASET_ID (Aramex_oceania). Stored procedures live under
+SP_DATASET_ID (Aramex_oceania_SP) and follow schema_proc naming
+(dv_Load_HUB_Address, Staging_Load_Label_Address_Stg, ...).
+
+Notes:
+  * SSIS "Rebuild Indexes" ALTERs IX_AddressHSK on Staging.Label_Address_Stg.
+    BigQuery has no indexes, so this is rendered as a no-op EmptyOperator that
+    preserves the original precedence but contributes no work. See
+    DAG_COMPLETION_NOTES.md §2.
+  * sp_config.json lists dv_Load_HUB_Address as taking a single p_ProcessID
+    argument (no RecordSource), matching the .dtsx param_map.
 """
 from __future__ import annotations
 
@@ -9,8 +21,12 @@ from datetime import datetime
 
 from airflow import DAG
 from airflow.operators.empty import EmptyOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
+PROJECT_ID = "searce-sandbox-da-delivery"
+SP_DATASET_ID = "Aramex_oceania_SP"
+TARGET_DATASET_ID = "Aramex_oceania"
 PACKAGE_NAME = "HUB_Address"
 
 with DAG(
@@ -19,38 +35,95 @@ with DAG(
     schedule=None,
     catchup=False,
     tags=["ssis", "skeleton", "hub_address"],
+    params={
+        "process_id": 1,
+    },
 ) as dag:
 
-    # --- control flow (nested TaskGroup per sequence container) ---
-    with TaskGroup(group_id="tg_package_final_load_hub_address"):
-        # STOCK:SEQUENCE — ref_id: Package\\Final (Load HUB_Address)
-        op_0 = EmptyOperator(task_id="package_final_load_hub_address")
+    with TaskGroup(group_id="tg_package_staging") as tg_staging:
+        # STOCK:SEQUENCE — ref_id: Package\Staging
 
-        # ref_id: Package\\Final (Load HUB_Address)\\Load HUB_Address
-        op_1 = EmptyOperator(task_id="package_final_load_hub_address_load_hub_address")
+        op_7 = BigQueryInsertJobOperator(
+            task_id="package_staging_truncate_label_address_stg",
+            configuration={
+                "query": {
+                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_Label_Address_Stg`;",
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Final (Load HUB_Address)\\Load LNK_Label_Address
-        op_2 = EmptyOperator(task_id="package_final_load_hub_address_load_lnk_label_address")
+        # ref_id: Package\Staging\Load SAT_Label_Address_Stg
+        # SSIS: Exec [Staging].[Load_Label_Address_Stg] ProcessId
+        op_6 = BigQueryInsertJobOperator(
+            task_id="package_staging_load_sat_label_address_stg",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_Label_Address_Stg`("
+                        f"{{{{ params.process_id }}}});"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Final (Load HUB_Address)\\Load SAT_Address
-        op_3 = EmptyOperator(task_id="package_final_load_hub_address_load_sat_address")
+        op_7 >> op_6
 
-        # ref_id: Package\\Final (Load HUB_Address)\\Rebuild Indexes
-        op_4 = EmptyOperator(task_id="package_final_load_hub_address_rebuild_indexes")
+    with TaskGroup(group_id="tg_package_final_load_hub_address") as tg_final:
+        # STOCK:SEQUENCE — ref_id: Package\Final (Load HUB_Address)
 
-    with TaskGroup(group_id="tg_package_staging"):
-        # STOCK:SEQUENCE — ref_id: Package\\Staging
-        op_5 = EmptyOperator(task_id="package_staging")
+        # ref_id: Package\Final (Load HUB_Address)\Rebuild Indexes
+        op_4 = EmptyOperator(
+            task_id="package_final_load_hub_address_rebuild_indexes",
+        )
 
-        # ref_id: Package\\Staging\\Load SAT_Label_Address_Stg
-        op_6 = EmptyOperator(task_id="package_staging_load_sat_label_address_stg")
+        # ref_id: Package\Final (Load HUB_Address)\Load HUB_Address
+        # SSIS: Exec [dv].[Load_HUB_Address] ProcessId
+        op_1 = BigQueryInsertJobOperator(
+            task_id="package_final_load_hub_address_load_hub_address",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_Address`("
+                        f"{{{{ params.process_id }}}});"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-        # ref_id: Package\\Staging\\Truncate Label_Address_Stg
-        op_7 = EmptyOperator(task_id="package_staging_truncate_label_address_stg")
+        # ref_id: Package\Final (Load HUB_Address)\Load SAT_Address
+        # SSIS: Exec [dv].[Load_SAT_Address] ProcessId
+        op_3 = BigQueryInsertJobOperator(
+            task_id="package_final_load_hub_address_load_sat_address",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Address`("
+                        f"{{{{ params.process_id }}}});"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
 
-    # --- precedence (upstream >> downstream) ---
-    op_5 >> op_0
-    op_4 >> op_1
-    op_3 >> op_2
-    op_4 >> op_3
-    op_7 >> op_6
+        # ref_id: Package\Final (Load HUB_Address)\Load LNK_Label_Address
+        # SSIS: Exec [dv].[Load_LNK_Label_Address] ProcessId
+        op_2 = BigQueryInsertJobOperator(
+            task_id="package_final_load_hub_address_load_lnk_label_address",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LNK_Label_Address`("
+                        f"{{{{ params.process_id }}}});"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
+
+        op_4 >> [op_1, op_3]
+        op_3 >> op_2
+
+    tg_staging >> tg_final
