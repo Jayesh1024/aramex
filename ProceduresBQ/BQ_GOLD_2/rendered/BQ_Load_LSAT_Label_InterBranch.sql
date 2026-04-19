@@ -1,17 +1,17 @@
 -- ==========================================================================================
 -- Routine:     Load_LSAT_Label_InterBranch
--- Description: Loads LSAT_Label_InterBranch from Staging_Label_InterBranch_Stg for a country
+-- Description: Loads LSAT_Label_InterBranch from Staging_Label_Interbranch_Stg for a country
 -- Example:     Exec [dv].[Load_LSAT_Label_InterBranch] 659,  'InterBranchAU' 
 -- History:
 --  17/09/2020  P. Waldron      Routine Written
 --  21/06/2022  B. Woods         Cloned
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_LSAT_Label_InterBranch`(IN p_ProcessID INT64)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_LSAT_Label_InterBranch`(IN p_ProcessID INT64)
 BEGIN
   /*
   ** Routine: Load_LSAT_Label_InterBranch
-  ** Description: Loads LSAT_Label_InterBranch from Staging_Label_InterBranch_Stg for a country
-  ** Description: Loads LSAT_Label_InterBranch from Staging_Label_InterBranch_Stg for a country
+  ** Description: Loads LSAT_Label_InterBranch from Staging_Label_Interbranch_Stg for a country
+  ** Description: Loads LSAT_Label_InterBranch from Staging_Label_Interbranch_Stg for a country
   */
 
   DECLARE v_DefaultValidFrom DATETIME DEFAULT '1900-01-01 00:00:00';
@@ -29,7 +29,7 @@ BEGIN
 
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_LSAT_Label_InterBranch` (
+    INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LSAT_Label_Interbranch` (
       Label_InterBranch_HSK,
       LabelNo,
       CountryCode,
@@ -85,11 +85,11 @@ BEGIN
         DeliveryTime,
         Price,
         BatchId
-      FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_InterBranch_Stg`
+      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Interbranch_Stg`
     ) AS Src
     WHERE NOT EXISTS (
       SELECT 1 
-      FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_LSAT_Label_InterBranch` AS Tgt
+      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LSAT_Label_Interbranch` AS Tgt
       WHERE Tgt.Label_InterBranch_HSK = Src.Label_InterBranch_HSK
     );
 
@@ -103,7 +103,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
-  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
     v_Component,
     p_ProcessID,
     v_Started,

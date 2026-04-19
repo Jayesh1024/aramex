@@ -5,7 +5,7 @@
 -- History:
 --  13/11/2018  P. Waldron    Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_HUB_Container`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_HUB_Container`(
   p_ProcessID INT64,
   p_RecordSource STRING
 )
@@ -19,8 +19,8 @@ BEGIN
 
   BEGIN
     -- Using MERGE for atomic "Insert if not exists" logic
-    -- Path transformed to: searce-sandbox-da-delivery.Aramex_oceania.dv_HUB_Container
-    MERGE `searce-sandbox-da-delivery.Aramex_oceania.dv_HUB_Container` AS Target
+    -- Path transformed to: prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_HUB_Container
+    MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_HUB_Container` AS Target
     USING (
       SELECT DISTINCT
         -- Hashing the business key 'Container' (Standard DV 2.0 SHA256)
@@ -30,8 +30,8 @@ BEGIN
         v_Loaded AS Loaded,
         p_ProcessID AS ProcessID,
         p_RecordSource AS RecordSource
-      -- Path transformed to: searce-sandbox-da-delivery.Aramex_oceania.Staging_BBA_ContainerMaster_Stg
-      FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_BBA_ContainerMaster_Stg`
+      -- Path transformed to: prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_BBA_ContainerMaster_Stg
+      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_BBA_ContainerMaster_Stg`
       WHERE TruckOrContainer = 'C'
         AND Container IS NOT NULL
         AND TRIM(Container) != ''
@@ -49,7 +49,7 @@ BEGIN
   END;
 
   -- Metadata Logging
-  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
     'dv_Load_HUB_Container',
     p_ProcessID,
     v_Started,

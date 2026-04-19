@@ -28,10 +28,10 @@ BEGIN
         MERGE INTO `{{ project_id }}.{{ target_dataset_id }}.dv_LNK_Invoice_Label` AS Tgt
         USING (
             SELECT DISTINCT
-                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(stg.InvoiceNumber AS STRING), '^', stg.RFCode, '^', stg.Label)) AS Invoice_Label_HSK,
-                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(stg.InvoiceNumber AS STRING), '^', stg.RFCode)) AS Invoice_HSK,
-                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(stg.RFCode) AS FranchiseeCode_HSK,
-                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(TRIM(stg.Label)) AS LabelNo_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(stg.InvoiceNumber AS STRING), '^', stg.RFCode, '^', stg.Label), '^') AS Invoice_Label_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(stg.InvoiceNumber AS STRING), '^', stg.RFCode), '^') AS Invoice_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(stg.RFCode, '^') AS FranchiseeCode_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(TRIM(stg.Label), '^') AS LabelNo_HSK,
                 stg.InvoiceNumber,
                 stg.RFCode AS FranchiseeCode,
                 TRIM(stg.Label) AS LabelNo

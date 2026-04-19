@@ -6,7 +6,7 @@
 --	12/04/2019  P. Waldron		Routine Written
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dbo_MaintainKPICodes`()
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dbo_MaintainKPICodes`()
 BEGIN
   /*
   ** Routine: MaintainKPICodes
@@ -55,14 +55,14 @@ BEGIN
     -- Cage
     INSERT INTO KPICodes_Temp (KPIGroup, ScanType, ScanStatus)
     SELECT 'Cage', 'T', rf.FranchiseeCode
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_HUB_RF` AS rf
-    JOIN `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_RF` AS sat ON sat.FranchiseeCode_HSK = rf.FranchiseeCode_HSK
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_HUB_RF` AS rf
+    JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_RF` AS sat ON sat.FranchiseeCode_HSK = rf.FranchiseeCode_HSK
     WHERE sat.CountryCode IN (1, 6, 24, 11) AND sat.IsCurrent = 1;
 
     -- Bay
     INSERT INTO KPICodes_Temp (KPIGroup, ScanType, ScanStatus)
     SELECT DISTINCT 'Bay', 'T', CourierNumber
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_HUB_CF` AS cf
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_HUB_CF` AS cf
     WHERE cf.CourierNumber NOT IN ('', '#12', '#16', '#17', '#20', '***')
       AND cf.CourierNumber NOT IN (SELECT ScanStatus FROM KPICodes_Temp WHERE ScanType = 'T');
 
@@ -76,10 +76,10 @@ BEGIN
       ('Delivery', 'D', 'YES');
 
     -- Final Load into target table (INSERT ... SELECT as only INSERT is used)
-    INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dbo_KPICodes` (KPIGroup, ScanType, ScanStatus)
+    INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPICodes` (KPIGroup, ScanType, ScanStatus)
     SELECT src.KPIGroup, src.ScanType, src.ScanStatus 
     FROM KPICodes_Temp AS src
-    LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_KPICodes` AS tgt 
+    LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPICodes` AS tgt 
       ON tgt.KPIGroup = src.KPIGroup 
       AND IFNULL(tgt.ScanType, '') = IFNULL(src.ScanType, '') 
       AND IFNULL(tgt.ScanStatus, '') = IFNULL(src.ScanStatus, '')
@@ -95,7 +95,7 @@ BEGIN
 
   -- Log the procedure execution
   SET v_Ended = CURRENT_DATETIME();
-  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
     v_Component,
     v_ProcessId,
     v_Started,

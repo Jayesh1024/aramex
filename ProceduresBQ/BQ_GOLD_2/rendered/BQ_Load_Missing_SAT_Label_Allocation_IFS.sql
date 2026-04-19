@@ -4,7 +4,7 @@
 -- History:
 --  25/07/2019  B. Woods      Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_Missing_SAT_Label_Allocation_IFS`(IN p_ProcessID INT64)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_Missing_SAT_Label_Allocation_IFS`(IN p_ProcessID INT64)
 BEGIN
   /*
   ** Routine: Load_Missing_SAT_Label_Allocation_IFS
@@ -26,7 +26,7 @@ BEGIN
 
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_IFS` (
+    INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_IFS` (
       LabelNo_HSK,
       LabelNo,
       CountryCode,
@@ -83,9 +83,9 @@ BEGIN
       v_DefaultValidTo AS ValidTo,
       1 AS IsCurrent,
       Stg.UniqueParcelIdentifier
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_HDManifests_Stg` AS Stg
-    LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_IFS` AS Tgt ON Stg.RecordId = Tgt.RecordID
-    LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_HDManifests_Stg` AS Stg
+    LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_IFS` AS Tgt ON Stg.RecordId = Tgt.RecordID
+    LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
     WHERE Tgt.RecordId IS NULL;
 
     SET v_Inserted = @@row_count;
@@ -98,7 +98,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
-  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
     v_Component,
     p_ProcessID,
     v_Started,

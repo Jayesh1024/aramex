@@ -10,7 +10,7 @@
 --	23/11/2018  P. Waldron		Routine Written
 --	02/07/2019  P. Waldron		Refactor to use RecordSource instead of DatasetName
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_Set_LastValue`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_Set_LastValue`(
   IN  p_RecordSource  STRING,
   IN  p_ColumnName    STRING,
   IN  p_LastValue     STRING,
@@ -35,19 +35,19 @@ BEGIN
   -- -----------------------------------------------------------------------
   SET v_RowCount = (
     SELECT COUNT(*)
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_LoadControl`
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
     WHERE RecordSource = p_RecordSource
   );
 
   SET v_Stg_ColumnName = (
     SELECT MAX(ColumnName)
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_LoadControl`
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
     WHERE RecordSource = p_RecordSource
   );
 
   SET v_Stg_LastValue = (
     SELECT MAX(LastValue)
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_LoadControl`
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
     WHERE RecordSource = p_RecordSource
   );
 
@@ -67,16 +67,16 @@ BEGIN
         ARRAY_REVERSE(SPLIT(DatasetName, '.'))[OFFSET(0)],
         '_Stg'
       )
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_LoadControl`
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
     WHERE RecordSource = p_RecordSource
   );
 
-  SET v_StagingTableFQN = FORMAT('searce-sandbox-da-delivery.Aramex_oceania.%s', v_StagingTable);
+  SET v_StagingTableFQN = FORMAT('prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.%s', v_StagingTable);
 
   -- Verify Staging table exists via INFORMATION_SCHEMA
   SET v_TableExists = (
     SELECT COUNT(*)
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.`.INFORMATION_SCHEMA.TABLES
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.`.INFORMATION_SCHEMA.TABLES
     WHERE table_name = ARRAY_REVERSE(SPLIT(v_StagingTable, '.'))[OFFSET(0)]
   );
 
@@ -102,7 +102,7 @@ BEGIN
   -- Update LoadControl if a value was found or force flag is set
   -- -----------------------------------------------------------------------
   IF v_LastValue IS NOT NULL OR p_Force = TRUE THEN
-    UPDATE `searce-sandbox-da-delivery.Aramex_oceania.Staging_LoadControl`
+    UPDATE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
     SET LastValue = v_LastValue
     WHERE RecordSource = p_RecordSource;
   END IF;

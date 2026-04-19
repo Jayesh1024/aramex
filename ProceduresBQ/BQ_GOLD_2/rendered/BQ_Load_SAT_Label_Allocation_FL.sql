@@ -6,7 +6,7 @@
 --	25/07/2019  P. Waldron		Routine Written
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_SAT_Label_Allocation_FL`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_Label_Allocation_FL`(
     IN p_ProcessID INT64
 )
 OPTIONS(strict_mode=false)
@@ -28,13 +28,13 @@ BEGIN
 
     BEGIN
         -- STEP 1: Identify and Expire current records that have changed attributes
-        UPDATE `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_FL` AS Tgt
+        UPDATE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_FL` AS Tgt
         SET 
             IsCurrent = 0, 
             ValidTo = v_Loaded
         FROM (
             SELECT 
-                `searce-sandbox-da-delivery.Aramex_oceania.dbo_GetHashKey`(Stg.LabelNumber) AS LabelNo_HSK,
+                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(Stg.LabelNumber, '^') AS LabelNo_HSK,
                 Stg.LabelNumber,
                 Stg.CountryCode,
                 IFNULL(cty.CountryName, 'Unknown') AS Country,
@@ -42,8 +42,8 @@ BEGIN
                 Stg.LblColour, Stg.LblPrice, Stg.LblPrice1, Stg.Reference, Stg.Packaging,
                 Stg.Weight, Stg.WeightCubic, Stg.Length, Stg.Width, Stg.Height,
                 Stg.ManifestID, Stg.Town, Stg.PostCode, Stg.destRF, Stg.CreateDate, Stg.ConsignmentID
-            FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_tblFastLabel_Consignment_Stg` AS Stg
-            LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
+            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_tblFastLabel_Consignment_Stg` AS Stg
+            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
         ) AS Src
         WHERE Tgt.LabelNo_HSK = Src.LabelNo_HSK 
           AND Tgt.IsCurrent = 1 
@@ -77,7 +77,7 @@ BEGIN
         SET v_Updated = @@row_count;
 
         -- STEP 2: Insert New Records
-        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_FL` (
+        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_FL` (
             LabelNo_HSK, LabelNo, CountryCode, Country, LabelPrinted, CustomerID, 
             ClientID, ConsumedByCustomerUserID, LblColour, LblPrice, LblPrice1, 
             Reference, Packaging, Weight, WeightCubic, Length, Width, Height, 
@@ -85,7 +85,7 @@ BEGIN
             Loaded, ProcessId, RecordSource, RecordSourceId, ValidFrom, ValidTo, IsCurrent
         )
         SELECT
-            `searce-sandbox-da-delivery.Aramex_oceania.dbo_GetHashKey`(Src.LabelNumber),
+            `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(Src.LabelNumber, '^'),
             Src.LabelNumber, Src.CountryCode, Src.Country, Src.LabelPrinted, Src.CustomerID, 
             Src.ClientID, Src.ConsumedByCustomerUserID, Src.LblColour, Src.LblPrice, Src.LblPrice1, 
             Src.Reference, Src.Packaging, Src.Weight, Src.WeightCubic, Src.Length, Src.Width, Src.Height, 
@@ -104,9 +104,9 @@ BEGIN
                     WHEN Sat.IsCurrent = 0 AND Sat.ValidTo = v_Loaded THEN TRUE 
                     ELSE FALSE 
                 END AS ShouldInsert
-            FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_tblFastLabel_Consignment_Stg` AS Stg
-            LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
-            LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_FL` AS Sat 
+            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_tblFastLabel_Consignment_Stg` AS Stg
+            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
+            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_FL` AS Sat 
                 ON Sat.LabelNo = Stg.LabelNumber 
                 AND Sat.CountryCode = Stg.CountryCode
                 AND Sat.IsCurrent = 1 
@@ -121,7 +121,7 @@ BEGIN
     END;
 
     -- Final Log Call
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         v_Component, p_ProcessID, v_Started, CURRENT_DATETIME(), v_Result, v_ErrorMessage, v_Inserted, v_Updated, -1
     );
 END;

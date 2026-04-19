@@ -41,7 +41,7 @@ BEGIN
             )
             VALUES (
                 -- UDF reference converted to Jinja2 path format
-                TO_HEX(`{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(Src.TruckNum)),
+                TO_HEX(`{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(Src.TruckNum, '^')),
                 Src.TruckNum,
                 v_Loaded,
                 p_ProcessID,

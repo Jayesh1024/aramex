@@ -42,7 +42,7 @@ BEGIN
             )
             VALUES (
                 -- UDF reference converted to Jinja2 path format
-                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(Src.CountryName, '^', Src.ScanStatus)),
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(Src.CountryName, '^', Src.ScanStatus), '^'),
                 Src.CountryName,
                 Src.ScanStatus,
                 v_Loaded,

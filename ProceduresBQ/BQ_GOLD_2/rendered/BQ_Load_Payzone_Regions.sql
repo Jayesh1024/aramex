@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dbo_Load_Payzone_Regions`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dbo_Load_Payzone_Regions`(
     IN p_ProcessID INT64
 )
 BEGIN
@@ -7,7 +7,7 @@ BEGIN
     -- Description: Upserts regions into dbo_Payzone_Regions using a MERGE statement
     -- ------------------------------------------------------------------------------------------
 
-    DECLARE v_Component STRING DEFAULT 'searce-sandbox-da-delivery.Aramex_oceania.dbo_Load_Payzone_Regions';
+    DECLARE v_Component STRING DEFAULT 'prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Load_Payzone_Regions';
     DECLARE v_Step STRING DEFAULT 'Upsert';
     
     -- OPTION 2: Changed from TIMESTAMP to DATETIME
@@ -19,8 +19,8 @@ BEGIN
 
     BEGIN
         -- BigQuery MERGE performs the update and insert in one pass
-        MERGE INTO `searce-sandbox-da-delivery.Aramex_oceania.dbo_Payzone_Regions` AS Tgt
-        USING `searce-sandbox-da-delivery.Aramex_oceania.Staging_payzone_regions_stg` AS Src
+        MERGE INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Payzone_Regions` AS Tgt
+        USING `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_payzone_regions_stg` AS Src
         ON Tgt.id = Src.id
         
         WHEN MATCHED THEN
@@ -70,7 +70,7 @@ BEGIN
     SET v_Ended = CURRENT_DATETIME();
     
     -- Final Log Call
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,      -- Now a DATETIME

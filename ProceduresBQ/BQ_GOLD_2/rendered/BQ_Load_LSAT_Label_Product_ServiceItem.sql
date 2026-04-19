@@ -5,7 +5,7 @@
 -- History:
 --  17/09/2020  P. Waldron      Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_LSAT_Label_Product_ServiceItem`(IN p_ProcessID INT64)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_LSAT_Label_Product_ServiceItem`(IN p_ProcessID INT64)
 BEGIN
   /*
   ** Routine: Load_LSAT_Label_Product_ServiceItem
@@ -28,14 +28,14 @@ BEGIN
   BEGIN
     -- Using a single MERGE to handle SCD Type 2 logic (Expire + Insert)
     -- As per CORE RULES: v_Updated = Inserted + Updated; v_Inserted = 0.
-    MERGE `searce-sandbox-da-delivery.Aramex_oceania.dv_LSAT_Label_Product_ServiceItem` AS Tgt
+    MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LSAT_Label_Product_ServiceItem` AS Tgt
     USING (
       WITH StagingData AS (
         SELECT 
           *,
           -- Hash key calculation consistent with original logic
           SHA256(CONCAT(IFNULL(Country, ''), '^', IFNULL(LabelNo, ''), '^', IFNULL(ProductCode, ''), '^', IFNULL(ServiceItem, ''))) AS Calc_HSK
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_Product_ServiceItem_Stg`
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Product_ServiceItem_Stg`
       ),
       -- Identify changes compared to current records
       DetectedChanges AS (
@@ -58,7 +58,7 @@ BEGIN
             T.ServicePriceDiscountPercent != S.ServicePriceDiscountPercent OR T.UpdatedOn != S.UpdatedOn
           )) AS HasChanged
         FROM StagingData S
-        LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dv_LSAT_Label_Product_ServiceItem` T ON S.Calc_HSK = CAST(T.Label_Product_ServiceItem_HSK AS BYTES) AND T.IsCurrent = 1
+        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LSAT_Label_Product_ServiceItem` T ON S.Calc_HSK = CAST(T.Label_Product_ServiceItem_HSK AS BYTES) AND T.IsCurrent = 1
       )
       -- Rows to expire existing current record
       SELECT *, 'EXPIRE' AS MergeAction FROM DetectedChanges WHERE HasChanged = TRUE
@@ -111,7 +111,7 @@ BEGIN
 
   SET v_Ended = CURRENT_DATETIME();
   -- SaveLog signature: component, processId, started, ended, result, errorMessage, inserted, updated, -1
-  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
     v_Component, 
     p_ProcessID, 
     v_Started, 

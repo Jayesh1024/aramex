@@ -43,7 +43,7 @@ BEGIN
                     IFNULL(CONCAT(NULLIF(CAST(ServiceItemId AS STRING), ''), v_delim), ''),
                     IFNULL(CONCAT(NULLIF(Zone, ''), v_delim), ''),
                     IFNULL(CONCAT(NULLIF(SatchelSize, ''), v_delim), '')
-                )
+                ), '^'
             ) AS ZoneOverrides_HSK,
             'Satchel' AS OverrideType,
             OverrideId,
@@ -72,7 +72,8 @@ BEGIN
                     IFNULL(CONCAT(NULLIF(CAST(ServiceItemId AS STRING), ''), v_delim), ''),
                     IFNULL(CONCAT(NULLIF(Zone, ''), v_delim), ''),
                     IFNULL(CONCAT(NULLIF(CAST(FromWeight AS STRING), ''), v_delim), '')
-                )
+                ),
+                v_delim
             ) AS ZoneOverrides_HSK,
             'Weight' AS OverrideType,
             OverrideId,

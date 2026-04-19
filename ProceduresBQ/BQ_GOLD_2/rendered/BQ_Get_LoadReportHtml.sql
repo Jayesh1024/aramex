@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_Get_LoadReportHtml`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_Get_LoadReportHtml`(
     IN p_ProcessId INT64,
     IN p_ExecutionId INT64
 )
@@ -23,7 +23,7 @@ BEGIN
               WHEN 4 THEN 'Failed' WHEN 5 THEN 'Pending' WHEN 6 THEN 'Ended Unexpectedly' 
               WHEN 7 THEN 'Succeeded' WHEN 8 THEN 'Stopping' WHEN 9 THEN 'Completed' 
           END
-      FROM `searce-sandbox-da-delivery.Aramex_oceania.SSISDB_catalog_executions`
+      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.SSISDB_catalog_executions`
       WHERE execution_id = p_ExecutionId
       LIMIT 1
     );
@@ -46,7 +46,7 @@ BEGIN
                     ) ORDER BY Id DESC
                 ), '')
             )
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_LoadLog`
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadLog`
         WHERE ProcessID = p_ProcessId
     );
 
@@ -67,8 +67,8 @@ BEGIN
                     ) ORDER BY es.end_time, es.execution_id
                 ), '')
             )
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.SSISDB_catalog_executables` e
-        LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.SSISDB_catalog_executable_statistics` es
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.SSISDB_catalog_executables` e
+        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.SSISDB_catalog_executable_statistics` es
             ON e.executable_id = es.executable_id AND e.execution_id = es.execution_id
         WHERE package_path = '\\Package' AND e.execution_id = p_ExecutionId
     );
@@ -85,7 +85,7 @@ BEGIN
                     ) ORDER BY event_message_id
                 ), '')
             )
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.SSISDB_catalog_event_messages`
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.SSISDB_catalog_event_messages`
         WHERE operation_id = p_ExecutionId AND event_name = 'OnError'
     );
 

@@ -6,7 +6,7 @@
 --  19/08/2023  B. Woods      Routine Written
 
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_Load_CF_Productivity_NZ`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_Load_CF_Productivity_NZ`(
   IN p_ProcessId INT64
 )
 BEGIN
@@ -29,13 +29,13 @@ BEGIN
   -- -----------------------------------------------------------------------
   SET v_RowCount = (
     SELECT COUNT(*) 
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_KPI_Labels_Stg`
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_KPI_Labels_Stg`
   );
   IF v_RowCount = 0 THEN
     -- Log skipping and exit
     SET v_Result = 'Success - No rows to process';
     SET v_Ended = CURRENT_DATETIME();
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         v_Component, p_ProcessId, v_Started, v_Ended, v_Result, '', 0, 0, -1
     );
     RETURN;
@@ -46,7 +46,7 @@ BEGIN
   -- -----------------------------------------------------------------------
   SET v_StartDate = (
     SELECT CAST(LastValue AS DATETIME)
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_LoadControl`
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
     WHERE RecordSource = 'CF_Productivity_NZ'
     LIMIT 1
   );
@@ -54,13 +54,13 @@ BEGIN
   -- -----------------------------------------------------------------------
   -- Truncate Staging targets
   -- -----------------------------------------------------------------------
-  TRUNCATE TABLE `searce-sandbox-da-delivery.Aramex_oceania.Staging_CF_Productivity_Stg_NZ`;
-  TRUNCATE TABLE `searce-sandbox-da-delivery.Aramex_oceania.Staging_Fact_Scan_Stg2_NZ`;
+  TRUNCATE TABLE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_CF_Productivity_Stg_NZ`;
+  TRUNCATE TABLE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2_NZ`;
   BEGIN
     -- -----------------------------------------------------------------------
     -- Load scan window into Fact_Scan_Stg2_NZ
     -- -----------------------------------------------------------------------
-    INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_Fact_Scan_Stg2_NZ`
+    INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2_NZ`
     (
       LabelNo, ScanDateTime, ScanDate,
       ScanType, ScanStatus,
@@ -74,7 +74,7 @@ BEGIN
       ScanType, ScanStatus,
       FranchiseeCode, CourierNumber,
       CountryName, Latitude, Longitude
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_LNK_Scan`
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_Scan`
     WHERE ScanDate >= v_StartDate
       AND ScanDate <  v_EndDate;
     -- -----------------------------------------------------------------------
@@ -91,7 +91,7 @@ BEGIN
     )
     DO
       -- 1. Deliveries for Day
-      INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_CF_Productivity_Stg_NZ`
+      INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_CF_Productivity_Stg_NZ`
       (
         WorkDate, CountryCode, RF, CF, DeliveriesForDay,
         FirstDeliveryTime, FirstDelivery_Latitude, FirstDelivery_Longitude,
@@ -101,21 +101,21 @@ BEGIN
         day_rec.day_date, v_CountryCode, s.FranchiseeCode, s.CourierNumber,
         COUNT(DISTINCT s.LabelNo), MIN(s.ScanDateTime), MIN(s.Latitude), MIN(s.Longitude),
         MAX(s.ScanDateTime), MAX(s.Latitude), MAX(s.Longitude)
-      FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Fact_Scan_Stg2_NZ` s
-      LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_KPIExcludedLabels` ex
+      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2_NZ` s
+      LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPIExcludedLabels` ex
         ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix AND ex.CountryName = s.CountryName
       WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName AND s.ScanType = 'D' AND ex.LabelPrefix IS NULL
       GROUP BY s.FranchiseeCode, s.CourierNumber;
       -- 2. First scan time
-      INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_CF_Productivity_Stg_NZ`
+      INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_CF_Productivity_Stg_NZ`
       (WorkDate, CountryCode, RF, CF, FirstScanTime)
       SELECT
         day_rec.day_date, v_CountryCode, s.FranchiseeCode, s.CourierNumber, MIN(s.ScanDateTime)
-      FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Fact_Scan_Stg2_NZ` s
+      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2_NZ` s
       WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName
       GROUP BY s.FranchiseeCode, s.CourierNumber;
       -- 3. In-depot scan start time (B87)
-      INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_CF_Productivity_Stg_NZ`
+      INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_CF_Productivity_Stg_NZ`
       (WorkDate, CountryCode, RF, CF, ArrivalTime_AM, ArrivalTime_PM, ArrivalTime_TW, InDepotScan_StartTime)
       SELECT
         day_rec.day_date, v_CountryCode, FranchiseeCode, CourierNumber,
@@ -127,13 +127,13 @@ BEGIN
         SELECT FranchiseeCode, CourierNumber, ScanStatus, ScanDateTime,
           CASE WHEN EXTRACT(HOUR FROM s.ScanDateTime) < 10 THEN 'AM' WHEN EXTRACT(HOUR FROM s.ScanDateTime) < 15 THEN 'PM' ELSE 'TW' END AS Cycle,
           LEAD(ScanDateTime) OVER (PARTITION BY s.FranchiseeCode, s.CourierNumber ORDER BY s.ScanDateTime) AS NextScanTime
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Fact_Scan_Stg2_NZ` s
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2_NZ` s
         WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName
       ) s
       WHERE ScanStatus = 'B87'
       GROUP BY FranchiseeCode, CourierNumber;
       -- 4. In-depot scan finish time (B88)
-      INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_CF_Productivity_Stg_NZ`
+      INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_CF_Productivity_Stg_NZ`
       (WorkDate, CountryCode, RF, CF, DepartureTime_AM, DepartureTime_PM, DepartureTime_TW, InDepotScan_FinishTime)
       SELECT
         day_rec.day_date, v_CountryCode, FranchiseeCode, CourierNumber,
@@ -145,13 +145,13 @@ BEGIN
         SELECT FranchiseeCode, CourierNumber, ScanStatus, ScanDateTime,
           CASE WHEN EXTRACT(HOUR FROM s.ScanDateTime) < 10 THEN 'AM' WHEN EXTRACT(HOUR FROM s.ScanDateTime) < 15 THEN 'PM' ELSE 'TW' END AS Cycle,
           LAG(ScanDateTime) OVER (PARTITION BY s.FranchiseeCode, s.CourierNumber ORDER BY s.ScanDateTime) AS PreviousScanTime
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Fact_Scan_Stg2_NZ` s
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2_NZ` s
         WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName
       ) ss
       WHERE ScanStatus = 'B88'
       GROUP BY FranchiseeCode, CourierNumber;
       -- 5. Average time between stops (< 30 min)
-      INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_CF_Productivity_Stg_NZ`
+      INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_CF_Productivity_Stg_NZ`
       (WorkDate, CountryCode, RF, CF, AvergeTimeBetweenStopsMinutes)
       SELECT
         day_rec.day_date, v_CountryCode, FranchiseeCode, CourierNumber,
@@ -159,42 +159,42 @@ BEGIN
       FROM (
         SELECT FranchiseeCode, CourierNumber, ScanDateTime,
           LEAD(ScanDateTime) OVER (PARTITION BY s.FranchiseeCode, s.CourierNumber ORDER BY s.ScanDateTime) AS NextScanTime
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Fact_Scan_Stg2_NZ` s
-        LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_KPIExcludedLabels` ex ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix AND ex.CountryName = s.CountryName
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2_NZ` s
+        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPIExcludedLabels` ex ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix AND ex.CountryName = s.CountryName
         WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName AND s.ScanType IN ('P', 'D') AND ex.LabelPrefix IS NULL
       ) s
       WHERE DATETIME_DIFF(NextScanTime, ScanDateTime, MINUTE) BETWEEN 1 AND 29
       GROUP BY FranchiseeCode, CourierNumber;
       -- 6. Break stops (gaps > 30 minutes)
-      INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_CF_Productivity_Stg_NZ`
+      INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_CF_Productivity_Stg_NZ`
       (WorkDate, CountryCode, RF, CF, BreakStops)
       SELECT
         day_rec.day_date, v_CountryCode, FranchiseeCode, CourierNumber, COUNT(*)
       FROM (
         SELECT FranchiseeCode, CourierNumber, ScanDateTime,
           LEAD(ScanDateTime) OVER (PARTITION BY s.FranchiseeCode, s.CourierNumber ORDER BY s.ScanDateTime) AS NextScanTime
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Fact_Scan_Stg2_NZ` s
-        LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_KPIExcludedLabels` ex ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix AND ex.CountryName = s.CountryName
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2_NZ` s
+        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPIExcludedLabels` ex ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix AND ex.CountryName = s.CountryName
         WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName AND s.ScanType IN ('P', 'D') AND ex.LabelPrefix IS NULL
       ) AS A
       WHERE DATETIME_DIFF(NextScanTime, ScanDateTime, MINUTE) > 30
       GROUP BY FranchiseeCode, CourierNumber;
       -- 7. Pickups for Day
-      INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_CF_Productivity_Stg_NZ`
+      INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_CF_Productivity_Stg_NZ`
       (WorkDate, CountryCode, RF, CF, PickupsForDday, FirstPickupTime, FirstPickup_Latitude, FirstPickup_Longitude, LastPickupTime, LastPickup_Latitude, LastPickup_Longitude, ActiveCustomers)
       SELECT
         day_rec.day_date, v_CountryCode, s.FranchiseeCode, s.CourierNumber,
         COUNT(DISTINCT s.LabelNo), MIN(s.ScanDateTime), MIN(s.Latitude), MIN(s.Longitude), MAX(s.ScanDateTime), MAX(s.Latitude), MAX(s.Longitude), COUNT(DISTINCT l.FMSCustomerID)
-      FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Fact_Scan_Stg2_NZ` s
-      LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_KPIExcludedLabels` ex ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix AND ex.CountryName = s.CountryName
-      LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Label` l ON s.LabelNo = l.LabelNo AND s.CountryName = l.Country
+      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2_NZ` s
+      LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPIExcludedLabels` ex ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix AND ex.CountryName = s.CountryName
+      LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Label` l ON s.LabelNo = l.LabelNo AND s.CountryName = l.Country
       WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName AND s.ScanType = 'P' AND ex.LabelPrefix IS NULL
       GROUP BY s.FranchiseeCode, s.CourierNumber;
     END FOR;
     -- -----------------------------------------------------------------------
     -- Final load: aggregate Staging into CF_Productivity_NZ
     -- -----------------------------------------------------------------------
-    INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dbo_CF_Productivity_NZ`
+    INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_CF_Productivity_NZ`
     (
       WorkDate, CountryCode, RF, CF, DeliveriesForDay, PickupsForDday, ActiveCustomers, FirstScanTime,
       ArrivalTime_AM, ArrivalTime_PM, ArrivalTime_TW, DepartureTime_AM, DepartureTime_PM, DepartureTime_TW,
@@ -211,11 +211,11 @@ BEGIN
       MAX(InDepotScan_StartTime), MAX(InDepotScan_FinishTime), MAX(AvergeTimeBetweenStopsMinutes), MAX(BreakStops),
       MAX(FirstDelivery_Latitude), MAX(FirstDelivery_Longitude), MAX(LastDelivery_Latitude), MAX(LastDelivery_Longitude),
       MAX(FirstPickup_Latitude), MAX(FirstPickup_Longitude), MAX(LastPickup_Latitude), MAX(LastPickup_Longitude)
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_CF_Productivity_Stg_NZ`
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_CF_Productivity_Stg_NZ`
     GROUP BY WorkDate, CountryCode, RF, CF;
     SET v_TotalInserted = @@row_count;
     -- Advance LoadControl
-    UPDATE `searce-sandbox-da-delivery.Aramex_oceania.Staging_LoadControl`
+    UPDATE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
     SET LastValue = CAST(v_EndDate AS STRING)
     WHERE RecordSource = 'CF_Productivity_NZ';
     SET v_Result = 'Success';
@@ -227,7 +227,7 @@ BEGIN
   -- Final Log Call
   -- -----------------------------------------------------------------------
   SET v_Ended = CURRENT_DATETIME();
-  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
     v_Component, p_ProcessId, v_Started, v_Ended, v_Result, v_ErrorMessage, v_TotalInserted, -1, -1
   );
 END;

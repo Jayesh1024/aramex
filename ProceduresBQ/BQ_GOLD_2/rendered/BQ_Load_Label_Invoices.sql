@@ -6,7 +6,7 @@
 --  02/07/2024  B. Woods      Routine Written
 --  10/07/2024  B. Woods      Added criteria to the DIM_Label update to limit the scope by Partition number
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_Label_Invoices`(IN p_ProcessID INT64, IN p_Start_Date STRING, IN p_End_Date STRING)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_Label_Invoices`(IN p_ProcessID INT64, IN p_Start_Date STRING, IN p_End_Date STRING)
 BEGIN
   /*
   ** Routine: Load_Label_Invoices
@@ -33,15 +33,15 @@ BEGIN
   BEGIN
     WHILE v_NextDate <= v_EndDate DO
       
-      TRUNCATE TABLE `searce-sandbox-da-delivery.Aramex_oceania.Staging_FastwayLabels_Stg`;
+      TRUNCATE TABLE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_FastwayLabels_Stg`;
 
       -- Identify labels with missing invoice info and find the "BookInvoiceNumber" using window functions
-      INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_FastwayLabels_Stg` (LabelNo, FranchiseeCode, InvoiceNumber, CountryCode)
+      INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_FastwayLabels_Stg` (LabelNo, FranchiseeCode, InvoiceNumber, CountryCode)
       WITH TargetLabels AS (
         SELECT 
           LabelNo, 
           CountryCode
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Label`
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Label`
         WHERE (FMSInvoiceID IS NULL OR FMSInvoiceID = 0 OR FMSRfID IS NULL)
           AND CreateDate >= v_StartDate AND CreateDate < v_NextDate
           AND CountryCode IN (1, 6, 24)
@@ -52,7 +52,7 @@ BEGIN
           LabelNo, 
           InvoiceNumber, 
           FranchiseeCode
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_LNK_Invoice_Label`
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_Invoice_Label`
       ),
       Combined AS (
         -- Combine target labels with potential source invoices to use positional window functions
@@ -80,11 +80,11 @@ BEGIN
       WHERE Typ = 'TGT';
 
       -- Update the Dimension table based on discovered mappings for the current date iteration
-      UPDATE `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Label` AS dim
+      UPDATE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Label` AS dim
       SET 
         FMSInvoiceID = src.InvoiceNumber, 
         FMSRfID = src.FranchiseeCode
-      FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_FastwayLabels_Stg` AS src
+      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_FastwayLabels_Stg` AS src
       WHERE src.LabelNo = dim.LabelNo
         AND dim.CreateDate >= v_StartDate AND dim.CreateDate < v_NextDate -- Fixed inconsistency to use loop range
         AND (
@@ -113,7 +113,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
-  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
     v_Component, 
     p_ProcessID, 
     v_Started, 

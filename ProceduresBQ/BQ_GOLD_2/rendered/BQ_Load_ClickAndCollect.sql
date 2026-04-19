@@ -7,7 +7,7 @@
 --
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dbo_Load_ClickAndCollect`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dbo_Load_ClickAndCollect`(
     IN p_ProcessID INT64
 )
 OPTIONS(strict_mode=false)
@@ -22,8 +22,8 @@ BEGIN
     BEGIN
         -- Single MERGE handles both updates and inserts, scanning the source table only once.
         -- Identifiers use the Jinja2 template for project and dataset references.
-        MERGE INTO `searce-sandbox-da-delivery.Aramex_oceania.dbo_FWFastlabel_ClickAndCollect` AS Tgt
-        USING `searce-sandbox-da-delivery.Aramex_oceania.Staging_FWFastlabel_ClickAndCollect_Stg` AS Src
+        MERGE INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_FWFastlabel_ClickAndCollect` AS Tgt
+        USING `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_FWFastlabel_ClickAndCollect_Stg` AS Src
         ON Tgt.Id = Src.Id
         WHEN MATCHED THEN
             UPDATE SET
@@ -82,7 +82,7 @@ BEGIN
     END;
 
     -- Final Log Call (Handles both Success and Failure)
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

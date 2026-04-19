@@ -30,7 +30,13 @@ BEGIN
     MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Product` AS Tgt
     USING (
       SELECT DISTINCT
-        Sat.Product_HSK,
+        COALESCE(
+          Sat.Product_HSK,
+          `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(
+            CONCAT(Stg.Country, '^', CAST(Stg.ProductId AS STRING)),
+            '^'
+          )
+        ) AS Product_HSK,
         RTRIM(Stg.Country)           AS Country,
         Stg.Code                    AS ProductCode,
         Stg.ProductId,
@@ -93,7 +99,7 @@ BEGIN
       Loaded, ProcessId, RecordSource, ValidFrom, ValidTo, IsCurrent
     )
     VALUES (
-      `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(Src.Country, '^', CAST(Src.ProductId AS STRING))),
+      Src.Product_HSK,
       Src.Country, Src.ProductCode, Src.ProductId, Src.Description,
       CAST(Src.ItemType AS STRING),     -- Target is STRING
       Src.LabelPrefix,

@@ -7,7 +7,7 @@
 --  15/08/2020  P. Waldron      Routine Written
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_LNK_Label_Product_ServiceItem`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_LNK_Label_Product_ServiceItem`(
     IN ProcessID INT64,
     IN RecordSource STRING
 )
@@ -28,7 +28,7 @@ BEGIN
     BEGIN
 
         -- Insert new records that don't already exist in the target
-        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_LNK_Label_Product_ServiceItem`
+        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_Label_Product_ServiceItem`
         (
             Label_Product_ServiceItem_HSK,
             LabelNo_HSK,
@@ -56,10 +56,10 @@ BEGIN
             ProcessID      AS ProcessID,
             RecordSource,
             RecordSourceId
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_Product_ServiceItem_Stg` AS Stg
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Product_ServiceItem_Stg` AS Stg
         WHERE NOT EXISTS (
             SELECT 1
-            FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_LNK_Label_Product_ServiceItem` AS Tgt
+            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_Label_Product_ServiceItem` AS Tgt
             WHERE Tgt.Label_Product_ServiceItem_HSK = Stg.Label_Product_ServiceItem_HSK
         );
 
@@ -74,7 +74,7 @@ BEGIN
 
     -- Record load metrics in log
     SET Ended = CURRENT_DATETIME();
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         Component,
         ProcessID,
         Started,

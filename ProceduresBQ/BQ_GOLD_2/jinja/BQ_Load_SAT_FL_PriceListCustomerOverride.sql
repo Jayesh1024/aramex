@@ -51,7 +51,7 @@ BEGIN
                     IFNULL(NULLIF(CAST(CustomerId AS STRING), ''), '') || v_delim,
                     IFNULL(NULLIF(CAST(PriceList AS STRING), ''), '') || v_delim,
                     IFNULL(NULLIF(CAST(ProductId AS STRING), ''), '') || v_delim
-                )
+                ), '^'
             ) AS CustomerPriceOverride_HSK,
             CountryId,
             CustomerId,

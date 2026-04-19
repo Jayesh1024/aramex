@@ -1,9 +1,9 @@
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_SAT_CustomerCommissionOverride`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_CustomerCommissionOverride`(
     IN p_RecordSource STRING
 )
 BEGIN
     -- Logging Variables
-    DECLARE v_Component STRING DEFAULT 'searce-sandbox-da-delivery.Aramex_oceania.dv_Load_SAT_CustomerCommissionOverride';
+    DECLARE v_Component STRING DEFAULT 'prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_Load_SAT_CustomerCommissionOverride';
     
     -- OPTION 2: Changed from TIMESTAMP to DATETIME
     DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
@@ -22,9 +22,9 @@ BEGIN
         -- Multi-statement transaction to prevent downstream queries from reading an empty table
         BEGIN TRANSACTION;
 
-            TRUNCATE TABLE `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_CustomerCommissionOverride`;
+            TRUNCATE TABLE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_CustomerCommissionOverride`;
             
-            INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_CustomerCommissionOverride` (
+            INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_CustomerCommissionOverride` (
                 CountryCode, 
                 RFCode, 
                 CustomerId, 
@@ -45,7 +45,7 @@ BEGIN
                 UpdatedBy,
                 v_Loaded AS Loaded,
                 p_RecordSource AS RecordSource
-            FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_CustomerCommissionOverride_Stg`;
+            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_CustomerCommissionOverride_Stg`;
 
             SET v_Inserted = @@row_count;
 
@@ -59,7 +59,7 @@ BEGIN
     END;
 
     -- Record load metrics in log (Option 2: Using DATETIME and CURRENT_DATETIME)
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         v_Component,
         -1,  
         v_Started,

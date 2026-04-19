@@ -8,7 +8,7 @@
 --  05/09/2022	B. Woods		Changed primary key to use ProductId instead of ProductCode
 --  09/07/2025  B. Woods		Added additional columns	SAPGroup, SAPProductGroup, SAPSubProduct
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_SAT_Product`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_Product`(
   IN p_ProcessId    INT64,
   IN p_RecordSource STRING
 )
@@ -27,10 +27,16 @@ BEGIN
     -- -----------------------------------------------------------------------
     -- Step 1: Expire changed current records + insert brand-new records
     -- -----------------------------------------------------------------------
-    MERGE `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Product` AS Tgt
+    MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Product` AS Tgt
     USING (
       SELECT DISTINCT
-        Sat.Product_HSK,
+        COALESCE(
+          Sat.Product_HSK,
+          `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
+            CONCAT(Stg.Country, '^', CAST(Stg.ProductId AS STRING)),
+            '^'
+          )
+        ) AS Product_HSK,
         RTRIM(Stg.Country)           AS Country,
         Stg.Code                    AS ProductCode,
         Stg.ProductId,
@@ -49,8 +55,8 @@ BEGIN
         Stg.SAPGroup,
         Stg.SAPProductGroup,
         Stg.SAPSubProduct
-      FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Product_Stg` Stg
-      LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Product` Sat
+      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Product_Stg` Stg
+      LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Product` Sat
         ON  Sat.Country     = Stg.Country
         AND Sat.ProductCode = Stg.Code
         AND Sat.IsCurrent   = 1
@@ -93,7 +99,7 @@ BEGIN
       Loaded, ProcessId, RecordSource, ValidFrom, ValidTo, IsCurrent
     )
     VALUES (
-      `searce-sandbox-da-delivery.Aramex_oceania.dbo_GetHashKey`(CONCAT(Src.Country, '^', CAST(Src.ProductId AS STRING))),
+      Src.Product_HSK,
       Src.Country, Src.ProductCode, Src.ProductId, Src.Description,
       CAST(Src.ItemType AS STRING),     -- Target is STRING
       Src.LabelPrefix,
@@ -108,7 +114,7 @@ BEGIN
     -- -----------------------------------------------------------------------
     -- Step 2: Insert new current versions for expired records
     -- -----------------------------------------------------------------------
-    INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Product`
+    INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Product`
     (
       Product_HSK, Country, ProductCode, ProductId, Description, ItemType, LabelPrefix,
       LabelsPerBook, Price, FMSBookPrice, FMSDeliveryPrice, FMSPickupPrice, IncludesGST,
@@ -125,8 +131,8 @@ BEGIN
       CAST(Stg.SAPGroup AS STRING), CAST(Stg.SAPProductGroup AS STRING), CAST(Stg.SAPSubProduct AS STRING),
       v_Loaded, p_ProcessId, p_RecordSource,
       v_Loaded AS ValidFrom, DATETIME '9999-12-31 00:00:00' AS ValidTo, 1 AS IsCurrent
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Product` Sat
-    INNER JOIN `searce-sandbox-da-delivery.Aramex_oceania.Staging_Product_Stg` Stg
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Product` Sat
+    INNER JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Product_Stg` Stg
       ON  Sat.Country     = Stg.Country
       AND Sat.ProductCode = Stg.Code
     WHERE Sat.IsCurrent        = 0
@@ -134,8 +140,8 @@ BEGIN
       AND Sat.Product_HSK      IS NOT NULL;
 
     -- Update logging counts
-    SET v_Updated = (SELECT COUNTIF(IsCurrent = 0 AND ValidTo = v_Loaded) FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Product` WHERE ProcessId = p_ProcessId);
-    SET v_Inserted = (SELECT COUNTIF(IsCurrent = 1 AND ValidFrom = v_Loaded) FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Product` WHERE ProcessId = p_ProcessId);
+    SET v_Updated = (SELECT COUNTIF(IsCurrent = 0 AND ValidTo = v_Loaded) FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Product` WHERE ProcessId = p_ProcessId);
+    SET v_Inserted = (SELECT COUNTIF(IsCurrent = 1 AND ValidFrom = v_Loaded) FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Product` WHERE ProcessId = p_ProcessId);
 
     SET v_Result = 'Success';
 
@@ -147,7 +153,7 @@ BEGIN
   -- -----------------------------------------------------------------------
   -- Record load metrics in log
   -- -----------------------------------------------------------------------
-  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
     v_Component, p_ProcessId, v_Started, CURRENT_DATETIME(), v_Result, v_ErrorMessage, v_Inserted, v_Updated, -1
   );
 

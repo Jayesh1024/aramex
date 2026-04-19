@@ -6,7 +6,7 @@
 --  15/08/2020  P. Waldron      Routine Written
 --  21/06/2022  B. Woods         Cloned
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_LNK_Label_InterBranch`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_LNK_Label_InterBranch`(
     IN p_ProcessID INT64
 )
 OPTIONS(strict_mode=false)
@@ -29,25 +29,26 @@ BEGIN
     BEGIN
         -- Using MERGE to handle the "Insert if Not Exists" logic in a single scan.
         -- All table and function identifiers use Jinja2 templates and underscore schema naming.
-        MERGE INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_LNK_Label_Interbranch_Deprecated` AS Tgt
+        MERGE INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_Label_Interbranch_Deprecated` AS Tgt
         USING (
             SELECT 
-                `searce-sandbox-da-delivery.Aramex_oceania.dbo_GetHashKey`(
+                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
                     CONCAT(
                         Country, '^', 
                         LabelNo, '^', 
                         CAST(BatchId AS STRING), '^', 
                         InvoiceFromRF, '^', 
                         InvoiceToRF
-                    )
+                    ),
+                    '^'
                 ) AS Label_InterBranch_HSK,
-                `searce-sandbox-da-delivery.Aramex_oceania.dbo_GetHashKey`(CONCAT(Country, '^', LabelNo)) AS LabelNo_HSK,
+                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(Country, '^', LabelNo), '^') AS LabelNo_HSK,
                 LabelNo,
                 Country,
                 InvoiceFromRF,
                 InvoiceToRF,
                 BatchId
-            FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_Interbranch_Stg`
+            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Interbranch_Stg`
         ) AS Src
         ON Tgt.Label_InterBranch_HSK = Src.Label_InterBranch_HSK
         WHEN NOT MATCHED THEN
@@ -87,7 +88,7 @@ BEGIN
     END;
 
     -- Final Log Call (Handles both Success and Failure metrics)
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

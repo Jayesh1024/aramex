@@ -6,15 +6,15 @@
 -- History:
 --	23/11/2018  P. Waldron		Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_Set_LastValue_All`()
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_Set_LastValue_All`()
 BEGIN
 
   FOR rec IN (
     SELECT RecordSource
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_LoadControl`
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
   )
   DO
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_Set_LastValue`(rec.RecordSource, NULL, NULL, FALSE);
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_Set_LastValue`(rec.RecordSource, NULL, NULL, FALSE);
   END FOR;
 
 END;

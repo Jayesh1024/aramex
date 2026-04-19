@@ -1,6 +1,6 @@
 -- ==========================================================================================
 -- Routine:     staging_Load_Scans_Stg
--- Description: Combines scan data into one table for loading into `searce-sandbox-da-delivery.Aramex_oceania.Staging_LNK_Scan_Stg`
+-- Description: Combines scan data into one table for loading into `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LNK_Scan_Stg`
 --              BigQuery compatible version of Load_Scans_Stg
 --              Note: WITH (TABLOCK) removed.
 --                    ROLLBACK TRANSACTION removed (BQ procedures don't use explicit transactions).
@@ -13,7 +13,7 @@
 --  17/12/2020  B. Woods        Updated to insert rows from new TrackAndTrace_Stg source table
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.staging_Load_Scans_Stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.staging_Load_Scans_Stg`(
     IN ProcessID INT64
 )
 BEGIN
@@ -29,7 +29,7 @@ BEGIN
 
     BEGIN
 
-        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_Scans_Stg`
+        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Scans_Stg`
         (
             FranchiseeCode,
             CourierNo,
@@ -80,8 +80,8 @@ BEGIN
                 stg.iLocate,
                 Loaded                   AS Loaded,
                 ProcessID                AS ProcessId
-            FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_TrackAndTrace_Stg` AS stg
-            INNER JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` DC ON DC.CountryCode = stg.CountryCode
+            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_TrackAndTrace_Stg` AS stg
+            INNER JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` DC ON DC.CountryCode = stg.CountryCode
             GROUP BY
                 stg.FranchiseeCode,
                 stg.CourierNo,
@@ -101,7 +101,7 @@ BEGIN
 
         SET LastId = (
             SELECT MAX(ID)
-            FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_TrackAndTrace_Stg`
+            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_TrackAndTrace_Stg`
         );
 
         SET Result       = 'Success';
@@ -115,7 +115,7 @@ BEGIN
 
     -- Record load metrics in log
     SET Ended = CURRENT_DATETIME();
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         Component,
         ProcessID,
         Started,

@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.rpt_GetParcelMovement`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.rpt_GetParcelMovement`(
   IN p_CountryCode      INT64,
   IN p_InvoiceFromDate  DATE,
   IN p_InvoiceToDate    DATE
@@ -22,7 +22,7 @@ BEGIN
       DeliveryRF          AS InvoiceFromRF,
       PickupRF            AS InvoiceToRF,
       DeliveryRFInvoiceDate AS InvoiceDate
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.dbo_DLBSInvoiceHeader`
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_DLBSInvoiceHeader`
     WHERE CountryId    = p_CountryCode
       AND DeliveryRFInvoiceDate BETWEEN p_InvoiceFromDate AND p_InvoiceToDate
     -- AND PickupRF = p_InvoiceToRF AND DeliveryRF = p_InvoiceFromRF
@@ -35,7 +35,7 @@ BEGIN
       PickupRF            AS InvoiceFromRF,
       DeliveryRF          AS InvoiceToRF,
       PickupRFInvoiceDate AS InvoiceDate
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.dbo_PLBSInvoiceHeader`
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_PLBSInvoiceHeader`
     WHERE CountryId    = p_CountryCode
       AND PickupRFInvoiceDate BETWEEN p_InvoiceFromDate AND p_InvoiceToDate
     -- AND DeliveryRF = p_InvoiceToRF AND PickupRF = p_InvoiceFromRF
@@ -46,7 +46,7 @@ BEGIN
       CountryCode,
       BatchId,
       DATE_SUB(Date, INTERVAL 1 MONTH) AS InvoiceDate
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.dbo_DLBSRFBatching`
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_DLBSRFBatching`
     WHERE CountryCode = p_CountryCode
       AND DATE_SUB(Date, INTERVAL 1 MONTH) BETWEEN p_InvoiceFromDate AND p_InvoiceToDate
   ),
@@ -66,7 +66,7 @@ BEGIN
       l.CustomerId                                                              AS FMSCustomerID,
       CAST(NULL AS STRING)                                                      AS OESCustomerID,
       'MFW DLBS'                                                                AS Type
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_MF` l
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` l
     INNER JOIN DLBSHeader h
       ON  l.DLBSBatchId   = h.DLBSBatchId
       AND l.DLBSInvoiceNo = h.DeliveryRFInvoiceNo
@@ -87,7 +87,7 @@ BEGIN
       l.CustomerId                        AS FMSCustomerID,
       CAST(NULL AS STRING)                AS OESCustomerID,
       'MFW PLBS'                          AS Type
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_MF` l
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` l
     INNER JOIN PLBSHeader h
       ON  l.PLBSBatchId   = h.PLBSBatchId
       AND l.PLBSInvoiceNo = h.PickupRFInvoiceNo
@@ -109,8 +109,8 @@ BEGIN
       m.CustomerId                                                              AS FMSCustomerID,
       CAST(NULL AS STRING)                                                      AS OESCustomerID,
       'MFW DLBS'                                                                AS Type
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_LSAT_Label_Product_ServiceItem` l
-    INNER JOIN `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_MF` m
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LSAT_Label_Product_ServiceItem` l
+    INNER JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` m
       ON  l.LabelNo   = m.LabelNo
       AND m.IsCurrent = 1
     INNER JOIN DLBSHeader h
@@ -133,8 +133,8 @@ BEGIN
       m.CustomerId                        AS FMSCustomerID,
       CAST(NULL AS STRING)                AS OESCustomerID,
       'MFW PLBS'                          AS Type
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_LSAT_Label_Product_ServiceItem` l
-    INNER JOIN `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_MF` m
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LSAT_Label_Product_ServiceItem` l
+    INNER JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` m
       ON  l.LabelNo   = m.LabelNo
       AND m.IsCurrent = 1
     INNER JOIN PLBSHeader h
@@ -163,23 +163,23 @@ BEGIN
       l.FMSCustomerID,
       l.OESCustomerID,
       'Legacy DLBS'                       AS Type
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.dbo_Fact_Interbranch` i
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Fact_Interbranch` i
     INNER JOIN DLBSBatching b
       ON  CAST(i.CountryCode AS INT64) = b.CountryCode
       AND i.BatchId     = b.BatchId
-    LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Label` l
+    LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Label` l
       ON  i.LabelNo     = l.LabelNo
       AND l.CountryCode = i.CountryCode
     WHERE i.LabelNo NOT IN (
       SELECT LabelNo
-      FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_MF`
+      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF`
       WHERE CountryCode = p_CountryCode
         AND IsCurrent   = 1
         AND (DLBSBatchId > 0 OR PLBSBatchId > 0)
     )
     AND i.LabelNo NOT IN (
       SELECT LabelNo
-      FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_LSAT_Label_Product_ServiceItem`
+      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LSAT_Label_Product_ServiceItem`
       WHERE CountryCode = p_CountryCode
         AND IsCurrent   = 1
         AND (DLBSBatchId > 0 OR PLBSBatchId > 0)

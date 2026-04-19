@@ -5,7 +5,7 @@
 -- History:
 --	09/11/2018  P. Waldron		Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_SAT_RF`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_RF`(
   IN p_ProcessId    INT64,
   IN p_RecordSource STRING
 )
@@ -25,7 +25,7 @@ BEGIN
     -- -----------------------------------------------------------------------
     -- Step 1: Expire changed current records and Insert brand-new HSKs
     -- -----------------------------------------------------------------------
-    MERGE `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_RF` AS Tgt
+    MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_RF` AS Tgt
     USING (
       SELECT DISTINCT
         -- Generate HSK as BYTES for the join and insert
@@ -53,7 +53,7 @@ BEGIN
         )                                          AS Address,
         IFNULL(Stg.CompanyOwnedRF,    0)           AS CompanyOwnedRF,
         IFNULL(Stg.UsingWebFMSBanking, 0)          AS UsingWebFMSBanking
-      FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Franchisee_Stg` Stg
+      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Franchisee_Stg` Stg
     ) AS Src
     ON  Tgt.FranchiseeCode_HSK = Src.Calculated_HSK
     AND Tgt.IsCurrent          = 1
@@ -128,7 +128,7 @@ BEGIN
     -- -----------------------------------------------------------------------
     -- Step 2: Insert new current versions for records that were just expired
     -- -----------------------------------------------------------------------
-    INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_RF`
+    INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_RF`
     (
       FranchiseeCode_HSK,
       FranchiseeCode,
@@ -182,8 +182,8 @@ BEGIN
       v_Loaded                                   AS ValidFrom,
       DATETIME '9999-12-31 00:00:00'             AS ValidTo,
       1                                          AS IsCurrent
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_RF` Sat
-    INNER JOIN `searce-sandbox-da-delivery.Aramex_oceania.Staging_Franchisee_Stg` Stg
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_RF` Sat
+    INNER JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Franchisee_Stg` Stg
       ON Sat.FranchiseeCode = Stg.FranchiseeCode
     WHERE Sat.IsCurrent  = 0
       AND Sat.ValidTo    = v_Loaded;
@@ -193,7 +193,7 @@ BEGIN
     -- -----------------------------------------------------------------------
     SET v_Updated = (
       SELECT COUNT(1)
-      FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_RF`
+      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_RF`
       WHERE ProcessId = p_ProcessId
         AND ValidTo   = v_Loaded
         AND IsCurrent = 0
@@ -201,7 +201,7 @@ BEGIN
 
     SET v_Inserted = (
       SELECT COUNT(1)
-      FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_RF`
+      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_RF`
       WHERE ProcessId = p_ProcessId
         AND ValidFrom = v_Loaded
         AND IsCurrent = 1
@@ -220,7 +220,7 @@ BEGIN
   -- -----------------------------------------------------------------------
   SET v_Ended = CURRENT_DATETIME();
 
-  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
     v_Component,
     p_ProcessId,
     v_Started,

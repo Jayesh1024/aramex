@@ -58,7 +58,8 @@ BEGIN
                         Src.ScanStatus, '^', Src.CountryName, '^',
                         CAST(Src.Latitude AS STRING), '^', CAST(Src.Longitude AS STRING), '^',
                         Src.ScanType
-                    )
+                    ),
+                    '^'
                 ) AS Scan_HSK,
                 FranchiseeCode_HSK, Courier_HSK, LabelNo_HSK, Location_HSK, ScanStatus_HSK, 
                 FranchiseeCode, CourierNumber, RTRIM(LabelNo) as LabelNo, Latitude, Longitude, 
@@ -70,8 +71,8 @@ BEGIN
                 SELECT 
                     rf.FranchiseeCode_HSK, 
                     cf.Courier_HSK, 
-                    `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(COALESCE(stg.LabelNo, 'Unknown')) AS LabelNo_HSK, 
-                    `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(COALESCE(stg.Latitude, 0) AS STRING), '/', CAST(COALESCE(stg.Longitude, 0) AS STRING))) AS Location_HSK,
+                    `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(COALESCE(stg.LabelNo, 'Unknown'), '^') AS LabelNo_HSK, 
+                    `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(COALESCE(stg.Latitude, 0) AS STRING), '/', CAST(COALESCE(stg.Longitude, 0) AS STRING)), '^') AS Location_HSK,
                     stat.ScanStatus_HSK,
                     COALESCE(rf.FranchiseeCode, stg.FranchiseeCode, 'Unk') AS FranchiseeCode,
                     COALESCE(cf.CourierNumber, stg.CourierNo, 'Unk') AS CourierNumber,

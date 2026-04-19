@@ -31,7 +31,10 @@ BEGIN
     USING (
       SELECT * FROM (
         SELECT
-          Sat.LabelNo_HSK,
+          COALESCE(
+            Sat.LabelNo_HSK,
+            `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(Stg.LabelNo, '^')
+          ) AS LabelNo_HSK,
           Stg.LabelNo,
           Stg.CountryCode,
           IFNULL(cty.CountryName, 'Unknown')    AS Country,
@@ -94,7 +97,7 @@ BEGIN
       Loaded, ProcessId, RecordSource, ValidFrom, ValidTo, IsCurrent
     )
     VALUES (
-      `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(Src.LabelNo),
+      Src.LabelNo_HSK,
       Src.LabelNo, Src.CountryCode, Src.Country,
       Src.Electronic_CustomerType, Src.Electronic_CustomerID, Src.Electronic_Reference,
       Src.FastLabel_ConsignmentID, Src.FastLabel_DestinationRF, Src.Distribution_Date,

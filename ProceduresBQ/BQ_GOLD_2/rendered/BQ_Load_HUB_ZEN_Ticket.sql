@@ -7,7 +7,7 @@
 --
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_HUB_ZEN_Ticket`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_HUB_ZEN_Ticket`(
     IN p_ProcessID INT64,
     IN p_RecordSource STRING
 )
@@ -24,12 +24,12 @@ BEGIN
     BEGIN
         -- A MERGE statement handles the Hub load pattern using Jinja2 templates for all identifiers.
         -- p_RecordSource remains a dynamic input parameter.
-        MERGE INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_HUB_ZEN_Ticket` AS Dest
+        MERGE INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_HUB_ZEN_Ticket` AS Dest
         USING (
             SELECT DISTINCT 
                 ZenDeskTicketId,
                 RTRIM(CAST(LabelNo AS STRING)) AS LabelNo
-            FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_ZEN_Ticket_Stg`
+            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_ZEN_Ticket_Stg`
         ) AS Src
         ON CAST(Dest.ZenDeskTicketId AS STRING) = RTRIM(CAST(Src.ZenDeskTicketId AS STRING))
         WHEN NOT MATCHED THEN
@@ -43,7 +43,7 @@ BEGIN
             )
             VALUES (
                 -- Assuming GetHashKey is migrated as a BigQuery UDF within the target project/dataset
-                `searce-sandbox-da-delivery.Aramex_oceania.dbo_GetHashKey`(SUBSTR(CAST(Src.ZenDeskTicketId AS STRING), 1, 10)),
+                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(SUBSTR(CAST(Src.ZenDeskTicketId AS STRING), 1, 10), '^'),
                 Src.LabelNo,
                 Src.ZenDeskTicketId,
                 v_Started, 
@@ -60,7 +60,7 @@ BEGIN
     END;
 
     -- Final Log Call (Handles both Success and Failure metrics)
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

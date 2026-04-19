@@ -34,7 +34,7 @@ BEGIN
             ValidTo = v_Loaded
         FROM (
             SELECT 
-                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(Stg.LabelNumber) AS LabelNo_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(Stg.LabelNumber, '^') AS LabelNo_HSK,
                 Stg.LabelNumber,
                 Stg.CountryCode,
                 IFNULL(cty.CountryName, 'Unknown') AS Country,
@@ -85,7 +85,7 @@ BEGIN
             Loaded, ProcessId, RecordSource, RecordSourceId, ValidFrom, ValidTo, IsCurrent
         )
         SELECT
-            `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(Src.LabelNumber),
+            `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(Src.LabelNumber, '^'),
             Src.LabelNumber, Src.CountryCode, Src.Country, Src.LabelPrinted, Src.CustomerID, 
             Src.ClientID, Src.ConsumedByCustomerUserID, Src.LblColour, Src.LblPrice, Src.LblPrice1, 
             Src.Reference, Src.Packaging, Src.Weight, Src.WeightCubic, Src.Length, Src.Width, Src.Height, 

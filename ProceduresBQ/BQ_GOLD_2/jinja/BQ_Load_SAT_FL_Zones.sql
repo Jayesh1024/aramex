@@ -44,7 +44,7 @@ BEGIN
                 CONCAT(
                     IFNULL(NULLIF(CAST(CountryId AS STRING), ''), '') || v_delim,
                     IFNULL(NULLIF(CAST(ZoneCode AS STRING), ''), '') || v_delim
-                )
+                ), '^'
             ) AS ZoneKey,
             CountryId,
             ZoneCode,

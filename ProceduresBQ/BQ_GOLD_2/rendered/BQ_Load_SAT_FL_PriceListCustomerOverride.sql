@@ -1,10 +1,10 @@
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_SAT_FL_PriceListCustomerOverride`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_FL_PriceListCustomerOverride`(
     IN p_ProcessID INT64,
     IN p_RecordSource STRING
 )
 BEGIN
     -- Logging Variables
-    DECLARE v_Component STRING DEFAULT 'searce-sandbox-da-delivery.Aramex_oceania.dv_Load_SAT_FL_PriceListCustomerOverride';
+    DECLARE v_Component STRING DEFAULT 'prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_Load_SAT_FL_PriceListCustomerOverride';
     
     -- OPTION 2: Use DATETIME and CURRENT_DATETIME()
     DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
@@ -21,7 +21,7 @@ BEGIN
     DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
 
     BEGIN
-        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_FL_PriceListCustomerOverride` (
+        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_FL_PriceListCustomerOverride` (
             CustomerPriceOverride_HSK,
             CountryId,
             CustomerId,
@@ -38,13 +38,13 @@ BEGIN
         )
         SELECT
             -- UDF Call (Table naming rule: dbo.GetHashKey -> dbo_GetHashKey)
-            `searce-sandbox-da-delivery.Aramex_oceania.dbo_GetHashKey`(
+            `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
                 CONCAT(
                     IFNULL(NULLIF(CAST(CountryId AS STRING), ''), '') || v_delim,
                     IFNULL(NULLIF(CAST(CustomerId AS STRING), ''), '') || v_delim,
                     IFNULL(NULLIF(CAST(PriceList AS STRING), ''), '') || v_delim,
                     IFNULL(NULLIF(CAST(ProductId AS STRING), ''), '') || v_delim
-                )
+                ), '^'
             ) AS CustomerPriceOverride_HSK,
             CountryId,
             CustomerId,
@@ -58,7 +58,7 @@ BEGIN
             ExcessCommissionOverrideForce,
             v_Loaded AS Loaded,
             p_RecordSource AS RecordSource
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_fl_PriceListCustomerOverride_Stg`;
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_fl_PriceListCustomerOverride_Stg`;
 
         SET v_Inserted = @@row_count;
         SET v_Result = 'Success';
@@ -69,7 +69,7 @@ BEGIN
     END;
 
     -- Record load metrics in log (Option 2: Using DATETIME and CURRENT_DATETIME)
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

@@ -7,7 +7,7 @@
 --	24/02/2020  P. Waldron		Add RFCode to the Staging.FMS_InvoiceLines_Stg Join 
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_LNK_InvoiceLine`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_LNK_InvoiceLine`(
     IN p_ProcessID INT64
 )
 OPTIONS(strict_mode=false)
@@ -26,15 +26,15 @@ BEGIN
     BEGIN
         -- A MERGE statement efficiently handles the "Insert if Not Exists" Link load pattern.
         -- Identifiers use the Jinja2 template for project/dataset and underscore schema naming.
-        MERGE INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_LNK_InvoiceLine` AS Tgt
+        MERGE INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_InvoiceLine` AS Tgt
         USING (
             SELECT
-                `searce-sandbox-da-delivery.Aramex_oceania.dbo_GetHashKey`(CONCAT(CAST(dl.InvoiceNumber AS STRING), '^', dl.FranchiseeCode, '^', dl.CourierNumber, '^', dl.CustomerKey, '^', dl.ProductCode, '^', dl.Country)) AS InvoiceLine_HSK,
-                `searce-sandbox-da-delivery.Aramex_oceania.dbo_GetHashKey`(CONCAT(CAST(dl.InvoiceNumber AS STRING), '^', dl.FranchiseeCode)) AS Invoice_HSK,
-                `searce-sandbox-da-delivery.Aramex_oceania.dbo_GetHashKey`(dl.FranchiseeCode) AS FranchiseeCode_HSK,
-                `searce-sandbox-da-delivery.Aramex_oceania.dbo_GetHashKey`(CONCAT(dl.FranchiseeCode, '^', dl.CourierNumber)) AS Courier_HSK,
-                `searce-sandbox-da-delivery.Aramex_oceania.dbo_GetHashKey`(dl.CustomerKey) AS Customer_HSK,
-                `searce-sandbox-da-delivery.Aramex_oceania.dbo_GetHashKey`(CONCAT(dl.Country, '^', dl.ProductCode)) AS Product_HSK,
+                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(CAST(dl.InvoiceNumber AS STRING), '^', dl.FranchiseeCode, '^', dl.CourierNumber, '^', dl.CustomerKey, '^', dl.ProductCode, '^', dl.Country), '^') AS InvoiceLine_HSK,
+                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(CAST(dl.InvoiceNumber AS STRING), '^', dl.FranchiseeCode), '^') AS Invoice_HSK,
+                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(dl.FranchiseeCode, '^') AS FranchiseeCode_HSK,
+                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(dl.FranchiseeCode, '^', dl.CourierNumber), '^') AS Courier_HSK,
+                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(dl.CustomerKey, '^') AS Customer_HSK,
+                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(dl.Country, '^', dl.ProductCode), '^') AS Product_HSK,
                 dl.InvoiceNumber,
                 dl.FranchiseeCode,
                 dl.CourierNumber,
@@ -49,12 +49,12 @@ BEGIN
                     cust.CustomerKey,
                     ps.Code AS ProductCode,
                     c.CountryName AS Country
-                FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_FMS_InvoiceHead_Stg` AS ih
-                JOIN `searce-sandbox-da-delivery.Aramex_oceania.Staging_FMS_InvoiceLines_Stg` AS il 
+                FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_FMS_InvoiceHead_Stg` AS ih
+                JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_FMS_InvoiceLines_Stg` AS il 
                     ON il.InvoiceNumber = ih.InvoiceNumber AND ih.RFCode = il.RFId
-                JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` AS c 
+                JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS c 
                     ON c.CountryCode = il.NMId 
-                JOIN `searce-sandbox-da-delivery.Aramex_oceania.Staging_Product_Stg` AS ps 
+                JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Product_Stg` AS ps 
                     ON ps.ProductId = il.ProductId AND ps.Country = c.CountryName 
                 -- Optimized subquery replacing CROSS APPLY
                 JOIN (
@@ -65,7 +65,7 @@ BEGIN
                             cs.CustomerID, 
                             cs.RFId,
                             ROW_NUMBER() OVER(PARTITION BY cs.CustomerID, cs.RFId ORDER BY cs.Active DESC) AS rn
-                        FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_FMS_Customer_Stg` AS cs
+                        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_FMS_Customer_Stg` AS cs
                     )
                     WHERE rn = 1
                 ) AS cust 
@@ -120,7 +120,7 @@ BEGIN
     END;
 
     -- Final Log Call (Handles Success and Failure metrics)
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

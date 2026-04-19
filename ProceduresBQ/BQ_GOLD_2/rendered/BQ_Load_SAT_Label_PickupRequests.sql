@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_SAT_Label_PickupRequests`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_Label_PickupRequests`(
     IN p_ProcessID INT64
 )
 BEGIN
@@ -7,7 +7,7 @@ BEGIN
     -- Description: Full refresh of dv_SAT_Label_PickupRequest from Staging
     -- ------------------------------------------------------------------------------------------
 
-    DECLARE v_Component STRING DEFAULT 'searce-sandbox-da-delivery.Aramex_oceania.dv_Load_SAT_Label_PickupRequests';
+    DECLARE v_Component STRING DEFAULT 'prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_Load_SAT_Label_PickupRequests';
     
     -- OPTION 2: Use DATETIME instead of TIMESTAMP
     DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
@@ -18,10 +18,10 @@ BEGIN
 
     BEGIN
         -- 1. Truncate target table
-        TRUNCATE TABLE `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_PickupRequest`;
+        TRUNCATE TABLE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_PickupRequest`;
 
         -- 2. Insert transformed data
-        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_PickupRequest` (
+        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_PickupRequest` (
             PickupRequest_HSK, LabelNo_HSK, FranchiseeCode_HSK, Courier_HSK,
             CreateDateUtc, ShouldPrintLabel, PickupFranchiseeCode, PickupCourierNumber,
             LabelNo, Country, CollectionDate, CollectionCycle, PickupName, PickupPhone,
@@ -64,8 +64,8 @@ BEGIN
             p_ProcessID AS ProcessId,
             Src.ID AS RecordSourceID,
             'PickupRequest_Stg' AS RecordSource 
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_PickupRequest_Stg` AS Src
-        LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` AS C 
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_PickupRequest_Stg` AS Src
+        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS C 
             ON C.CountryCode = Src.CountryCode
         WHERE Src.LabelNumber IS NOT NULL;
 
@@ -79,7 +79,7 @@ BEGIN
     -- Final Log Call (Option 2: Using DATETIME and CURRENT_DATETIME)
     SET v_Ended = CURRENT_DATETIME();
     
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

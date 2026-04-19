@@ -40,7 +40,7 @@ BEGIN
             )
             SELECT 
                 Src.LabelNo,
-                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(Src.LabelNo) AS LabelNo_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(Src.LabelNo, '^') AS LabelNo_HSK,
                 Src.Pickup_Address_HSK,
                 Src.Delivery_Address_HSK,
                 CONCAT('[From:', Src.Pickup_RecordSource, ']', '[To:', Src.Delivery_RecordSource, ']') AS RecordSource,
