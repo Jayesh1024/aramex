@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_Get_LastValue`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_Get_LastValue`(
     IN p_RecordSource STRING
 )
 BEGIN
@@ -9,10 +9,9 @@ BEGIN
 
     DECLARE v_LastValue STRING;
 
-    -- Applied Option 2 Naming Logic: ..Table_Name (using underscore for schema)
     SET v_LastValue = (
         SELECT LastValue 
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_LoadControl`
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
         WHERE RecordSource = p_RecordSource
         LIMIT 1
     );

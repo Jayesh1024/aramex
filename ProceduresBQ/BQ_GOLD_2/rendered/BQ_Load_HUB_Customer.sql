@@ -5,7 +5,7 @@
 -- History:
 --  25/10/2018  P. Waldron    Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_HUB_Customer`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_HUB_Customer`(
   p_ProcessID INT64,
   p_RecordSource STRING -- Parameter kept for signature compatibility
 )
@@ -21,7 +21,7 @@ BEGIN
 
   BEGIN
     -- BigQuery MERGE: Atomic check for existing Customer_HSK before insertion
-    MERGE `searce-sandbox-da-delivery.Aramex_oceania.dv_HUB_Customer` AS Target
+    MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_HUB_Customer` AS Target
     USING (
       SELECT DISTINCT
         -- Generate SHA256 Hash Key for the Business Key
@@ -30,7 +30,7 @@ BEGIN
         v_Loaded AS Loaded,
         p_ProcessID AS ProcessID,
         v_StaticRecordSource AS RecordSource
-      FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_FMS_Customer_Stg`
+      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_FMS_Customer_Stg`
       WHERE CustomerKey IS NOT NULL
     ) AS Source
     ON Target.Customer_HSK = Source.CustomerKey_HSK
@@ -46,7 +46,7 @@ BEGIN
   END;
 
   -- Metadata Logging
-  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
     'dv_Load_HUB_Customer',
     p_ProcessID,
     v_Started,

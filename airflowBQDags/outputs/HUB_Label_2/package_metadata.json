@@ -3,9 +3,9 @@
   "executables": {
     "Package\\Final": {
       "task_metadata": {
-        "Package\\Final\\Load LNK_Label_InterBranch": {
+        "Package\\Final\\Load LSAT_Label_InterBranch": {
           "task_metadata": {
-            "query": "Exec [dv].[Load_LNK_Label_InterBranch] ?,?",
+            "query": "Exec [dv].[Load_LSAT_Label_InterBranch] ?,?",
             "param_map": {
               "param_0": {
                 "variable_name": "ProcessId",
@@ -20,16 +20,16 @@
           },
           "task_type": "Microsoft.ExecuteSQLTask"
         },
-        "Package\\Final\\Load LSAT_Label_InterBranch": {
+        "Package\\Final\\Set LastValue (InterBranch)": {
           "task_metadata": {
-            "query": "Exec [dv].[Load_LSAT_Label_InterBranch] ?,?",
+            "query": "DECLARE @RecordSource varchar(50)  = ?;\nDECLARE @LastBatchID int = ?;\nDECLARE @NoRows int = 0;\n\nSELECT @NoRows = COUNT(*) FROM [Staging].[Label_Interbranch_Stg]\n\nUPDATE [Staging].[LoadControl]\nSET LastValue = CONVERT(Varchar(15), @LastBatchID + 1)\nWHERE RecordSource = @RecordSource\nAND @NoRows > 0",
             "param_map": {
               "param_0": {
-                "variable_name": "ProcessId",
+                "variable_name": "RecordSource12",
                 "direction": "Input"
               },
               "param_1": {
-                "variable_name": "RecordSource12",
+                "variable_name": "LastBatchId12",
                 "direction": "Input"
               }
             },
@@ -211,23 +211,6 @@
             }
           },
           "task_type": "Microsoft.Pipeline"
-        },
-        "Package\\Staging 2\\Set LastValue (InterBranch)": {
-          "task_metadata": {
-            "query": "DECLARE @RecordSource varchar(50)  = ?;\nDECLARE @LastBatchID int = ?;\nDECLARE @NoRows int = 0;\n\nSELECT @NoRows = COUNT(*) FROM [Staging].[Label_Interbranch_Stg]\n\nUPDATE [Staging].[LoadControl]\nSET LastValue = CONVERT(Varchar(15), @LastBatchID + 1)\nWHERE RecordSource = @RecordSource\nAND @NoRows > 0",
-            "param_map": {
-              "param_0": {
-                "variable_name": "RecordSource12",
-                "direction": "Input"
-              },
-              "param_1": {
-                "variable_name": "LastBatchId12",
-                "direction": "Input"
-              }
-            },
-            "result_set": {}
-          },
-          "task_type": "Microsoft.ExecuteSQLTask"
         },
         "Package\\Staging 2\\Truncate Label_Interbranch_Stg": {
           "task_metadata": {

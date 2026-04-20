@@ -1,13 +1,13 @@
 -- ==========================================================================================
 -- Routine:     dv_Load_LNK_Product_ServiceCon
--- Description: Loads LNK_Product_ServiceCon from `searce-sandbox-da-delivery.Aramex_oceania.Staging_Product_ServiceCon_Stg`
+-- Description: Loads LNK_Product_ServiceCon from `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Product_ServiceCon_Stg`
 --              BigQuery compatible version of Load_LNK_Product_ServiceCon
 -- Example:     CALL dv.dv_Load_LNK_Product_ServiceCon(659, 'MyFastway')
 -- History:
 --  15/08/2020  P. Waldron      Routine Written
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_LNK_Product_ServiceCon`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_LNK_Product_ServiceCon`(
     IN ProcessID INT64,
     IN RecordSource STRING
 )
@@ -28,7 +28,7 @@ BEGIN
     BEGIN
 
         -- Insert new records that don't already exist in the target
-        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_LNK_Product_ServiceCon`
+        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_Product_ServiceCon`
         (
             Product_ServiceCon_HSK,
             Product_HSK,
@@ -61,14 +61,14 @@ BEGIN
             ProcessID     AS ProcessID,
             Stg.RecordSource,
             Stg.RecordSourceId
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Product_ServiceCon_Stg` AS Stg
-        LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.Staging_fl_ServiceItem_Stg` AS SI
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Product_ServiceCon_Stg` AS Stg
+        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_fl_ServiceItem_Stg` AS SI
             ON  Stg.CountryId    = SI.CountryId
             AND Stg.ProductId    = SI.ProductId
             AND Stg.ServiceItemId = SI.ServiceItemId
         WHERE NOT EXISTS (
             SELECT 1
-            FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_LNK_Product_ServiceCon` AS Tgt
+            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_Product_ServiceCon` AS Tgt
             WHERE Tgt.Product_ServiceCon_HSK = Stg.Product_ServiceCon_HSK
         );
 
@@ -83,7 +83,7 @@ BEGIN
 
     -- Record load metrics in log
     SET Ended = CURRENT_DATETIME();
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         Component,
         ProcessID,
         Started,

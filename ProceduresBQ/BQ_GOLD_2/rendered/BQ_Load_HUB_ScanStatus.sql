@@ -6,7 +6,7 @@
 --	13/11/2018  P. Waldron		Routine Written
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_HUB_ScanStatus`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_HUB_ScanStatus`(
     IN p_ProcessID INT64,
     IN p_RecordSource STRING
 )
@@ -22,12 +22,12 @@ BEGIN
 
     BEGIN
         -- A MERGE statement handles the "Insert if Not Exists" logic using Jinja2 templates for paths.
-        MERGE INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_HUB_ScanStatus` AS Dest
+        MERGE INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_HUB_ScanStatus` AS Dest
         USING (
             SELECT DISTINCT 
                 IFNULL(RTRIM(CountryName), 'Unknown') AS CountryName, 
                 StatusCode AS ScanStatus 
-            FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_ScanStatus_Stg`
+            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_ScanStatus_Stg`
         ) AS Src
         ON Dest.CountryName = Src.CountryName 
            AND Dest.ScanStatus = Src.ScanStatus
@@ -42,7 +42,7 @@ BEGIN
             )
             VALUES (
                 -- UDF reference converted to Jinja2 path format
-                `searce-sandbox-da-delivery.Aramex_oceania.dbo_GetHashKey`(CONCAT(Src.CountryName, '^', Src.ScanStatus)),
+                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(Src.CountryName, '^', Src.ScanStatus), '^'),
                 Src.CountryName,
                 Src.ScanStatus,
                 v_Loaded,
@@ -59,7 +59,7 @@ BEGIN
     END;
 
     -- Final Log Call (Handles both Success and Failure metrics)
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dbo_Load_UndTckt_Invoice`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dbo_Load_UndTckt_Invoice`(
     IN p_ProcessID INT64
 )
 BEGIN
@@ -7,7 +7,7 @@ BEGIN
     -- Description: Upserts under-ticketed invoices into dbo_FMS_UndTcktInvoice
     -- ------------------------------------------------------------------------------------------
 
-    DECLARE v_Component STRING DEFAULT 'searce-sandbox-da-delivery.Aramex_oceania.dbo_Load_UndTckt_Invoice';
+    DECLARE v_Component STRING DEFAULT 'prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Load_UndTckt_Invoice';
     DECLARE v_Step STRING DEFAULT 'Upsert';
     
     -- OPTION 2: Changed from TIMESTAMP to DATETIME
@@ -20,8 +20,8 @@ BEGIN
     BEGIN
         -- Using MERGE to synchronize the Target table with the Staging data
         -- Table naming rule applied: dbo.FMS_UndTcktInvoice -> dbo_FMS_UndTcktInvoice
-        MERGE INTO `searce-sandbox-da-delivery.Aramex_oceania.dbo_FMS_UndTcktInvoice` AS Tgt
-        USING `searce-sandbox-da-delivery.Aramex_oceania.Staging_FMS_UndTcktInvoice_Stg` AS Src
+        MERGE INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_FMS_UndTcktInvoice` AS Tgt
+        USING `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_FMS_UndTcktInvoice_Stg` AS Src
         ON Tgt.UnderTickId = Src.UnderTickId
         
         WHEN MATCHED THEN
@@ -124,7 +124,7 @@ BEGIN
     SET v_Ended = CURRENT_DATETIME();
     
     -- Final Log Call (Option 2: Use DATETIME variables)
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,      -- Now a DATETIME

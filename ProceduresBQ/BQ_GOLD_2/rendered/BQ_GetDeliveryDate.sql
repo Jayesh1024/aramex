@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.rpt_GetDeliveryDate`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.rpt_GetDeliveryDate`(
   IN  p_ArrivalDate   DATETIME,
   IN  p_PickupRF      STRING,
   IN  p_Suburb        STRING,
@@ -53,7 +53,7 @@ BEGIN
         WHEN 7 THEN Sun
         ELSE        Mon
       END
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.dbo_Tmp_TSS`
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Tmp_TSS`
     WHERE PickFranchise = p_PickupRF
       AND Town          = p_Suburb
       AND Postcode      = p_Postcode
@@ -113,7 +113,7 @@ BEGIN
           WHEN 7 THEN Sun
           ELSE        Mon
         END
-      FROM `searce-sandbox-da-delivery.Aramex_oceania.dbo_Tmp_TSS`
+      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Tmp_TSS`
       WHERE PickFranchise = p_PickupRF
         AND Town          = p_Suburb
         AND Postcode      = p_Postcode

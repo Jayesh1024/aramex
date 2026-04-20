@@ -14,7 +14,7 @@
 --              (HSK columns are BYTES; COALESCE cannot mix BYTES and STRING)
 --  [BQ Fix]    SaveLog → Staging_SaveLog with additional -1, -1 arguments.
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_LNK_Scan`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_LNK_Scan`(
     IN ProcessID INT64
 )
 BEGIN
@@ -30,7 +30,7 @@ BEGIN
 
     BEGIN
 
-        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_LNK_Scan`
+        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_Scan`
         (
             Scan_HSK,
             FranchiseeCode_HSK,
@@ -80,7 +80,7 @@ BEGIN
             TrackAndTraceID,
             iLocate,
             UploadDate
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_LNK_Scan_Stg` AS Src
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LNK_Scan_Stg` AS Src
         ORDER BY Src.ScanDate DESC;
 
         SET Inserted = @@ROW_COUNT;
@@ -95,7 +95,7 @@ BEGIN
     -- Record load metrics in log
     SET Result = 'Success';
     SET Ended  = CURRENT_DATETIME();
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         Component,
         ProcessID,
         Started,

@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_Load_KPI_Labels_Stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_Load_KPI_Labels_Stg`(
     IN p_ProcessID INT64,
     IN p_SinceScanDate DATETIME,
     IN p_UntilScanDate DATETIME,
@@ -6,7 +6,7 @@ CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.Stagin
 )
 BEGIN
     -- Variables Setup
-    DECLARE v_Component STRING DEFAULT 'searce-sandbox-da-delivery.Aramex_oceania.Staging_Load_KPI_Labels_Stg';
+    DECLARE v_Component STRING DEFAULT 'prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Load_KPI_Labels_Stg';
     
     -- OPTION 2: Use DATETIME instead of TIMESTAMP
     DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
@@ -19,17 +19,17 @@ BEGIN
     DECLARE v_LastID INT64;
 
     -- Fetch bounds (Table naming rule applied: dv.LNK_Scan -> dv_LNK_Scan)
-    SET v_MaxID = (SELECT MAX(TrackAndTraceID) FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_LNK_Scan`);
+    SET v_MaxID = (SELECT MAX(TrackAndTraceID) FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_Scan`);
     
     SET v_LastID = (
         SELECT SAFE_CAST(LastValue AS INT64) 
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_LoadControl` 
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl` 
         WHERE RecordSource = 'TrackAndTraceID'
     );
 
     BEGIN
         -- Insert unique KPI labels
-        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_KPI_Labels_Stg` (
+        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_KPI_Labels_Stg` (
             LabelNo, 
             Loaded, 
             ProcessId
@@ -40,7 +40,7 @@ BEGIN
             p_ProcessId 
         FROM (
             SELECT LabelNo, CountryName 
-            FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_LNK_Scan`
+            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_Scan`
             WHERE CountryName IN ('Australia', 'New Zealand', 'South Africa')
               AND TrackAndTraceID > COALESCE(v_LastID, 0) 
               AND TrackAndTraceID <= COALESCE(v_MaxID, 0)
@@ -48,7 +48,7 @@ BEGIN
             UNION ALL
             
             SELECT LabelNo, CountryName 
-            FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_LNK_Scan` 
+            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_Scan` 
             WHERE p_UseScanDates = 1 
               AND p_SinceScanDate IS NOT NULL 
               AND p_UntilScanDate IS NOT NULL
@@ -62,7 +62,7 @@ BEGIN
         ) scan
         WHERE LENGTH(scan.LabelNo) = 12
           AND NOT EXISTS ( 
-              SELECT 1 FROM `searce-sandbox-da-delivery.Aramex_oceania.dbo_KPIExcludedLabels` excl
+              SELECT 1 FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPIExcludedLabels` excl
               WHERE excl.CountryName = scan.CountryName 
                 AND excl.LabelPrefix = SUBSTR(scan.LabelNo, 1, 2) 
           )
@@ -77,7 +77,7 @@ BEGIN
     END;
 
     -- Record load metrics in log (Option 2: Using DATETIME variables and CURRENT_DATETIME)
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

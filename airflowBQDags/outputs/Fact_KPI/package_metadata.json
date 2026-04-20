@@ -53,6 +53,14 @@
             "result_set": {}
           },
           "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Final\\Set LastDate": {
+          "task_metadata": {
+            "query": "DECLARE @EndDate datetime;\n\nSET @EndDate =   CONVERT(varchar(10),DATEADD(DAY, -1,Getdate()),120)+'T23:59:59.999'\n\nUPDATE [Staging].[LoadControl] SET LastValue =  @EndDate WHERE RecordSource = 'Fact_KPI_Scan'\n",
+            "param_map": {},
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
         }
       },
       "task_type": "STOCK:SEQUENCE"

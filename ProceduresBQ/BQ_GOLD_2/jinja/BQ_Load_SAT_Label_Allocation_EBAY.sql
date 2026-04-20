@@ -35,7 +35,7 @@ BEGIN
             ValidTo = v_Loaded -- Both are now DATETIME
         FROM (
             SELECT 
-                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(Stg.LabelNumber) AS LabelNo_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(Stg.LabelNumber, '^') AS LabelNo_HSK,
                 IFNULL(cty.CountryName, 'Unknown') AS Country,
                 Stg.B_CountryCode AS CountryCode,
                 Stg.B_RF AS OriginRF,
@@ -69,7 +69,7 @@ BEGIN
             RecordSource, RecordSourceId, ValidFrom, ValidTo, IsCurrent
         )
         SELECT
-            `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(Src.LabelNo),
+            `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(Src.LabelNo, '^'),
             Src.LabelNo,
             Src.Country,
             Src.CountryCode,

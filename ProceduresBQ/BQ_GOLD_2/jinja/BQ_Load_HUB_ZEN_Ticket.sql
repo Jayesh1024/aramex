@@ -43,7 +43,7 @@ BEGIN
             )
             VALUES (
                 -- Assuming GetHashKey is migrated as a BigQuery UDF within the target project/dataset
-                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(SUBSTR(CAST(Src.ZenDeskTicketId AS STRING), 1, 10)),
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(SUBSTR(CAST(Src.ZenDeskTicketId AS STRING), 1, 10), '^'),
                 Src.LabelNo,
                 Src.ZenDeskTicketId,
                 v_Started, 

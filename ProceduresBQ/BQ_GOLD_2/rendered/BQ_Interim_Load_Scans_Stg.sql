@@ -6,7 +6,7 @@
 --  18/07/2020  P. Waldron      Routine Written
 --  17/12/2020  B. Woods        Updated to insert rows from the new TrackAndTrace_Stg source table
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.interimStaging_Interim_Load_Scans_Stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.interimStaging_Interim_Load_Scans_Stg`(
   IN p_ProcessId INT64
 )
 BEGIN
@@ -22,7 +22,7 @@ BEGIN
 
   BEGIN
 
-    INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_Scans_Stg` (
+    INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Scans_Stg` (
       FranchiseeCode,
       CourierNo,
       LabelNo,
@@ -76,8 +76,8 @@ BEGIN
         MAX(stg.iLocate)                  AS iLocate,
         MAX(stg.Signature)                AS Signature,
         DATE(MAX(stg.UploadDate))         AS UploadDate    -- ← cast here
-      FROM `searce-sandbox-da-delivery.Aramex_oceania.InterimStaging_TrackAndTrace_Stg` AS stg
-      INNER JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` DC
+      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.InterimStaging_TrackAndTrace_Stg` AS stg
+      INNER JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` DC
         ON DC.CountryCode = stg.CountryCode
       GROUP BY
         stg.FranchiseeCode,
@@ -104,7 +104,7 @@ BEGIN
         IFNULL(Longitude, 0),
         MAX(RecordId)    AS RecordSourceId,
         'Fastway.dbo_Labels' AS RecordSource
-      FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Labels_Stg` AS stg
+      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Labels_Stg` AS stg
       GROUP BY
         Franchise, CourierNo, LabelNo, CountryName,
         ScanDate, PickupDelivery, Status,
@@ -113,8 +113,8 @@ BEGIN
     ) AS Src;
 
     -- Capture inserted row count and last processed ID
-    SET v_Inserted = (SELECT COUNT(*) FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Scans_Stg` WHERE ProcessId = p_ProcessId);
-    SET v_LastId   = (SELECT MAX(ID) FROM `searce-sandbox-da-delivery.Aramex_oceania.InterimStaging_TrackAndTrace_Stg`);
+    SET v_Inserted = (SELECT COUNT(*) FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Scans_Stg` WHERE ProcessId = p_ProcessId);
+    SET v_LastId   = (SELECT MAX(ID) FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.InterimStaging_TrackAndTrace_Stg`);
 
     SET v_Result       = 'Success';
     SET v_ErrorMessage = CONCAT('LastID = ', CAST(v_LastId AS STRING));
@@ -128,7 +128,7 @@ BEGIN
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
 
-  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
     v_Component,
     p_ProcessId,
     v_Started,

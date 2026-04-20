@@ -6,7 +6,7 @@
 --  13/11/2018  P. Waldron      Routine Written
 --  05/09/2022  B. Woods    Changed primary key to use ProductId instead of ProductCode
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_HUB_Product`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_HUB_Product`(
   p_ProcessID INT64,
   p_RecordSource STRING
 )
@@ -19,7 +19,7 @@ BEGIN
 
   BEGIN
     -- BigQuery MERGE for idempotent business key insertion
-    MERGE `searce-sandbox-da-delivery.Aramex_oceania.dv_HUB_Product` AS Target
+    MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_HUB_Product` AS Target
     USING (
       SELECT DISTINCT
         -- Hashing: Country + '^' + ProductId (SHA256 returns BYTES)
@@ -30,7 +30,7 @@ BEGIN
         v_Loaded AS Loaded,
         p_ProcessID AS ProcessID,
         p_RecordSource AS RecordSource
-      FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Product_Stg`
+      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Product_Stg`
       WHERE ProductId IS NOT NULL 
         AND Country IS NOT NULL
     ) AS Source
@@ -47,7 +47,7 @@ BEGIN
   END;
 
   -- Metadata Logging
-  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
     'dv_Load_HUB_Product',
     p_ProcessID,
     v_Started,

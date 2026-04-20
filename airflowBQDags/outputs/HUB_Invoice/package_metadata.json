@@ -20,6 +20,23 @@
           },
           "task_type": "Microsoft.ExecuteSQLTask"
         },
+        "Package\\Final\\Load_FMS_Book_Labels": {
+          "task_metadata": {
+            "query": "EXEC dv.Load_FMS_Book_Labels ?, ?",
+            "param_map": {
+              "param_0": {
+                "variable_name": "ProcessId",
+                "direction": "Input"
+              },
+              "param_1": {
+                "variable_name": "LastDate",
+                "direction": "Input"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
         "Package\\Final\\Load_Label_Invoices": {
           "task_metadata": {
             "query": "EXEC dv.Load_Label_Invoices ?, ?",

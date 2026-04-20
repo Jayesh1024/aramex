@@ -5,7 +5,7 @@
 -- History:
 --  21/07/2025  B. Woods        Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_FL_InvoiceHeader`(IN p_ProcessId INT64)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_FL_InvoiceHeader`(IN p_ProcessId INT64)
 BEGIN
   /*
   ** Routine: Load_FL_InvoiceHeader
@@ -24,8 +24,8 @@ BEGIN
 
   BEGIN
     -- MERGE Rule: Use single MERGE for SP containing both INSERT + UPDATE
-    MERGE `searce-sandbox-da-delivery.Aramex_oceania.dv_LSAT_FL_InvoiceHeader` AS Tgt
-    USING `searce-sandbox-da-delivery.Aramex_oceania.Staging_fl_InvoiceHeader_Stg` AS Src
+    MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LSAT_FL_InvoiceHeader` AS Tgt
+    USING `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_fl_InvoiceHeader_Stg` AS Src
     ON Tgt.InvoiceHeaderId = Src.InvoiceHeaderId
     WHEN MATCHED AND (
       Tgt.BatchId IS DISTINCT FROM Src.BatchId OR
@@ -115,7 +115,7 @@ BEGIN
 
   -- Logging Rule: Every translated SP MUST end with CALL Staging_SaveLog covering success and failure
   SET v_Ended = CURRENT_DATETIME();
-  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
     v_Component,
     p_ProcessId,
     v_Started,

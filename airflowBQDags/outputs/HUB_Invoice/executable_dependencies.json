@@ -12,10 +12,19 @@
           "[dv].[Load_HUB_Invoice]"
         ]
       },
-      "Package\\Final\\Load_Label_Invoices": {
+      "Package\\Final\\Load_FMS_Book_Labels": {
         "type": "Microsoft.ExecuteSQLTask",
         "downstream_dependencies": [
           "Package\\Final\\Set LastDate (FMS_Invoice)"
+        ],
+        "upstream_dependencies": [
+          "Package\\Final\\Load_Label_Invoices"
+        ]
+      },
+      "Package\\Final\\Load_Label_Invoices": {
+        "type": "Microsoft.ExecuteSQLTask",
+        "downstream_dependencies": [
+          "Package\\Final\\Load_FMS_Book_Labels"
         ],
         "upstream_dependencies": [
           "Package\\Final\\Load_LSAT_InvoiceHead"
@@ -71,7 +80,7 @@
         "downstream_dependencies": [],
         "upstream_dependencies": [
           "Package\\Final\\Load_LSAT_InvoiceLine",
-          "Package\\Final\\Load_Label_Invoices"
+          "Package\\Final\\Load_FMS_Book_Labels"
         ],
         "referred_stored_proc": [
           "[Staging].[Set_LastValue]"

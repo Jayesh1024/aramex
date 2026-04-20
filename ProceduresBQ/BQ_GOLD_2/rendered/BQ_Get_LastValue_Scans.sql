@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_Get_LastValue_Scans`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_Get_LastValue_Scans`(
     IN p_RecordSource STRING,
     IN p_CalcMethod STRING,
     INOUT p_EndDate DATETIME,
@@ -17,7 +17,7 @@ BEGIN
                 -- Added COALESCE to handle empty tables gracefully
                 COALESCE(MAX(RecordSourceId), 0), 
                 COALESCE(MAX(CAST(ScanDate AS DATETIME)), DATETIME '1900-01-01 00:00:00') 
-            FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_LNK_Scan` 
+            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_Scan` 
             WHERE RecordSource = p_RecordSource
         );
 
@@ -26,7 +26,7 @@ BEGIN
             SELECT AS STRUCT 
                 0, 
                 CAST(LastValue AS DATETIME)
-            FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_LoadControl` 
+            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl` 
             WHERE RecordSource = p_RecordSource
         );
 
@@ -35,7 +35,7 @@ BEGIN
             SELECT AS STRUCT 
                 CAST(LastValue AS INT64),
                 p_EndDate 
-            FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_LoadControl` 
+            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl` 
             WHERE RecordSource = p_RecordSource
         );
 

@@ -10,7 +10,7 @@
 --  21/01/2021  B. Woods        Add 2 columns: IndustryClassifcation, IndustryClassifcationOtherDes
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_SAT_Customer`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_Customer`(
     IN p_ProcessID    INT64,
     IN p_RecordSource STRING
 )
@@ -46,7 +46,7 @@ BEGIN
         -- -----------------------------------------------------------------------
         -- STEP 1: Expire changed current rows (IsCurrent=0, ValidTo=v_Loaded)
         -- -----------------------------------------------------------------------
-        MERGE `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Customer` AS Tgt
+        MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Customer` AS Tgt
         USING (
             SELECT
                 Sat.Customer_HSK,
@@ -66,9 +66,9 @@ BEGIN
                     xLabelAlcoholDeliveries,
                     -- ROW_NUMBER preserved (BQ supports OVER/PARTITION BY)
                     ROW_NUMBER() OVER(PARTITION BY CustomerKey ORDER BY Active DESC, StartDate DESC) AS CustRow
-                FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_FMS_Customer_Stg`
+                FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_FMS_Customer_Stg`
             ) Stg
-            LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Customer` Sat
+            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Customer` Sat
                 ON Sat.CustomerKey = Stg.CustomerKey AND Sat.isCurrent = 1
             WHERE Stg.CustRow = 1
         ) AS Src
@@ -113,7 +113,7 @@ BEGIN
         -- -----------------------------------------------------------------------
         -- STEP 2: Insert new rows for unmatched source records (IsCurrent=1)
         -- -----------------------------------------------------------------------
-        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Customer`
+        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Customer`
         (
             Customer_HSK, CustomerKey, RFCode, CustomerNumber, FMSCustomerID,
             CourierNumber, Active, DeactiveDescription, ParentId,
@@ -156,13 +156,13 @@ BEGIN
             v_DefaultValidFrom, v_DefaultValidTo, 1         AS IsCurrent
         FROM (
             SELECT *, ROW_NUMBER() OVER(PARTITION BY CustomerKey ORDER BY Active DESC, StartDate DESC) AS CustRow
-            FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_FMS_Customer_Stg`
+            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_FMS_Customer_Stg`
         ) Stg
-        LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Customer` Sat
+        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Customer` Sat
             ON Sat.CustomerKey = Stg.CustomerKey AND Sat.isCurrent = 1
         WHERE Stg.CustRow = 1
           AND NOT EXISTS (
-            SELECT 1 FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Customer` Tgt
+            SELECT 1 FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Customer` Tgt
             WHERE Tgt.Customer_HSK = IFNULL(Sat.Customer_HSK, MD5(CAST(Stg.CustomerKey AS STRING)))
               AND Tgt.isCurrent    = 1
         );
@@ -180,15 +180,15 @@ BEGIN
     */
     SET v_Updated = (
         SELECT IFNULL(COUNTIF(IsCurrent = 0 AND ProcessId = p_ProcessID), 0)
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Customer`
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Customer`
     );
     SET v_Inserted = (
         SELECT IFNULL(COUNTIF(IsCurrent = 1 AND ProcessId = p_ProcessID), 0)
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Customer`
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Customer`
     );
 
     SET v_Ended = CURRENT_DATETIME();
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

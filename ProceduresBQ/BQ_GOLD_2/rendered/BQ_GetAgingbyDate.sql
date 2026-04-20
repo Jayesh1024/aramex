@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.rpt_GetAgingbyDate`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.rpt_GetAgingbyDate`(
     IN p_ReportDate DATETIME
 )
 BEGIN
@@ -18,16 +18,16 @@ BEGIN
              END) AS DestRF,
             p.CFDeliveryString AS DestCF,
             m.Days AS MatrixDays
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.dbo_Fact_Scan_KPI` AS k
-        INNER JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_RF` AS r 
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Fact_Scan_KPI` AS k
+        INNER JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_RF` AS r 
             ON k.FirstReceivedRF = r.FranchiseeCode 
-        LEFT OUTER JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Label` AS l 
+        LEFT OUTER JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Label` AS l 
             ON k.LabelNo = l.LabelNo AND r.CountryCode = l.CountryCode 
-        LEFT OUTER JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_TSS_PostCodeMaster` AS p 
+        LEFT OUTER JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_TSS_PostCodeMaster` AS p 
             ON l.DeliveryPostcode = RTRIM(p.PostCode) 
             AND UPPER(LTRIM(l.DeliveryTown)) = RTRIM(p.Suburb) 
             AND p.CountryCode IN (1,6) 
-        LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_KPIMatrix` m 
+        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPIMatrix` m 
             ON k.FirstReceivedRF = m.PickupFranchise 
             AND (CASE 
                 WHEN FastLabel_DestinationRF IS NOT NULL THEN FastLabel_DestinationRF 
@@ -65,8 +65,8 @@ BEGIN
             -- Rank working days starting from the PickupDate
             ROW_NUMBER() OVER(PARTITION BY t.LabelNo ORDER BY dt.Calendar_Date ASC) - 1 AS WorkingDayIndex
         FROM target_offsets t
-        CROSS JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Time` dt
-        LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_KPIExcludedDates` ex 
+        CROSS JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Time` dt
+        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPIExcludedDates` ex 
             ON dt.Calendar_Date = ex.Date AND ex.Franchise = ''
         WHERE dt.Calendar_Date >= t.PickupDate 
           AND dt.week_day_flag = 'Y' 

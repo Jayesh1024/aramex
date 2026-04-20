@@ -17,7 +17,6 @@ BEGIN
 
     DECLARE v_LastValue STRING;
 
-    -- Applied Option 2 Naming Logic: {{ project }}.{{ dataset }}.Table_Name (using underscore for schema)
     SET v_LastValue = (
         SELECT LastValue 
         FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_LoadControl`

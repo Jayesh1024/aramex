@@ -39,9 +39,10 @@ BEGIN
                         CAST(BatchId AS STRING), '^', 
                         InvoiceFromRF, '^', 
                         InvoiceToRF
-                    )
+                    ),
+                    '^'
                 ) AS Label_InterBranch_HSK,
-                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(Country, '^', LabelNo)) AS LabelNo_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(Country, '^', LabelNo), '^') AS LabelNo_HSK,
                 LabelNo,
                 Country,
                 InvoiceFromRF,

@@ -5,7 +5,7 @@
 -- History:
 --	23/04/2019  P. Waldron		Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
 IN p_Component STRING,
 IN p_ProcessId INT64,
 IN p_Started DATETIME,
@@ -18,7 +18,7 @@ IN p_Errors INT64
 )
 BEGIN
 
-INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_LoadLog` (
+INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadLog` (
 Component,
 ProcessId,
 Started,

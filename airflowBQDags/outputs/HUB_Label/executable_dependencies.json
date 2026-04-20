@@ -301,7 +301,9 @@
   },
   "Package\\HUB_Address": {
     "type": "Microsoft.ExecutePackageTask",
-    "downstream_dependencies": [],
+    "downstream_dependencies": [
+      "Package\\Truncate PickupRequest_stg"
+    ],
     "upstream_dependencies": [
       "Package\\Staging"
     ]
@@ -783,5 +785,12 @@
       "Package\\LNK_Label_Product_ServiceItem"
     ],
     "upstream_dependencies": []
+  },
+  "Package\\Truncate PickupRequest_stg": {
+    "type": "Microsoft.ExecuteSQLTask",
+    "downstream_dependencies": [],
+    "upstream_dependencies": [
+      "Package\\HUB_Address"
+    ]
   }
 }

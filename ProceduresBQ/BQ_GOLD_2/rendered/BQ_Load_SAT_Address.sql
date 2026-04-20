@@ -5,7 +5,7 @@
 -- History:
 --	30/10/2019  P. Waldron		Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_SAT_Address`(IN p_ProcessID INT64)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_Address`(IN p_ProcessID INT64)
 BEGIN
   /*
   ** Routine: Load_SAT_Address (Parcel from/to locations)
@@ -26,7 +26,7 @@ BEGIN
 
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Address` (
+    INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Address` (
       Address_HSK,
       AddressLine1,
       AddressLine2,
@@ -59,11 +59,11 @@ BEGIN
       v_DefaultValidFrom AS ValidFrom,
       v_DefaultValidTo AS ValidTo,
       1 AS IsCurrent
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_Address_Stg` AS Stg
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Address_Stg` AS Stg
     WHERE Stg.AddressSeq = 1
       AND NOT EXISTS (
         SELECT 1 
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Address` AS Dest
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Address` AS Dest
         WHERE Dest.Address_HSK = Stg.Address_HSK
       );
 
@@ -77,7 +77,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
-  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
     v_Component, 
     p_ProcessID, 
     v_Started, 

@@ -11,7 +11,7 @@
 --  30/06/2022  B. Woods        Added multiple columns as per BI-266
 --  18/08/2022  B. Woods        Added more columns as per BI-278
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_SAT_Label_Allocation_MF`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_Label_Allocation_MF`(
   p_ProcessID INT64,
   p_RecordSource STRING -- Kept for signature compatibility
 )
@@ -36,10 +36,10 @@ BEGIN
       -- 1. Identify Changes (Delta Logic)
       CREATE TEMP TABLE temp_SAT_MF_Labels_Toload AS
       WITH Stg AS (
-        SELECT DISTINCT * FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_fl_ConItem_Stg`
+        SELECT DISTINCT * FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_fl_ConItem_Stg`
       ),
       Current_Sat AS (
-        SELECT * FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_MF` WHERE IsCurrent = 1
+        SELECT * FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` WHERE IsCurrent = 1
       )
       SELECT 
         S.Label AS LabelNo,
@@ -57,7 +57,7 @@ BEGIN
          );
 
       -- 2. Update existing records (Expire old version)
-      UPDATE `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_MF` Target
+      UPDATE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` Target
       SET IsCurrent = 0,
           ValidTo = v_Loaded
       FROM temp_SAT_MF_Labels_Toload Source
@@ -69,7 +69,7 @@ BEGIN
       SET v_Updated_Count = @@row_count;
 
       -- 3. Insert new records
-      INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_MF` (
+      INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` (
         LabelNo_HSK, LabelNo, ConId, ConItemId, LineNo, CountryCode, Country,
         CreatedOn, CustomerId, FromRf, FromCf, ToRf, ToCf, FMSInvoiceNo,
         FMSInvoiceDate, Reference, Quantity, ProductId, WeightDead, WeightCubic,
@@ -114,9 +114,9 @@ BEGIN
         v_Loaded, p_ProcessID, v_StaticRecordSource, Stg.ConItemId,
         CASE WHEN T.RType = 'I' THEN v_DefaultValidFrom ELSE v_Loaded END,
         v_DefaultValidTo, 1
-      FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_fl_ConItem_Stg` AS Stg
+      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_fl_ConItem_Stg` AS Stg
       JOIN temp_SAT_MF_Labels_Toload T ON T.LabelNo = Stg.Label AND T.CountryCode = Stg.CountryId
-      LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.CountryId;
+      LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.CountryId;
 
       SET v_Inserted_Count = @@row_count;
 
@@ -129,7 +129,7 @@ BEGIN
   END;
 
   -- Metadata Logging
-  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
     'dv_Load_SAT_Label_Allocation_MF',
     p_ProcessID,
     v_Started,

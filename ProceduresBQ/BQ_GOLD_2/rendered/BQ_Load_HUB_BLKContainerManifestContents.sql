@@ -5,7 +5,7 @@
 -- History:
 --  30/05/2024  B. Woods    Routine Written
 -- -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_HUB_BLKContainerManifestContents`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_HUB_BLKContainerManifestContents`(
   p_ProcessID INT64,
   p_RecordSource STRING -- Parameter kept for signature compatibility
 )
@@ -20,7 +20,7 @@ BEGIN
 
   BEGIN
     -- BigQuery MERGE: Atomic check for existing business keys before insertion
-    MERGE `searce-sandbox-da-delivery.Aramex_oceania.dv_HUB_BLKContainerManifestContents` AS Target
+    MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_HUB_BLKContainerManifestContents` AS Target
     USING (
       SELECT DISTINCT
         -- Hashing: CONVERT(varchar(10), ContainerManifestId) + RTRIM(LabelNo)
@@ -30,10 +30,10 @@ BEGIN
         v_Started AS Loaded,
         p_ProcessID AS ProcessID,
         v_StaticRecordSource AS RecordSource
-      FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_BLK_ContainerManifestContents_Stg` AS Src
+      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_BLK_ContainerManifestContents_Stg` AS Src
       -- Replicating the 'New Keys' check against the Satellite as per original logic
       WHERE NOT EXISTS (
-        SELECT 1 FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_BLKContainerManifestContents` AS Dest
+        SELECT 1 FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_BLKContainerManifestContents` AS Dest
         WHERE CAST(Dest.ContainerManifestId AS STRING) = CAST(Src.ContainerManifestId AS STRING)
           AND TRIM(Dest.LabelNo) = TRIM(Src.LabelNo)
       )
@@ -51,7 +51,7 @@ BEGIN
   END;
 
   -- Metadata Logging
-  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
     'dv_Load_HUB_BLKContainerManifestContents',
     p_ProcessID,
     v_Started,

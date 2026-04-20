@@ -2,7 +2,7 @@
 -- Routine:     dbo_Load_Fact_KPI
 -- Description: Maintains the stats for Pickup & Delivery KPIs
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dbo_Load_Fact_KPI`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dbo_Load_Fact_KPI`(
     IN ProcessID INT64
 )
 BEGIN
@@ -40,13 +40,13 @@ BEGIN
         stg.LabelNo,
         IF(tgt.LabelNo = stg.LabelNo, ROW_NUMBER() OVER(PARTITION BY IF(tgt.LabelNo = stg.LabelNo, 1, NULL) ORDER BY stg.LabelNo), NULL) AS UpdateId,
         IF(tgt.LabelNo IS NULL, ROW_NUMBER() OVER(PARTITION BY IF(tgt.LabelNo IS NULL, 1, NULL) ORDER BY stg.LabelNo), NULL) AS InsertId
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Fact_KPI_Stg` AS stg
-    LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Fact_KPI` AS tgt ON tgt.LabelNo = stg.LabelNo;
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Stg` AS stg
+    LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Fact_KPI` AS tgt ON tgt.LabelNo = stg.LabelNo;
 
     SET (MaxInsertId, MaxUpdateId) = (SELECT AS STRUCT MAX(InsertId), MAX(UpdateId) FROM LabelsToProcess);
 
     SET Ended = CURRENT_DATETIME();
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.SaveLog`(
         Component || ' (' || Step || ')', ProcessID, Started, Ended, Result, ErrorMessage, MaxInsertId, MaxUpdateId
     );
 
@@ -59,7 +59,7 @@ BEGIN
     BEGIN
         SET Loaded = CURRENT_DATETIME();
 
-        MERGE `searce-sandbox-da-delivery.Aramex_oceania.dbo_Fact_KPI` AS Tgt2
+        MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Fact_KPI` AS Tgt2
         USING (
             WITH ValidDates AS (
                 SELECT 
@@ -67,9 +67,9 @@ BEGIN
                     e.Franchise,
                     DepartureDateStart,
                     ROW_NUMBER() OVER (PARTITION BY DepartureDateStart, e.Franchise ORDER BY t.Calendar_Date) - 1 AS OffsetIndex
-                FROM `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Time` t
-                CROSS JOIN (SELECT DISTINCT ToRf AS Franchise, DATE(ActualDepartureDate) AS DepartureDateStart FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Fact_KPI_Stg`) e
-                LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_KPIExcludedDates` ex ON t.Calendar_Date = ex.Date AND ex.Franchise = e.Franchise
+                FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Time` t
+                CROSS JOIN (SELECT DISTINCT ToRf AS Franchise, DATE(ActualDepartureDate) AS DepartureDateStart FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Stg`) e
+                LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPIExcludedDates` ex ON t.Calendar_Date = ex.Date AND ex.Franchise = e.Franchise
                 WHERE t.Calendar_Date >= e.DepartureDateStart
                   AND t.week_day_flag = 'Y' AND ex.Comment IS NULL
             )
@@ -86,8 +86,8 @@ BEGIN
                     COALESCE(Src.KPILEA, Tgt.KPILEA) AS KPILEA,
                     IF(Src.ActualDepartureDate < COALESCE(Tgt.ActualDepartureDate, FutureDate), Src.ActualDepartureDate, Tgt.ActualDepartureDate) AS FinalActualDepartureDate,
                     IF(Src.ActualDepartureDate < COALESCE(Tgt.ActualDepartureDate, FutureDate), Src.ActualDepartureRF, Tgt.ActualDepartureRF) AS FinalActualDepartureRF
-                FROM `searce-sandbox-da-delivery.Aramex_oceania.dbo_Fact_KPI` Tgt
-                JOIN `searce-sandbox-da-delivery.Aramex_oceania.Staging_Fact_KPI_Stg` Src ON Src.LabelNo = Tgt.LabelNo
+                FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Fact_KPI` Tgt
+                JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Stg` Src ON Src.LabelNo = Tgt.LabelNo
                 JOIN LabelsToProcess sel ON sel.LabelNo = Src.LabelNo
                 WHERE sel.UpdateId IS NOT NULL
             ) Base
@@ -121,7 +121,7 @@ BEGIN
     BEGIN
         SET Loaded = CURRENT_DATETIME();
 
-        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dbo_Fact_KPI`
+        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Fact_KPI`
         (
             LabelNo, CountryCode, Category, CreatedOn, ServiceType, RealisedDate,
             SLA, KPIPickup, KPILEA, KPIDelivery, DueDate, KPIDepartureDate,
@@ -136,13 +136,13 @@ BEGIN
                 e.RefDate,
                 e.RefType,
                 ROW_NUMBER() OVER (PARTITION BY e.RefDate, e.Franchise, e.RefType ORDER BY t.Calendar_Date) - 1 AS OffsetIndex
-            FROM `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Time` t
+            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Time` t
             CROSS JOIN (
-                SELECT ToRf AS Franchise, DATE(ActualDepartureDate) AS RefDate, 'LEA' AS RefType FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Fact_KPI_Stg`
+                SELECT ToRf AS Franchise, DATE(ActualDepartureDate) AS RefDate, 'LEA' AS RefType FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Stg`
                 UNION DISTINCT
-                SELECT ToRf AS Franchise, DATE(ActualArrivalDate) AS RefDate, 'DEL' AS RefType FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Fact_KPI_Stg`
+                SELECT ToRf AS Franchise, DATE(ActualArrivalDate) AS RefDate, 'DEL' AS RefType FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Stg`
             ) e
-            LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_KPIExcludedDates` ex ON t.Calendar_Date = ex.Date AND ex.Franchise = e.Franchise
+            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPIExcludedDates` ex ON t.Calendar_Date = ex.Date AND ex.Franchise = e.Franchise
             WHERE t.Calendar_Date >= e.RefDate AND t.week_day_flag = 'Y' AND ex.Comment IS NULL
         )
         SELECT
@@ -154,7 +154,7 @@ BEGIN
             Src.ActualDepartureDate, Src.ActualDepartureRF, Src.ActualArrivalDate, Src.ActualArrivalRF,
             Loaded,
             ProcessID
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Fact_KPI_Stg` Src
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Stg` Src
         JOIN LabelsToProcess Sel ON Sel.LabelNo = Src.LabelNo
         LEFT JOIN WorkingDays wd_lea ON wd_lea.RefDate = DATE(Src.ActualDepartureDate) AND wd_lea.Franchise = Src.ToRf AND wd_lea.RefType = 'LEA' AND wd_lea.OffsetIndex = COALESCE(Src.KPILEA, 1)
         LEFT JOIN WorkingDays wd_del ON wd_del.RefDate = DATE(Src.ActualArrivalDate) AND wd_del.Franchise = Src.ToRf AND wd_del.RefType = 'DEL' AND wd_del.OffsetIndex = COALESCE(Src.KPIDelivery, 1)
@@ -168,7 +168,7 @@ BEGIN
     END;
 
     -- Final Log
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.SaveLog`(
         Component || ' (Final)', ProcessID, Started, CURRENT_DATETIME(), Result, ErrorMessage, Inserted, Updated
     );
 

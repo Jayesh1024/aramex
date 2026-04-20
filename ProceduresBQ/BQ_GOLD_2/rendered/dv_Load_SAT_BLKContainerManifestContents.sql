@@ -1,6 +1,6 @@
 -- ==========================================================================================
 -- Routine:     dv_Load_SAT_BLKContainerManifestContents
--- Description: Loads SAT_BLKContainerManifestContents from `searce-sandbox-da-delivery.Aramex_oceania.Staging_BLK_ContainerManifestContents_Stg`
+-- Description: Loads SAT_BLKContainerManifestContents from `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_BLK_ContainerManifestContents_Stg`
 --              BigQuery compatible version of Load_SAT_BLKContainerManifestContents
 --              Note: CTE pattern preserved. WITH (TABLOCK) removed.
 --                    dbo.GetHashKey replaced with TO_HEX(MD5(...)).
@@ -14,7 +14,7 @@
 --              TO_HEX(MD5(...)) → MD5(...) to match target column type (BYTES).
 --              SaveLog → Staging_SaveLog with additional -1, -1 arguments.
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_SAT_BLKContainerManifestContents`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_BLKContainerManifestContents`(
     IN ProcessID    INT64,
     IN RecordSource STRING
 )
@@ -31,7 +31,7 @@ BEGIN
 
     BEGIN
 
-        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_BLKContainerManifestContents`
+        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_BLKContainerManifestContents`
         SELECT
             -- CONCAT used instead of || for BQ string concatenation
             -- ContainerManifestId is INT64 so CAST to STRING before hashing; no TRIM needed
@@ -48,11 +48,11 @@ BEGIN
             Started      AS Loaded,
             ProcessID    AS ProcessID,
             RecordSource AS RecordSource
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_BLK_ContainerManifestContents_Stg` AS Src
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_BLK_ContainerManifestContents_Stg` AS Src
         -- Only insert rows whose (ContainerManifestId, LabelNo) key doesn't already exist
         WHERE NOT EXISTS (
             SELECT 1
-            FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_BLKContainerManifestContents` AS Dest
+            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_BLKContainerManifestContents` AS Dest
             WHERE Dest.ContainerManifestId = Src.ContainerManifestId
               AND TRIM(Dest.LabelNo)       = TRIM(Src.LabelNo)
         );
@@ -69,7 +69,7 @@ BEGIN
     -- Record load metrics in log
     SET Result = 'Success';
     SET Ended  = CURRENT_DATETIME();
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         Component,
         ProcessID,
         Started,

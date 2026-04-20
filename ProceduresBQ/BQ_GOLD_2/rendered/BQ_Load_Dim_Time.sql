@@ -5,7 +5,7 @@
 -- Example:		Exec [dbo].[Load_Dim_Label] 2024
 -- Example:		Exec [dbo].[Load_Dim_Label] 2024, 1 -- To remove existing data
 
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dbo_Load_Dim_Time`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dbo_Load_Dim_Time`(
     IN p_ProcessID INT64, 
     IN p_Year INT64,
     IN p_RemoveExisting BOOL
@@ -30,17 +30,17 @@ BEGIN
 
         -- Remove existing data if requested
         IF IFNULL(p_RemoveExisting, FALSE) THEN
-            DELETE FROM `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Time` WHERE cal_year = p_Year;
+            DELETE FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Time` WHERE cal_year = p_Year;
         END IF;
 
         -- Check if data already exists to avoid duplication
-        SET v_AlreadyExists = (SELECT COUNT(1) > 0 FROM `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Time` WHERE cal_year = p_Year);
+        SET v_AlreadyExists = (SELECT COUNT(1) > 0 FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Time` WHERE cal_year = p_Year);
 
         IF v_AlreadyExists THEN
             SET v_Result = 'Skipped - Already Exists';
         ELSE
             -- Insert block with explicit CASTs to INT64 where necessary
-            INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Time` (
+            INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Time` (
                 Date_Key,
                 Calendar_Date,
                 cal_day_in_week,
@@ -84,7 +84,7 @@ BEGIN
     END;
 
     -- Final Log Call
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

@@ -1,6 +1,6 @@
 -- ==========================================================================================
 -- Routine:     Load_LSAT_Label_InterBranch
--- Description: Loads LSAT_Label_InterBranch from Staging_Label_InterBranch_Stg for a country
+-- Description: Loads LSAT_Label_InterBranch from Staging_Label_Interbranch_Stg for a country
 -- Example:     Exec [dv].[Load_LSAT_Label_InterBranch] 659,  'InterBranchAU' 
 -- History:
 --  17/09/2020  P. Waldron      Routine Written
@@ -10,8 +10,8 @@ CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LSAT_L
 BEGIN
   /*
   ** Routine: Load_LSAT_Label_InterBranch
-  ** Description: Loads LSAT_Label_InterBranch from Staging_Label_InterBranch_Stg for a country
-  ** Description: Loads LSAT_Label_InterBranch from Staging_Label_InterBranch_Stg for a country
+  ** Description: Loads LSAT_Label_InterBranch from Staging_Label_Interbranch_Stg for a country
+  ** Description: Loads LSAT_Label_InterBranch from Staging_Label_Interbranch_Stg for a country
   */
 
   DECLARE v_DefaultValidFrom DATETIME DEFAULT '1900-01-01 00:00:00';
@@ -29,7 +29,7 @@ BEGIN
 
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_Label_InterBranch` (
+    INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_Label_Interbranch` (
       Label_InterBranch_HSK,
       LabelNo,
       CountryCode,
@@ -85,11 +85,11 @@ BEGIN
         DeliveryTime,
         Price,
         BatchId
-      FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_InterBranch_Stg`
+      FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Interbranch_Stg`
     ) AS Src
     WHERE NOT EXISTS (
       SELECT 1 
-      FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_Label_InterBranch` AS Tgt
+      FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_Label_Interbranch` AS Tgt
       WHERE Tgt.Label_InterBranch_HSK = Src.Label_InterBranch_HSK
     );
 

@@ -5,7 +5,7 @@
 -- History:
 --  17/08/2020  P. Waldron      Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_Product_ServiceCon_Stg`(IN p_ProcessID INT64)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_Product_ServiceCon_Stg`(IN p_ProcessID INT64)
 BEGIN
   /*
   ** Routine: Load_Product_ServiceCon_Stg
@@ -27,7 +27,7 @@ BEGIN
 
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_Product_ServiceCon_Stg` (
+    INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Product_ServiceCon_Stg` (
       Product_ServiceCon_HSK,
       Product_HSK,
       ConId,
@@ -138,9 +138,9 @@ BEGIN
         Srv.ServicePriceCommPercent,
         Srv.ServicePriceComm,
         Srv.UpdatedOn
-      FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_fl_ConSrv_Stg` AS Srv  
-      LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` AS cty ON cty.CountryCode = Srv.CountryId
-      LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.Staging_Product_Stg` AS Prod ON Srv.CountryId = Prod.CountryCode AND Srv.ProductId = Prod.ProductId
+      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_fl_ConSrv_Stg` AS Srv  
+      LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS cty ON cty.CountryCode = Srv.CountryId
+      LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Product_Stg` AS Prod ON Srv.CountryId = Prod.CountryCode AND Srv.ProductId = Prod.ProductId
     ) AS Src;
 
     SET v_Inserted = @@row_count;
@@ -153,7 +153,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
-  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
     v_Component, 
     p_ProcessID, 
     v_Started, 

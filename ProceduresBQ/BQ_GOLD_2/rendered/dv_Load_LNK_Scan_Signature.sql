@@ -9,7 +9,7 @@
 --  20/12/2019  P. Waldron      Replace check of LNK_Scan_Err with check of LNK_Scan
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_LNK_Scan_Signature`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_LNK_Scan_Signature`(
     IN ProcessID INT64
 )
 BEGIN
@@ -27,7 +27,7 @@ BEGIN
 
         -- BigQuery handles large inserts natively; the SQL Server WHILE batch loop
         -- is not needed. Single INSERT replacing the batched approach.
-        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_LNK_Scan_Signature`
+        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_Scan_Signature`
         (
             Scan_HSK,
             TrackAndTraceID,
@@ -37,12 +37,12 @@ BEGIN
             Src.Scan_HSK,
             Src.TrackAndTraceID,
             Src.Signature
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_LNK_Scan_Stg` AS Src
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LNK_Scan_Stg` AS Src
         WHERE IFNULL(Src.Signature, '') <> ''
           AND NOT EXISTS (
               -- Check already done in Load_LNK_Scan_Stg but kept here in case routine is re-run
               SELECT 1
-              FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_LNK_Scan_Signature` AS scan
+              FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_Scan_Signature` AS scan
               WHERE scan.Scan_HSK = Src.Scan_HSK
           );
 
@@ -58,7 +58,7 @@ BEGIN
     -- Record load metrics in log
     SET Result = 'Success';
     SET Ended  = CURRENT_DATETIME();
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         Component,
         ProcessID,
         Started,

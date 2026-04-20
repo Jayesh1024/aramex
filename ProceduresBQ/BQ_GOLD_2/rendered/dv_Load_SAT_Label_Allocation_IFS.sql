@@ -1,6 +1,6 @@
 -- ==========================================================================================
 -- Routine:     dv_Load_SAT_Label_Allocation_IFS
--- Description: Loads attributes into SAT_Label_Allocation_IFS from `searce-sandbox-da-delivery.Aramex_oceania.Staging_HDManifests_Stg`
+-- Description: Loads attributes into SAT_Label_Allocation_IFS from `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_HDManifests_Stg`
 --              BigQuery compatible version of Load_SAT_Label_Allocation_IFS
 --              Note: MERGE with OUTPUT $action not supported in BQ.
 --                    Replaced with:
@@ -14,7 +14,7 @@
 --  25/07/2019  P. Waldron      Routine Written
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_SAT_Label_Allocation_IFS`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_Label_Allocation_IFS`(
     IN ProcessID    INT64,
     IN RecordSource STRING
 )
@@ -37,7 +37,7 @@ BEGIN
         -- -----------------------------------------------------------------------
         -- STEP 1: Expire changed current rows (IsCurrent=0, ValidTo=Loaded)
         -- -----------------------------------------------------------------------
-        MERGE `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_IFS` AS Tgt
+        MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_IFS` AS Tgt
         USING (
             SELECT DISTINCT
                 MD5(Stg.LabelNo) AS LabelNo_HSK,
@@ -60,8 +60,8 @@ BEGIN
                 Stg.DateInserted,
                 Stg.RecordId,
                 Stg.UniqueParcelIdentifier
-            FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_HDManifests_Stg` Stg
-            LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` cty ON cty.CountryCode = Stg.CountryCode
+            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_HDManifests_Stg` Stg
+            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` cty ON cty.CountryCode = Stg.CountryCode
         ) AS Src
         ON  Tgt.LabelNo_HSK = Src.LabelNo_HSK
         AND Tgt.IsCurrent   = 1
@@ -93,7 +93,7 @@ BEGIN
         -- -----------------------------------------------------------------------
         -- STEP 2: Insert new rows for unmatched source records
         -- -----------------------------------------------------------------------
-        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_IFS`
+        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_IFS`
         (
             LabelNo_HSK,
             LabelNo,
@@ -151,11 +151,11 @@ BEGIN
             DefaultValidTo,
             1,
             Stg.UniqueParcelIdentifier
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_HDManifests_Stg` Stg
-        LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` cty ON cty.CountryCode = Stg.CountryCode
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_HDManifests_Stg` Stg
+        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` cty ON cty.CountryCode = Stg.CountryCode
         WHERE NOT EXISTS (
             SELECT 1
-            FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_IFS` AS Tgt
+            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_IFS` AS Tgt
             WHERE Tgt.LabelNo_HSK = MD5(Stg.LabelNo)
               AND Tgt.IsCurrent   = 1
         );
@@ -174,17 +174,17 @@ BEGIN
     -- -----------------------------------------------------------------------
     SET Updated = (
         SELECT IFNULL(COUNTIF(IsCurrent = 0), 0)
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_IFS`
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_IFS`
         WHERE ProcessId = ProcessID AND ValidTo = Loaded
     );
     SET Inserted = (
         SELECT IFNULL(COUNTIF(IsCurrent = 1), 0)
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_IFS`
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_IFS`
         WHERE ProcessId = ProcessID AND Loaded = Loaded
     );
 
     SET Ended = CURRENT_DATETIME();
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         Component,
         ProcessID,
         Started,

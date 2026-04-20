@@ -10,7 +10,7 @@
 --	23/11/2018  P. Waldron		Routine Written
 --	02/07/2019  P. Waldron		Refactor to use RecordSource instead of DatasetName
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.interimStaging_Set_LastValue`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.interimStaging_Set_LastValue`(
   IN  p_RecordSource  STRING,
   IN  p_ColumnName    STRING,
   IN  p_LastValue     STRING,
@@ -37,19 +37,19 @@ BEGIN
   -- -----------------------------------------------------------------------
   SET v_RowCount = (
     SELECT COUNT(*)
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_LoadControl`
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
     WHERE RecordSource = p_RecordSource
   );
 
   SET v_Stg_ColumnName = (
     SELECT MAX(ColumnName)
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_LoadControl`
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
     WHERE RecordSource = p_RecordSource
   );
 
   SET v_Stg_LastValue = (
     SELECT MAX(LastValue)
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_LoadControl`
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
     WHERE RecordSource = p_RecordSource
   );
 
@@ -63,17 +63,17 @@ BEGIN
   -- -----------------------------------------------------------------------
   SET v_StagingTable = (
     SELECT CONCAT('Staging_', REGEXP_EXTRACT(DatasetName, r'[^.]+$'), '_Stg')
-    FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_LoadControl`
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
     WHERE RecordSource = p_RecordSource
   );
 
-  SET v_StagingTableFQN = CONCAT('`searce-sandbox-da-delivery.Aramex_oceania.', v_StagingTable, '`');
+  SET v_StagingTableFQN = CONCAT('`prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.', v_StagingTable, '`');
 
   -- Verify staging table exists via INFORMATION_SCHEMA
   SET v_TableExists = (
     SELECT COUNT(*)
-    FROM `searce-sandbox-da-delivery.`.INFORMATION_SCHEMA.TABLES
-    WHERE CONCAT(table_schema, '.', table_name) = REPLACE(REPLACE(v_StagingTable, '`', ''), 'searce-sandbox-da-delivery.Aramex_oceania.', '')
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1`.INFORMATION_SCHEMA.TABLES
+    WHERE CONCAT(table_schema, '.', table_name) = REPLACE(REPLACE(v_StagingTable, '`', ''), 'prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.', '')
   );
 
   IF v_TableExists = 0 THEN
@@ -100,7 +100,7 @@ BEGIN
   -- Update LoadControl if a value was found or force flag is set
   -- -----------------------------------------------------------------------
   IF v_LastValue IS NOT NULL OR p_Force = TRUE THEN
-    UPDATE `searce-sandbox-da-delivery.Aramex_oceania.Staging_LoadControl`
+    UPDATE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
     SET LastValue = v_LastValue
     WHERE RecordSource = p_RecordSource;
   END IF;

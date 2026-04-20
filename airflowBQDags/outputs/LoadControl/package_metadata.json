@@ -22,8 +22,13 @@
     },
     "Package\\Get Next ProcessID": {
       "task_metadata": {
-        "query": "Declare @ProcessId Int;\nSELECT @ProcessId = max(ProcessId) FROM [Staging].[LoadLog] \nSELECT Isnull(@ProcessId,0) +1 AS [NextProcessId] ",
-        "param_map": {},
+        "query": "Declare @ProcessId Int;\nDeclare @sysrundate datetime = ?;\nDeclare @JobDate date = Convert(Date,@sysrundate);\n\nSELECT @ProcessId = max(ProcessId) FROM [Staging].[LoadLog] \n\n\nexec [Staging].[Backup_LoadControl] @ProcessId,  'Load DataVault', @JobDate \n\n\nSELECT Isnull(@ProcessId,0) +1 AS [NextProcessId] \n\n",
+        "param_map": {
+          "param_0": {
+            "variable_name": "StartTime",
+            "direction": "Input"
+          }
+        },
         "result_set": {
           "NextProcessId": {
             "variable_name": "ProcessId",

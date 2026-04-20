@@ -6,7 +6,7 @@
 -- 30/01/2023   B. Woods        Routine Written
 --
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dbo_Load_Fact_KPI_Performance`(IN p_ProcessID INT64)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dbo_Load_Fact_KPI_Performance`(IN p_ProcessID INT64)
 BEGIN
   DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
   DECLARE v_StartDate DATETIME;
@@ -25,7 +25,7 @@ BEGIN
 
     SET v_EndDate = (
       SELECT CAST(LastValue AS DATETIME)
-      FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_LoadControl`
+      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
       WHERE RecordSource = 'Fact_KPI_Scan'
     );
 
@@ -36,10 +36,10 @@ BEGIN
       ) AS DATETIME
     );
 
-    DELETE FROM `searce-sandbox-da-delivery.Aramex_oceania.dbo_Fact_KPI_Delivery_Performance`
+    DELETE FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Delivery_Performance`
     WHERE DeliveryDate > CAST(v_StartDate AS DATE);
 
-    INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dbo_Fact_KPI_Delivery_Performance` (
+    INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Delivery_Performance` (
       CountryCode, PickupRF, DeliveryRF, FromCf, ToCf, Category,
       DeliveryDate, NumofLabels, OnTimePickup, OnTimeLEA, OnTimeDelivery, OnTimeSLA
     )
@@ -77,8 +77,8 @@ BEGIN
           f.ActualAttemptedRF, f.ActualDepartureDate, f.ActualArrivalDate,
           f.ActualAttemptedDate, f.KPIDepartureDate, f.KPIArrivalDate, f.DueDate,
           COALESCE(f.KPIAttemptedDate, f.KPIAttemptedDateAdjust) AS EstimatedDeliveryDate
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.dbo_Fact_KPI` AS f
-        INNER JOIN `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation_MF` AS m ON f.LabelNo = m.LabelNo
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Fact_KPI` AS f
+        INNER JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` AS m ON f.LabelNo = m.LabelNo
         WHERE f.CountryCode = 1
           AND f.ActualAttemptedDate > v_StartDate
           AND f.ActualAttemptedDate <= v_EndDate
@@ -86,9 +86,9 @@ BEGIN
           AND f.Category IN ('Interbranch', 'Local')
       ) k
       -- Join to the Time/Exclusion tables using the inequality
-      INNER JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Time` dt
+      INNER JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Time` dt
         ON dt.Calendar_Date <= CAST(k.ActualAttemptedDate AS DATE)
-      LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_KPIExcludedDates` ex
+      LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPIExcludedDates` ex
         ON dt.Calendar_Date = ex.Date AND ex.Franchise = k.ToRf
       WHERE dt.week_day_flag = 'Y'
         AND ex.Comment IS NULL
@@ -107,7 +107,7 @@ BEGIN
   END;
 
   SET v_Ended = CURRENT_DATETIME();
-  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
     v_Component, p_ProcessID, v_Started, v_Ended, v_Result, v_ErrorMessage, v_Inserted, v_Updated, -1
   );
 END;

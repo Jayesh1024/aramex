@@ -12,7 +12,7 @@
 --  17/08/2020  P. Waldron      Refactor MERGE to UPDATE then INSERT - to avoid CCI slowdown
 --  10/09/2020  P. Waldron		Add PickupCF and DeliveryCF columns 
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_SAT_Label_Allocation`(IN p_ProcessID INT64)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_Label_Allocation`(IN p_ProcessID INT64)
 BEGIN
   /*
   ** Routine: Load_SAT_Label_Allocation
@@ -36,7 +36,7 @@ BEGIN
     -- v_Updated will contain the total count of rows affected (both expired and inserted).
     -- v_Inserted remains 0 as per CORE RULES for MERGE operations.
     
-    MERGE `searce-sandbox-da-delivery.Aramex_oceania.dv_SAT_Label_Allocation` AS Tgt
+    MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation` AS Tgt
     USING (
       WITH DeduplicatedStg AS (
         -- Deduplicate staging data as per original Row_Number logic
@@ -71,8 +71,8 @@ BEGIN
           Stg.RecordSourceId,
           Stg.Action,
           ROW_NUMBER() OVER (PARTITION BY Stg.LabelNo ORDER BY Stg.CountryCode) AS RowNum
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_SAT_Label_Allocation_Stg` AS Stg
-        LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_SAT_Label_Allocation_Stg` AS Stg
+        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
       )
       -- Combine 'EXPIRE' actions and 'INSERT' actions into a single source stream
       SELECT *, 'INSERT' AS MergeAction FROM DeduplicatedStg WHERE RowNum = 1
@@ -170,7 +170,7 @@ BEGIN
 
   -- Log the procedure execution result
   SET v_Ended = CURRENT_DATETIME();
-  CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
     v_Component,
     p_ProcessId,
     v_Started,

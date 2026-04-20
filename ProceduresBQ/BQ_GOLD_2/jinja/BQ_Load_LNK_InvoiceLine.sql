@@ -29,12 +29,12 @@ BEGIN
         MERGE INTO `{{ project_id }}.{{ target_dataset_id }}.dv_LNK_InvoiceLine` AS Tgt
         USING (
             SELECT
-                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(dl.InvoiceNumber AS STRING), '^', dl.FranchiseeCode, '^', dl.CourierNumber, '^', dl.CustomerKey, '^', dl.ProductCode, '^', dl.Country)) AS InvoiceLine_HSK,
-                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(dl.InvoiceNumber AS STRING), '^', dl.FranchiseeCode)) AS Invoice_HSK,
-                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(dl.FranchiseeCode) AS FranchiseeCode_HSK,
-                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(dl.FranchiseeCode, '^', dl.CourierNumber)) AS Courier_HSK,
-                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(dl.CustomerKey) AS Customer_HSK,
-                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(dl.Country, '^', dl.ProductCode)) AS Product_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(dl.InvoiceNumber AS STRING), '^', dl.FranchiseeCode, '^', dl.CourierNumber, '^', dl.CustomerKey, '^', dl.ProductCode, '^', dl.Country), '^') AS InvoiceLine_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(dl.InvoiceNumber AS STRING), '^', dl.FranchiseeCode), '^') AS Invoice_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(dl.FranchiseeCode, '^') AS FranchiseeCode_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(dl.FranchiseeCode, '^', dl.CourierNumber), '^') AS Courier_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(dl.CustomerKey, '^') AS Customer_HSK,
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(dl.Country, '^', dl.ProductCode), '^') AS Product_HSK,
                 dl.InvoiceNumber,
                 dl.FranchiseeCode,
                 dl.CourierNumber,

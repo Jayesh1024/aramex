@@ -9,7 +9,7 @@
 --                              as Label allocation load. (Part of BI-265)
 --	05/02/2024	B. Woods		Added PickupRequest source as the second preference address
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_Load_Label_Address_Stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_Load_Label_Address_Stg`(
     IN p_ProcessID INT64
 )
 OPTIONS(strict_mode=false)
@@ -37,7 +37,7 @@ BEGIN
         SET v_Step = 'MyFastway';
         SET v_StartedSrc = CURRENT_DATETIME();
         
-        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_Address_Stg` (
+        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Address_Stg` (
             LabelNo, FromTo, Address_HSK, AddressLine1, AddressLine2, Town, State, PostCode, 
             CountryCode, CountryName, AddressKey, AddressLen, AddressSeq, RecordSource
         ) 
@@ -50,7 +50,7 @@ BEGIN
             SELECT 
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'MyFastway' AS RecordSource,
-                `searce-sandbox-da-delivery.Aramex_oceania.dbo_GetHashKey`(
+                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),
@@ -78,22 +78,22 @@ BEGIN
                     Label AS LabelNo, 'From' AS FromTo, TRIM(FromStreetAddress) AS AddressLine1, 
                     CAST(NULL AS STRING) AS AddressLine2, TRIM(FromLocality) AS Town, 
                     CAST(NULL AS STRING) AS State, FromPostalCode AS Postcode, CAST(NULL AS INT64) AS CountryCode
-                FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_fl_ConItem_Stg` 
+                FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_fl_ConItem_Stg` 
                 UNION ALL
                 SELECT 
                     Label AS LabelNo, 'To' AS FromTo, TRIM(ToStreetAddress) AS AddressLine1, 
                     CAST(NULL AS STRING) AS AddressLine2, TRIM(ToLocality) AS Town, 
                     CAST(NULL AS STRING) AS State, ToPostalCode AS Postcode, CountryId AS CountryCode
-                FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_fl_ConItem_Stg`
+                FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_fl_ConItem_Stg`
             ) AS a
-            LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
+            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
         ) AS h
-        WHERE NOT EXISTS (SELECT 1 FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
+        WHERE NOT EXISTS (SELECT 1 FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
         ORDER BY Address_HSK;
 
         SET v_InsertedSrc = @@row_count;
         SET v_EndedSrc = CURRENT_DATETIME();
-        CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0, -1);
+        CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0, -1);
 
 
         /* ==============================================================================
@@ -102,7 +102,7 @@ BEGIN
         SET v_Step = 'PickupRequest';
         SET v_StartedSrc = CURRENT_DATETIME();
         
-        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_Address_Stg` (
+        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Address_Stg` (
             LabelNo, FromTo, Address_HSK, AddressLine1, AddressLine2, Town, State, PostCode, 
             CountryCode, CountryName, AddressKey, AddressLen, AddressSeq, RecordSource
         ) 
@@ -115,7 +115,7 @@ BEGIN
             SELECT 
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'PickupRequest' AS RecordSource,
-                `searce-sandbox-da-delivery.Aramex_oceania.dbo_GetHashKey`(
+                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),
@@ -147,7 +147,7 @@ BEGIN
                     CAST(NULL AS STRING) AS State,
                     TRIM(PickupPostcode) AS Postcode,
                     CAST(NULL AS STRING) AS CountryCode
-                FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_PickupRequest_Stg`
+                FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_PickupRequest_Stg`
                 UNION ALL
                 SELECT 
                     LabelNumber AS LabelNo, 'To' AS FromTo,
@@ -157,16 +157,16 @@ BEGIN
                     CAST(NULL AS STRING) AS State,
                     TRIM(DeliveryPostcode) AS Postcode,
                     CountryCode AS CountryCode
-                FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_PickupRequest_Stg` 
+                FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_PickupRequest_Stg` 
             ) AS a
-            LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
+            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
         ) AS h
-        WHERE NOT EXISTS (SELECT 1 FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
+        WHERE NOT EXISTS (SELECT 1 FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
         ORDER BY Address_HSK; 
 
         SET v_InsertedSrc = @@row_count;
         SET v_EndedSrc = CURRENT_DATETIME();
-        CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0, -1);
+        CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0, -1);
 
 
         /* ==============================================================================
@@ -175,7 +175,7 @@ BEGIN
         SET v_Step = 'DynamicLabel';
         SET v_StartedSrc = CURRENT_DATETIME();
         
-        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_Address_Stg` (
+        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Address_Stg` (
             LabelNo, FromTo, Address_HSK, AddressLine1, AddressLine2, Town, State, PostCode, 
             CountryCode, CountryName, AddressKey, AddressLen, AddressSeq, RecordSource
         ) 
@@ -188,7 +188,7 @@ BEGIN
             SELECT 
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'DynamicLabel' AS RecordSource,
-                `searce-sandbox-da-delivery.Aramex_oceania.dbo_GetHashKey`(
+                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),
@@ -220,7 +220,7 @@ BEGIN
                     CAST(NULL AS STRING) AS State,
                     TRIM(PickupPostcode) AS Postcode,
                     CAST(NULL AS STRING) AS CountryCode
-                FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_API_RF_AdHocLabel_AllocationHistory_Stg`
+                FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_API_RF_AdHocLabel_AllocationHistory_Stg`
                 UNION ALL
                 SELECT 
                     LabelNumber AS LabelNo, 'To' AS FromTo,
@@ -230,16 +230,16 @@ BEGIN
                     CAST(NULL AS STRING) AS State,
                     TRIM(DeliveryPostcode) AS Postcode,
                     CountryCode AS CountryCode
-                FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_API_RF_AdHocLabel_AllocationHistory_Stg` 
+                FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_API_RF_AdHocLabel_AllocationHistory_Stg` 
             ) AS a
-            LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
+            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
         ) AS h
-        WHERE NOT EXISTS (SELECT 1 FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
+        WHERE NOT EXISTS (SELECT 1 FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
         ORDER BY Address_HSK; 
 
         SET v_InsertedSrc = @@row_count;
         SET v_EndedSrc = CURRENT_DATETIME();
-        CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0, -1);
+        CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0, -1);
 
 
         /* ==============================================================================
@@ -248,7 +248,7 @@ BEGIN
         SET v_Step = 'FastLabel';
         SET v_StartedSrc = CURRENT_DATETIME();
         
-        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_Address_Stg` (
+        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Address_Stg` (
             LabelNo, FromTo, Address_HSK, AddressLine1, AddressLine2, Town, State, PostCode, 
             CountryCode, CountryName, AddressKey, AddressLen, AddressSeq, RecordSource
         ) 
@@ -261,7 +261,7 @@ BEGIN
             SELECT 
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'FastLabel' AS RecordSource,
-                `searce-sandbox-da-delivery.Aramex_oceania.dbo_GetHashKey`(
+                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),
@@ -293,16 +293,16 @@ BEGIN
                     TRIM(State) AS State,
                     TRIM(Postcode) AS Postcode,
                     CountryCode
-                FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_tblFastLabel_Consignment_Stg`
+                FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_tblFastLabel_Consignment_Stg`
             ) AS a
-            LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
+            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
         ) AS h
-        WHERE NOT EXISTS (SELECT 1 FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
+        WHERE NOT EXISTS (SELECT 1 FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
         ORDER BY Address_HSK;
 
         SET v_InsertedSrc = @@row_count;
         SET v_EndedSrc = CURRENT_DATETIME();
-        CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0, -1);
+        CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0, -1);
 
 
         /* ==============================================================================
@@ -311,7 +311,7 @@ BEGIN
         SET v_Step = 'FastLabelEnterprise';
         SET v_StartedSrc = CURRENT_DATETIME();
         
-        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_Address_Stg` (
+        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Address_Stg` (
             LabelNo, FromTo, Address_HSK, AddressLine1, AddressLine2, Town, State, PostCode, 
             CountryCode, CountryName, AddressKey, AddressLen, AddressSeq, RecordSource
         ) 
@@ -324,7 +324,7 @@ BEGIN
             SELECT 
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'FastLabelEnterprise' AS RecordSource,
-                `searce-sandbox-da-delivery.Aramex_oceania.dbo_GetHashKey`(
+                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),
@@ -367,16 +367,16 @@ BEGIN
                     CAST(NULL AS STRING) AS State,
                     TRIM(ReceiverPostcode) AS Postcode,
                     CAST(NULL AS STRING) AS CountryCode
-                FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_ConsignmentItem_Stg` 
+                FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_ConsignmentItem_Stg` 
             ) AS a
-            LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
+            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
         ) AS h
-        WHERE NOT EXISTS (SELECT 1 FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
+        WHERE NOT EXISTS (SELECT 1 FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
         ORDER BY Address_HSK;
 
         SET v_InsertedSrc = @@row_count;
         SET v_EndedSrc = CURRENT_DATETIME();
-        CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0, -1);
+        CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0, -1);
 
 
         /* ==============================================================================
@@ -385,7 +385,7 @@ BEGIN
         SET v_Step = 'HDManifests';
         SET v_StartedSrc = CURRENT_DATETIME();
         
-        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_Address_Stg` (
+        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Address_Stg` (
             LabelNo, FromTo, Address_HSK, AddressLine1, AddressLine2, Town, State, PostCode, 
             CountryCode, CountryName, AddressKey, AddressLen, AddressSeq, RecordSource
         ) 
@@ -398,7 +398,7 @@ BEGIN
             SELECT 
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'HDManifests' AS RecordSource,
-                `searce-sandbox-da-delivery.Aramex_oceania.dbo_GetHashKey`(
+                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),
@@ -435,7 +435,7 @@ BEGIN
                         WHEN REGEXP_CONTAINS(SendAdd6, r'[0-9]') THEN SendAdd6 
                     END) AS STRING) AS Postcode, 
                     CollectionCountryCode AS CountryCode
-                FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_HDManifests_Stg`
+                FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_HDManifests_Stg`
                 UNION ALL
                 SELECT 
                     LabelNo, 'To' AS FromTo,
@@ -450,16 +450,16 @@ BEGIN
                         WHEN REGEXP_CONTAINS(RecAdd6, r'[0-9]') THEN RecAdd6 
                     END) AS STRING) AS Postcode, 
                     DeliveryCountryCode AS CountryCode 
-                FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_HDManifests_Stg`
+                FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_HDManifests_Stg`
             ) AS a
-            LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
+            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
         ) AS h
-        WHERE NOT EXISTS (SELECT 1 FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
+        WHERE NOT EXISTS (SELECT 1 FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
         ORDER BY Address_HSK;
 
         SET v_InsertedSrc = @@row_count;
         SET v_EndedSrc = CURRENT_DATETIME();
-        CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0, -1);
+        CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0, -1);
 
 
         /* ==============================================================================
@@ -468,7 +468,7 @@ BEGIN
         SET v_Step = 'EBAY';
         SET v_StartedSrc = CURRENT_DATETIME();
         
-        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_Address_Stg` (
+        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Address_Stg` (
             LabelNo, FromTo, Address_HSK, AddressLine1, AddressLine2, Town, State, PostCode, 
             CountryCode, CountryName, AddressKey, AddressLen, AddressSeq, RecordSource
         )
@@ -481,7 +481,7 @@ BEGIN
             SELECT
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'EBAY' AS RecordSource,
-                `searce-sandbox-da-delivery.Aramex_oceania.dbo_GetHashKey`(
+                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),
@@ -513,7 +513,7 @@ BEGIN
                     CAST(NULL AS STRING) AS State,
                     C_Postcode AS PostCode,
                     C_CountryCode AS CountryCode
-                FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Ebay_Labels_Stg`
+                FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Ebay_Labels_Stg`
                 UNION ALL
                 SELECT 
                     LabelNumber AS LabelNo, 'To' AS FromTo,
@@ -523,16 +523,16 @@ BEGIN
                     CAST(NULL AS STRING) AS State,
                     DeliveryPostcode AS PostCode,
                     DeliveryCountry AS CountryCode
-                FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Ebay_Labels_Stg` 
+                FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Ebay_Labels_Stg` 
             ) AS a
-            LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
+            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
         ) AS h
-        WHERE NOT EXISTS (SELECT 1 FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
+        WHERE NOT EXISTS (SELECT 1 FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
         ORDER BY Address_HSK;
 
         SET v_InsertedSrc = @@row_count;
         SET v_EndedSrc = CURRENT_DATETIME();
-        CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0, -1);
+        CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0, -1);
 
 
         /* ==============================================================================
@@ -541,7 +541,7 @@ BEGIN
         SET v_Step = 'ReceiverPays';
         SET v_StartedSrc = CURRENT_DATETIME();
         
-        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_Address_Stg` (
+        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Address_Stg` (
             LabelNo, FromTo, Address_HSK, AddressLine1, AddressLine2, Town, State, PostCode, 
             CountryCode, CountryName, AddressKey, AddressLen, AddressSeq, RecordSource
         )
@@ -554,7 +554,7 @@ BEGIN
             SELECT
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'ReceiverPays' AS RecordSource,
-                `searce-sandbox-da-delivery.Aramex_oceania.dbo_GetHashKey`(
+                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),
@@ -586,7 +586,7 @@ BEGIN
                     CAST(NULL AS STRING) AS State,
                     Sender_Postcode AS PostCode,
                     CAST(NULL AS STRING) AS CountryCode
-                FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_tblOnlineEnquiry_RP_Stg` 
+                FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_tblOnlineEnquiry_RP_Stg` 
                 UNION ALL
                 SELECT DISTINCT
                     label_number AS LabelNo, 'To' AS FromTo,
@@ -596,20 +596,20 @@ BEGIN
                     CAST(NULL AS STRING) AS State,
                     Receiver_Postcode AS PostCode,
                     CAST(NULL AS STRING) AS CountryCode
-                FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_tblOnlineEnquiry_RP_Stg` 
+                FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_tblOnlineEnquiry_RP_Stg` 
             ) AS a
-            LEFT JOIN `searce-sandbox-da-delivery.Aramex_oceania.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
+            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
         ) AS h
-        WHERE NOT EXISTS (SELECT 1 FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
+        WHERE NOT EXISTS (SELECT 1 FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Address_Stg` AS s WHERE s.Address_HSK = h.Address_HSK)
         ORDER BY Address_HSK;
 
         SET v_InsertedSrc = @@row_count;
         SET v_EndedSrc = CURRENT_DATETIME();
-        CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0, -1);
+        CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(v_Step, p_ProcessID, v_StartedSrc, v_EndedSrc, v_Result, v_ErrorMessage, v_InsertedSrc, 0, -1);
 
         -- Record load metrics in log
         SET v_Result = 'Success';
-        SET v_Inserted = (SELECT COUNT(*) FROM `searce-sandbox-da-delivery.Aramex_oceania.Staging_Label_Address_Stg`);
+        SET v_Inserted = (SELECT COUNT(*) FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Address_Stg`);
 
     EXCEPTION WHEN ERROR THEN
         SET v_Result = CONCAT('Failed - loading ', v_Step, ' data');
@@ -618,7 +618,7 @@ BEGIN
 
     -- Final Master Logging
     SET v_Ended = CURRENT_DATETIME();
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

@@ -10,7 +10,7 @@
 --  08/04/2025  B. Woods        Cloned
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `searce-sandbox-da-delivery.Aramex_oceania_SP.dv_Load_LNK_Scan_SignatureAI`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_LNK_Scan_SignatureAI`(
     IN ProcessID  INT64,
     IN RecordSource STRING
 )
@@ -32,7 +32,7 @@ BEGIN
         -- UPDATES: rows that already exist in the target and have changed values.
         -- Uses MERGE to replicate the SQL Server UPDATE ... FROM ... WHERE EXISTS (EXCEPT).
         -- -----------------------------------------------------------------------
-        MERGE `searce-sandbox-da-delivery.Aramex_oceania.dv_LNK_Scan_SignatureAI` AS Tgt
+        MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_Scan_SignatureAI` AS Tgt
         USING (
             SELECT
                  Stg.TrackAndTraceId
@@ -46,8 +46,8 @@ BEGIN
                 ,Stg.ScanDate
                 ,Stg.LastUpdatedOn
                 ,Stg.TrainingLabel
-            FROM `searce-sandbox-da-delivery.Aramex_oceania.InterimStaging_TrackAndTraceData_SignatureAI_Stg` Stg
-            INNER JOIN `searce-sandbox-da-delivery.Aramex_oceania.dv_LNK_Scan_SignatureAI` Existing
+            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.InterimStaging_TrackAndTraceData_SignatureAI_Stg` Stg
+            INNER JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_Scan_SignatureAI` Existing
                 ON Existing.TrackAndTraceID = Stg.TrackAndTraceId
         ) AS Src
         ON Tgt.TrackAndTraceId = Src.TrackAndTraceId
@@ -85,7 +85,7 @@ BEGIN
         -- -----------------------------------------------------------------------
         -- INSERTS: rows that do not yet exist in the target.
         -- -----------------------------------------------------------------------
-        INSERT INTO `searce-sandbox-da-delivery.Aramex_oceania.dv_LNK_Scan_SignatureAI`
+        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_Scan_SignatureAI`
         (
              TrackAndTraceId
             ,AILabel
@@ -117,10 +117,10 @@ BEGIN
             ,Loaded
             ,ProcessID
             ,RecordSource
-        FROM `searce-sandbox-da-delivery.Aramex_oceania.InterimStaging_TrackAndTraceData_SignatureAI_Stg` Stg
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.InterimStaging_TrackAndTraceData_SignatureAI_Stg` Stg
         WHERE NOT EXISTS (
             SELECT 1
-            FROM `searce-sandbox-da-delivery.Aramex_oceania.dv_LNK_Scan_SignatureAI` Tgt
+            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_Scan_SignatureAI` Tgt
             WHERE Tgt.TrackAndTraceID = Stg.TrackAndTraceId
         );
 
@@ -135,7 +135,7 @@ BEGIN
 
     -- Record load metrics in log
     SET Ended = CURRENT_DATETIME();
-    CALL `searce-sandbox-da-delivery.Aramex_oceania_SP.Staging_SaveLog`(
+    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
         Component,
         ProcessID,
         Started,

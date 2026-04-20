@@ -72,7 +72,7 @@ BEGIN
   -- Verify staging table exists via INFORMATION_SCHEMA
   SET v_TableExists = (
     SELECT COUNT(*)
-    FROM `{{ project_id }}.{{ dataset }}`.INFORMATION_SCHEMA.TABLES
+    FROM `{{ project_id }}.{{ target_dataset_id }}`.INFORMATION_SCHEMA.TABLES
     WHERE CONCAT(table_schema, '.', table_name) = REPLACE(REPLACE(v_StagingTable, '`', ''), '{{ project_id }}.{{ target_dataset_id }}.', '')
   );
 

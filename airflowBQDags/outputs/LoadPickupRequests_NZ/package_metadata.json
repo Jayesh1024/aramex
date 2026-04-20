@@ -1,0 +1,191 @@
+{
+  "package_name": "LoadPickupRequests_NZ",
+  "executables": {
+    "Package\\Check if Secondary": {
+      "task_metadata": {
+        "query": "declare @DBname varchar(100) = ?\ndeclare @IsPrimary bit;\n\nSELECT @IsPrimary = sys.fn_hadr_is_primary_replica ( @DBname)\n\nIF @IsPrimary != 1 RAISERROR('Error - Connected to Secondary. Cannot run Change Tracking queries',11,9);",
+        "param_map": {
+          "param_0": {
+            "variable_name": "DatabaseName",
+            "direction": "Input"
+          }
+        },
+        "result_set": {}
+      },
+      "task_type": "Microsoft.ExecuteSQLTask"
+    },
+    "Package\\Get Last CT Version": {
+      "task_metadata": {
+        "query": "Declare @Target varchar(100) = ?\n\nSELECT LastValue = LastSyncVersion \nFROM [Staging].[LoadControl_ChangeTracking]\nWHERE TargetName = @Target ",
+        "param_map": {
+          "param_0": {
+            "variable_name": "RecordSource",
+            "direction": "Input"
+          }
+        },
+        "result_set": {
+          "LastValue": {
+            "variable_name": "LastVersion",
+            "result_type": "ResultSetType_SingleRow"
+          }
+        }
+      },
+      "task_type": "Microsoft.ExecuteSQLTask"
+    },
+    "Package\\Get Next CT Version": {
+      "task_metadata": {
+        "query": "\nUSE [FastwayGlobal_6]\n\nSELECT NextValue = CHANGE_TRACKING_CURRENT_VERSION()",
+        "param_map": {},
+        "result_set": {
+          "NextValue": {
+            "variable_name": "NextVersion",
+            "result_type": "ResultSetType_SingleRow"
+          }
+        }
+      },
+      "task_type": "Microsoft.ExecuteSQLTask"
+    },
+    "Package\\Pickup Requests": {
+      "task_metadata": {
+        "Package\\Pickup Requests\\Copy Country Staging to PickupRequest_Stg": {
+          "task_metadata": {
+            "task_dependency_map": {
+              "Package\\Pickup Requests\\Copy Country Staging to PickupRequest_Stg\\Get Country Source": [
+                "Package\\Pickup Requests\\Copy Country Staging to PickupRequest_Stg\\Put to PickupRequest_Stg for address load"
+              ]
+            },
+            "exec_order": {
+              "Package\\Pickup Requests\\Copy Country Staging to PickupRequest_Stg\\Get Country Source": 1,
+              "Package\\Pickup Requests\\Copy Country Staging to PickupRequest_Stg\\Put to PickupRequest_Stg for address load": 2
+            },
+            "per_component_data": {
+              "Package\\Pickup Requests\\Copy Country Staging to PickupRequest_Stg\\Get Country Source": {
+                "component_type": "Microsoft.OLEDBSource",
+                "component_info": {
+                  "sql_command": "SELECT \n       Src.[ID]\n      ,Src.[CreateDateUtc]\n      ,Src.[ShouldPrintLabel]\n      ,Src.[PickupFranchiseeCode]\n      ,Src.[PickupCourierNumber]\n      ,Src.[LabelNumber]\n      ,Src.[CollectionDate]\n      ,Src.[CollectionCycle]\n      ,Src.[PickupAddress1]\n      ,Src.[PickupAddress2]\n      ,Src.[PickupSuburb]\n      ,Src.[PickupPostcode]\n      ,Src.[PickupName]\n      ,Src.[PickupPhone]\n      ,Src.[PickupEmail]\n      ,Src.[DeliveryAddress1]\n      ,Src.[DeliveryAddress2]\n      ,Src.[DeliverySuburb]\n      ,Src.[DeliveryPostcode]\n      ,Src.[DeliveryName]\n      ,Src.[DeliveryPhone]\n      ,Src.[DeliveryEmail]\n      ,Src.[IsMessageSent]\n      ,Src.[Weight]\n      ,Src.[Width]\n      ,Src.[Height]\n      ,Src.[Length]\n      ,Src.[RequestingCustomerName]\n      ,Src.[CountryCode]\n      ,Src.[IsPrinted]\n      ,Src.[IsComplete]\n      ,Src.[ConsolidationGroupId]\n      ,Src.[CourierMessageResult]\n      ,Src.[ConsolidationDateUtc]\n      ,Src.[PickupSpecialInstructions]\n      ,Src.[DeliverySpecialInstructions]\n      ,Src.[HhcMessageId]\n      ,Src.[HasCourierRejected]\n      ,Src.[IsRegularCollection]\n      ,Src.[RequestingCustomerOesId]\n      ,Src.[IsCancelled]\n      ,Src.[CancellationReason]\n      ,Src.[CancellationTitle]\n      ,Src.[FutileScanDate]\n      ,Src.[NotReadyScanDate]\n      ,Src.[PickupScanDate]\n      ,Src.[MessageSentDateUtc]\n      ,Src.[CourierMessageResultText]\n      ,Src.[RejectionReason]\n      ,Src.[RejectionDate]\n      ,Src.[InternalStatus]\n      ,Src.[DidNotAssignCourierDuringCreation]\n      ,Src.[IsReturnService]\n      ,Src.[IsParcelConnectPickupLocation]\n      ,Src.[SecondaryLabelNumber]\n      ,Src.[PickupSubDepotFranchiseeCode]\n      ,Src.[CubicWeight]\n      ,Src.[PickupCompany]\n      ,Src.[DeliveryCompany]\n      ,Src.[IsPriority]\n\nFROM [FastwayDW].[Staging].[PickupRequest_NZ_Stg] Src\nLEFT JOIN [Staging].[PickupRequest_Stg] Tgt WITH (NOLOCK) ON Tgt.ID = Src.ID  \nWHERE Tgt.ID IS NULL",
+                  "connection_names": [
+                    "Project.ConnectionManagers[CUBE.FastwayDW]"
+                  ],
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": []
+                  }
+                }
+              },
+              "Package\\Pickup Requests\\Copy Country Staging to PickupRequest_Stg\\Put to PickupRequest_Stg for address load": {
+                "component_type": "Microsoft.OLEDBDestination",
+                "component_info": {
+                  "table_name": "PickupRequest_Stg",
+                  "schema_name": "Staging",
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": []
+                  }
+                }
+              }
+            }
+          },
+          "task_type": "Microsoft.Pipeline"
+        },
+        "Package\\Pickup Requests\\Get PickupRequests (NZ)": {
+          "task_metadata": {
+            "task_dependency_map": {
+              "Package\\Pickup Requests\\Get PickupRequests (NZ)\\Get PickupRequests": [
+                "Package\\Pickup Requests\\Get PickupRequests (NZ)\\Put PickupRequests"
+              ]
+            },
+            "exec_order": {
+              "Package\\Pickup Requests\\Get PickupRequests (NZ)\\Get PickupRequests": 1,
+              "Package\\Pickup Requests\\Get PickupRequests (NZ)\\Put PickupRequests": 2
+            },
+            "per_component_data": {
+              "Package\\Pickup Requests\\Get PickupRequests (NZ)\\Get PickupRequests": {
+                "component_type": "Microsoft.OLEDBSource",
+                "component_info": {
+                  "sql_command": "DECLARE @Last_synced_version bigint = ?;\nDECLARE @IsReload bit = ?;\nDECLARE @minimumVersion  bigint;\nUSE [FastwayGlobal_6]\n\nSET @minimumVersion  = CHANGE_TRACKING_MIN_VALID_VERSION(OBJECT_ID('[PickupDashboard].[PickupRequest]'))\n\nIF (@Last_synced_version  < @minimumVersion AND @IsReload  = 0)  RAISERROR('ERROR - Synchronization version invalid', 11, 11);\n\n\nSELECT Cng.[Id]\n      ,Cng.[SYS_CHANGE_VERSION]\n      ,Cng.[SYS_CHANGE_OPERATION]\n      ,[CreateDateUtc]\n      ,[ShouldPrintLabel]\n      ,[PickupFranchiseeCode]\n      ,[PickupCourierNumber]\n      ,[LabelNumber]\n      ,[CollectionDate]\n      ,[CollectionCycle]\n      ,[PickupAddress1]\n      ,[PickupAddress2]\n      ,[PickupSuburb]\n      ,[PickupPostcode]\n      ,[PickupName]\n      ,[PickupPhone]\n      ,[PickupEmail]\n      ,[DeliveryAddress1]\n      ,[DeliveryAddress2]\n      ,[DeliverySuburb]\n      ,[DeliveryPostcode]\n      ,[DeliveryName]\n      ,[DeliveryPhone]\n      ,[DeliveryEmail]\n      ,[IsMessageSent]\n      ,[Weight]\n      ,[Width]\n      ,[Height]\n      ,[Length]\n      ,[RequestingCustomerName]\n      ,[CountryCode]\n      ,[IsPrinted]\n      ,[IsComplete]\n      ,[ConsolidationGroupId]\n      ,[CourierMessageResult]\n      ,[ConsolidationDateUtc]\n      ,[PickupSpecialInstructions]\n      ,[DeliverySpecialInstructions]\n      ,[HhcMessageId]\n      ,[HasCourierRejected]\n      ,[IsRegularCollection]\n      ,[RequestingCustomerOesId]\n      ,[IsCancelled]\n      ,[CancellationReason]\n      ,[CancellationTitle]\n      ,[FutileScanDate]\n      ,[NotReadyScanDate]\n      ,[PickupScanDate]\n      ,[MessageSentDateUtc]\n      ,[CourierMessageResultText]\n      ,[RejectionReason]\n      ,[RejectionDate]\n      ,[InternalStatus]\n      ,[DidNotAssignCourierDuringCreation]\n      ,[IsReturnService]\n      ,[IsParcelConnectPickupLocation]\n      ,[SecondaryLabelNumber]\n      ,[PickupSubDepotFranchiseeCode]\n      ,[CubicWeight]\n      ,[PickupCompany]\n      ,[DeliveryCompany]\n      ,[IsPriority]\n  FROM CHANGETABLE (CHANGES [FastwayGlobal_6].[PickupDashboard].[PickupRequest], @Last_synced_version) Cng \t\n  LEFT JOIN [FastwayGlobal_6].[PickupDashboard].[PickupRequest] AS CNC ON Cng.ID = CNC.Id\n  WHERE @IsReload = 0\n AND  [SYS_CHANGE_OPERATION] != 'D'\n\n  UNION\n  SELECT [Id]\n      ,@minimumVersion AS [SYS_CHANGE_VERSION]\n      ,'I' AS [SYS_CHANGE_OPERATION]\n      ,[CreateDateUtc]\n      ,[ShouldPrintLabel]\n      ,[PickupFranchiseeCode]\n      ,[PickupCourierNumber]\n      ,[LabelNumber]\n      ,[CollectionDate]\n      ,[CollectionCycle]\n      ,[PickupAddress1]\n      ,[PickupAddress2]\n      ,[PickupSuburb]\n      ,[PickupPostcode]\n      ,[PickupName]\n      ,[PickupPhone]\n      ,[PickupEmail]\n      ,[DeliveryAddress1]\n      ,[DeliveryAddress2]\n      ,[DeliverySuburb]\n      ,[DeliveryPostcode]\n      ,[DeliveryName]\n      ,[DeliveryPhone]\n      ,[DeliveryEmail]\n      ,[IsMessageSent]\n      ,[Weight]\n      ,[Width]\n      ,[Height]\n      ,[Length]\n      ,[RequestingCustomerName]\n      ,[CountryCode]\n      ,[IsPrinted]\n      ,[IsComplete]\n      ,[ConsolidationGroupId]\n      ,[CourierMessageResult]\n      ,[ConsolidationDateUtc]\n      ,[PickupSpecialInstructions]\n      ,[DeliverySpecialInstructions]\n      ,[HhcMessageId]\n      ,[HasCourierRejected]\n      ,[IsRegularCollection]\n      ,[RequestingCustomerOesId]\n      ,[IsCancelled]\n      ,[CancellationReason]\n      ,[CancellationTitle]\n      ,[FutileScanDate]\n      ,[NotReadyScanDate]\n      ,[PickupScanDate]\n      ,[MessageSentDateUtc]\n      ,[CourierMessageResultText]\n      ,[RejectionReason]\n      ,[RejectionDate]\n      ,[InternalStatus]\n      ,[DidNotAssignCourierDuringCreation]\n      ,[IsReturnService]\n      ,[IsParcelConnectPickupLocation]\n      ,[SecondaryLabelNumber]\n      ,[PickupSubDepotFranchiseeCode]\n      ,[CubicWeight]\n      ,[PickupCompany]\n      ,[DeliveryCompany]\n      ,[IsPriority]\n  FROM [FastwayGlobal_6].[PickupDashboard].[PickupRequest] AS CNC\n  WHERE @IsReload = 1",
+                  "connection_names": [
+                    "Project.ConnectionManagers[GOKU.OnlineEnquiries_NEW]"
+                  ],
+                  "inline_positional_params": true,
+                  "inline_positional_params_mapping": {
+                    "param_1": "LastVersion",
+                    "param_2": "(unresolved:{7705E030-A582-456D-9369-ABF1E9F04F5B})"
+                  },
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": [
+                      "LastVersion"
+                    ]
+                  }
+                }
+              },
+              "Package\\Pickup Requests\\Get PickupRequests (NZ)\\Put PickupRequests": {
+                "component_type": "Microsoft.OLEDBDestination",
+                "component_info": {
+                  "table_name": "PickupRequest_NZ_Stg",
+                  "schema_name": "Staging",
+                  "variables_used": {
+                    "open_rowset_variable": null,
+                    "sql_command_variable": null,
+                    "open_rowset_variable_qualified": null,
+                    "sql_command_variable_qualified": null,
+                    "variables_used_distinct": []
+                  }
+                }
+              }
+            }
+          },
+          "task_type": "Microsoft.Pipeline"
+        },
+        "Package\\Pickup Requests\\Load Target Table": {
+          "task_metadata": {
+            "query": "exec  dv.Load_CT_SAT_Label_PickupRequests_NZ ?",
+            "param_map": {
+              "param_0": {
+                "variable_name": "ProcessID",
+                "direction": "Input"
+              }
+            },
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        },
+        "Package\\Pickup Requests\\Truncate PickupRequests_Stg": {
+          "task_metadata": {
+            "query": "TRUNCATE TABLE [Staging].[PickupRequest_NZ_Stg];",
+            "param_map": {},
+            "result_set": {}
+          },
+          "task_type": "Microsoft.ExecuteSQLTask"
+        }
+      },
+      "task_type": "STOCK:SEQUENCE"
+    },
+    "Package\\Set Next CT_Version": {
+      "task_metadata": {
+        "query": "declare @NextVersion bigint = ?;\ndeclare @TargetName varchar(100) = ?;\n\n\nif @NextVersion IS NOT NULL\nBEGIN\n UPDATE  [FastwayDW].[Staging].[LoadControl_ChangeTracking] \n SET LastSyncVersion = @NextVersion \n WHERE TargetName = @TargetName \nEND",
+        "param_map": {
+          "param_0": {
+            "variable_name": "NextVersion",
+            "direction": "Input"
+          },
+          "param_1": {
+            "variable_name": "RecordSource",
+            "direction": "Input"
+          }
+        },
+        "result_set": {}
+      },
+      "task_type": "Microsoft.ExecuteSQLTask"
+    }
+  }
+}

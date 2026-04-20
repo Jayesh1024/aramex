@@ -29,7 +29,7 @@ BEGIN
             SELECT DISTINCT 
                 -- Assuming GetHashKey is migrated as a BigQuery UDF within the target project/dataset
                 `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(
-                    CONCAT(cty.CountryName, '^', IF(IFNULL(si.DisplayText, '') != '', si.DisplayText, si.Description))
+                    CONCAT(cty.CountryName, '^', IF(IFNULL(si.DisplayText, '') != '', si.DisplayText, si.Description)), '^'
                 ) AS ServiceItem_HSK,
                 cty.CountryName AS Country, 
                 IF(IFNULL(si.DisplayText, '') != '', si.DisplayText, si.Description) AS ServiceItem,
