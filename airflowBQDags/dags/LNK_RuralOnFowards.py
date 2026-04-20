@@ -10,7 +10,7 @@ Notes:
   * Get ProcessID uses MAX(ProcessID) (NOT MAX+1) — mirrored verbatim.
   * Pipeline `Data Flow Task` loads Staging.LA_RuralOnforwards_Stg via SQL
     that requires (LastDate, StartDate, EndDate) — inferred SP
-    `Staging_load_LA_RuralOnforwards_Stg(LastDate, StartDate, EndDate)`.
+    `sp_load_Staging_LA_RuralOnforwards_Stg(LastDate, StartDate, EndDate)`.
     SSIS defaults unresolved StartDate/EndDate to '1900-01-01'; same here.
   * `Execute SQL Task` just calls `[dv].[Load_LNK_RuralOnforwards]` (no
     params in the SSIS execution; ResultSet returns NextDate but is unused
@@ -97,7 +97,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_LA_RuralOnforwards_Stg`("
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_LA_RuralOnforwards_Stg`("
                         f"SAFE_CAST('{_xcom_lastdate}' AS DATE), "
                         f"SAFE_CAST('{{{{ params.start_date }}}}' AS DATE), "
                         f"SAFE_CAST('{{{{ params.end_date }}}}' AS DATE));"

@@ -2,7 +2,7 @@
 Completed DAG for SSIS package: ConnectStringTest
 Migration: SSIS -> BigQuery
 
-Table / procedure names use schema_object from metadata.json (e.g. Staging_tblCustomer_Stg, Staging_Load_tblCustomer_Stg).
+Table / procedure names use schema_object from metadata.json (e.g. Staging_tblCustomer_Stg, sp_load_Staging_tblCustomer_Stg).
 """
 from __future__ import annotations
 
@@ -41,7 +41,7 @@ with DAG(
         task_id="package_load_tblcustomer_stg",
         configuration={
             "query": {
-                "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_tblCustomer_Stg`();",
+                "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_tblCustomer_Stg`();",
                 "useLegacySql": False,
             }
         },

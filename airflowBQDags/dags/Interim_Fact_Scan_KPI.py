@@ -6,7 +6,7 @@ Mirrors Fact_Scan_KPI but:
   * Allocates a *negative sentinel* ProcessID (MIN(ProcessID) - 1 WHERE
     ProcessID < -99999) same as HUB_BLKContainerManifest.
   * Set Last ID target is [InterimStaging].[Interim_Set_LastValue]
-    (InterimStaging_Interim_Set_LastValue). Other three args (ColumnName,
+    (interimStaging_Set_LastValue). Other three args (ColumnName,
     LastValue, Force) are all NULL/0 in SSIS.
   * Uses the same Staging_Load_KPI_Labels_Stg / Staging_Load_Fact_Scan_KPI_Stg
     / dbo_Load_Fact_Scan_KPI SPs as the non-interim package.
@@ -124,13 +124,13 @@ with DAG(
             },
         )
 
-        # ref_id: Package\Final\Set Last ID (TrackAndTraceID) — InterimStaging_Interim_Set_LastValue(RecordSource, NULL, NULL, 0)
+        # ref_id: Package\Final\Set Last ID (TrackAndTraceID) — interimStaging_Set_LastValue(RecordSource, NULL, NULL, 0)
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_set_last_id_trackandtraceid",
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.InterimStaging_Interim_Set_LastValue`("
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.interimStaging_Set_LastValue`("
                         f"'{{{{ params.record_source_3 }}}}', NULL, NULL, FALSE);"
                     ),
                     "useLegacySql": False,

@@ -76,7 +76,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_API_RF_AdHocLabel_AllocationHistory_Stg_Weekly`("
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_API_RF_AdHocLabel_AllocationHistory_Stg_Weekly`("
                         "{{ params.adhoc_history_last_id }});"
                     ),
                     "useLegacySql": False,
@@ -89,7 +89,7 @@ with DAG(
             task_id="package_source2_dynamiclabel_dl_insert_into_api_rf_adhoclabel_allocationhistory_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_API_RF_AdHocLabel_AllocationHistory_Stg`();",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_API_RF_AdHocLabel_AllocationHistory_Stg`();",
                     "useLegacySql": False,
                 }
             },
@@ -129,7 +129,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Load_Dim_Label.`("
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Load_Dim_Label`("
                         "{{ params.process_id }});"
                     ),
                     "useLegacySql": False,

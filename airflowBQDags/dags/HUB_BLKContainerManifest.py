@@ -89,7 +89,7 @@ with DAG(
             task_id="package_staging_load_containermanifest",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_BLK_ContainerManifest_Stg`();",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_BLK_ContainerManifest_Stg`();",
                     "useLegacySql": False,
                 }
             },
@@ -113,7 +113,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_BLK_ContainerManifestContents_Stg`("
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_BLK_ContainerManifestContents_Stg`("
                         f"SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LAST_SCAN}') }}}}' AS DATETIME));"
                     ),
                     "useLegacySql": False,

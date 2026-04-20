@@ -89,7 +89,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_fl_InvoiceHeader_Stg`("
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_InvoiceHeader_Stg`("
                         f"SAFE_CAST('{_xcom_last_header}' AS DATETIME));"
                     ),
                     "useLegacySql": False,
@@ -103,7 +103,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_fl_InvoicePayment_Stg`("
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_InvoicePayment_Stg`("
                         f"SAFE_CAST('{_xcom_last_payment}' AS DATETIME));"
                     ),
                     "useLegacySql": False,

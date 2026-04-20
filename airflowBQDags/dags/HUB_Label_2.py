@@ -9,7 +9,7 @@ Shape:
 The Staging InterBranch pipeline reads from `Fastway..invbtch / invhead /
 labels / prods / invdet` driven by a `@RecordSource` that switches between
 'InterBranchAU' and 'InterBranchNZ' to filter `CountryCode`. Wrapped as
-`Staging_Load_Label_Interbranch_Stg(last_batch_id INT64, record_source STRING)`.
+`sp_load_Staging_Label_Interbranch_Stg(last_batch_id INT64, record_source STRING)`.
 
 `Set LastValue (InterBranch)` is an SSIS ExecuteSQL that updates
 Staging.LoadControl conditioned on the staging table having rows — translated
@@ -78,7 +78,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_Label_Interbranch_Stg`("
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_Label_Interbranch_Stg`("
                         f"SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LAST_ID}') }}}}' AS INT64), "
                         f"'{{{{ params.record_source }}}}');"
                     ),
@@ -159,7 +159,7 @@ with DAG(
             task_id="package_monthly_miscellaneous_maintain_dlbs_rfbatching",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Maintain_DLBSRFBatching`();",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_dbo_DLBSRFBatching`();",
                     "useLegacySql": False,
                 }
             },

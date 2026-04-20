@@ -104,7 +104,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.InterimStaging_load_TrackAndTraceData_SignatureAI_Stg`("
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_InterimStaging_TrackAndTraceData_SignatureAI_Stg`("
                         f"SAFE_CAST('{_xcom_last_sigai}' AS DATETIME));"
                     ),
                     "useLegacySql": False,
@@ -118,7 +118,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.InterimStaging_load_TrackAndTrace_Stg`("
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_InterimStaging_TrackAndTrace_Stg`("
                         f"SAFE_CAST('{_xcom_last_tt}' AS INT64));"
                     ),
                     "useLegacySql": False,
@@ -164,13 +164,13 @@ with DAG(
                 },
             )
 
-            # ref_id: Package\Final\Load LNK\Interim Load_Scans_Stg — InterimStaging_Interim_Load_Scans_Stg(ProcessId)
+            # ref_id: Package\Final\Load LNK\Interim Load_Scans_Stg — interimStaging_Interim_Load_Scans_Stg(ProcessId)
             op_5 = BigQueryInsertJobOperator(
                 task_id="package_final_load_lnk_interim_load_scans_stg",
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.InterimStaging_Interim_Load_Scans_Stg`("
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.interimStaging_Interim_Load_Scans_Stg`("
                             f"{_xcom_processid});"
                         ),
                         "useLegacySql": False,
@@ -226,7 +226,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.InterimStaging_Interim_Set_LastValue`("
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.interimStaging_Set_LastValue`("
                             f"'{{{{ params.record_source_3 }}}}', NULL, NULL, FALSE);"
                         ),
                         "useLegacySql": False,
@@ -260,7 +260,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.InterimStaging_Interim_Set_LastValue`("
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.interimStaging_Set_LastValue`("
                             f"'{{{{ params.record_source_1 }}}}', NULL, NULL, FALSE);"
                         ),
                         "useLegacySql": False,

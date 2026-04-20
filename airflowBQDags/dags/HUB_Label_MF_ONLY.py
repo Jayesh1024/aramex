@@ -6,7 +6,7 @@ Shape:
   * Package\Source4 (MyFastway) _MF  -> Package\Sequence Container
 
 The Source4 task group loads the `fl_ConItem_Stg` staging table from MyFastway
-(pipeline wrapped as `Staging_Load_fl_ConItem_Stg`). The main Sequence
+(pipeline wrapped as `sp_load_Staging_fl_ConItem_Stg`). The main Sequence
 Container truncates ten staging tables (preserved as a single multi-statement
 TRUNCATE to match SSIS), loads the SAT_Label_Allocation staging row set, runs
 the two downstream dv.* loads, and finally calls `Staging_Set_LastValue`
@@ -74,7 +74,7 @@ with DAG(
             task_id="package_source4_myfastway_mf_load_fl_conitem_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_fl_ConItem_Stg`();",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_ConItem_Stg`();",
                     "useLegacySql": False,
                 }
             },
@@ -104,7 +104,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_SAT_Label_Allocation_Stg`("
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.staging_Load_SAT_Label_Allocation_Stg2`("
                         f"{{{{ params.process_id }}}});"
                     ),
                     "useLegacySql": False,

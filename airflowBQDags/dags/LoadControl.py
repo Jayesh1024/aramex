@@ -86,7 +86,7 @@ with DAG(
         wait_for_completion=True,
         poke_interval=30,
         reset_dag_run=True,
-        conf={"process_id": _GET_PROCESSID_XCOM},
+        conf={"process_id": _GET_PROCESSID_XCOM}, 
     )
 
     _reserve_process_sql = (

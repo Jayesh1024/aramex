@@ -86,7 +86,7 @@ with DAG(
             task_id="package_final_load_sat_allocation_load_sat_label_allocation_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.staging_Load_SAT_Label_Allocation_Stg`({PROCESS_ID});", #TODO: Check if the name sp name is correct
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.staging_Load_SAT_Label_Allocation_Stg2`({PROCESS_ID});",
                     "useLegacySql": False,
                 }
             }

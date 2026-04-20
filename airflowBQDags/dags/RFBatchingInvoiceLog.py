@@ -50,7 +50,7 @@ with DAG(
             task_id="package_staging_load_rfbatchinginvoice_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_RFBatchingInvoiceLog_Stg`();",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_RFBatchingInvoiceLog_Stg`();",
                     "useLegacySql": False,
                 }
             },

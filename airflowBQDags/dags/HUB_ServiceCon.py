@@ -57,7 +57,7 @@ with DAG(
             task_id="package_staging_load_fl_consrv_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_fl_ConSrv_Stg`();",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_ConSrv_Stg`();",
                     "useLegacySql": False,
                 }
             },

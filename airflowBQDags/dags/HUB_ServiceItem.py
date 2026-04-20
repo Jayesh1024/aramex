@@ -50,7 +50,7 @@ with DAG(
             task_id="package_staging_load_fl_serviceitem_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_fl_ServiceItem_Stg`();",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_ServiceItem_Stg`();",
                     "useLegacySql": False,
                 }
             },

@@ -112,7 +112,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_fl_MF_Interim_Stg`("
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_MF_Interim_Stg`("
                             f"SAFE_CAST('{_xcom_last_mf}' AS DATETIME), "
                             f"'{{{{ params.iso_country_codes }}}}');"
                         ),
@@ -127,7 +127,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_fl_ConItem_Stg`();"
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_ConItem_Stg`();"
                         ),
                         "useLegacySql": False,
                     }
@@ -168,7 +168,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_TrackAndTrace_Stg`("
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_TrackAndTrace_Stg`("
                             f"SAFE_CAST('{_xcom_last_scan}' AS INT64), "
                             f"'{{{{ params.iso_country_codes }}}}');"
                         ),
@@ -208,7 +208,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_fl_ConItemSrv_Stg_Interim`("
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_ConItemSrv_Stg_Interim`("
                         f"SAFE_CAST('{_xcom_start_date}' AS DATETIME), "
                         f"'{{{{ params.iso_country_codes }}}}');"
                     ),
@@ -223,7 +223,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_Label_Product_ServiceItem_Stg_Interim`("
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_Label_Product_ServiceItem_Stg_Interim`("
                         f"{_xcom_processid}, "
                         f"'{{{{ params.record_source_4 }}}}');"
                     ),

@@ -58,7 +58,7 @@ with DAG(
             task_id="package_staging_load_product_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_Product_Stg`();",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_Product_Stg`();",
                     "useLegacySql": False,
                 }
             },
@@ -84,7 +84,7 @@ with DAG(
             task_id="package_staging_2_load_stk_rfprroduct_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_STK_RFProducts_Stg`();",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_STK_RFProducts_Stg`();",
                     "useLegacySql": False,
                 }
             },
@@ -110,7 +110,7 @@ with DAG(
             task_id="package_staging_3_load_fms_customercommisionoverride",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_CustomerCommissionOverride_Stg`();",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_CustomerCommissionOverride_Stg`();",
                     "useLegacySql": False,
                 }
             },

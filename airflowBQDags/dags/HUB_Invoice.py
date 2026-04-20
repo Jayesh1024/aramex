@@ -210,13 +210,13 @@ with DAG(
         )
 
         # ref_id: Package\\Staging\\Load FMS_InvoiceBooks_Stg
-        # SSIS: OLE DB … → [Staging].[FMS_InvoiceBooks_Stg]; BQ: Staging_load_FMS_InvoiceBooks_Stg
+        # SSIS: OLE DB … → [Staging].[FMS_InvoiceBooks_Stg]; BQ: sp_load_Staging_FMS_InvoiceBooks_Stg
         op_17 = BigQueryInsertJobOperator(
             task_id="package_staging_load_fms_invoicebooks_stg",
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_FMS_InvoiceBooks_Stg`("
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_FMS_InvoiceBooks_Stg`("
                         f"SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_16.task_id}') }}}}' AS DATETIME));"
                     ),
                     "useLegacySql": False,
@@ -226,13 +226,13 @@ with DAG(
         )
 
         # ref_id: Package\\Staging\\Load FMS_InvoiceHead_Stg
-        # SSIS: … → [Staging].[FMS_InvoiceHead_Stg]; BQ: Staging_load_FMS_InvoiceHead_Stg
+        # SSIS: … → [Staging].[FMS_InvoiceHead_Stg]; BQ: sp_load_Staging_FMS_InvoiceHead_Stg
         op_18 = BigQueryInsertJobOperator(
             task_id="package_staging_load_fms_invoicehead_stg",
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_FMS_InvoiceHead_Stg`("
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_FMS_InvoiceHead_Stg`("
                         f"SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_16.task_id}') }}}}' AS DATETIME));"
                     ),
                     "useLegacySql": False,
@@ -242,13 +242,13 @@ with DAG(
         )
 
         # ref_id: Package\\Staging\\Load FMS_InvoiceLines_Stg
-        # SSIS: … → [Staging].[FMS_InvoiceLines_Stg]; BQ: Staging_load_FMS_InvoiceLines_Stg
+        # SSIS: … → [Staging].[FMS_InvoiceLines_Stg]; BQ: sp_load_Staging_FMS_InvoiceLines_Stg
         op_19 = BigQueryInsertJobOperator(
             task_id="package_staging_load_fms_invoicelines_stg",
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_FMS_InvoiceLines_Stg`("
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_FMS_InvoiceLines_Stg`("
                         f"SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_16.task_id}') }}}}' AS DATETIME));"
                     ),
                     "useLegacySql": False,
@@ -286,13 +286,13 @@ with DAG(
             },
         )
 
-        # ref_id: Package\\Staging UndTcktInvoice\\FMS_UndTcktInvoice_Load — SSIS: … → [Staging].[FMS_UndTcktInvoice_Stg]; BQ: Staging_load_FMS_UndTcktInvoice_Stg
+        # ref_id: Package\\Staging UndTcktInvoice\\FMS_UndTcktInvoice_Load — SSIS: … → [Staging].[FMS_UndTcktInvoice_Stg]; BQ: sp_load_Staging_FMS_UndTcktInvoice_Stg
         op_13 = BigQueryInsertJobOperator(
             task_id="package_staging_undtcktinvoice_fms_undtcktinvoice_load",
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_FMS_UndTcktInvoice_Stg`("
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_FMS_UndTcktInvoice_Stg`("
                         f"SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_14.task_id}') }}}}' AS DATETIME));"
                     ),
                     "useLegacySql": False,

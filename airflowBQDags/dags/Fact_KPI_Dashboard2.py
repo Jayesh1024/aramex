@@ -114,7 +114,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_fl_MF_Interim_Stg`("
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_MF_Interim_Stg`("
                             f"SAFE_CAST('{_xcom_last_mf}' AS DATETIME));"
                         ),
                         "useLegacySql": False,
@@ -156,7 +156,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_TrackAndTrace_Stg`("
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_TrackAndTrace_Stg`("
                             f"SAFE_CAST('{_xcom_last_scandate}' AS DATETIME));"
                         ),
                         "useLegacySql": False,
@@ -194,7 +194,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_fl_ConItemSrv_Stg_Interim`("
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_ConItemSrv_Stg_Interim`("
                             f"SAFE_CAST('{_xcom_start_date}' AS DATETIME));"
                         ),
                         "useLegacySql": False,

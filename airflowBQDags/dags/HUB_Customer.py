@@ -96,7 +96,7 @@ with DAG(
             task_id="package_staging_load_customerlinks_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_CustomerLinks_Stg`();",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_CustomerLinks_Stg`();",
                     "useLegacySql": False,
                 }
             },
@@ -107,7 +107,7 @@ with DAG(
             task_id="package_staging_load_fms_customer_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_FMS_Customer_Stg`();",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_FMS_Customer_Stg`();",
                     "useLegacySql": False,
                 }
             },
@@ -118,7 +118,7 @@ with DAG(
             task_id="package_staging_load_ifscustomers_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_IFSCustomers_Stg`();",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_IFSCustomers_Stg`();",
                     "useLegacySql": False,
                 }
             },
@@ -129,7 +129,7 @@ with DAG(
             task_id="package_staging_load_tblcustomer_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_tblCustomer_Stg`();",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_tblCustomer_Stg`();",
                     "useLegacySql": False,
                 }
             },

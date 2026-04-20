@@ -11,14 +11,16 @@ from datetime import datetime
 
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
+
 from airflow.utils.task_group import TaskGroup
 
 # --- Project Configuration ---
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
+PROJECT_ID = "prj-drgfly-dev-sp-01"
+SP_DATASET_ID = "bq_ds_dev_euw2_store_procedure"
+TARGET_DATASET_ID = "bq_ds_dev_euw2_oceania_cube_gold_1"
 PACKAGE_NAME = "HUB_CF"
 RECORD_SOURCE_1 = "RecordSource"
+
 
 with DAG(
     dag_id="ssis_skeleton_hub_cf",
@@ -28,11 +30,12 @@ with DAG(
     tags=["ssis", "skeleton", "hub_cf"],
     params={
         "process_id": 1,
-        "record_source": RECORD_SOURCE_1,
+        "record_source": RECORD_SOURCE_1
     },
 ) as dag:
 
     # --- Package\Staging ---
+
     with TaskGroup(group_id="tg_package_staging") as tg_staging:
         # STOCK:SEQUENCE — ref_id: Package\Staging
 
@@ -52,7 +55,7 @@ with DAG(
             task_id="package_staging_load_courier_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_Courier_Stg`();",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_Courier_Stg`();",
                     "useLegacySql": False,
                 }
             },

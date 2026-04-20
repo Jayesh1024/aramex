@@ -1,0 +1,2 @@
+1. Change environment variables in config.env fiile
+2. Change incorrect SP names in all the dag file to correct SP names
