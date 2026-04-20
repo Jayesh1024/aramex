@@ -10,15 +10,15 @@ No RecordSource in package metadata — only ProcessId-related parameters.
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 
 # --- Project Configuration ---
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
-PACKAGE_NAME = "Fact_Delivery_Performance"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
 with DAG(
     dag_id="ssis_skeleton_fact_delivery_performance",
@@ -27,7 +27,7 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "fact_delivery_performance"],
     params={
-        "process_id": 1,
+        "ProcessId": 0,
     },
 ) as dag:
 
@@ -37,7 +37,7 @@ with DAG(
         configuration={
             "query": {
                 "query": (
-                    f"SELECT CASE WHEN {{{{ params.process_id }}}} > 0 THEN {{{{ params.process_id }}}} "
+                    f"SELECT CASE WHEN {{{{ params.ProcessId }}}} > 0 THEN {{{{ params.ProcessId }}}} "
                     f"ELSE COALESCE((SELECT MAX(ProcessId) FROM `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_LoadLog`), 0) + 1 "
                     f"END AS NextProcessId"
                 ),
@@ -51,7 +51,7 @@ with DAG(
         task_id="package_load_fact_delivery_performance",
         configuration={
             "query": {
-                "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Load_Fact_Delivery_Performance`({{ params.process_id }});",
+                "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Load_Fact_Delivery_Performance`({{ params.ProcessId }});",
                 "useLegacySql": False,
             }
         },

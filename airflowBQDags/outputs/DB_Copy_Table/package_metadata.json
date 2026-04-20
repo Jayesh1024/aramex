@@ -282,5 +282,23 @@
       },
       "task_type": "STOCK:SEQUENCE"
     }
-  }
+  },
+  "parameters": [
+    {
+      "param_name": "LastUndTcktId",
+      "dts_id": "{168B9B6D-516C-4A5C-9178-CBF3A9C68A69}",
+      "data_type": "3",
+      "creation_name": "",
+      "parameter_value": "896498",
+      "parameter_value_data_type": "3"
+    },
+    {
+      "param_name": "NextId",
+      "dts_id": "{D29910ED-8F0D-4A98-A90F-3A8A623336D1}",
+      "data_type": "20",
+      "creation_name": "",
+      "parameter_value": "3346000000",
+      "parameter_value_data_type": "20"
+    }
+  ]
 }

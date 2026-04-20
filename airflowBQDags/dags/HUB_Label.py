@@ -24,6 +24,7 @@ with pure TaskGroup-level deps would require restructuring the done logic.
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.operators.empty import EmptyOperator
@@ -33,28 +34,48 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobO
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_value
 
-PACKAGE_NAME = "HUB_Label"
-PROCESS_ID = -207
-# RecordSource values from HUB_Label.dtsx package parameters (Staging_LoadControl keys)
-RECORD_SOURCE_1 = "LabelMaster"
-RECORD_SOURCE_2 = "DynamicLabel"
-RECORD_SOURCE_3 = "FastLabel"
-RECORD_SOURCE_4 = "MyFastway"
-RECORD_SOURCE_5 = "HDManifestID"
-RECORD_SOURCE_6 = "FastLabelEnterprise"
-RECORD_SOURCE_7 = "Temando"
-RECORD_SOURCE_8 = "ReceiverPays"
-RECORD_SOURCE_10 = "EBAY"
-RECORD_SOURCE_11 = "MyFastwaySrv"
-SP_DATASET_ID = "Aramex_oceania_SP"
-PROJECT_ID = "searce-sandbox-da-delivery"
-TARGET_DATASET_ID = "Aramex_oceania"
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+PROJECT_ID = os.getenv("PROJECT_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 with DAG(
     dag_id="ssis_skeleton_hub_label",
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
     tags=["ssis", "skeleton", "hub_label"],
+    params={
+        "DisableFinal": 0,
+        "DisableInterBranch": -1,
+        "DisableLoad_DynamicLabel": 0,
+        "DisableLoad_EBAY": 0,
+        "DisableLoad_FastLabel": 0,
+        "DisableLoad_FastLabelEnterprise": 0,
+        "DisableLoad_IFS": 0,
+        "DisableLoad_LabelMaster": 0,
+        "DisableLoad_MyFastway": 0,
+        "DisableLoad_MyFastwaySrv": 0,
+        "DisableLoad_ReceiverPays": 0,
+        "DisableLoad_Tasman": -1,
+        "DisableLoad_Temando": -1,
+        "DisableStaging": 0,
+        "MyFastwayAltLargeWinDoW": 1,
+        "MyFastwayWinSizeDays": 7,
+        "Parameter": 0,
+        "ProcessId": -207,
+        "RecordSource1": 'LabelMaster',
+        "RecordSource10": 'EBAY',
+        "RecordSource11": 'MyFastwaySrv',
+        "RecordSource12": 'InterBranchAU',
+        "RecordSource13": 'PickupRequest',
+        "RecordSource2": 'DynamicLabel',
+        "RecordSource3": 'FastLabel',
+        "RecordSource4": 'MyFastway',
+        "RecordSource5": 'HDManifestID',
+        "RecordSource6": 'FastLabelEnterprise',
+        "RecordSource7": 'Temando',
+        "RecordSource8": 'ReceiverPays',
+        "RecordSource9": 'Tasman',
+    },
 ) as dag:
 
     # --- control flow (nested TaskGroup per sequence container) ---
@@ -63,7 +84,7 @@ with DAG(
         task_id="package_final_load_hub_load_hub_label",
         configuration={
             "query": {
-                "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_Label`({PROCESS_ID});",
+                "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_Label`({{{{ params.ProcessId }}}});",
                 "useLegacySql": False,
             }
         },
@@ -86,7 +107,7 @@ with DAG(
             task_id="package_final_load_sat_allocation_load_sat_label_allocation_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.staging_Load_SAT_Label_Allocation_Stg2`({PROCESS_ID});",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.staging_Load_SAT_Label_Allocation_Stg2`({{{{ params.ProcessId }}}});",
                     "useLegacySql": False,
                 }
             }
@@ -97,7 +118,7 @@ with DAG(
             task_id="package_final_load_sat_allocation_load_sat_label_allocation",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation`({PROCESS_ID});",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation`({{{{ params.ProcessId }}}});",
                     "useLegacySql": False,
                 }
             }
@@ -117,7 +138,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Distribution`"
-                        f"({PROCESS_ID}, '{RECORD_SOURCE_1}');"
+                        f"({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -132,7 +153,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
-                        f"('{RECORD_SOURCE_1}');"
+                        f"('{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -151,7 +172,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_DL`"
-                            f"({PROCESS_ID});"
+                            f"({{{{ params.ProcessId }}}});"
                         ),
                         "useLegacySql": False,
                     }
@@ -166,7 +187,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_EBAY`"
-                            f"({PROCESS_ID});"
+                            f"({{{{ params.ProcessId }}}});"
                         ),
                         "useLegacySql": False,
                     }
@@ -181,7 +202,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_FLE`"
-                            f"({PROCESS_ID}, '{RECORD_SOURCE_6}');"
+                            f"({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource6 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -195,7 +216,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
-                            f"('{RECORD_SOURCE_2}');"
+                            f"('{{{{ params.RecordSource2 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -209,7 +230,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
-                            f"('{RECORD_SOURCE_10}');"
+                            f"('{{{{ params.RecordSource10 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -223,7 +244,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
-                            f"('{RECORD_SOURCE_6}');"
+                            f"('{{{{ params.RecordSource6 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -240,7 +261,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_IFS`"
-                            f"({PROCESS_ID}, '{RECORD_SOURCE_5}');"
+                            f"({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource5 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -255,7 +276,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_MF`"
-                            f"({PROCESS_ID}, '{RECORD_SOURCE_4}');"
+                            f"({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource4 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -270,7 +291,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_PickupRequests`"
-                            f"({PROCESS_ID});"
+                            f"({{{{ params.ProcessId }}}});"
                         ),
                         "useLegacySql": False,
                     }
@@ -284,7 +305,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
-                            f"('{RECORD_SOURCE_4}');"
+                            f"('{{{{ params.RecordSource4 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -298,7 +319,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
-                            f"('{RECORD_SOURCE_5}');"
+                            f"('{{{{ params.RecordSource5 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -315,7 +336,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_FL`"
-                            f"({PROCESS_ID});"
+                            f"({{{{ params.ProcessId }}}});"
                         ),
                         "useLegacySql": False,
                     }
@@ -330,7 +351,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_RP`"
-                            f"({PROCESS_ID}, '{RECORD_SOURCE_8}');"
+                            f"({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource8 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -345,7 +366,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_TMD`"
-                            f"({PROCESS_ID}, '{RECORD_SOURCE_7}');"
+                            f"({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource7 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -359,7 +380,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
-                            f"('{RECORD_SOURCE_3}');"
+                            f"('{{{{ params.RecordSource3 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -373,7 +394,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
-                            f"('{RECORD_SOURCE_8}');"
+                            f"('{{{{ params.RecordSource8 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -387,7 +408,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
-                            f"('{RECORD_SOURCE_7}');"
+                            f"('{{{{ params.RecordSource7 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -401,7 +422,7 @@ with DAG(
         wait_for_completion=True,
         poke_interval=30,
         reset_dag_run=True,
-        conf={"process_id": PROCESS_ID},
+        conf={"process_id": "{{ params.ProcessId }}"},
     )
 
     # ref_id: Package\\LNK_Label_Product_ServiceItem — SSIS Microsoft.ExecutePackageTask (LNK_Label_Product_ServiceItem.dtsx)
@@ -411,7 +432,7 @@ with DAG(
         wait_for_completion=True,
         poke_interval=30,
         reset_dag_run=True,
-        conf={"process_id": PROCESS_ID},
+        conf={"process_id": "{{ params.ProcessId }}"},
     )
 
     with TaskGroup(group_id="tg_package_staging"):
@@ -427,7 +448,7 @@ with DAG(
                 op_kwargs={
                     "project_id": PROJECT_ID,
                     "dataset_id": SP_DATASET_ID,
-                    "record_source": RECORD_SOURCE_1,
+                    "record_source": "{{ params.RecordSource1 }}",
                 },
             )
 
@@ -465,7 +486,7 @@ with DAG(
                 op_kwargs={
                     "project_id": PROJECT_ID,
                     "dataset_id": SP_DATASET_ID,
-                    "record_source": RECORD_SOURCE_10,
+                    "record_source": "{{ params.RecordSource10 }}",
                 },
             )
 
@@ -504,7 +525,7 @@ with DAG(
                 op_kwargs={
                     "project_id": PROJECT_ID,
                     "dataset_id": SP_DATASET_ID,
-                    "record_source": RECORD_SOURCE_11,
+                    "record_source": "{{ params.RecordSource11 }}",
                 },
             )
 
@@ -597,7 +618,7 @@ with DAG(
                 op_kwargs={
                     "project_id": PROJECT_ID,
                     "dataset_id": SP_DATASET_ID,
-                    "record_source": RECORD_SOURCE_2,
+                    "record_source": "{{ params.RecordSource2 }}",
                 }
             )
 
@@ -635,7 +656,7 @@ with DAG(
                 op_kwargs={
                     "project_id": PROJECT_ID,
                     "dataset_id": SP_DATASET_ID,
-                    "record_source": RECORD_SOURCE_3,
+                    "record_source": "{{ params.RecordSource3 }}",
                 },
             )
 
@@ -674,7 +695,7 @@ with DAG(
                 op_kwargs={
                     "project_id": PROJECT_ID,
                     "dataset_id": SP_DATASET_ID,
-                    "record_source": RECORD_SOURCE_4,
+                    "record_source": "{{ params.RecordSource4 }}",
                 },
             )
 
@@ -713,7 +734,7 @@ with DAG(
                 op_kwargs={
                     "project_id": PROJECT_ID,
                     "dataset_id": SP_DATASET_ID,
-                    "record_source": RECORD_SOURCE_5,
+                    "record_source": "{{ params.RecordSource5 }}",
                 },
             )
 
@@ -752,7 +773,7 @@ with DAG(
                 op_kwargs={
                     "project_id": PROJECT_ID,
                     "dataset_id": SP_DATASET_ID,
-                    "record_source": RECORD_SOURCE_6,
+                    "record_source": "{{ params.RecordSource6 }}",
                 },
             )
 
@@ -791,7 +812,7 @@ with DAG(
                 op_kwargs={
                     "project_id": PROJECT_ID,
                     "dataset_id": SP_DATASET_ID,
-                    "record_source": RECORD_SOURCE_7,
+                    "record_source": "{{ params.RecordSource7 }}",
                 },
             )
 
@@ -830,7 +851,7 @@ with DAG(
                 op_kwargs={
                     "project_id": PROJECT_ID,
                     "dataset_id": SP_DATASET_ID,
-                    "record_source": RECORD_SOURCE_8,
+                    "record_source": "{{ params.RecordSource8 }}",
                 },
             )
 

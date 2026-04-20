@@ -270,5 +270,39 @@
       },
       "task_type": "Microsoft.ExecuteSQLTask"
     }
-  }
+  },
+  "parameters": [
+    {
+      "param_name": "Disable_ClickAndCollect",
+      "dts_id": "{418B081D-CAD1-49F9-90A8-F49064939105}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "Disable_PayZone",
+      "dts_id": "{80E1820C-1C69-4F24-B229-32E56248EA7A}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "IsReload",
+      "dts_id": "{D9E7E928-6734-4255-9769-16B4D62E2EEF}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "ProcessID",
+      "dts_id": "{A8786AD3-7A91-4575-905A-2B0529E4D9C7}",
+      "data_type": "3",
+      "creation_name": "",
+      "parameter_value": "-7",
+      "parameter_value_data_type": "3"
+    }
+  ]
 }

@@ -113,5 +113,15 @@
       },
       "task_type": "STOCK:SEQUENCE"
     }
-  }
+  },
+  "parameters": [
+    {
+      "param_name": "RecordSource",
+      "dts_id": "{56969226-1609-4D12-899D-C0391CE3371A}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "BatchingInvoiceLog",
+      "parameter_value_data_type": "8"
+    }
+  ]
 }

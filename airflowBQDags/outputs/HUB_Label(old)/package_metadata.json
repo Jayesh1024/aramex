@@ -1077,5 +1077,127 @@
       },
       "task_type": "STOCK:SEQUENCE"
     }
-  }
+  },
+  "parameters": [
+    {
+      "param_name": "DisableFinal",
+      "dts_id": "{BEC0AFE2-6B3D-4E12-B654-0D85A444849F}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableLoad_API_RF_AdHocLabel_AllocationHistory",
+      "dts_id": "{13EAA64F-1F7C-449F-9331-03C39FF59BCA}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableLoad_ConsignmentItem",
+      "dts_id": "{C192F97D-24CB-4A4A-9C6B-22C07174484E}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableLoad_fl_ConItem",
+      "dts_id": "{6C470FB3-A242-48C5-A0ED-A1966E74BF41}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableLoad_HDManifests",
+      "dts_id": "{4BDD983A-226D-4D59-A228-16E9544E464F}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableLoad_LabelMaster",
+      "dts_id": "{59056210-6339-4DEE-B64A-6E665E6957DF}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableLoad_tblFastLabel_Consignment",
+      "dts_id": "{4773372D-C09E-4526-AA0D-0323B344894F}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableStaging",
+      "dts_id": "{7D0EA578-6C73-4158-AD8E-37F66CE43D72}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "ProcessId",
+      "dts_id": "{57CF1E28-CD90-4BB1-B797-0CD327E391DE}",
+      "data_type": "20",
+      "creation_name": "",
+      "parameter_value": "185",
+      "parameter_value_data_type": "20"
+    },
+    {
+      "param_name": "RecordSource1",
+      "dts_id": "{09D2E837-B401-4E9E-8782-C888850D0FE9}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "LabelMaster",
+      "parameter_value_data_type": "8"
+    },
+    {
+      "param_name": "RecordSource2",
+      "dts_id": "{AEA29439-128C-4D22-9F23-CAF458DE0C4A}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "DynamicLabel",
+      "parameter_value_data_type": "8"
+    },
+    {
+      "param_name": "RecordSource3",
+      "dts_id": "{E0D75779-1D27-4F87-9D5C-8B4EC3143875}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "FastLabel",
+      "parameter_value_data_type": "8"
+    },
+    {
+      "param_name": "RecordSource4",
+      "dts_id": "{E7F8CC31-0002-4A78-BBF1-C59DCC84C5FF}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "MyFastway",
+      "parameter_value_data_type": "8"
+    },
+    {
+      "param_name": "RecordSource5",
+      "dts_id": "{2AE8FB7F-3944-4047-A7D8-A38BBDD2B99B}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "IFS",
+      "parameter_value_data_type": "8"
+    },
+    {
+      "param_name": "RecordSource6",
+      "dts_id": "{F18FA7FF-61E9-44AF-96C0-605A34DEE9E3}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "FastLabelEnterprise",
+      "parameter_value_data_type": "8"
+    }
+  ]
 }

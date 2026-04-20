@@ -21,6 +21,7 @@ RecordSource4 / RecordSource1 defaults (also hardcoded).
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -33,14 +34,9 @@ from utils.getValue import (
     get_yesterday_eod_iso,
 )
 
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
-PACKAGE_NAME = "Fact_KPI_Dashboard"
-
-# SSIS $Package:: variables — defaults not in extracted metadata.
-RECORD_SOURCE_4 = "RecordSource"
-ISO_COUNTRY_CODES = "AUNZ"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
 _TASK_ID_GET_PROCESS_ID = "tg_package_staging.tg_package_staging_initial.package_staging_initial_get_next_processid"
 _TASK_ID_GET_LAST_MF = "tg_package_staging.tg_package_staging_staging_1.package_staging_staging_1_get_lastdate_myfastway"
@@ -55,8 +51,8 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "fact_kpi_dashboard"],
     params={
-        "record_source_4": RECORD_SOURCE_4,
-        "iso_country_codes": ISO_COUNTRY_CODES,
+        "RecordSource4": "RecordSource",
+        "ISOCountryCodes": "AUNZ",
     },
 ) as dag:
 
@@ -102,7 +98,7 @@ with DAG(
                 op_kwargs={
                     "project_id": PROJECT_ID,
                     "dataset_id": SP_DATASET_ID,
-                    "record_source": "{{ params.record_source_4 }}",
+                    "record_source": "{{ params.RecordSource4 }}",
                 },
             )
 
@@ -114,7 +110,7 @@ with DAG(
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_MF_Interim_Stg`("
                             f"SAFE_CAST('{_xcom_last_mf}' AS DATETIME), "
-                            f"'{{{{ params.iso_country_codes }}}}');"
+                            f"'{{{{ params.ISOCountryCodes }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -170,7 +166,7 @@ with DAG(
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_TrackAndTrace_Stg`("
                             f"SAFE_CAST('{_xcom_last_scan}' AS INT64), "
-                            f"'{{{{ params.iso_country_codes }}}}');"
+                            f"'{{{{ params.ISOCountryCodes }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -210,7 +206,7 @@ with DAG(
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_ConItemSrv_Stg_Interim`("
                         f"SAFE_CAST('{_xcom_start_date}' AS DATETIME), "
-                        f"'{{{{ params.iso_country_codes }}}}');"
+                            f"'{{{{ params.ISOCountryCodes }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -225,7 +221,7 @@ with DAG(
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_Label_Product_ServiceItem_Stg_Interim`("
                         f"{_xcom_processid}, "
-                        f"'{{{{ params.record_source_4 }}}}');"
+                            f"'{{{{ params.RecordSource4 }}}}');"
                     ),
                     "useLegacySql": False,
                 }

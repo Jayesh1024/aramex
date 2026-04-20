@@ -1,5 +1,2 @@
-1. Add GetHashKey function
-2. Update SPs so they give a default argument while calling the GetHashKey function that is '^'
-3. Update the SPs for naming inconsistencies in the databse object that are referred like 
-    casing of letters "dv_LSAT_Label_InterBranch and dv_LSAT_Label_Interbranch".
-4. Change the project and dataset references to the Aramex dev environment names.
+1. Import env variables from config/template_config.env file in all the DAGs
+2. Add new dag scoped parameters to the DAGs.

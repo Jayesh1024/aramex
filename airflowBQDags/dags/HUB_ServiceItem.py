@@ -6,17 +6,16 @@ Formatting: Jinja2 Templating for Parameters
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
 # --- Project Configuration ---
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
-PACKAGE_NAME = "HUB_ServiceItem"
-RECORD_SOURCE_1 = "RecordSource"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
 with DAG(
     dag_id="ssis_skeleton_hub_serviceitem",
@@ -25,8 +24,10 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "hub_serviceitem"],
     params={
-        "process_id": 1,
-        "record_source": RECORD_SOURCE_1,
+        "DisableFinal": 0,
+        "DisableStaging": 0,
+        "ProcessId": 659,
+        "RecordSource": 'Fastway',
     },
 ) as dag:
 
@@ -66,7 +67,7 @@ with DAG(
             task_id="package_final_load_hub_serviceitem",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_ServiceItem`({{ params.process_id }}, '{{ params.record_source }}');",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_ServiceItem`({{ params.ProcessId }}, '{{ params.RecordSource }}');",
                     "useLegacySql": False,
                 }
             },
@@ -77,7 +78,7 @@ with DAG(
             task_id="package_final_load_sat_serviceitem",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_ServiceItem`({{ params.process_id }}, '{{ params.record_source }}');",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_ServiceItem`({{ params.ProcessId }}, '{{ params.RecordSource }}');",
                     "useLegacySql": False,
                 }
             },

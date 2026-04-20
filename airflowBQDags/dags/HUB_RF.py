@@ -8,17 +8,16 @@ Table / procedure names use schema_object from metadata (e.g. Staging_Franchisee
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
 # --- Project Configuration ---
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
-PACKAGE_NAME = "HUB_RF"
-RECORD_SOURCE_1 = "RecordSource"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
 with DAG(
     dag_id="ssis_skeleton_hub_rf",
@@ -27,8 +26,10 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "hub_rf"],
     params={
-        "process_id": 1,
-        "record_source_1": RECORD_SOURCE_1,
+        "DisableFinal": 0,
+        "DisableStaging": 0,
+        "ProcessId": 8,
+        "RecordSource": 'Fastway',
     },
 ) as dag:
 
@@ -62,23 +63,23 @@ with DAG(
     with TaskGroup(group_id="tg_package_final") as tg_final:
         # STOCK:SEQUENCE — ref_id: Package\Final
 
-        # ref_id: Package\Final\Load HUB_RF — Exec [dv].[Load_HUB_RF] ?,? (param_1 → RECORD_SOURCE_1)
+        # ref_id: Package\Final\Load HUB_RF — Exec [dv].[Load_HUB_RF] ?,? (param_1 → params.RecordSource)
         op_1 = BigQueryInsertJobOperator(
             task_id="package_final_load_hub_rf",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_RF`({{ params.process_id }}, '{{ params.record_source_1 }}');",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_RF`({{ params.ProcessId }}, '{{ params.RecordSource }}');",
                     "useLegacySql": False,
                 }
             },
         )
 
-        # ref_id: Package\Final\Load SAT_RF — Exec [dv].[Load_SAT_RF] ?,? (param_1 → RECORD_SOURCE_1)
+        # ref_id: Package\Final\Load SAT_RF — Exec [dv].[Load_SAT_RF] ?,? (param_1 → params.RecordSource)
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_rf",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_RF`({{ params.process_id }}, '{{ params.record_source_1 }}');",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_RF`({{ params.ProcessId }}, '{{ params.RecordSource }}');",
                     "useLegacySql": False,
                 }
             },

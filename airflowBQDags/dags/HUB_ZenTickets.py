@@ -16,6 +16,7 @@ parallel.
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -23,13 +24,9 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobO
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import allocate_negative_sentinel_processid, get_last_value
 
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
-PACKAGE_NAME = "HUB_ZenTickets"
-RECORD_SOURCE_1 = "RecordSource"
-# Hardcoded inside the SSIS "(ZENLog)" task body — not a $Package parameter.
-ZENLOG_RECORD_SOURCE = "ZenLog"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
 _TASK_ID_GET_PROCESS_ID = "tg_package_staging.package_staging_get_processid"
 _TASK_ID_GET_LAST_RUN = "tg_package_staging.package_staging_get_last_run_date_zenlog"
@@ -42,7 +39,10 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "hub_zentickets"],
     params={
-        "record_source": RECORD_SOURCE_1,
+        "DisableFinal": 0,
+        "DisableStage": 0,
+        "ProcessId": -29,
+        "RecordSource": 'ZenLog',
     },
 ) as dag:
 
@@ -75,7 +75,7 @@ with DAG(
             op_kwargs={
                 "project_id": PROJECT_ID,
                 "dataset_id": SP_DATASET_ID,
-                "record_source": "{{ params.record_source }}",
+                "record_source": "{{ params.RecordSource }}",
             },
         )
 
@@ -107,7 +107,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_ZEN_Ticket`("
-                        f"{_xcom_processid}, '{{{{ params.record_source }}}}');"
+                        f"{_xcom_processid}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -121,7 +121,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_ZEN_Ticket`("
-                        f"{_xcom_processid}, '{{{{ params.record_source }}}}');"
+                        f"{_xcom_processid}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -140,7 +140,7 @@ with DAG(
                         "SELECT FORMAT_DATETIME('%Y-%m-%d %H:%M:%E3S', MAX(SysLastUpdatedUtc)) "
                         f"FROM `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_ZEN_Ticket_Stg`"
                         ") AS STRING) "
-                        f"WHERE RecordSource = '{ZENLOG_RECORD_SOURCE}';"
+                        "WHERE RecordSource = '{{ params.RecordSource }}';"
                     ),
                     "useLegacySql": False,
                 }

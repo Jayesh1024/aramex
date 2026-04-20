@@ -176,5 +176,39 @@
       },
       "task_type": "STOCK:SEQUENCE"
     }
-  }
+  },
+  "parameters": [
+    {
+      "param_name": "Disable_DynamicLabel",
+      "dts_id": "{6DDAF918-B2EC-4F77-92FD-1D4E0A2C3C19}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "ProcessId",
+      "dts_id": "{E8D82FE2-86B2-460C-AEAF-A6CBE22FF6FD}",
+      "data_type": "20",
+      "creation_name": "",
+      "parameter_value": "1347",
+      "parameter_value_data_type": "20"
+    },
+    {
+      "param_name": "RecordSource2",
+      "dts_id": "{C77F7B27-440D-4F28-B908-F61B0CBC9C39}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "DynamicLabel",
+      "parameter_value_data_type": "8"
+    },
+    {
+      "param_name": "ReturnCode2",
+      "dts_id": "{2E6FC96F-AC86-4E6F-A7B1-C6194162A68E}",
+      "data_type": "3",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "3"
+    }
+  ]
 }

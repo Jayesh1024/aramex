@@ -17,16 +17,15 @@ destination metadata.
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
-PACKAGE_NAME = "HUB_Product"
-RECORD_SOURCE_1 = "RecordSource"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
 with DAG(
     dag_id="ssis_skeleton_hub_product",
@@ -35,8 +34,10 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "hub_product"],
     params={
-        "process_id": 1,
-        "record_source": RECORD_SOURCE_1,
+        "DisableFinal": 0,
+        "DisableStaging": 0,
+        "ProcessId": -7,
+        "RecordSource": 'Fastway',
     },
 ) as dag:
 
@@ -128,7 +129,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_Product`("
-                        f"{{{{ params.process_id }}}}, '{{{{ params.record_source }}}}');"
+                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -142,7 +143,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Product`("
-                        f"{{{{ params.process_id }}}}, '{{{{ params.record_source }}}}');"
+                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -159,7 +160,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_CustomerCommissionOverride`("
-                        f"'{{{{ params.record_source }}}}');"
+                        f"'{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -173,7 +174,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_STK_RFProducts`("
-                        f"'{{{{ params.record_source }}}}');"
+                        f"'{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
                 }

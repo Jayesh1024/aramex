@@ -8,16 +8,16 @@ Table / procedure names use schema_object from metadata.json (e.g. Staging_RFBat
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
 # --- Project Configuration ---
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
-PACKAGE_NAME = "RFBatchingInvoiceLog"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
 with DAG(
     dag_id="ssis_skeleton_rfbatchinginvoicelog",
@@ -25,6 +25,9 @@ with DAG(
     schedule=None,
     catchup=False,
     tags=["ssis", "skeleton", "rfbatchinginvoicelog"],
+    params={
+        "RecordSource": 'BatchingInvoiceLog',
+    },
 ) as dag:
 
     # --- Package\Staging ---

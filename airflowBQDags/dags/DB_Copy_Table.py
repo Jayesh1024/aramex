@@ -13,6 +13,7 @@ Schema_table / schema_proc naming (e.g. Working_Load_iLocate_Stg, dv_Load_Copy_S
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.operators.empty import EmptyOperator
@@ -20,10 +21,9 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobO
 from airflow.utils.task_group import TaskGroup
 
 # --- Project Configuration ---
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
-PACKAGE_NAME = "DB_Copy_Table"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
 with DAG(
     dag_id="ssis_skeleton_db_copy_table",
@@ -31,6 +31,10 @@ with DAG(
     schedule=None,
     catchup=False,
     tags=["ssis", "skeleton", "db_copy_table"],
+    params={
+        "LastUndTcktId": 896498,
+        "NextId": 3346000000,
+    },
 ) as dag:
 
     # --- control flow (nested TaskGroup per sequence container) ---

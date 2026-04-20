@@ -4,28 +4,26 @@ Migration: SSIS -> BigQuery
 
 Precedence from executable_dependencies.json (single sequence under Source2 (DynamicLabel) _DL).
 
-RecordSource-style inputs use metadata variable_name: param uses RecordSource2 → RECORD_SOURCE_1 / params.record_source_1
-(see Get LastId, Load Lastest Priced Invoices).
+RecordSource-style inputs use metadata variable_name: param uses
+params.RecordSource2 (see Get LastId, Load Lastest Priced Invoices).
 
 Insert Into … (large TRUNCATE/INSERT in metadata) and Update Dim_Label (UPDATE script) map to BigQuery procedures.
 Get Next ProcessID uses an inline SELECT (ExecuteSQLTask query, not EXEC). SSIS variable chaining for LastID / NextProcessId
-is approximated with params.adhoc_history_last_id and params.process_id — adjust or add XCom if you need exact SSIS binding.
+is approximated with params.adhoc_history_last_id and params.ProcessId — adjust or add XCom if you need exact SSIS binding.
 """
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
 # --- Project Configuration ---
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
-PACKAGE_NAME = "DLS_Manual_Pricing"
-# metadata: Get LastId / Load Lastest Priced Invoices — variable_name RecordSource2 (1st record-source placeholder)
-RECORD_SOURCE_1 = "RecordSource2"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
 with DAG(
     dag_id="ssis_skeleton_dls_manual_pricing",
@@ -34,8 +32,10 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "dls_manual_pricing"],
     params={
-        "process_id": 1,
-        "record_source_1": RECORD_SOURCE_1,
+        "Disable_DynamicLabel": 0,
+        "ProcessId": 1347,
+        "RecordSource2": 'DynamicLabel',
+        "ReturnCode2": 0,
         "adhoc_history_last_id": 0,
     },
 ) as dag:
@@ -63,7 +63,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Get_LastValue`("
-                        "'{{ params.record_source_1 }}');"
+                        "'{{ params.RecordSource2 }}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -116,7 +116,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_DL`("
-                        "{{ params.process_id }}, '{{ params.record_source_1 }}');"
+                        "{{ params.ProcessId }}, '{{ params.RecordSource2 }}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -130,7 +130,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Load_Dim_Label`("
-                        "{{ params.process_id }});"
+                        "{{ params.ProcessId }});"
                     ),
                     "useLegacySql": False,
                 }

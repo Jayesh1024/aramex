@@ -14,6 +14,7 @@ Mirrors Fact_Scan_KPI but:
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -21,12 +22,9 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobO
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import allocate_negative_sentinel_processid
 
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
-PACKAGE_NAME = "Interim_Fact_Scan_KPI"
-
-RECORD_SOURCE_3 = "RecordSource"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
 _TASK_ID_GET_PROCESS_ID = "tg_package_staging.package_staging_get_processid"
 
@@ -38,10 +36,13 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "interim_fact_scan_kpi"],
     params={
-        "record_source_3": RECORD_SOURCE_3,
-        "since_scan_date": "2019-01-01",
-        "until_scan_date": "2019-01-01",
-        "use_scan_dates": 0,
+        "DisableFinal": 0,
+        "DisableStaging": 0,
+        "ProcessId": 706,
+        "RecordSource3": 'TrackAndTraceID',
+        "SinceScanDate": '12:00:00 AM',
+        "UntilScanDate": '12:00:00 AM',
+        "UseScanDates": 0,
     },
 ) as dag:
 
@@ -82,9 +83,9 @@ with DAG(
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_KPI_Labels_Stg`("
                         f"{_xcom_processid}, "
-                        f"'{{{{ params.since_scan_date }}}}', "
-                        f"'{{{{ params.until_scan_date }}}}', "
-                        f"{{{{ params.use_scan_dates }}}});"
+                        f"'{{{{ params.SinceScanDate }}}}', "
+                        f"'{{{{ params.UntilScanDate }}}}', "
+                        f"{{{{ params.UseScanDates }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -131,7 +132,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.interimStaging_Set_LastValue`("
-                        f"'{{{{ params.record_source_3 }}}}', NULL, NULL, FALSE);"
+                        f"'{{{{ params.RecordSource3 }}}}', NULL, NULL, FALSE);"
                     ),
                     "useLegacySql": False,
                 }

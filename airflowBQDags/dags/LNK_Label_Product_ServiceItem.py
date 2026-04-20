@@ -5,8 +5,8 @@ Migration: SSIS -> BigQuery
 Table names use schema_tablename (e.g. Staging_Label_Product_ServiceItem_Stg). Procedures use schema_proc (e.g.
 dv_Load_LNK_Label_Product_ServiceItem).
 
-RecordSource (metadata param_1.variable_name) → RECORD_SOURCE_1 / params.record_source_1 (add _2, … if metadata
-lists more distinct RecordSource variable_name values).
+RecordSource (metadata param_1.variable_name) maps to params.RecordSource (add
+_2, … if metadata lists more distinct RecordSource variable_name values).
 
 Precedence: Staging truncate → Staging load (dv SP) → Final LNK → Final LSAT (executable_dependencies: LNK
 downstream is LSAT, not parallel).
@@ -14,18 +14,16 @@ downstream is LSAT, not parallel).
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
 # --- Project Configuration ---
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
-PACKAGE_NAME = "LNK_Label_Product_ServiceItem"
-# metadata: Load_* tasks param_1.variable_name (1st RecordSource placeholder)
-RECORD_SOURCE_1 = "RecordSource"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
 with DAG(
     dag_id="ssis_skeleton_lnk_label_product_serviceitem",
@@ -34,8 +32,10 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "lnk_label_product_serviceitem"],
     params={
-        "process_id": 1,
-        "record_source_1": RECORD_SOURCE_1,
+        "DisableFinal": 0,
+        "DisableStaging": 0,
+        "ProcessId": 718,
+        "RecordSource": 'MyFastway',
     },
 ) as dag:
 
@@ -61,7 +61,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_Label_Product_ServiceItem_Stg`("
-                        "{{ params.process_id }}, '{{ params.record_source_1 }}');"
+                        "{{ params.ProcessId }}, '{{ params.RecordSource }}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -80,7 +80,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LNK_Label_Product_ServiceItem`("
-                        "{{ params.process_id }}, '{{ params.record_source_1 }}');"
+                        "{{ params.ProcessId }}, '{{ params.RecordSource }}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -94,7 +94,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LSAT_Label_Product_ServiceItem`("
-                        "{{ params.process_id }}, '{{ params.record_source_1 }}');"
+                        "{{ params.ProcessId }}, '{{ params.RecordSource }}');"
                     ),
                     "useLegacySql": False,
                 }

@@ -17,17 +17,15 @@ RecordSource defaults not in metadata.
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
-PACKAGE_NAME = "SAT_Overrides"
-
-RECORD_SOURCE = "RecordSource"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
 with DAG(
     dag_id="ssis_skeleton_sat_overrides",
@@ -36,8 +34,8 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "sat_overrides"],
     params={
-        "process_id": 1,
-        "record_source": RECORD_SOURCE,
+        "ProcessId": 0,
+        "RecordSource": 'Fastway_PriceOverrides',
     },
 ) as dag:
 
@@ -81,7 +79,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_FL_PriceListCustomerOverride`("
-                        f"{{{{ params.process_id }}}}, '{{{{ params.record_source }}}}');"
+                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -168,7 +166,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_FL_Zones`("
-                        f"{{{{ params.process_id }}}}, '{{{{ params.record_source }}}}');"
+                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -182,7 +180,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_FL_Zone_Overrides`("
-                        f"{{{{ params.process_id }}}}, '{{{{ params.record_source }}}}');"
+                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
                 }

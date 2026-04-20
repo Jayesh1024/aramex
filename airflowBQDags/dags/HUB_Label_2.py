@@ -18,6 +18,7 @@ as a direct BQ UPDATE with a correlated COUNT.
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -25,14 +26,11 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobO
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_value
 
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
-PACKAGE_NAME = "HUB_Label_2"
-# SSIS $Package::RecordSource12 — default not present in extracted metadata.
-# Package loads either 'InterBranchAU' or 'InterBranchNZ'; needs to be set per
-# run via DAG params.record_source. See DAG_COMPLETION_NOTES.md.
-RECORD_SOURCE_12 = "RecordSource"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+# SSIS $Package::RecordSource12 is configured via DAG params.RecordSource12.
+# Package loads either 'InterBranchAU' or 'InterBranchNZ' per run.
 
 _TASK_ID_GET_LAST_ID = "tg_package_staging_2.package_staging_2_get_lastid_interbranch"
 
@@ -43,8 +41,10 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "hub_label_2"],
     params={
-        "process_id": 1,
-        "record_source": RECORD_SOURCE_12,
+        "DisableFinal": 0,
+        "DisableInterBranch": 0,
+        "ProcessId": 1,
+        "RecordSource12": 'InterBranchNZ',
     },
 ) as dag:
 
@@ -68,7 +68,7 @@ with DAG(
             op_kwargs={
                 "project_id": PROJECT_ID,
                 "dataset_id": SP_DATASET_ID,
-                "record_source": "{{ params.record_source }}",
+                "record_source": "{{ params.RecordSource12 }}",
             },
         )
 
@@ -80,7 +80,7 @@ with DAG(
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_Label_Interbranch_Stg`("
                         f"SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LAST_ID}') }}}}' AS INT64), "
-                        f"'{{{{ params.record_source }}}}');"
+                        f"'{{{{ params.RecordSource12 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -97,7 +97,7 @@ with DAG(
                         "SET LastValue = CAST(("
                         f"SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LAST_ID}') }}}}' AS INT64) + 1"
                         ") AS STRING) "
-                        "WHERE RecordSource = '{{ params.record_source }}' "
+                        "WHERE RecordSource = '{{ params.RecordSource12 }}' "
                         "AND (SELECT COUNT(*) FROM "
                         f"`{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_Label_Interbranch_Stg`) > 0;"
                     ),
@@ -118,7 +118,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LNK_Label_InterBranch`("
-                        f"{{{{ params.process_id }}}}, '{{{{ params.record_source }}}}');"
+                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource12 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -132,7 +132,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LSAT_Label_InterBranch`("
-                        f"{{{{ params.process_id }}}}, '{{{{ params.record_source }}}}');"
+                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource12 }}}}');"
                     ),
                     "useLegacySql": False,
                 }

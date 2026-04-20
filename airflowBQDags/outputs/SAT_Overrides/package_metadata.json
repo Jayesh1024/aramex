@@ -288,5 +288,23 @@
       },
       "task_type": "STOCK:SEQUENCE"
     }
-  }
+  },
+  "parameters": [
+    {
+      "param_name": "ProcessId",
+      "dts_id": "{98FDB487-DF55-4F22-94FC-AA2039F589BF}",
+      "data_type": "20",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "20"
+    },
+    {
+      "param_name": "RecordSource",
+      "dts_id": "{8B65DB62-1B51-4ED9-99A2-023798228F1E}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "Fastway_PriceOverrides",
+      "parameter_value_data_type": "8"
+    }
+  ]
 }

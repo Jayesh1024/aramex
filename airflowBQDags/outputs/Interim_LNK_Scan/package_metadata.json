@@ -379,5 +379,47 @@
       },
       "task_type": "STOCK:SEQUENCE"
     }
-  }
+  },
+  "parameters": [
+    {
+      "param_name": "DisableFinal",
+      "dts_id": "{877DF7C6-AC9D-4CC6-B1AC-881A834CA821}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableStaging",
+      "dts_id": "{88E99BD0-2534-4169-A9BE-621F51D5B65C}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "ProcessId",
+      "dts_id": "{C4846A4A-9402-4F06-BE0A-4722D77410ED}",
+      "data_type": "20",
+      "creation_name": "",
+      "parameter_value": "-101703",
+      "parameter_value_data_type": "20"
+    },
+    {
+      "param_name": "RecordSource1",
+      "dts_id": "{F365CF99-2FD6-4598-8B21-BCBE99A55E3F}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "TrackAndTraceData_SignatureAI",
+      "parameter_value_data_type": "8"
+    },
+    {
+      "param_name": "RecordSource3",
+      "dts_id": "{8346896B-7EE2-4A7A-A858-1AB98ABF126B}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "TrackAndTraceID",
+      "parameter_value_data_type": "8"
+    }
+  ]
 }

@@ -11,7 +11,6 @@ from airflow import DAG
 from airflow.operators.empty import EmptyOperator
 from airflow.utils.task_group import TaskGroup
 
-PACKAGE_NAME = "Export_KPI_Performance"
 
 with DAG(
     dag_id="ssis_skeleton_export_kpi_performance",
@@ -19,6 +18,9 @@ with DAG(
     schedule=None,
     catchup=False,
     tags=["ssis", "skeleton", "export_kpi_performance"],
+    params={
+        "SendLoadEmailTo": 'barry_woods@bigpond.com',
+    },
 ) as dag:
 
     # --- control flow (nested TaskGroup per sequence container) ---

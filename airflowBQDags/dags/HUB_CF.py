@@ -11,15 +11,15 @@ from datetime import datetime
 
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
-
+import dotenv, os
 from airflow.utils.task_group import TaskGroup
 
+dotenv.load_dotenv("config/template_config.env", override=False)
+
 # --- Project Configuration ---
-PROJECT_ID = "prj-drgfly-dev-sp-01"
-SP_DATASET_ID = "bq_ds_dev_euw2_store_procedure"
-TARGET_DATASET_ID = "bq_ds_dev_euw2_oceania_cube_gold_1"
-PACKAGE_NAME = "HUB_CF"
-RECORD_SOURCE_1 = "RecordSource"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
 
 with DAG(
@@ -29,8 +29,10 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "hub_cf"],
     params={
-        "process_id": 1,
-        "record_source": RECORD_SOURCE_1
+        "DisableFinal": 0,
+        "DisableStaging": 0,
+        "ProcessId": 8,
+        "RecordSource": 'Fastway',
     },
 ) as dag:
 
@@ -72,7 +74,7 @@ with DAG(
             task_id="package_final_load_cf_hub",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_CF`({{ params.process_id }}, '{{ params.record_source }}');",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_CF`({{ params.ProcessId }}, '{{ params.RecordSource }}');",
                     "useLegacySql": False,
                 }
             },
@@ -83,7 +85,7 @@ with DAG(
             task_id="package_final_load_cf_sat",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_CF`({{ params.process_id }}, '{{ params.record_source }}');",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_CF`({{ params.ProcessId }}, '{{ params.RecordSource }}');",
                     "useLegacySql": False,
                 }
             },

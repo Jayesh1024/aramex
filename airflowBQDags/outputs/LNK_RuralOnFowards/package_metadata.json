@@ -170,5 +170,47 @@
       },
       "task_type": "STOCK:SEQUENCE"
     }
-  }
+  },
+  "parameters": [
+    {
+      "param_name": "EndDate",
+      "dts_id": "{394ACEED-1215-40A0-9648-85246D83B498}",
+      "data_type": "7",
+      "creation_name": "",
+      "parameter_value": "1/1/1900",
+      "parameter_value_data_type": "7"
+    },
+    {
+      "param_name": "NumberOfDays",
+      "dts_id": "{656931A3-4757-43D8-BE2A-00EBFAEED86D}",
+      "data_type": "3",
+      "creation_name": "",
+      "parameter_value": "14",
+      "parameter_value_data_type": "3"
+    },
+    {
+      "param_name": "ProcessID",
+      "dts_id": "{F630AE1C-1AC7-4EB9-8415-3C6DB73661C5}",
+      "data_type": "20",
+      "creation_name": "",
+      "parameter_value": "-121",
+      "parameter_value_data_type": "20"
+    },
+    {
+      "param_name": "RecordSource14",
+      "dts_id": "{506E8E2A-4426-472C-A780-3FBE3E59645E}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "LA_RuralOnforwards",
+      "parameter_value_data_type": "8"
+    },
+    {
+      "param_name": "StartDate",
+      "dts_id": "{B73F1103-37D8-454D-8D28-8EE6205F348C}",
+      "data_type": "7",
+      "creation_name": "",
+      "parameter_value": "1/1/1900",
+      "parameter_value_data_type": "7"
+    }
+  ]
 }

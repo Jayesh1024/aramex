@@ -11,6 +11,7 @@ GCP naming (from SQL Server metadata in outputs/ and Packages/):
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.utils.task_group import TaskGroup
@@ -18,14 +19,10 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from utils.getValue import get_last_value
 
-PACKAGE_NAME = "HUB_Invoice"
-RECORD_SOURCE_1 = "RecordSource"
-# RECORD_SOURCE_2 / params.record_source_2: reserve for Final (or other) steps once the exact LoadControl
-# key is taken from metadata—do not reuse the UndTckt dtsx default here so Staging vs Final stay independent.
-# RECORD_SOURCE_3: HUB_Invoice.dtsx $Package::RecordSource2 parameter value (UndTckt Staging get-last + Final set-last).
-RECORD_SOURCE_3 = "FMSUndTcktInvoice"
-SP_DATASET_ID = "Aramex_oceania_SP"
-PROJECT_ID = "searce-sandbox-da-delivery"
+# params.RecordSource2 is the HUB_Invoice.dtsx $Package::RecordSource2 value
+# used by UndTckt Staging get-last + Final set-last.
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+PROJECT_ID = os.getenv("PROJECT_ID")
 # Full task id for XCom (Final is defined above Staging in this file; cannot reference op_16 at parse time).
 _TASK_IDS_LASTDATE_FMS_INVOICE = "tg_package_staging.package_staging_get_lastdate_fms_invoice"
 
@@ -36,9 +33,13 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "hub_invoice"],
     params={
-        "process_id": 1,
-        "record_source": RECORD_SOURCE_1,
-        "record_source_3": RECORD_SOURCE_3,
+        "DisableFinal": 0,
+        "DisableStaging": 0,
+        "DisableUndTcktFinal": 0,
+        "DisableUndTcktStaging": 0,
+        "ProcessId": -453,
+        "RecordSource": 'FMS_Invoice',
+        "RecordSource2": 'FMSUndTcktInvoice',
     },
 ) as dag:
 
@@ -53,7 +54,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_Invoice`("
-                        f"{{{{ params.process_id }}}}, '{{{{ params.record_source }}}}');"
+                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -68,7 +69,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_Label_Invoices`("
-                        f"{{{{ params.process_id }}}}, "
+                        f"{{{{ params.ProcessId }}}}, "
                         f"SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{_TASK_IDS_LASTDATE_FMS_INVOICE}') }}}}' AS DATETIME));"
                     ),
                     "useLegacySql": False,
@@ -83,7 +84,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LNK_InvoiceLine`({{{{ params.process_id }}}});"
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LNK_InvoiceLine`({{{{ params.ProcessId }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -97,7 +98,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LNK_Invoice_Label`({{{{ params.process_id }}}});"
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LNK_Invoice_Label`({{{{ params.ProcessId }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -111,7 +112,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LSAT_InvoiceHead`({{{{ params.process_id }}}});"
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LSAT_InvoiceHead`({{{{ params.ProcessId }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -125,7 +126,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LSAT_InvoiceLine`({{{{ params.process_id }}}});"
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LSAT_InvoiceLine`({{{{ params.ProcessId }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -139,7 +140,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`('{{{{ params.record_source }}}}');"
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`('{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -156,7 +157,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Load_UndTckt_Invoice`({{{{ params.process_id }}}});"
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Load_UndTckt_Invoice`({{{{ params.ProcessId }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -164,13 +165,13 @@ with DAG(
             gcp_conn_id="google_cloud_default",
         )
 
-        # ref_id: Package\\Final UndTcktInvoice\\Set LastDate (UndTckt Invoice) — SSIS binds $RecordSource2; BQ: params.record_source_3 (default RECORD_SOURCE_3 / dtsx)
+        # ref_id: Package\\Final UndTcktInvoice\\Set LastDate (UndTckt Invoice) — SSIS binds $RecordSource2; BQ: params.RecordSource2
         op_3 = BigQueryInsertJobOperator(
             task_id="package_final_undtcktinvoice_set_lastdate_undtckt_invoice",
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`('{{{{ params.record_source_3 }}}}');"
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`('{{{{ params.RecordSource2 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -205,7 +206,7 @@ with DAG(
             op_kwargs={
                 "project_id": PROJECT_ID,
                 "dataset_id": SP_DATASET_ID,
-                "record_source": RECORD_SOURCE_1,
+                "record_source": "{{ params.RecordSource }}",
             },
         )
 
@@ -275,14 +276,14 @@ with DAG(
             gcp_conn_id="google_cloud_default",
         )
 
-        # ref_id: Package\\Staging UndTcktInvoice\\Get LastDate (UndTckt Invoice) — SSIS $RecordSource2 → RECORD_SOURCE_3 / params.record_source_3
+        # ref_id: Package\\Staging UndTcktInvoice\\Get LastDate (UndTckt Invoice) — SSIS $RecordSource2 → params.RecordSource2
         op_14 = PythonOperator(
             task_id="package_staging_undtcktinvoice_get_lastdate_undtckt_invoice",
             python_callable=get_last_value,
             op_kwargs={
                 "project_id": PROJECT_ID,
                 "dataset_id": SP_DATASET_ID,
-                "record_source": "{{ params.record_source_3 }}",
+                "record_source": "{{ params.RecordSource2 }}",
             },
         )
 

@@ -9,22 +9,20 @@ Notes:
   * "Rebuild Indexes 13" and the "DISABLE index" tail of
     "Truncate fl_ConSrv_Stg" have been dropped entirely — BigQuery has no
     indexes. The TRUNCATE is preserved.
-  * SSIS $Package::RecordSource13 bound to `params.record_source`; default
-    = "RecordSource" (see DAG_COMPLETION_NOTES.md for rationale).
+  * SSIS $Package::RecordSource13 is bound to `params.RecordSource13`.
 """
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
-PACKAGE_NAME = "HUB_ServiceCon"
-RECORD_SOURCE_13 = "RecordSource"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
 with DAG(
     dag_id="ssis_skeleton_hub_servicecon",
@@ -33,8 +31,10 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "hub_servicecon"],
     params={
-        "process_id": 1,
-        "record_source": RECORD_SOURCE_13,
+        "DisableFinal": 0,
+        "DisableStaging": 0,
+        "ProcessId": 0,
+        "RecordSource13": 'MFConSrv',
     },
 ) as dag:
 
@@ -81,7 +81,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_Product_ServiceCon_Stg`("
-                        f"{{{{ params.process_id }}}}, '{{{{ params.record_source }}}}');"
+                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource13 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -111,7 +111,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LNK_Product_ServiceCon`("
-                        f"{{{{ params.process_id }}}}, '{{{{ params.record_source }}}}');"
+                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource13 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -136,7 +136,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LSAT_Product_ServiceCon`("
-                        f"{{{{ params.process_id }}}}, '{{{{ params.record_source }}}}');"
+                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource13 }}}}');"
                     ),
                     "useLegacySql": False,
                 }

@@ -128,5 +128,47 @@
       },
       "task_type": "STOCK:SEQUENCE"
     }
-  }
+  },
+  "parameters": [
+    {
+      "param_name": "DisableFinal",
+      "dts_id": "{82B44AA1-8C0D-40E1-A31A-82F8EA978048}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableStaging",
+      "dts_id": "{212640EF-0699-4856-8352-CFD0CEF3A92C}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "EndDateOverRide",
+      "dts_id": "{EA92AD05-1C31-47A4-8B38-C79F157922CC}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": null,
+      "parameter_value_data_type": "8"
+    },
+    {
+      "param_name": "ProcessId",
+      "dts_id": "{F7D8958D-6C72-4F64-A78A-642B70B81D8A}",
+      "data_type": "20",
+      "creation_name": "",
+      "parameter_value": "2574",
+      "parameter_value_data_type": "20"
+    },
+    {
+      "param_name": "StartDateOverRide",
+      "dts_id": "{C0876748-10A6-444E-B534-D557533D5850}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": null,
+      "parameter_value_data_type": "8"
+    }
+  ]
 }

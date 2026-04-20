@@ -169,5 +169,15 @@
       },
       "task_type": "STOCK:SEQUENCE"
     }
-  }
+  },
+  "parameters": [
+    {
+      "param_name": "SendLoadEmailTo",
+      "dts_id": "{5E846CC7-6940-4B0D-9C94-B93E8D40BE4A}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "barry_woods@bigpond.com",
+      "parameter_value_data_type": "8"
+    }
+  ]
 }

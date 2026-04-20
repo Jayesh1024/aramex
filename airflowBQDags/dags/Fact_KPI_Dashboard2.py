@@ -21,6 +21,7 @@ inputs is bound in SSIS so CalcMethod / MaxDays defaults are required.
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -33,15 +34,10 @@ from utils.getValue import (
     get_yesterday_eod_iso,
 )
 
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
-PACKAGE_NAME = "Fact_KPI_Dashboard2"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
-# SSIS $Package:: defaults — not in extracted metadata, placeholders.
-RECORD_SOURCE_3 = "RecordSource3"
-RECORD_SOURCE_4 = "RecordSource"
-ISO_COUNTRY_CODES = "AUNZ"
 # Staging_Get_LastValue_Scans requires a CalcMethod — SSIS binds only RecordSource.
 # Conservative default picks 'UploadDate' (Staging_LoadControl-driven path).
 GET_LASTVALUE_SCANS_CALC_METHOD = "UploadDate"
@@ -60,9 +56,10 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "fact_kpi_dashboard2"],
     params={
-        "record_source_3": RECORD_SOURCE_3,
-        "record_source_4": RECORD_SOURCE_4,
-        "iso_country_codes": ISO_COUNTRY_CODES,
+        "ProcessId": -745,
+        "RecordSource11": 'MyFastwaySrv',
+        "RecordSource3": 'TrackAndTrace',
+        "RecordSource4": 'MyFastway',
     },
 ) as dag:
 
@@ -104,7 +101,7 @@ with DAG(
                 op_kwargs={
                     "project_id": PROJECT_ID,
                     "dataset_id": SP_DATASET_ID,
-                    "record_source": "{{ params.record_source_4 }}",
+                    "record_source": "{{ params.RecordSource4 }}",
                 },
             )
 
@@ -144,7 +141,7 @@ with DAG(
                 op_kwargs={
                     "project_id": PROJECT_ID,
                     "dataset_id": SP_DATASET_ID,
-                    "record_source": "{{ params.record_source_3 }}",
+                    "record_source": "{{ params.RecordSource3 }}",
                     "calc_method": GET_LASTVALUE_SCANS_CALC_METHOD,
                     "max_days": GET_LASTVALUE_SCANS_MAX_DAYS,
                 },
@@ -210,7 +207,7 @@ with DAG(
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_Label_Product_ServiceItem_Stg_Interim`("
                             f"{_xcom_processid}, "
-                            f"'{{{{ params.record_source_4 }}}}');"
+                            f"'{{{{ params.RecordSource4 }}}}');"
                         ),
                         "useLegacySql": False,
                     }

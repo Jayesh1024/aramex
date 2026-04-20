@@ -188,5 +188,39 @@
       },
       "task_type": "STOCK:SEQUENCE"
     }
-  }
+  },
+  "parameters": [
+    {
+      "param_name": "DisableFinal",
+      "dts_id": "{05BB3BD1-5107-4897-9884-85993F0C0F0E}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableStaging",
+      "dts_id": "{CE6E497B-C010-4F6F-8499-7EFD1DC64EEC}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "ProcessId",
+      "dts_id": "{DED728C3-9FA9-4642-940C-2F853F137084}",
+      "data_type": "20",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "20"
+    },
+    {
+      "param_name": "RecordSource13",
+      "dts_id": "{A0184273-9578-4239-8F6F-9D4F9F29533A}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "MFConSrv",
+      "parameter_value_data_type": "8"
+    }
+  ]
 }

@@ -187,5 +187,39 @@
       },
       "task_type": "Microsoft.ExecuteSQLTask"
     }
-  }
+  },
+  "parameters": [
+    {
+      "param_name": "DatabaseName",
+      "dts_id": "{8A46A3A3-06AB-4819-B8C5-D9CC522C27CF}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "FastwayGlobal_6",
+      "parameter_value_data_type": "8"
+    },
+    {
+      "param_name": "IsReload",
+      "dts_id": "{7705E030-5A7D-456D-9369-ABF1E9F04F5B}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "ProcessID",
+      "dts_id": "{CDA9018D-EFAB-4038-9881-4A793E7D2716}",
+      "data_type": "20",
+      "creation_name": "",
+      "parameter_value": "-66",
+      "parameter_value_data_type": "20"
+    },
+    {
+      "param_name": "RecordSource",
+      "dts_id": "{FAA35C41-B7B1-4A05-A4D8-1FD04241335A}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "PickupRequests_NZ",
+      "parameter_value_data_type": "8"
+    }
+  ]
 }

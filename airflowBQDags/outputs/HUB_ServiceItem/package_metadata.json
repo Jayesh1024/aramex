@@ -99,5 +99,39 @@
       },
       "task_type": "STOCK:SEQUENCE"
     }
-  }
+  },
+  "parameters": [
+    {
+      "param_name": "DisableFinal",
+      "dts_id": "{03D73D90-FC8B-43F0-B2D7-7E20D40F5D14}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableStaging",
+      "dts_id": "{360FD664-A81A-44B4-B72A-6CE8462FAEA8}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "ProcessId",
+      "dts_id": "{E1295767-4735-4F18-802B-80588136584A}",
+      "data_type": "20",
+      "creation_name": "",
+      "parameter_value": "659",
+      "parameter_value_data_type": "20"
+    },
+    {
+      "param_name": "RecordSource",
+      "dts_id": "{F9EF4A71-9945-457C-B901-FA77E9413490}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "Fastway",
+      "parameter_value_data_type": "8"
+    }
+  ]
 }

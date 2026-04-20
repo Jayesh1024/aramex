@@ -36,5 +36,15 @@
       },
       "task_type": "Microsoft.ExecuteSQLTask"
     }
-  }
+  },
+  "parameters": [
+    {
+      "param_name": "ProcessId",
+      "dts_id": "{6D0B1628-F048-4901-B75A-2C490FF96D6C}",
+      "data_type": "20",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "20"
+    }
+  ]
 }

@@ -20,6 +20,7 @@ Notes:
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -27,12 +28,9 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobO
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_value, get_max_process_id
 
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
-PACKAGE_NAME = "LNK_RuralOnFowards"
-
-RECORD_SOURCE_14 = "RecordSource"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
 _TASK_ID_GET_PROCESS_ID = "tg_package_sequence_container.package_sequence_container_get_processid"
 _TASK_ID_GET_LASTDATE = "tg_package_load_la_ruraonforwards.package_load_la_ruraonforwards_get_lastdate_la_ruralonforwards"
@@ -44,9 +42,11 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "lnk_ruralonfowards"],
     params={
-        "record_source_14": RECORD_SOURCE_14,
-        "start_date": "1900-01-01",
-        "end_date": "1900-01-01",
+        "EndDate": '1/1/1900',
+        "NumberOfDays": 14,
+        "ProcessID": -121,
+        "RecordSource14": 'LA_RuralOnforwards',
+        "StartDate": '1/1/1900',
     },
 ) as dag:
 
@@ -87,7 +87,7 @@ with DAG(
             op_kwargs={
                 "project_id": PROJECT_ID,
                 "dataset_id": SP_DATASET_ID,
-                "record_source": "{{ params.record_source_14 }}",
+                "record_source": "{{ params.RecordSource14 }}",
             },
         )
 
@@ -99,8 +99,8 @@ with DAG(
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_LA_RuralOnforwards_Stg`("
                         f"SAFE_CAST('{_xcom_lastdate}' AS DATE), "
-                        f"SAFE_CAST('{{{{ params.start_date }}}}' AS DATE), "
-                        f"SAFE_CAST('{{{{ params.end_date }}}}' AS DATE));"
+                        f"SAFE_CAST('{{{{ params.StartDate }}}}' AS DATE), "
+                        f"SAFE_CAST('{{{{ params.EndDate }}}}' AS DATE));"
                     ),
                     "useLegacySql": False,
                 }
@@ -125,7 +125,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
-                        f"'{{{{ params.record_source_14 }}}}');"
+                        f"'{{{{ params.RecordSource14 }}}}');"
                     ),
                     "useLegacySql": False,
                 }

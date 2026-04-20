@@ -10,7 +10,7 @@ Notes on the non-standard pieces of this package:
     to allocate a *negative* sentinel ProcessId exclusive to this package.
     Implemented here as a PythonOperator that mirrors that query verbatim and
     pushes the result through XCom (downstream tasks read via
-    `ti.xcom_pull`). If `params.process_id` is non-null on a manual trigger
+    `ti.xcom_pull`). If `params.ProcessId` is non-null on a manual trigger
     it wins; otherwise the task computes one.
   * `Package\Staging\Get Last ContainerContents LastScanDate` calls the
     shared Staging_Get_LastValue SP (mirroring HUB_Invoice) and feeds the
@@ -27,6 +27,7 @@ Notes on the non-standard pieces of this package:
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -34,13 +35,9 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobO
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import allocate_negative_sentinel_processid, get_last_value
 
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
-PACKAGE_NAME = "HUB_BLKContainerManifest"
-# SSIS $Package::RecordSource — default unavailable in extracted metadata,
-# following repo-wide convention.
-RECORD_SOURCE_1 = "RecordSource"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 _TASK_ID_GET_PROCESS_ID = "package_get_processid"
 _TASK_ID_GET_LAST_SCAN = "tg_package_staging.package_staging_get_last_containercontents_lastscandate"
 
@@ -52,7 +49,15 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "hub_blkcontainermanifest"],
     params={
-        "record_source": RECORD_SOURCE_1,
+        "DisableFinal": 0,
+        "DisableStage": 0,
+        "ManifestContentsBatchSize": 200000,
+        "Minimum_ManifestId": 65000,
+        "RecordSource1": 'BLK_ContainerManifest',
+        "RecordSource2": 'BLK_ManifestContents',
+        "RecordSource3": 'BLK_Container',
+        "RecordSource4": 'BLK_TransitManifest',
+        "RecordSource5": 'BLK_TransitContents',
     },
 ) as dag:
 
@@ -103,7 +108,7 @@ with DAG(
             op_kwargs={
                 "project_id": PROJECT_ID,
                 "dataset_id": SP_DATASET_ID,
-                "record_source": "{{ params.record_source }}",
+                "record_source": "{{ params.RecordSource1 }}",
             },
         )
 
@@ -136,7 +141,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_BLKContainerManifestContents`("
-                        f"{_xcom_processid}, '{{{{ params.record_source }}}}');"
+                        f"{_xcom_processid}, '{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -150,7 +155,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_BLKContainerManifest`("
-                        f"{_xcom_processid}, '{{{{ params.record_source }}}}');"
+                        f"{_xcom_processid}, '{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -164,7 +169,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_BLKContainerManifestContents`("
-                        f"{_xcom_processid}, '{{{{ params.record_source }}}}');"
+                        f"{_xcom_processid}, '{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -184,7 +189,7 @@ with DAG(
                         "SELECT CAST(MAX(ScanDate) AS STRING) "
                         f"FROM `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_BLK_ContainerManifestContents_Stg`"
                         ") AS STRING) "
-                        "WHERE lc.RecordSource = '{{ params.record_source }}';"
+                        "WHERE lc.RecordSource = '{{ params.RecordSource1 }}';"
                     ),
                     "useLegacySql": False,
                 }

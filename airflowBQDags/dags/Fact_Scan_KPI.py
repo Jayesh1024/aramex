@@ -10,16 +10,16 @@ No RecordSource in package metadata.
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
 # --- Project Configuration ---
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
-PACKAGE_NAME = "Fact_Scan_KPI"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
 with DAG(
     dag_id="ssis_skeleton_fact_scan_kpi",
@@ -28,10 +28,12 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "fact_scan_kpi"],
     params={
-        "process_id": 1,
-        "since_scan_date": "2019-01-01",
-        "until_scan_date": "2019-01-01",
-        "use_scan_dates": 0,
+        "DisableFinal": 0,
+        "DisableStaging": 0,
+        "ProcessId": 706,
+        "SinceScanDate": '12:00:00 AM',
+        "UntilScanDate": '12:00:00 AM',
+        "UseScanDates": 0,
     },
 ) as dag:
 
@@ -60,9 +62,9 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_KPI_Labels_Stg`("
-                        "{{ params.process_id }}, "
-                        "'{{ params.since_scan_date }}', '{{ params.until_scan_date }}', "
-                        "{{ params.use_scan_dates }});"
+                        "{{ params.ProcessId }}, "
+                        "'{{ params.SinceScanDate }}', '{{ params.UntilScanDate }}', "
+                        "{{ params.UseScanDates }});"
                     ),
                     "useLegacySql": False,
                 }
@@ -76,7 +78,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_Fact_Scan_KPI_Stg`("
-                        "{{ params.process_id }});"
+                        "{{ params.ProcessId }});"
                     ),
                     "useLegacySql": False,
                 }
@@ -95,7 +97,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Load_Fact_Scan_KPI`("
-                        "{{ params.process_id }});"
+                        "{{ params.ProcessId }});"
                     ),
                     "useLegacySql": False,
                 }

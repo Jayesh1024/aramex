@@ -116,5 +116,63 @@
       },
       "task_type": "STOCK:SEQUENCE"
     }
-  }
+  },
+  "parameters": [
+    {
+      "param_name": "DisableFinal",
+      "dts_id": "{819FD273-D5C0-43A8-93A0-9B7DEE564F9B}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableStaging",
+      "dts_id": "{DB50649A-18E9-4186-A7F8-AACE9B56F447}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "ProcessId",
+      "dts_id": "{F341519E-0C6B-4453-9196-09A0AA667F98}",
+      "data_type": "20",
+      "creation_name": "",
+      "parameter_value": "706",
+      "parameter_value_data_type": "20"
+    },
+    {
+      "param_name": "RecordSource3",
+      "dts_id": "{A2512BCA-6FD7-4958-9692-1F0B84365751}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "TrackAndTraceID",
+      "parameter_value_data_type": "8"
+    },
+    {
+      "param_name": "SinceScanDate",
+      "dts_id": "{B15E630F-DEC3-43D1-8BDE-99235C99E5F2}",
+      "data_type": "7",
+      "creation_name": "",
+      "parameter_value": "12:00:00 AM",
+      "parameter_value_data_type": "7"
+    },
+    {
+      "param_name": "UntilScanDate",
+      "dts_id": "{1AD5C4D0-C9CD-4E9F-9261-5FF121E950C1}",
+      "data_type": "7",
+      "creation_name": "",
+      "parameter_value": "12:00:00 AM",
+      "parameter_value_data_type": "7"
+    },
+    {
+      "param_name": "UseScanDates",
+      "dts_id": "{2BE4B8C4-A1A5-4B44-9BDE-A6A31EE029B7}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    }
+  ]
 }

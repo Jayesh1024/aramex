@@ -203,5 +203,103 @@
       },
       "task_type": "STOCK:SEQUENCE"
     }
-  }
+  },
+  "parameters": [
+    {
+      "param_name": "DisableAddressLoad",
+      "dts_id": "{C2F57A19-21A4-4C80-8544-14D2EE5B2CF8}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableDimLoad",
+      "dts_id": "{507B7495-DA5D-4187-9146-0853F8CEE9F9}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableFinal",
+      "dts_id": "{EADC4F07-07C7-4F5A-BA5F-BE36AB208C16}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableHUBLoad",
+      "dts_id": "{6C99FFEE-9C66-4A7B-972A-C82A79FFC2F5}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableIndexMtce",
+      "dts_id": "{F5FAFC80-8FC0-46F2-BECD-46D3D307BA8F}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "-1",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableLNKLoad",
+      "dts_id": "{C843FDA9-FCE8-4159-84C0-D08693EDEE38}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableStaging",
+      "dts_id": "{E4B6D400-E0EE-4EBD-B0E1-EC0C20D2BDC3}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "GLB02",
+      "dts_id": "{9AD08B1E-6D40-4013-B6A9-9F35CD4D06D9}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "glb-util-02",
+      "parameter_value_data_type": "8"
+    },
+    {
+      "param_name": "MyFastwayAltLargeWinDoW",
+      "dts_id": "{30F5B9BB-B7F8-418B-93A3-6989CDC6BD9C}",
+      "data_type": "3",
+      "creation_name": "",
+      "parameter_value": "1",
+      "parameter_value_data_type": "3"
+    },
+    {
+      "param_name": "MyFastwayWinSizeDays",
+      "dts_id": "{9A94E9F4-D154-42A1-A46E-75A7CF3BEEA1}",
+      "data_type": "3",
+      "creation_name": "",
+      "parameter_value": "7",
+      "parameter_value_data_type": "3"
+    },
+    {
+      "param_name": "RedoAllKPIs",
+      "dts_id": "{B1DD4120-11B5-4FCE-80B9-ACE379FEC10C}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "SendLoadEmailTo",
+      "dts_id": "{12255D02-920D-4CB5-8F70-99E6C75F2ECD}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "barry_woods@bigpond.com",
+      "parameter_value_data_type": "8"
+    }
+  ]
 }

@@ -13,6 +13,7 @@ the TrackAndTrace and SignatureAI pipelines (the BQ layer uses
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -20,13 +21,9 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobO
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import allocate_negative_sentinel_processid, get_last_value
 
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
-PACKAGE_NAME = "Interim_LNK_Scan"
-
-RECORD_SOURCE_1 = "RecordSource"
-RECORD_SOURCE_3 = "RecordSource3"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
 _TASK_ID_GET_PROCESS_ID = "tg_package_staging.package_staging_get_processid"
 _TASK_ID_GET_LAST_SIGAI = "tg_package_staging.package_staging_get_last_date_signatureai"
@@ -40,8 +37,11 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "interim_lnk_scan"],
     params={
-        "record_source_1": RECORD_SOURCE_1,
-        "record_source_3": RECORD_SOURCE_3,
+        "DisableFinal": 0,
+        "DisableStaging": 0,
+        "ProcessId": -101703,
+        "RecordSource1": 'TrackAndTraceData_SignatureAI',
+        "RecordSource3": 'TrackAndTraceID',
     },
 ) as dag:
 
@@ -83,7 +83,7 @@ with DAG(
             op_kwargs={
                 "project_id": PROJECT_ID,
                 "dataset_id": SP_DATASET_ID,
-                "record_source": "{{ params.record_source_1 }}",
+                "record_source": "{{ params.RecordSource1 }}",
             },
         )
 
@@ -94,7 +94,7 @@ with DAG(
             op_kwargs={
                 "project_id": PROJECT_ID,
                 "dataset_id": SP_DATASET_ID,
-                "record_source": "{{ params.record_source_3 }}",
+                "record_source": "{{ params.RecordSource3 }}",
             },
         )
 
@@ -140,7 +140,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_Location`("
-                        f"{_xcom_processid}, '{{{{ params.record_source_1 }}}}');"
+                        f"{_xcom_processid}, '{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -227,7 +227,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.interimStaging_Set_LastValue`("
-                            f"'{{{{ params.record_source_3 }}}}', NULL, NULL, FALSE);"
+                            f"'{{{{ params.RecordSource3 }}}}', NULL, NULL, FALSE);"
                         ),
                         "useLegacySql": False,
                     }
@@ -261,7 +261,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.interimStaging_Set_LastValue`("
-                            f"'{{{{ params.record_source_1 }}}}', NULL, NULL, FALSE);"
+                            f"'{{{{ params.RecordSource1 }}}}', NULL, NULL, FALSE);"
                         ),
                         "useLegacySql": False,
                     }

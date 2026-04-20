@@ -19,17 +19,15 @@ indexes.
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
-PACKAGE_NAME = "HUB_Label_MF_ONLY"
-# SSIS $Package::RecordSource4 — default not in metadata; using repo-wide convention.
-RECORD_SOURCE_4 = "RecordSource"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
 _STAGING_TABLES_TO_TRUNCATE = [
     "Staging_SAT_Label_Allocation_Stg",
@@ -51,8 +49,12 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "hub_label_mf_only"],
     params={
-        "process_id": 1,
-        "record_source": RECORD_SOURCE_4,
+        "BatchDays": -1,
+        "DisableFinal": 0,
+        "DisableStage": 0,
+        "ProcessId": -4,
+        "RecordSource4": 'MyFastway',
+        "StartDate": '1/1/1900',
     },
 ) as dag:
 
@@ -105,7 +107,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.staging_Load_SAT_Label_Allocation_Stg2`("
-                        f"{{{{ params.process_id }}}});"
+                        f"{{{{ params.ProcessId }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -119,7 +121,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation`("
-                        f"{{{{ params.process_id }}}});"
+                        f"{{{{ params.ProcessId }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -133,7 +135,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_MF`("
-                        f"{{{{ params.process_id }}}}, '{{{{ params.record_source }}}}');"
+                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource4 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -147,7 +149,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
-                        f"'{{{{ params.record_source }}}}');"
+                        f"'{{{{ params.RecordSource4 }}}}');"
                     ),
                     "useLegacySql": False,
                 }

@@ -30,6 +30,7 @@ is used when LoadControl is not the parent).
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.operators.empty import EmptyOperator
@@ -40,10 +41,9 @@ from airflow.utils.task_group import TaskGroup
 
 from utils.getValue import get_next_process_id
 
-PACKAGE_NAME = "LoadControl"
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
 _GET_PROCESSID_XCOM = (
     "{{ ti.xcom_pull(task_ids='package_get_next_processid') }}"
@@ -56,18 +56,18 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "loadcontrol"],
     params={
-        "disable_lnk_load": False,
-        "miscellaneous_dag_id": "ssis_skeleton_miscellaneous",
-        "fact_kpi_dag_id": "ssis_skeleton_fact_kpi",
-        "hub_cf_dag_id": "ssis_skeleton_hub_cf",
-        "hub_customer_dag_id": "ssis_skeleton_hub_customer",
-        "hub_product_dag_id": "ssis_skeleton_hub_product",
-        "hub_rf_dag_id": "ssis_skeleton_hub_rf",
-        "hub_scanstatus_dag_id": "ssis_skeleton_hub_scanstatus",
-        "hub_serviceitem_dag_id": "ssis_skeleton_hub_serviceitem",
-        "hub_invoice_dag_id": "ssis_skeleton_hub_invoice",
-        "hub_label_dag_id": "ssis_skeleton_hub_label",
-        "hub_servicecon_dag_id": "ssis_skeleton_hub_servicecon",
+        "DisableAddressLoad": 0,
+        "DisableDimLoad": 0,
+        "DisableFinal": 0,
+        "DisableHUBLoad": 0,
+        "DisableIndexMtce": -1,
+        "DisableLNKLoad": 0,
+        "DisableStaging": 0,
+        "GLB02": 'glb-util-02',
+        "MyFastwayAltLargeWinDoW": 1,
+        "MyFastwayWinSizeDays": 7,
+        "RedoAllKPIs": 0,
+        "SendLoadEmailTo": 'barry_woods@bigpond.com',
     },
 ) as dag:
 
@@ -82,7 +82,7 @@ with DAG(
 
     op_2 = TriggerDagRunOperator(
         task_id="package_get_misceallaneous_data",
-        trigger_dag_id="{{ params.miscellaneous_dag_id }}",
+        trigger_dag_id="ssis_skeleton_miscellaneous",
         wait_for_completion=True,
         poke_interval=30,
         reset_dag_run=True,
@@ -92,7 +92,7 @@ with DAG(
     _reserve_process_sql = (
         f"DECLARE process_id INT64 DEFAULT {_GET_PROCESSID_XCOM};\n"
         "DECLARE disable_lnk_load BOOL DEFAULT "
-        "{% if params.disable_lnk_load %}TRUE{% else %}FALSE{% endif %};\n"
+        "{% if params.DisableLNKLoad %}TRUE{% else %}FALSE{% endif %};\n"
         "DECLARE component STRING;\n"
         "SET component = IF(\n"
         "  disable_lnk_load,\n"
@@ -126,7 +126,7 @@ with DAG(
         ) as tg_full_reload:
             op_9 = TriggerDagRunOperator(
                 task_id="package_load_hub_tables_full_reload_hub_cf",
-                trigger_dag_id="{{ params.hub_cf_dag_id }}",
+                trigger_dag_id="ssis_skeleton_hub_cf",
                 wait_for_completion=True,
                 poke_interval=30,
                 reset_dag_run=True,
@@ -135,7 +135,7 @@ with DAG(
 
             op_10 = TriggerDagRunOperator(
                 task_id="package_load_hub_tables_full_reload_hub_customer",
-                trigger_dag_id="{{ params.hub_customer_dag_id }}",
+                trigger_dag_id="ssis_skeleton_hub_customer",
                 wait_for_completion=True,
                 poke_interval=30,
                 reset_dag_run=True,
@@ -144,7 +144,7 @@ with DAG(
 
             op_11 = TriggerDagRunOperator(
                 task_id="package_load_hub_tables_full_reload_hub_product",
-                trigger_dag_id="{{ params.hub_product_dag_id }}",
+                trigger_dag_id="ssis_skeleton_hub_product",
                 wait_for_completion=True,
                 poke_interval=30,
                 reset_dag_run=True,
@@ -153,7 +153,7 @@ with DAG(
 
             op_12 = TriggerDagRunOperator(
                 task_id="package_load_hub_tables_full_reload_hub_rf",
-                trigger_dag_id="{{ params.hub_rf_dag_id }}",
+                trigger_dag_id="ssis_skeleton_hub_rf",
                 wait_for_completion=True,
                 poke_interval=30,
                 reset_dag_run=True,
@@ -162,7 +162,7 @@ with DAG(
 
             op_13 = TriggerDagRunOperator(
                 task_id="package_load_hub_tables_full_reload_hub_scanstatus",
-                trigger_dag_id="{{ params.hub_scanstatus_dag_id }}",
+                trigger_dag_id="ssis_skeleton_hub_scanstatus",
                 wait_for_completion=True,
                 poke_interval=30,
                 reset_dag_run=True,
@@ -171,7 +171,7 @@ with DAG(
 
             op_14 = TriggerDagRunOperator(
                 task_id="package_load_hub_tables_full_reload_hub_serviceitem",
-                trigger_dag_id="{{ params.hub_serviceitem_dag_id }}",
+                trigger_dag_id="ssis_skeleton_hub_serviceitem",
                 wait_for_completion=True,
                 poke_interval=30,
                 reset_dag_run=True,
@@ -180,7 +180,7 @@ with DAG(
 
         op_15 = TriggerDagRunOperator(
             task_id="package_load_hub_tables_hub_invoice",
-            trigger_dag_id="{{ params.hub_invoice_dag_id }}",
+            trigger_dag_id="ssis_skeleton_hub_invoice",
             wait_for_completion=True,
             poke_interval=30,
             reset_dag_run=True,
@@ -189,7 +189,7 @@ with DAG(
 
         op_16 = TriggerDagRunOperator(
             task_id="package_load_hub_tables_hub_label",
-            trigger_dag_id="{{ params.hub_label_dag_id }}",
+            trigger_dag_id="ssis_skeleton_hub_label",
             wait_for_completion=True,
             poke_interval=30,
             reset_dag_run=True,
@@ -198,7 +198,7 @@ with DAG(
 
         op_17 = TriggerDagRunOperator(
             task_id="package_load_hub_tables_hub_servicecon",
-            trigger_dag_id="{{ params.hub_servicecon_dag_id }}",
+            trigger_dag_id="ssis_skeleton_hub_servicecon",
             wait_for_completion=True,
             poke_interval=30,
             reset_dag_run=True,
@@ -210,7 +210,7 @@ with DAG(
     with TaskGroup(group_id="tg_package_load_dim_tables") as tg_load_dim_tables:
         op_5 = TriggerDagRunOperator(
             task_id="package_load_dim_tables_fact_kpi",
-            trigger_dag_id="{{ params.fact_kpi_dag_id }}",
+            trigger_dag_id="ssis_skeleton_fact_kpi",
             wait_for_completion=True,
             poke_interval=30,
             reset_dag_run=True,

@@ -299,5 +299,47 @@
       },
       "task_type": "STOCK:SEQUENCE"
     }
-  }
+  },
+  "parameters": [
+    {
+      "param_name": "DisableFinal",
+      "dts_id": "{91BD12A1-05E6-4573-B351-D59F73B4ECC2}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableStaging",
+      "dts_id": "{5BCC9528-501D-4D4B-B605-5A4B818BE134}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "ProcessId",
+      "dts_id": "{BA07613F-4A21-4521-AAF6-B090293434D7}",
+      "data_type": "20",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "20"
+    },
+    {
+      "param_name": "RecordSource1",
+      "dts_id": "{F3035893-29BF-4C89-8744-835096AC9A9D}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "fl_InvoiceHeader",
+      "parameter_value_data_type": "8"
+    },
+    {
+      "param_name": "RecordSource2",
+      "dts_id": "{119B2983-5B82-4913-8876-85786371DB6B}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "fl_InvoicePayment",
+      "parameter_value_data_type": "8"
+    }
+  ]
 }

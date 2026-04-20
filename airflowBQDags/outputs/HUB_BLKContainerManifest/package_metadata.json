@@ -386,5 +386,79 @@
       },
       "task_type": "STOCK:SEQUENCE"
     }
-  }
+  },
+  "parameters": [
+    {
+      "param_name": "DisableFinal",
+      "dts_id": "{3FC6684F-AE7A-4E60-86B5-3DEA3D42192A}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableStage",
+      "dts_id": "{4DC78471-AB77-421B-A592-55B4C268F049}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "ManifestContentsBatchSize",
+      "dts_id": "{9DA40DFF-989C-4F92-AB2E-E6AB11FE6FF9}",
+      "data_type": "3",
+      "creation_name": "",
+      "parameter_value": "200000",
+      "parameter_value_data_type": "3"
+    },
+    {
+      "param_name": "Minimum_ManifestId",
+      "dts_id": "{94B3689A-59AC-41ED-AD7B-4FC0877DFB10}",
+      "data_type": "20",
+      "creation_name": "",
+      "parameter_value": "65000",
+      "parameter_value_data_type": "20"
+    },
+    {
+      "param_name": "RecordSource1",
+      "dts_id": "{87DB162B-F2BC-4AB5-97D0-1F9B224AEFCE}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "BLK_ContainerManifest",
+      "parameter_value_data_type": "8"
+    },
+    {
+      "param_name": "RecordSource2",
+      "dts_id": "{FF919DE7-AA4E-440B-943A-8AD738BA17CB}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "BLK_ManifestContents",
+      "parameter_value_data_type": "8"
+    },
+    {
+      "param_name": "RecordSource3",
+      "dts_id": "{8B0C7A66-BC7A-4B3F-8EF2-03D15C223139}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "BLK_Container",
+      "parameter_value_data_type": "8"
+    },
+    {
+      "param_name": "RecordSource4",
+      "dts_id": "{F5D5DD0B-EE01-4B9D-BB55-231AC2B8043F}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "BLK_TransitManifest",
+      "parameter_value_data_type": "8"
+    },
+    {
+      "param_name": "RecordSource5",
+      "dts_id": "{D4378C98-9A3A-4CCB-8BA7-1E02359012F2}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "BLK_TransitContents",
+      "parameter_value_data_type": "8"
+    }
+  ]
 }

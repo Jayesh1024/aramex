@@ -223,5 +223,39 @@
       },
       "task_type": "STOCK:SEQUENCE"
     }
-  }
+  },
+  "parameters": [
+    {
+      "param_name": "DisableFinal",
+      "dts_id": "{4B097799-4298-4E72-B742-AFF2A48F5AC9}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableInterBranch",
+      "dts_id": "{75559B4C-C946-48D1-B69A-25F8B7E8AE4C}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "ProcessId",
+      "dts_id": "{DF256848-11A6-435A-B32F-5871B86F4423}",
+      "data_type": "20",
+      "creation_name": "",
+      "parameter_value": "1",
+      "parameter_value_data_type": "20"
+    },
+    {
+      "param_name": "RecordSource12",
+      "dts_id": "{53115AA2-EF60-4DD1-88F5-70660E6AD0C6}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "InterBranchNZ",
+      "parameter_value_data_type": "8"
+    }
+  ]
 }

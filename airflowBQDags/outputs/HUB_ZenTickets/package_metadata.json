@@ -144,5 +144,39 @@
       },
       "task_type": "STOCK:SEQUENCE"
     }
-  }
+  },
+  "parameters": [
+    {
+      "param_name": "DisableFinal",
+      "dts_id": "{99C1783C-D0F5-477D-90D3-020D15462743}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableStage",
+      "dts_id": "{E29B699D-6C56-4666-959F-AE66F08BBBCA}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "ProcessId",
+      "dts_id": "{7A18888E-34C2-4967-8BD3-58A81B26C45F}",
+      "data_type": "20",
+      "creation_name": "",
+      "parameter_value": "-29",
+      "parameter_value_data_type": "20"
+    },
+    {
+      "param_name": "RecordSource",
+      "dts_id": "{2F0FE0DC-D579-436A-89C1-D9B527C09003}",
+      "data_type": "8",
+      "creation_name": "",
+      "parameter_value": "ZenLog",
+      "parameter_value_data_type": "8"
+    }
+  ]
 }

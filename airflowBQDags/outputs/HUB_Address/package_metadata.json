@@ -95,5 +95,31 @@
       },
       "task_type": "STOCK:SEQUENCE"
     }
-  }
+  },
+  "parameters": [
+    {
+      "param_name": "DisableFinal",
+      "dts_id": "{C09688C5-00A6-4447-BBD4-3B6EA3B76DF9}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableStaging",
+      "dts_id": "{570778FA-5CCB-4B15-8BA7-925739488687}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "ProcessId",
+      "dts_id": "{74CC150A-5EC7-420E-B647-02EC1467B46B}",
+      "data_type": "20",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "20"
+    }
+  ]
 }

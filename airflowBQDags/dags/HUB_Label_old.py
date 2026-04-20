@@ -11,7 +11,6 @@ from airflow import DAG
 from airflow.operators.empty import EmptyOperator
 from airflow.utils.task_group import TaskGroup
 
-PACKAGE_NAME = "HUB_Label(old)"
 
 with DAG(
     dag_id="ssis_skeleton_hub_label_old",
@@ -19,6 +18,23 @@ with DAG(
     schedule=None,
     catchup=False,
     tags=["ssis", "skeleton", "hub_label(old)"],
+    params={
+        "DisableFinal": 0,
+        "DisableLoad_API_RF_AdHocLabel_AllocationHistory": 0,
+        "DisableLoad_ConsignmentItem": 0,
+        "DisableLoad_fl_ConItem": 0,
+        "DisableLoad_HDManifests": 0,
+        "DisableLoad_LabelMaster": 0,
+        "DisableLoad_tblFastLabel_Consignment": 0,
+        "DisableStaging": 0,
+        "ProcessId": 185,
+        "RecordSource1": 'LabelMaster',
+        "RecordSource2": 'DynamicLabel',
+        "RecordSource3": 'FastLabel',
+        "RecordSource4": 'MyFastway',
+        "RecordSource5": 'IFS',
+        "RecordSource6": 'FastLabelEnterprise',
+    },
 ) as dag:
 
     # --- control flow (nested TaskGroup per sequence container) ---

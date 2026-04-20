@@ -11,7 +11,6 @@ from airflow import DAG
 from airflow.operators.empty import EmptyOperator
 from airflow.utils.task_group import TaskGroup
 
-PACKAGE_NAME = "LoadGokuTables"
 
 with DAG(
     dag_id="ssis_skeleton_loadgokutables",
@@ -19,6 +18,12 @@ with DAG(
     schedule=None,
     catchup=False,
     tags=["ssis", "skeleton", "loadgokutables"],
+    params={
+        "Disable_ClickAndCollect": 0,
+        "Disable_PayZone": 0,
+        "IsReload": 0,
+        "ProcessID": -7,
+    },
 ) as dag:
 
     # --- control flow (nested TaskGroup per sequence container) ---

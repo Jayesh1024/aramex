@@ -14,18 +14,15 @@ Staging loads (no params) -> Final (ProcessId, RecordSource).
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
-PACKAGE_NAME = "HUB_Customer"
-# SSIS $Package::RecordSource1 — value not present in extracted metadata; using the
-# repo-wide default (HUB_CF / HUB_Invoice / HUB_ServiceItem all default to "RecordSource").
-RECORD_SOURCE_1 = "RecordSource"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
 with DAG(
     dag_id="ssis_skeleton_hub_customer",
@@ -34,8 +31,13 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "hub_customer"],
     params={
-        "process_id": 1,
-        "record_source": RECORD_SOURCE_1,
+        "DisableFinal": 0,
+        "DisableLoadFMSCustomer": 0,
+        "DisableLoadtblCustomer": 0,
+        "DisableStaging": 0,
+        "ProcessId": -13,
+        "RecordSource1": 'FMS_Customer',
+        "RecordSource2": 'tblCustomer',
     },
 ) as dag:
 
@@ -150,7 +152,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_Customer`("
-                        f"{{{{ params.process_id }}}}, '{{{{ params.record_source }}}}');"
+                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -164,7 +166,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Customer`("
-                        f"{{{{ params.process_id }}}}, '{{{{ params.record_source }}}}');"
+                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -178,7 +180,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAL_Customer`("
-                        f"{{{{ params.process_id }}}});"
+                        f"{{{{ params.ProcessId }}}});"
                     ),
                     "useLegacySql": False,
                 }

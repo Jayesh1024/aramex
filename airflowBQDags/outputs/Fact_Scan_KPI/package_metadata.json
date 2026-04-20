@@ -90,5 +90,55 @@
       },
       "task_type": "STOCK:SEQUENCE"
     }
-  }
+  },
+  "parameters": [
+    {
+      "param_name": "DisableFinal",
+      "dts_id": "{6D818313-5058-40A6-8B66-520E6834FEC9}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "DisableStaging",
+      "dts_id": "{CF00866A-BD52-4239-811A-BA1CB2306F56}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    },
+    {
+      "param_name": "ProcessId",
+      "dts_id": "{EEFBA4FD-10CC-42D1-90BA-94972CE85A2F}",
+      "data_type": "20",
+      "creation_name": "",
+      "parameter_value": "706",
+      "parameter_value_data_type": "20"
+    },
+    {
+      "param_name": "SinceScanDate",
+      "dts_id": "{98D834E4-2287-41FE-B78E-94434DDC2453}",
+      "data_type": "7",
+      "creation_name": "",
+      "parameter_value": "12:00:00 AM",
+      "parameter_value_data_type": "7"
+    },
+    {
+      "param_name": "UntilScanDate",
+      "dts_id": "{690FD536-2745-4D14-AE8A-ADAD7FEF3DD4}",
+      "data_type": "7",
+      "creation_name": "",
+      "parameter_value": "12:00:00 AM",
+      "parameter_value_data_type": "7"
+    },
+    {
+      "param_name": "UseScanDates",
+      "dts_id": "{A775A35C-C7D9-4D6E-8E44-E6AD29534CE0}",
+      "data_type": "11",
+      "creation_name": "",
+      "parameter_value": "0",
+      "parameter_value_data_type": "11"
+    }
+  ]
 }

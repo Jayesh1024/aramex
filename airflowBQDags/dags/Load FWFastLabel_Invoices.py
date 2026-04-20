@@ -10,6 +10,7 @@ ProcessId is accepted as a DAG param (SSIS does not allocate one here).
 from __future__ import annotations
 
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -17,13 +18,9 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobO
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_value
 
-PROJECT_ID = "searce-sandbox-da-delivery"
-SP_DATASET_ID = "Aramex_oceania_SP"
-TARGET_DATASET_ID = "Aramex_oceania"
-PACKAGE_NAME = "Load FWFastLabel_Invoices"
-
-RECORD_SOURCE_1 = "RecordSource"
-RECORD_SOURCE_2 = "RecordSource2"
+PROJECT_ID = os.getenv("PROJECT_ID")
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
 _TASK_ID_GET_LAST_HEADER = "tg_package_staging.package_staging_get_last_invoiceheaderdate"
 _TASK_ID_GET_LAST_PAYMENT = "tg_package_staging.package_staging_get_last_invoicepaymentdate"
@@ -35,9 +32,11 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "load fwfastlabel_invoices"],
     params={
-        "process_id": 1,
-        "record_source_1": RECORD_SOURCE_1,
-        "record_source_2": RECORD_SOURCE_2,
+        "DisableFinal": 0,
+        "DisableStaging": 0,
+        "ProcessId": 0,
+        "RecordSource1": 'fl_InvoiceHeader',
+        "RecordSource2": 'fl_InvoicePayment',
     },
 ) as dag:
 
@@ -68,7 +67,7 @@ with DAG(
             op_kwargs={
                 "project_id": PROJECT_ID,
                 "dataset_id": SP_DATASET_ID,
-                "record_source": "{{ params.record_source_1 }}",
+                "record_source": "{{ params.RecordSource1 }}",
             },
         )
 
@@ -79,7 +78,7 @@ with DAG(
             op_kwargs={
                 "project_id": PROJECT_ID,
                 "dataset_id": SP_DATASET_ID,
-                "record_source": "{{ params.record_source_2 }}",
+                "record_source": "{{ params.RecordSource2 }}",
             },
         )
 
@@ -124,7 +123,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_FL_InvoiceHeader`("
-                        f"{{{{ params.process_id }}}}, '{{{{ params.record_source_1 }}}}');"
+                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -138,7 +137,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
-                        f"'{{{{ params.record_source_1 }}}}');"
+                        f"'{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -152,7 +151,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_FL_InvoicePayment`("
-                        f"{{{{ params.process_id }}}}, '{{{{ params.record_source_2 }}}}');"
+                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource2 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -166,7 +165,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
-                        f"'{{{{ params.record_source_2 }}}}');"
+                        f"'{{{{ params.RecordSource2 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
