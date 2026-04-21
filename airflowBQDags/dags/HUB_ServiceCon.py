@@ -14,15 +14,11 @@ Notes:
 from __future__ import annotations
 
 from datetime import datetime
-import os
 
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
-
-PROJECT_ID = os.getenv("PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
 
 with DAG(
     dag_id="ssis_skeleton_hub_servicecon",
@@ -74,7 +70,7 @@ with DAG(
             },
         )
 
-        # ref_id: Package\Staging\Load_LSAT_Product_ServiceCon — Exec [dv].[Load_Product_ServiceCon_Stg] ProcessId, RecordSource13
+        # ref_id: Package\Staging\Load_LSAT_Product_ServiceCon — SSIS Exec [dv].[Load_Product_ServiceCon_Stg] ProcessId, RecordSource13;
         op_7 = BigQueryInsertJobOperator(
             task_id="package_staging_load_lsat_product_servicecon",
             configuration={
@@ -129,7 +125,7 @@ with DAG(
             },
         )
 
-        # ref_id: Package\Final\Load SAT_ServiceCon — Exec [dv].[Load_LSAT_Product_ServiceCon] ProcessId, RecordSource13
+        # ref_id: Package\Final\Load SAT_ServiceCon — SSIS Exec [dv].[Load_LSAT_Product_ServiceCon] ProcessId, RecordSource13;
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_servicecon",
             configuration={

@@ -25,10 +25,8 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_value
+from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
 
-PROJECT_ID = os.getenv("PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 # SSIS $Package::RecordSource12 is configured via DAG params.RecordSource12.
 # Package loads either 'InterBranchAU' or 'InterBranchNZ' per run.
 

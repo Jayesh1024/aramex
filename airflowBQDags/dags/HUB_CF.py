@@ -11,17 +11,10 @@ from datetime import datetime
 
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
-import dotenv, os
 from airflow.utils.task_group import TaskGroup
-
-dotenv.load_dotenv("config/template_config.env", override=False)
+from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
 
 # --- Project Configuration ---
-PROJECT_ID = os.getenv("PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
-
-
 with DAG(
     dag_id="ssis_skeleton_hub_cf",
     start_date=datetime(2024, 1, 1),
@@ -74,7 +67,8 @@ with DAG(
             task_id="package_final_load_cf_hub",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_CF`({{ params.ProcessId }}, '{{ params.RecordSource }}');",
+                    # In f-strings, `{{`/`}}` are escapes; quadruple braces so Airflow receives Jinja `{{ ... }}`.
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_CF`({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');",
                     "useLegacySql": False,
                 }
             },
@@ -85,7 +79,7 @@ with DAG(
             task_id="package_final_load_cf_sat",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_CF`({{ params.ProcessId }}, '{{ params.RecordSource }}');",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_CF`({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');",
                     "useLegacySql": False,
                 }
             },

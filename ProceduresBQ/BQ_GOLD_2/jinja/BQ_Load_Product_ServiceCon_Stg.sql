@@ -5,7 +5,7 @@
 -- History:
 --  17/08/2020  P. Waldron      Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_Product_ServiceCon_Stg`(IN p_ProcessID INT64)
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_Product_ServiceCon_Stg`(IN p_ProcessID INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_Product_ServiceCon_Stg
@@ -23,8 +23,6 @@ BEGIN
   DECLARE v_ErrorMessage STRING DEFAULT NULL;
   DECLARE v_Inserted INT64 DEFAULT 0;
   DECLARE v_Updated INT64 DEFAULT 0;
-  DECLARE v_RecordSource STRING DEFAULT 'MyFastway';
-
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
     INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.Staging_Product_ServiceCon_Stg` (
@@ -102,7 +100,7 @@ BEGIN
       Src.ServicePriceComm,
       Src.UpdatedOn,
       p_ProcessID AS ProcessID,
-      v_RecordSource AS RecordSource,
+      p_RecordSource AS RecordSource,
       Src.ConId AS RecordSourceId
     FROM (
       SELECT DISTINCT 

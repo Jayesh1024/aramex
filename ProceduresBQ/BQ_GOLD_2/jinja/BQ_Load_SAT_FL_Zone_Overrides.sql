@@ -7,7 +7,8 @@
 --	06/09/2024  B. Woods		Routine Written
 -- ==========================================================================================
 CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_SAT_FL_Zone_Overrides`(
-    IN p_ProcessID INT64
+    IN p_ProcessID INT64,
+    IN p_RecordSource STRING
 )
 OPTIONS(strict_mode=false)
 BEGIN
@@ -19,9 +20,6 @@ BEGIN
     DECLARE v_ErrorMessage STRING;
     DECLARE v_Inserted INT64 DEFAULT 0;
     DECLARE v_Updated INT64 DEFAULT 0;
-    
-    -- Static RecordSource as per original T-SQL default logic
-    DECLARE v_RecordSource STRING DEFAULT '';
     
     DECLARE v_Step STRING;
     DECLARE v_delim STRING DEFAULT CHR(13); -- Carriage Return
@@ -59,7 +57,7 @@ BEGIN
             UpdatedOn,
             UpdatedBy,
             v_Loaded,
-            v_RecordSource
+            p_RecordSource
         FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_fl_ServiceZoneSatchelOverride_Stg`
         
         UNION DISTINCT
@@ -89,7 +87,7 @@ BEGIN
             UpdatedOn,
             UpdatedBy,
             v_Loaded,
-            v_RecordSource
+            p_RecordSource
         FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_fl_ServiceZoneWeightOverride_Stg`;	 
         
         SET v_Inserted = @@row_count;

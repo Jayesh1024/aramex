@@ -7,7 +7,8 @@
 -- ==========================================================================================
 
 CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LNK_Invoice_Label`(
-    IN p_ProcessID INT64
+    IN p_ProcessID INT64,
+    IN p_RecordSource STRING
 )
 OPTIONS(strict_mode=false)
 BEGIN
@@ -18,9 +19,6 @@ BEGIN
     DECLARE v_ErrorMessage STRING;
     DECLARE v_Inserted INT64 DEFAULT 0;
     DECLARE v_Updated INT64 DEFAULT 0;
-
-    -- Static RecordSource as per the original T-SQL default value
-    DECLARE v_RecordSource STRING DEFAULT 'FMS_InvoiceLines';
 
     BEGIN
         -- A MERGE statement handles the "Insert if Not Exists" Link load pattern.
@@ -68,7 +66,7 @@ BEGIN
                 Src.LabelNo,
                 v_Loaded,
                 p_ProcessID,
-                v_RecordSource,
+                p_RecordSource,
                 NULL
             );
 

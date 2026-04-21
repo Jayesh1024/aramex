@@ -21,10 +21,7 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import allocate_negative_sentinel_processid
-
-PROJECT_ID = os.getenv("PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
 
 _TASK_ID_GET_PROCESS_ID = "tg_package_staging.package_staging_get_processid"
 

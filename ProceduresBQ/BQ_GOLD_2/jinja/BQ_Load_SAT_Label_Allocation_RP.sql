@@ -7,7 +7,7 @@
 -- ==========================================================================================
 CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_SAT_Label_Allocation_RP`(
   p_ProcessID INT64,
-  p_RecordSource STRING -- Signature kept, but internal static used
+  p_RecordSource STRING
 )
 BEGIN
   DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
@@ -16,9 +16,6 @@ BEGIN
   DECLARE v_Error_Msg STRING DEFAULT NULL;
   DECLARE v_Inserted_Count INT64 DEFAULT 0;
   DECLARE v_Updated_Count INT64 DEFAULT 0;
-
-  -- Static Record Source as defined in the source file's default parameter
-  DECLARE v_StaticRecordSource STRING DEFAULT 'ReceiverPays';
 
   -- Constants for SCD Type 2
   DECLARE v_DefaultValidFrom DATETIME DEFAULT DATETIME('1900-01-01 00:00:00');
@@ -88,7 +85,7 @@ BEGIN
         PickupFranchiseeCode, DeliveryFranchiseeCode, PickupCourierNumber, DeliveryCourierNumber, Sender_LocalRF,
         Receiver_LocalRF, CustomerID, PickupDateLocal, label_colour,
         label_cost, parcel_weight, parcel_height, parcel_width, parcel_length,
-        v_Loaded, p_ProcessID, v_StaticRecordSource, RPID,
+        v_Loaded, p_ProcessID, p_RecordSource, RPID,
         CASE WHEN ActionType = 'I' THEN v_DefaultValidFrom ELSE v_Loaded END,
         v_DefaultValidTo, 1
       FROM temp_SAT_RP_Toload;

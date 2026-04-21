@@ -12,9 +12,10 @@ Notes:
     that requires (LastDate, StartDate, EndDate) — inferred SP
     `sp_load_Staging_LA_RuralOnforwards_Stg(LastDate, StartDate, EndDate)`.
     SSIS defaults unresolved StartDate/EndDate to '1900-01-01'; same here.
-  * `Execute SQL Task` just calls `[dv].[Load_LNK_RuralOnforwards]` (no
-    params in the SSIS execution; ResultSet returns NextDate but is unused
-    downstream in this DAG).
+  * SSIS `EXEC [dv].[Load_LNK_RuralOnforwards]` had no visible parameters in
+    metadata; BigQuery `dv_Load_LNK_RuralOnforwards` requires `ProcessID INT64`
+    (see ProceduresBQ). DAG passes the same ProcessID as `Get ProcessID`
+    (MAX from LoadLog via XCom), with `params.ProcessID` as Jinja fallback.
   * RecordSource14 default not available in metadata.
 """
 from __future__ import annotations
@@ -27,10 +28,7 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_value, get_max_process_id
-
-PROJECT_ID = os.getenv("PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
 
 _TASK_ID_GET_PROCESS_ID = "tg_package_sequence_container.package_sequence_container_get_processid"
 _TASK_ID_GET_LASTDATE = "tg_package_load_la_ruraonforwards.package_load_la_ruraonforwards_get_lastdate_la_ruralonforwards"
@@ -50,7 +48,6 @@ with DAG(
     },
 ) as dag:
 
-    _xcom_processid = f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_PROCESS_ID}') }}}}"
     _xcom_lastdate = f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LASTDATE}') }}}}"
 
     with TaskGroup(group_id="tg_package_sequence_container") as tg_seq:
@@ -107,25 +104,28 @@ with DAG(
             },
         )
 
-        # ref_id: Package\Load LA_RuraOnForwards\Execute SQL Task — EXEC [dv].[Load_LNK_RuralOnforwards] (no params)
+        # ref_id: Package\Load LA_RuraOnForwards\Execute SQL Task — BQ: dv_Load_LNK_RuralOnforwards(ProcessID)
         op_2 = BigQueryInsertJobOperator(
             task_id="package_load_la_ruraonforwards_execute_sql_task",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LNK_RuralOnforwards`();",
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LNK_RuralOnforwards`("
+                        f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_PROCESS_ID}') or params.ProcessID }}}});"
+                    ),
                     "useLegacySql": False,
                 }
             },
         )
 
-        # ref_id: Package\Load LA_RuraOnForwards\Set LastDate — Staging_Set_LastValue(RecordSource14)
+        # ref_id: Package\Load LA_RuraOnForwards\Set LastDate — Staging_Set_LastValue(4 args)
         op_4 = BigQueryInsertJobOperator(
             task_id="package_load_la_ruraonforwards_set_lastdate",
             configuration={
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
-                        f"'{{{{ params.RecordSource14 }}}}');"
+                        f"'{{{{ params.RecordSource14 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                     ),
                     "useLegacySql": False,
                 }

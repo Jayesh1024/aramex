@@ -7,7 +7,7 @@
 --  07/11/2019  P. Waldron      Remove CountryName from Label_HSK 
 --  12/01/2024  B. Woods        Replaced MERGE with DELETE and INSERT
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_SAT_Label_Allocation_DL`(IN p_ProcessID INT64)
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_SAT_Label_Allocation_DL`(IN p_ProcessID INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_SAT_Label_Allocation_DL
@@ -25,8 +25,6 @@ BEGIN
   DECLARE v_ErrorMessage STRING DEFAULT NULL;
   DECLARE v_Inserted INT64 DEFAULT 0;
   DECLARE v_Updated INT64 DEFAULT 0;
-  DECLARE v_RecordSource STRING DEFAULT 'DynamicLabel';
-
   BEGIN
     -- Use MERGE to handle the DELETE + INSERT pattern (Replace Current) in a single scan.
     -- v_Updated will contain the total rows affected. v_Inserted = 0 per CORE RULES.
@@ -83,7 +81,7 @@ BEGIN
         GroupTransId = Src.GroupTransId,
         Loaded = v_Loaded,
         ProcessId = p_ProcessID,
-        RecordSource = v_RecordSource,
+        RecordSource = p_RecordSource,
         RecordSourceId = Src.RecordSourceId,
         ValidFrom = v_Loaded,
         ValidTo = v_DefaultValidTo,
@@ -101,7 +99,7 @@ BEGIN
         Src.LabelColour, Src.Price, Src.Reference, Src.CreateDateLocal, Src.OESCustomerID, 
         Src.FMSInvoiceID, Src.FMSProductID, Src.FKSource, Src.FKID, Src.ParcelLength, 
         Src.ParcelWidth, Src.ParcelHeight, Src.ParcelWeight, Src.ParcelCubicWeight, Src.GroupTransId, 
-        v_Loaded, p_ProcessID, v_RecordSource, Src.RecordSourceId, v_Loaded, v_DefaultValidTo, 1
+        v_Loaded, p_ProcessID, p_RecordSource, Src.RecordSourceId, v_Loaded, v_DefaultValidTo, 1
       );
 
     SET v_Updated = @@row_count;

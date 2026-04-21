@@ -6,7 +6,7 @@
 --  17/09/2020  P. Waldron      Routine Written
 --  21/06/2022  B. Woods         Cloned
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LSAT_Label_InterBranch`(IN p_ProcessID INT64)
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LSAT_Label_InterBranch`(IN p_ProcessID INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_LSAT_Label_InterBranch
@@ -25,8 +25,6 @@ BEGIN
   DECLARE v_ErrorMessage STRING DEFAULT NULL;
   DECLARE v_Inserted INT64 DEFAULT 0;
   DECLARE v_Updated INT64 DEFAULT 0;
-  DECLARE v_RecordSource STRING DEFAULT 'MyFastway';
-
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
     INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_Label_Interbranch` (
@@ -62,7 +60,7 @@ BEGIN
       Src.Price,
       v_Loaded AS Loaded,
       p_ProcessID AS ProcessId,
-      v_RecordSource AS RecordSource,
+      p_RecordSource AS RecordSource,
       Src.BatchId
     FROM (
       SELECT

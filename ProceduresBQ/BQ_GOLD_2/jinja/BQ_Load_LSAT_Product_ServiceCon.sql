@@ -5,7 +5,7 @@
 -- History:
 --  17/09/2020  P. Waldron      Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LSAT_Product_ServiceCon`(IN p_ProcessID INT64)
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LSAT_Product_ServiceCon`(IN p_ProcessID INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_LSAT_Label_Product_ServiceItem
@@ -23,8 +23,6 @@ BEGIN
   DECLARE v_ErrorMessage STRING DEFAULT NULL;
   DECLARE v_Inserted INT64 DEFAULT 0;
   DECLARE v_Updated INT64 DEFAULT 0;
-  DECLARE v_RecordSource STRING DEFAULT 'MyConSrv';
-
   BEGIN
     -- Only INSERT is present in the active logic, so using INSERT ... SELECT per CORE RULES.
     INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_Product_ServiceCon` (
@@ -107,7 +105,7 @@ BEGIN
       Src.UpdatedOn,
       v_Loaded AS Loaded,
       p_ProcessID AS ProcessId,
-      v_RecordSource AS RecordSource,
+      p_RecordSource AS RecordSource,
       Src.ConId AS RecordSourceId,
       v_Loaded AS ValidFrom,
       v_DefaultValidTo AS ValidTo,

@@ -7,7 +7,7 @@
 -- ==========================================================================================
 CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_HUB_Customer`(
   p_ProcessID INT64,
-  p_RecordSource STRING -- Parameter kept for signature compatibility
+  p_RecordSource STRING
 )
 BEGIN
   DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
@@ -15,9 +15,6 @@ BEGIN
   DECLARE v_Status STRING DEFAULT 'Success';
   DECLARE v_Error_Msg STRING DEFAULT NULL;
   DECLARE v_Inserted_Count INT64 DEFAULT 0;
-
-  -- Static Record Source as defined in the source file's default parameter
-  DECLARE v_StaticRecordSource STRING DEFAULT 'CustomerLinks';
 
   BEGIN
     -- BigQuery MERGE: Atomic check for existing Customer_HSK before insertion
@@ -29,7 +26,7 @@ BEGIN
         CustomerKey,
         v_Loaded AS Loaded,
         p_ProcessID AS ProcessID,
-        v_StaticRecordSource AS RecordSource
+        p_RecordSource AS RecordSource
       FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_FMS_Customer_Stg`
       WHERE CustomerKey IS NOT NULL
     ) AS Source

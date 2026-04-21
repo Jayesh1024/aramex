@@ -74,10 +74,11 @@ BEGIN
   SET v_StagingTableFQN = FORMAT('prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.%s', v_StagingTable);
 
   -- Verify Staging table exists via INFORMATION_SCHEMA
+  -- table_name is stored lowercase; v_StagingTable preserves DatasetName casing — compare case-insensitively
   SET v_TableExists = (
     SELECT COUNT(*)
     FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.`.INFORMATION_SCHEMA.TABLES
-    WHERE table_name = ARRAY_REVERSE(SPLIT(v_StagingTable, '.'))[OFFSET(0)]
+    WHERE table_name = LOWER(ARRAY_REVERSE(SPLIT(v_StagingTable, '.'))[OFFSET(0)])
   );
 
   IF v_TableExists = 0 THEN
