@@ -44,6 +44,8 @@ with DAG(
         "RecordSourceFMS_InvoiceLines": 'FMS_InvoiceLines',
         # dv_Load_Label_Invoices(p_ProcessID, p_Start_Date STRING, p_End_Date STRING); SSIS only passed LastDate — use this if XCom is empty/NULL.
         "LabelInvoicesDefaultStartDate": '2000-01-01 00:00:00',
+        # dv_Load_Label_Invoices(p_ProcessID, p_Start_Date STRING, p_End_Date STRING); SSIS only passed LastDate — use this if XCom is empty/NULL.
+        "LabelInvoicesDefaultStartDate": '2000-01-01 00:00:00',
     },
 ) as dag:
 
