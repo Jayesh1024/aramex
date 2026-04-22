@@ -60,8 +60,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_Label_Product_ServiceItem_Stg`("
-                        "{{ params.ProcessId }}, '{{ params.RecordSource }}');"
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_Label_Product_ServiceItem_Stg`({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -79,8 +78,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LNK_Label_Product_ServiceItem`("
-                        "{{ params.ProcessId }}, '{{ params.RecordSource }}');"
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LNK_Label_Product_ServiceItem`({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -93,8 +91,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LSAT_Label_Product_ServiceItem`("
-                        "{{ params.ProcessId }}, '{{ params.RecordSource }}');"
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LSAT_Label_Product_ServiceItem`({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
                 }

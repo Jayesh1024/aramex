@@ -14,7 +14,7 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobO
 import dotenv, os
 from airflow.utils.task_group import TaskGroup
 
-dotenv.load_dotenv("config/template_config.env", override=False)
+# dotenv.load_dotenv("airflowBQDags/dags/config/template_config.env", override=False)
 
 # --- Project Configuration ---
 PROJECT_ID = os.getenv("PROJECT_ID")
@@ -74,7 +74,7 @@ with DAG(
             task_id="package_final_load_cf_hub",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_CF`({{ params.ProcessId }}, '{{ params.RecordSource }}');",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_CF`({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');",
                     "useLegacySql": False,
                 }
             },
@@ -85,7 +85,7 @@ with DAG(
             task_id="package_final_load_cf_sat",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_CF`({{ params.ProcessId }}, '{{ params.RecordSource }}');",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_CF`({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');",
                     "useLegacySql": False,
                 }
             },

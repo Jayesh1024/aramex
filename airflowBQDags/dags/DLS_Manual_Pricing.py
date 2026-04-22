@@ -10,6 +10,7 @@ params.RecordSource2 (see Get LastId, Load Lastest Priced Invoices).
 Insert Into … (large TRUNCATE/INSERT in metadata) and Update Dim_Label (UPDATE script) map to BigQuery procedures.
 Get Next ProcessID uses an inline SELECT (ExecuteSQLTask query, not EXEC). SSIS variable chaining for LastID / NextProcessId
 is approximated with params.adhoc_history_last_id and params.ProcessId — adjust or add XCom if you need exact SSIS binding.
+`ChangedSince` is the second arg to `dbo_Load_Dim_Label` (DATETIME); override per trigger if needed.
 """
 from __future__ import annotations
 
@@ -17,13 +18,16 @@ from datetime import datetime
 import os
 
 from airflow import DAG
+from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
+from utils.getValue import get_last_value
 
 # --- Project Configuration ---
 PROJECT_ID = os.getenv("PROJECT_ID")
 SP_DATASET_ID = os.getenv("SP_DATASET_ID")
 TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+_TASK_ID_GET_LAST_ID = "tg_package_source2_dynamiclabel_dl.package_source2_dynamiclabel_dl_get_lastid_dynamiclabel"
 
 with DAG(
     dag_id="ssis_skeleton_dls_manual_pricing",
@@ -37,6 +41,8 @@ with DAG(
         "RecordSource2": 'DynamicLabel',
         "ReturnCode2": 0,
         "adhoc_history_last_id": 0,
+        # Second arg to dbo_Load_Dim_Label( ProcessID, ChangedSince ) — e.g. manual trigger or conf override.
+        "ChangedSince": "1900-01-01 00:00:00",
     },
 ) as dag:
 
@@ -57,16 +63,13 @@ with DAG(
         )
 
         # ref_id: …\Get LastId (DynamicLabel) — Exec [Staging].[Get_LastValue] ? (RecordSource2)
-        op_2 = BigQueryInsertJobOperator(
+        op_2 = PythonOperator(
             task_id="package_source2_dynamiclabel_dl_get_lastid_dynamiclabel",
-            configuration={
-                "query": {
-                    "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Get_LastValue`("
-                        "'{{ params.RecordSource2 }}');"
-                    ),
-                    "useLegacySql": False,
-                }
+            python_callable=get_last_value,
+            op_kwargs={
+                "project_id": PROJECT_ID,
+                "dataset_id": SP_DATASET_ID,
+                "record_source": "{{ params.RecordSource2 }}",
             },
         )
 
@@ -77,7 +80,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_API_RF_AdHocLabel_AllocationHistory_Stg_Weekly`("
-                        "{{ params.adhoc_history_last_id }});"
+                        f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LAST_ID}') | int }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -89,7 +92,10 @@ with DAG(
             task_id="package_source2_dynamiclabel_dl_insert_into_api_rf_adhoclabel_allocationhistory_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_API_RF_AdHocLabel_AllocationHistory_Stg`();",
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_API_RF_AdHocLabel_AllocationHistory_Stg`("
+                        f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LAST_ID}') | int }}}});"
+                    ),
                     "useLegacySql": False,
                 }
             },
@@ -115,8 +121,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_DL`("
-                        "{{ params.ProcessId }}, '{{ params.RecordSource2 }}');"
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_DL`({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource2 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -130,7 +135,9 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Load_Dim_Label`("
-                        "{{ params.ProcessId }});"
+                        f"{{{{ params.ProcessId }}}}, "
+                        f"DATETIME('{{{{ params.ChangedSince }}}}') "
+                        f");"
                     ),
                     "useLegacySql": False,
                 }

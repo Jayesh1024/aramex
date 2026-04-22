@@ -69,7 +69,7 @@ with DAG(
             task_id="package_final_load_hub_scanstatus",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_ScanStatus`({{ params.ProcessId }}, '{{ params.RecordSource }}');",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_ScanStatus`({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');",
                     "useLegacySql": False,
                 }
             },
@@ -80,7 +80,7 @@ with DAG(
             task_id="package_final_load_sat_scanstatus",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_ScanStatus`({{ params.ProcessId }}, '{{ params.RecordSource }}');",
+                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_ScanStatus`({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');",
                     "useLegacySql": False,
                 }
             },
