@@ -56,8 +56,8 @@ with DAG(
         "RecordSource4": "MyFastway",
         "StartDate": "1900-01-01 00:00:00",
         # Staging_Set_LastValue: use None so Jinja renders SQL NULL; override from trigger UI when needed.
-        "ColumnName": "NULL",
-        "LastValue": "NULL",
+        "ColumnName": None,
+        "LastValue": None,
         "Force": False,
     },
 ) as dag:
@@ -156,7 +156,10 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
-                        f"'{{{{ params.RecordSource4 }}}}', '{{{{ params.ColumnName }}}}', '{{{{ params.LastValue }}}}', {{{{ params.Force }}}});"
+                        f"'{{{{ params.RecordSource4 }}}}', "
+                        "{% if params.ColumnName is not none %}'{{ params.ColumnName }}'{% else %}NULL{% endif %}, "
+                        "{% if params.LastValue is not none %}'{{ params.LastValue }}'{% else %}NULL{% endif %}, "
+                        f"{{{{ params.Force }}}});"
                     ),
                     "useLegacySql": False,
                 }
