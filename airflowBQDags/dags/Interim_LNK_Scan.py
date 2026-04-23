@@ -83,7 +83,7 @@ with DAG(
             op_kwargs={
                 "project_id": PROJECT_ID,
                 "dataset_id": SP_DATASET_ID,
-                "record_source": "{{{{ params.RecordSource1 }}}}",
+                "record_source": "{{ params.RecordSource1 }}",
             },
         )
 
@@ -94,7 +94,7 @@ with DAG(
             op_kwargs={
                 "project_id": PROJECT_ID,
                 "dataset_id": SP_DATASET_ID,
-                "record_source": "{{{{ params.RecordSource3 }}}}",
+                "record_source": "{{ params.RecordSource3 }}",
             },
         )
 
