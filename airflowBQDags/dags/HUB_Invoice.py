@@ -39,7 +39,7 @@ with DAG(
         "DisableUndTcktStaging": 0,
         "ProcessId": -453,
         "RecordSource": 'FMS_Invoice',
-        "RecordSource2": 'FMSUndTcktInvoice',
+        "RecordSource2": 'FMSUndTcktInvoice'
     },
 ) as dag:
 
@@ -70,7 +70,8 @@ with DAG(
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_Label_Invoices`("
                         f"{{{{ params.ProcessId }}}}, "
-                        f"SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{_TASK_IDS_LASTDATE_FMS_INVOICE}') }}}}' AS DATETIME));"
+                        f"'{{{{ ti.xcom_pull(task_ids='{_TASK_IDS_LASTDATE_FMS_INVOICE}') }}}}', "
+                        "{{'NULL'}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -140,12 +141,15 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`('{{{{ params.RecordSource }}}}');"
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`('{{{{ params.RecordSource }}}}', "
+                        "'NULL', "
+                        "'NULL', "
+                        "FALSE);"
                     ),
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="google_cloud_default"
         )
 
     with TaskGroup(group_id="tg_package_final_undtcktinvoice") as tg_final_undtckt:

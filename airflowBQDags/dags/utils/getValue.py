@@ -18,21 +18,64 @@ Grouped by responsibility:
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-
+import pandas as pd
+import numbers
+import math
+import re
 from airflow.providers.google.cloud.hooks.bigquery import BigQueryHook
 
+_INT_STRING = re.compile(r"^-?\d+$")
 
 def _escape_sql_literal(value: str) -> str:
     """Escape a string for safe inclusion inside a BigQuery single-quoted literal."""
     return value.replace("\\", "\\\\").replace("'", "''")
 
 
+def _normalize_load_control_last_value(value):
+    """Shape Staging_Get_LastValue cell for XCom: ISO datetime text, integer text, or None."""
+    if value is None or value is pd.NA:
+        return None
+    try:
+        if pd.isna(value):
+            return None
+    except TypeError:
+        pass
+    if isinstance(value, (bytes, bytearray)):
+        value = value.decode("utf-8", errors="replace")
+    if isinstance(value, bool):
+        return str(int(value))
+    if isinstance(value, numbers.Integral):
+        return str(int(value))
+    if isinstance(value, numbers.Real):
+        fv = float(value)
+        if math.isnan(fv):
+            return None
+        if fv.is_integer() and abs(fv) <= 2**53:
+            return str(int(fv))
+    if isinstance(value, str):
+        s = value.strip()
+        if not s:
+            return None
+        if _INT_STRING.fullmatch(s):
+            return s
+        ts = pd.to_datetime(s, errors="coerce")
+        if pd.isna(ts):
+            return s
+    else:
+        ts = pd.to_datetime(value, errors="coerce")
+        if pd.isna(ts):
+            return None
+    if getattr(ts, "tzinfo", None) is not None:
+        ts = ts.tz_convert("UTC").tz_localize(None)
+    return ts.strftime("%Y-%m-%d %H:%M:%S")
+
 def get_last_value(project_id: str, dataset_id: str, record_source: str):
     """Call Staging_Get_LastValue; record_source must match Staging_LoadControl.RecordSource."""
     escaped = _escape_sql_literal(record_source)
     hook = BigQueryHook(project_id=project_id)
     query = f"CALL `{project_id}.{dataset_id}.Staging_Get_LastValue`('{escaped}')"
-    return hook.get_pandas_df(sql=query, dialect="standard")[0][0]
+    raw = hook.get_pandas_df(sql=query, dialect="standard").iloc[0, 0]
+    return _normalize_load_control_last_value(raw)
 
 
 def get_next_process_id(project_id: str, dataset_id: str) -> int:

@@ -38,6 +38,7 @@ with DAG(
         "ProcessId": -13,
         "RecordSource1": 'FMS_Customer',
         "RecordSource2": 'tblCustomer',
+        "RecordSource_dv_Load_SAL_Customer": 'CustomerLinks'
     },
 ) as dag:
 
@@ -180,7 +181,8 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAL_Customer`("
-                        f"{{{{ params.ProcessId }}}});"
+                        f"{{{{ params.ProcessId }}}}, "
+                        f"'{{{{ params.RecordSource_dv_Load_SAL_Customer }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -190,17 +192,8 @@ with DAG(
         # ref_id: Package\Final\Load SAT_Customer_OES (Pipeline -> SP)
         # SSIS bulk-inserts Staging.tblCustomer_Stg -> dv.SAT_Customer_OES with no transform.
         # Wrapped as a SP following the HUB_CF / HUB_Customer staging-load convention.
-        op_4 = BigQueryInsertJobOperator(
-            task_id="package_final_load_sat_customer_oes",
-            configuration={
-                "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Customer_OES`();",
-                    "useLegacySql": False,
-                }
-            },
-        )
+        
 
         op_1 >> op_3
-        op_2 >> op_4
 
     tg_staging >> tg_final
