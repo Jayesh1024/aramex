@@ -43,12 +43,12 @@ BEGIN
       Loaded,
       ProcessId,
       RecordSource,
-      RecordSourceId
+      BatchId
     )
     SELECT
       Src.Label_InterBranch_HSK,
       Src.LabelNo,
-      Src.CountryCode,
+      CAST(Src.CountryCode AS STRING),
       Src.InvoiceNumber,
       Src.InvoiceDate,
       Src.InvoiceFromRF,

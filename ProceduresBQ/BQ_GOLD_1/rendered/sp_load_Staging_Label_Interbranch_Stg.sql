@@ -15,7 +15,21 @@ BEGIN
     SET v_CountryCode = 6;
   END IF;
 
-  INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Interbranch_Stg`
+  INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Interbranch_Stg`(
+    CountryCode, 
+    Country, 
+    LabelNo, 
+    InvoiceFromRF, 
+    InvoiceToRF, 
+    BatchId, 
+    Category, 
+    InvoiceDate, 
+    InvoiceNumber, 
+    ProductId, 
+    DeliveryDate, 
+    DeliveryTime, 
+    Price
+  )
   SELECT v_CountryCode,
   CASE v_CountryCode WHEN 1 THEN 'Australia' WHEN 6 THEN 'New Zealand' END AS Country,
   d.LabelNo,

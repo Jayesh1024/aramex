@@ -51,7 +51,7 @@ with DAG(
         "DisableStage": 0,
         "ManifestContentsBatchSize": 200000,
         "Minimum_ManifestId": 65000,
-        "RecordSource1": 'BLK_ContainerManifest',
+        "RecordSource1": 'BLK_ManifestContents',
         "RecordSource2": 'BLK_ManifestContents',
         "RecordSource3": 'BLK_Container',
         "RecordSource4": 'BLK_TransitManifest',
@@ -117,7 +117,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_BLK_ContainerManifestContents_Stg`("
-                        f"SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LAST_SCAN}') }}}}' AS DATETIME));"
+                        f"'{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LAST_SCAN}') }}}}');"
                     ),
                     "useLegacySql": False,
                 }
