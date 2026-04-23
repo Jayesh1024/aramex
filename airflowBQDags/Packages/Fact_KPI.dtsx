@@ -11,8 +11,8 @@
   DTS:LocaleID="3081"
   DTS:ObjectName="Fact_KPI"
   DTS:PackageType="5"
-  DTS:VersionBuild="43"
-  DTS:VersionGUID="{5A80D4D0-AB09-40EF-9127-60CC70B32213}">
+  DTS:VersionBuild="69"
+  DTS:VersionGUID="{F4DD8EB5-79A5-47CE-89CD-5E5A7DC61007}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:PackageParameters>
@@ -177,16 +177,33 @@
             </SQLTask:SqlTaskData>
           </DTS:ObjectData>
         </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\Final\Set LastDate"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{407D0179-183D-4E72-825D-015960943CE1}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Set LastDate"
+          DTS:ThreadHint="0">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
+              SQLTask:BypassPrepare="False"
+              SQLTask:SqlStatementSource="DECLARE @EndDate datetime;&#xA;&#xA;SET @EndDate =   CONVERT(varchar(10),DATEADD(DAY, -1,Getdate()),120)+'T23:59:59.999'&#xA;&#xA;UPDATE [Staging].[LoadControl] SET LastValue =  @EndDate WHERE RecordSource = 'Fact_KPI_Scan'&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+          </DTS:ObjectData>
+        </DTS:Executable>
       </DTS:Executables>
       <DTS:PrecedenceConstraints>
         <DTS:PrecedenceConstraint
           DTS:refId="Package\Final.PrecedenceConstraints[Constraint]"
           DTS:CreationName=""
-          DTS:DTSID="{C4B52C40-D03E-4E82-B7B9-B81C6D68F3D5}"
+          DTS:DTSID="{32FC7F50-16A4-4C59-8554-20AC65DC2CAE}"
           DTS:From="Package\Final\Load Fact KPI Labels"
           DTS:LogicalAnd="True"
           DTS:ObjectName="Constraint"
-          DTS:To="Package\Final\Load Fact_KPI_Priority" />
+          DTS:To="Package\Final\Set LastDate" />
         <DTS:PrecedenceConstraint
           DTS:refId="Package\Final.PrecedenceConstraints[Constraint 1]"
           DTS:CreationName=""
@@ -195,6 +212,14 @@
           DTS:LogicalAnd="True"
           DTS:ObjectName="Constraint 1"
           DTS:To="Package\Final\Load Fact KPI Performance" />
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\Final.PrecedenceConstraints[Constraint 2]"
+          DTS:CreationName=""
+          DTS:DTSID="{509DD1F5-F635-44BB-A77D-00E51BBC7021}"
+          DTS:From="Package\Final\Set LastDate"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint 2"
+          DTS:To="Package\Final\Load Fact_KPI_Priority" />
       </DTS:PrecedenceConstraints>
     </DTS:Executable>
     <DTS:Executable
@@ -269,6 +294,7 @@
           <DTS:ObjectData>
             <SQLTask:SqlTaskData
               SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
+              SQLTask:BypassPrepare="False"
               SQLTask:SqlStatementSource="Exec ? = [Staging].[Load_Fact_KPI_Src_Stg] ?,?,?" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
               <SQLTask:ParameterBinding
                 SQLTask:ParameterName="0"
@@ -363,33 +389,37 @@
     design-time-name="Package">
     <LayoutInfo>
       <GraphLayout
-        Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        Capacity="32" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
         <NodeLayout
-          Size="177,42"
+          Size="185,42"
           Id="Package\Final\Load Fact KPI Labels"
           TopLeft="50,21" />
         <NodeLayout
-          Size="207,42"
+          Size="218,42"
           Id="Package\Final\Load Fact KPI Performance"
-          TopLeft="40,213" />
+          TopLeft="40,295" />
         <NodeLayout
-          Size="185,42"
+          Size="202,42"
           Id="Package\Final\Load Fact_KPI_Priority"
-          TopLeft="50,116" />
+          TopLeft="43,199" />
+        <NodeLayout
+          Size="142,42"
+          Id="Package\Final\Set LastDate"
+          TopLeft="69,110" />
         <EdgeLayout
           Id="Package\Final.PrecedenceConstraints[Constraint]"
-          TopLeft="140.5,63">
+          TopLeft="141.25,63">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="0,53"
+              EndConnector="0,47"
               Start="0,0"
-              End="0,45.5">
+              End="0,39.5">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,45.5" />
+                    End="0,39.5" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -400,18 +430,40 @@
         </EdgeLayout>
         <EdgeLayout
           Id="Package\Final.PrecedenceConstraints[Constraint 1]"
-          TopLeft="143,158">
+          TopLeft="146.5,241">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="0,55"
+              EndConnector="0,54"
               Start="0,0"
-              End="0,47.5">
+              End="0,46.5">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,47.5" />
+                    End="0,46.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Final.PrecedenceConstraints[Constraint 2]"
+          TopLeft="142,152">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,47"
+              Start="0,0"
+              End="0,39.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,39.5" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -423,10 +475,10 @@
         <ContainerLayout
           HeaderHeight="43"
           IsExpanded="True"
-          PanelSize="359,310"
-          Size="359,353"
+          PanelSize="302,392"
+          Size="302,435"
           Id="Package\Final"
-          TopLeft="727,60" />
+          TopLeft="720,27" />
         <NodeLayout
           Size="151,42"
           Id="Package\Staging\Defrag Indexes"
@@ -436,27 +488,27 @@
           Id="Package\Staging\Load Fact_KPI_Daily_Stg"
           TopLeft="72,212" />
         <NodeLayout
-          Size="198,42"
+          Size="208,42"
           Id="Package\Staging\Load KPI_Labels_Src_Stg"
-          TopLeft="75,122" />
+          TopLeft="73,121" />
         <NodeLayout
-          Size="213,42"
+          Size="219,42"
           Id="Package\Staging\Truncate KPI Staging Tables"
           TopLeft="70,35.5" />
         <EdgeLayout
           Id="Package\Staging.PrecedenceConstraints[Constraint]"
-          TopLeft="172.25,164">
+          TopLeft="173.75,163">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="0,48"
+              EndConnector="0,49"
               Start="0,0"
-              End="0,40.5">
+              End="0,41.5">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,40.5" />
+                    End="0,41.5" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -489,18 +541,18 @@
         </EdgeLayout>
         <EdgeLayout
           Id="Package\Staging.PrecedenceConstraints[Constraint 2]"
-          TopLeft="175.25,77.5">
+          TopLeft="178.25,77.5">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="0,44.5"
+              EndConnector="0,43.5"
               Start="0,0"
-              End="0,37">
+              End="0,36">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,37" />
+                    End="0,36" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -515,21 +567,21 @@
           PanelSize="344,393"
           Size="344,436"
           Id="Package\Staging"
-          TopLeft="155,16.5" />
+          TopLeft="155,20.5" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint]"
-          TopLeft="499,235.5">
+          TopLeft="499,255.5">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="228,0"
+              EndConnector="221,0"
               Start="0,0"
-              End="220.5,0">
+              End="213.5,0">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="220.5,0" />
+                    End="213.5,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>

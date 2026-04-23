@@ -11,8 +11,8 @@
   DTS:LocaleID="3081"
   DTS:ObjectName="Interim_LNK_Scan"
   DTS:PackageType="5"
-  DTS:VersionBuild="490"
-  DTS:VersionGUID="{04E03FC0-14EC-4616-9807-25E96A575A66}">
+  DTS:VersionBuild="494"
+  DTS:VersionGUID="{7702E886-4939-44BE-9E61-7231A9E9FF82}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:PackageParameters>
@@ -269,7 +269,7 @@
               DTS:ExecutableType="Microsoft.ExecuteSQLTask"
               DTS:LocaleID="-1"
               DTS:ObjectName="Defrag LNK_Scan Indexes"
-              DTS:ThreadHint="1">
+              DTS:ThreadHint="0">
               <DTS:Variables />
               <DTS:ObjectData>
                 <SQLTask:SqlTaskData
@@ -339,7 +339,7 @@
               DTS:LocaleID="-1"
               DTS:ObjectName="Load LNK_Scan_Signatures"
               DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2012; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
-              DTS:ThreadHint="0">
+              DTS:ThreadHint="1">
               <DTS:Variables />
               <DTS:ObjectData>
                 <SQLTask:SqlTaskData
@@ -400,7 +400,7 @@
               DTS:LocaleID="-1"
               DTS:ObjectName="Set Last ID (TrackAndTraceID) Now in Interim_Fact_Scan_KPI"
               DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2012; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
-              DTS:ThreadHint="0">
+              DTS:ThreadHint="1">
               <DTS:Variables />
               <DTS:ObjectData>
                 <SQLTask:SqlTaskData
@@ -596,6 +596,7 @@
           DTS:refId="Package\Staging\Defrag TrackAndTrace_stg Indexes"
           DTS:CreationName="Microsoft.ExecuteSQLTask"
           DTS:Description="Execute SQL Task"
+          DTS:Disabled="True"
           DTS:DTSID="{A93CD7C6-EF36-4A43-8DD6-0CE064D86FA6}"
           DTS:ExecutableType="Microsoft.ExecuteSQLTask"
           DTS:LocaleID="-1"
@@ -2785,8 +2786,10 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==]]></arrayElement>
                       name="SqlCommand"
                       UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91">DECLARE
     @lastId bigint = ?,
-    @endID bigint;
+    @endID bigint,
+    @boundDate datetime;
 
+SET @boundDate  = DATEADD(D,-30, GETDATE()) 
 SET @EndID = @lastID +  200000; -- Batchsize - rows every 15min
 
 
@@ -2804,10 +2807,10 @@ SELECT
 	a.UploadDate,
 	a.RecordCreateDate,
 	a.iLocate,
-    a.ProductId,
-	TD.Latitude,
-	TD.Longitude,
-    TD.[Signature]
+	a.ProductId,
+	a.Latitude,
+	a.Longitude,
+    a.[Signature]
 	FROM (
 		SELECT
 		ID,
@@ -2823,12 +2826,16 @@ SELECT
 		UploadDate,
 		RecordCreateDate,
 		iLocate,
-	    ProductId   
-		FROM FastwayReports.dbo.TrackAndTrace_7Day T7 (READPAST)
-		WHERE ID &gt; @lastID AND ID &lt;= @endID
-		  AND Countrycode in (1,6,11,24)
+ 		ProductId,   
+		Latitude,
+		Longitude,
+		[Signature]
+
+		FROM FastwayReports.[dbo].TrackAndTraceDataP Part (READPAST)
+		WHERE ScanDate &gt; @boundDate
+                                        AND ID &gt; @lastID AND ID &lt;= @endID
+		    AND Countrycode in (1,6,11,24)
 	) a
-LEFT JOIN FastwayReports.dbo.TrackAndTraceData (nolock) TD ON TD.ID = a.ID
 ORDER BY ID
 OPTION (Recompile);</property>
                     <property
@@ -4627,9 +4634,7 @@ OPTION (Recompile);</property>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -4699,9 +4704,7 @@ OPTION (Recompile);</property>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
       </GraphLayout>

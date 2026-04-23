@@ -11,10 +11,10 @@
     <DTS:ConnectionManager
       DTS:ConnectRetryCount="1"
       DTS:ConnectRetryInterval="5"
-      DTS:ConnectionString="Data Source=AU01UATDB01VS;User ID=DW_UAT;Initial Catalog=FastwayDW;Provider=SQLNCLI11.1;Auto Translate=False;">
+      DTS:ConnectionString="Data Source=AU01UATDB01VS;User ID=DW_UAT;Initial Catalog=FastwayDW;Provider=MSOLEDBSQL.1;Auto Translate=False;">
       <DTS:Password
         DTS:Name="PWD"
-        Sensitive="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAnohEZn8+FEOcyc6LYAP4jAAAAAACAAAAAAAQZgAAAAEAACAAAAD+mZ7EgWLTKWyhcBkdXP5fInEe3b3mRNs2KnwejhNgRwAAAAAOgAAAAAIAACAAAAAQ3UXbQwetDBOssWuFIkywFKaAocflRiENjnQptjesCXAAAADDayBPHXD+pLsNcmdVIM6+kosUVZfzATunc3cDqd8p93ZzczdE+9umcGdhWHLg9QtTxRb6c23Ep3AFX3cycWyRuaKPBYDGYf36KP10sgrGUvYTb8/JdiOln93m0E0MCC9FnMjvYsvGIOQm0WEAUnnmQAAAAFcO58lIYTEsWRlyltbItoCuHxHSWDXnXLyTF0Vpoh26xgbkKpDVXvXbwwjhVVmM3tD0R5dZ2dKSjfD6kkZS/vU=</DTS:Password>
+        Sensitive="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAsP8ImgtphU+hAKg2B67+0AAAAAACAAAAAAAQZgAAAAEAACAAAAB/X2dcp/zaLFEILPL9li8s+hPnKlPLVInf61G+yjruLAAAAAAOgAAAAAIAACAAAADVblL/sG1jpbQgB7dOBJ845ycrsbCTkhUGu3KWGZH0mHAAAAAICo7OVmRmj+v0D22lSavydE/RhJkPBVIaV79ydt7VOjwqpKevBW1xEOAI+T805xa6c8Q1rsXPBi84jKXV6WSrOPqxJ/cLwJO74lniLpFZt+PCQubLR70NLczsysAsgIoNKKY1v9MOxn1r82tXVR1SQAAAAOv9Wb7XgUxXNJNrot2nFCuCJAQ8SX/IRIcr5iDebwCWUqGrWRluIexbGfyO4vZUA1l4uxrTOf/RruvjR4phG2Q=</DTS:Password>
     </DTS:ConnectionManager>
   </DTS:ObjectData>
 </DTS:ConnectionManager>

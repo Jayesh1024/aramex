@@ -11,8 +11,8 @@
   DTS:LocaleID="3081"
   DTS:ObjectName="HUB_Label_2"
   DTS:PackageType="5"
-  DTS:VersionBuild="59"
-  DTS:VersionGUID="{32BF1A93-E036-49F0-94ED-C47AE39A7056}">
+  DTS:VersionBuild="64"
+  DTS:VersionGUID="{0D2818BF-53C5-43F2-A771-3BB45D09A159}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:PackageParameters>
@@ -78,36 +78,6 @@
         DTS:Name="Disable">@[$Package::DisableFinal]</DTS:PropertyExpression>
       <DTS:Executables>
         <DTS:Executable
-          DTS:refId="Package\Final\Load LNK_Label_InterBranch"
-          DTS:CreationName="Microsoft.ExecuteSQLTask"
-          DTS:Description="Execute SQL Task"
-          DTS:DTSID="{02EC5A13-3ED8-4099-87E6-B209497D7FA8}"
-          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
-          DTS:LocaleID="-1"
-          DTS:ObjectName="Load LNK_Label_InterBranch"
-          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2012; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
-          DTS:ThreadHint="0">
-          <DTS:Variables />
-          <DTS:ObjectData>
-            <SQLTask:SqlTaskData
-              SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
-              SQLTask:SqlStatementSource="Exec [dv].[Load_LNK_Label_InterBranch] ?,?" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
-              <SQLTask:ParameterBinding
-                SQLTask:ParameterName="0"
-                SQLTask:DtsVariableName="$Package::ProcessId"
-                SQLTask:ParameterDirection="Input"
-                SQLTask:DataType="3"
-                SQLTask:ParameterSize="-1" />
-              <SQLTask:ParameterBinding
-                SQLTask:ParameterName="1"
-                SQLTask:DtsVariableName="$Package::RecordSource12"
-                SQLTask:ParameterDirection="Input"
-                SQLTask:DataType="130"
-                SQLTask:ParameterSize="-1" />
-            </SQLTask:SqlTaskData>
-          </DTS:ObjectData>
-        </DTS:Executable>
-        <DTS:Executable
           DTS:refId="Package\Final\Load LSAT_Label_InterBranch"
           DTS:CreationName="Microsoft.ExecuteSQLTask"
           DTS:Description="Execute SQL Task"
@@ -137,17 +107,47 @@
             </SQLTask:SqlTaskData>
           </DTS:ObjectData>
         </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\Final\Set LastValue (InterBranch)"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{C2E397B8-20A3-4D98-9425-502421AF7BA3}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Set LastValue (InterBranch)"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2012; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="0">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
+              SQLTask:BypassPrepare="False"
+              SQLTask:SqlStatementSource="DECLARE @RecordSource varchar(50)  = ?;&#xA;DECLARE @LastBatchID int = ?;&#xA;DECLARE @NoRows int = 0;&#xA;&#xA;SELECT @NoRows = COUNT(*) FROM [Staging].[Label_Interbranch_Stg]&#xA;&#xA;UPDATE [Staging].[LoadControl]&#xA;SET LastValue = CONVERT(Varchar(15), @LastBatchID + 1)&#xA;WHERE RecordSource = @RecordSource&#xA;AND @NoRows &gt; 0" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="$Package::RecordSource12"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="130"
+                SQLTask:ParameterSize="-1" />
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="1"
+                SQLTask:DtsVariableName="User::LastBatchId12"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="3"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
       </DTS:Executables>
       <DTS:PrecedenceConstraints>
         <DTS:PrecedenceConstraint
-          DTS:refId="Package\Final.PrecedenceConstraints[Constraint]"
+          DTS:refId="Package\Final.PrecedenceConstraints[Constraint 1]"
           DTS:CreationName=""
-          DTS:DTSID="{097381C9-B287-4FF2-8DFE-AC82553BD0C2}"
-          DTS:From="Package\Final\Load LNK_Label_InterBranch"
+          DTS:DTSID="{952F56F5-46C2-4DA4-B43F-DA8F4C4C400D}"
+          DTS:From="Package\Final\Load LSAT_Label_InterBranch"
           DTS:LogicalAnd="True"
-          DTS:ObjectName="Constraint"
-          DTS:To="Package\Final\Load LSAT_Label_InterBranch"
-          DTS:Value="2" />
+          DTS:ObjectName="Constraint 1"
+          DTS:To="Package\Final\Set LastValue (InterBranch)" />
       </DTS:PrecedenceConstraints>
     </DTS:Executable>
     <DTS:Executable
@@ -3215,37 +3215,6 @@ AND b.released = 1</property>
           </DTS:ObjectData>
         </DTS:Executable>
         <DTS:Executable
-          DTS:refId="Package\Staging 2\Set LastValue (InterBranch)"
-          DTS:CreationName="Microsoft.ExecuteSQLTask"
-          DTS:Description="Execute SQL Task"
-          DTS:DTSID="{C2E397B8-20A3-4D98-9425-502421AF7BA3}"
-          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
-          DTS:LocaleID="-1"
-          DTS:ObjectName="Set LastValue (InterBranch)"
-          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2012; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
-          DTS:ThreadHint="0">
-          <DTS:Variables />
-          <DTS:ObjectData>
-            <SQLTask:SqlTaskData
-              SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
-              SQLTask:BypassPrepare="False"
-              SQLTask:SqlStatementSource="DECLARE @RecordSource varchar(50)  = ?;&#xA;DECLARE @LastBatchID int = ?;&#xA;DECLARE @NoRows int = 0;&#xA;&#xA;SELECT @NoRows = COUNT(*) FROM [Staging].[Label_Interbranch_Stg]&#xA;&#xA;UPDATE [Staging].[LoadControl]&#xA;SET LastValue = CONVERT(Varchar(15), @LastBatchID + 1)&#xA;WHERE RecordSource = @RecordSource&#xA;AND @NoRows &gt; 0" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
-              <SQLTask:ParameterBinding
-                SQLTask:ParameterName="0"
-                SQLTask:DtsVariableName="$Package::RecordSource12"
-                SQLTask:ParameterDirection="Input"
-                SQLTask:DataType="130"
-                SQLTask:ParameterSize="-1" />
-              <SQLTask:ParameterBinding
-                SQLTask:ParameterName="1"
-                SQLTask:DtsVariableName="User::LastBatchId12"
-                SQLTask:ParameterDirection="Input"
-                SQLTask:DataType="3"
-                SQLTask:ParameterSize="-1" />
-            </SQLTask:SqlTaskData>
-          </DTS:ObjectData>
-        </DTS:Executable>
-        <DTS:Executable
           DTS:refId="Package\Staging 2\Truncate Label_Interbranch_Stg"
           DTS:CreationName="Microsoft.ExecuteSQLTask"
           DTS:Description="Execute SQL Task"
@@ -3280,14 +3249,6 @@ AND b.released = 1</property>
           DTS:LogicalAnd="True"
           DTS:ObjectName="Constraint 1"
           DTS:To="Package\Staging 2\Load Label_Interbranch_Stg" />
-        <DTS:PrecedenceConstraint
-          DTS:refId="Package\Staging 2.PrecedenceConstraints[Constraint 2]"
-          DTS:CreationName=""
-          DTS:DTSID="{812EB501-BC29-416E-8FD2-14A057A2EE4F}"
-          DTS:From="Package\Staging 2\Load Label_Interbranch_Stg"
-          DTS:LogicalAnd="True"
-          DTS:ObjectName="Constraint 2"
-          DTS:To="Package\Staging 2\Set LastValue (InterBranch)" />
       </DTS:PrecedenceConstraints>
     </DTS:Executable>
   </DTS:Executables>
@@ -3312,46 +3273,44 @@ AND b.released = 1</property>
     design-time-name="Package">
     <LayoutInfo>
       <GraphLayout
-        Capacity="32" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
-        <NodeLayout
-          Size="216,42"
-          Id="Package\Final\Load LNK_Label_InterBranch"
-          TopLeft="54.6666666666669,39.5277777777779" />
+        Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
         <NodeLayout
           Size="221,42"
           Id="Package\Final\Load LSAT_Label_InterBranch"
-          TopLeft="49.6666666666666,157.111111111111" />
+          TopLeft="39.6666666666666,33.111111111111" />
+        <NodeLayout
+          Size="215,42"
+          Id="Package\Final\Set LastValue (InterBranch)"
+          TopLeft="45.6666666666667,115.426434676435" />
         <EdgeLayout
-          Id="Package\Final.PrecedenceConstraints[Constraint]"
-          TopLeft="161.416666666667,81.5277777777779">
+          Id="Package\Final.PrecedenceConstraints[Constraint 1]"
+          TopLeft="151.666666666667,75.111111111111">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="0,75.5833333333331"
+              EndConnector="0,40.3153235653241"
               Start="0,0"
-              End="0,68.0833333333331">
+              End="0,32.8153235653241">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,68.0833333333331" />
+                    End="0,32.8153235653241" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="-25.304453125,28.2369791666666,50.60890625,11.609375"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <ContainerLayout
           HeaderHeight="43"
           IsExpanded="True"
-          PanelSize="317,254"
-          Size="317,297"
+          PanelSize="293,207"
+          Size="293,250"
           Id="Package\Final"
-          TopLeft="828.444444444444,318.333333333333" />
+          TopLeft="785.717171717171,89.4068986568979" />
         <NodeLayout
           Size="203,42"
           Id="Package\Monthly Miscellaneous\Maintain DLBS RFBatching"
@@ -3388,37 +3347,33 @@ AND b.released = 1</property>
           PanelSize="273,231"
           Size="273,274"
           Id="Package\Monthly Miscellaneous"
-          TopLeft="49,320.5" />
+          TopLeft="41.7272727272727,78.6818181818182" />
         <NodeLayout
           Size="195,42"
           Id="Package\Staging 2\Get LastId (InterBranch)"
-          TopLeft="51.5311355311349,117.305555555556" />
+          TopLeft="55.5311355311349,97.305555555556" />
         <NodeLayout
-          Size="212,42"
+          Size="218,42"
           Id="Package\Staging 2\Load Label_Interbranch_Stg"
-          TopLeft="42.1666666666667,201.676434676435" />
-        <NodeLayout
-          Size="210,42"
-          Id="Package\Staging 2\Set LastValue (InterBranch)"
-          TopLeft="45.6666666666667,279.426434676435" />
+          TopLeft="46.1666666666667,181.676434676435" />
         <NodeLayout
           Size="231,42"
           Id="Package\Staging 2\Truncate Label_Interbranch_Stg"
-          TopLeft="30.9331501831497,45.0555555555556" />
+          TopLeft="34.9331501831497,25.0555555555556" />
         <EdgeLayout
           Id="Package\Staging 2.PrecedenceConstraints[Constraint]"
-          TopLeft="147.732142857142,87.0555555555556">
+          TopLeft="151.732142857142,67.0555555555556">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="0,30.25"
+              EndConnector="0,30.2500000000004"
               Start="0,0"
-              End="0,22.75">
+              End="0,22.7500000000004">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,22.75" />
+                    End="0,22.7500000000004" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -3429,7 +3384,7 @@ AND b.released = 1</property>
         </EdgeLayout>
         <EdgeLayout
           Id="Package\Staging 2.PrecedenceConstraints[Constraint 1]"
-          TopLeft="148.598901098901,159.305555555556">
+          TopLeft="154.098901098901,139.305555555556">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
@@ -3449,49 +3404,27 @@ AND b.released = 1</property>
             <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
-        <EdgeLayout
-          Id="Package\Staging 2.PrecedenceConstraints[Constraint 2]"
-          TopLeft="149.416666666667,243.676434676435">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="0,35.75"
-              Start="0,0"
-              End="0,28.25">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,28.25" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
         <ContainerLayout
           HeaderHeight="43"
           IsExpanded="True"
-          PanelSize="302,381"
-          Size="302,424"
+          PanelSize="302,270"
+          Size="302,313"
           Id="Package\Staging 2"
-          TopLeft="425.666666666666,247.333333333333" />
+          TopLeft="398.393939393939,55.3387168387162" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint]"
-          TopLeft="727.666666666666,463.083333333333">
+          TopLeft="700.393939393939,213.122807747807">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="100.777777777778,0"
+              EndConnector="85.3232323232324,0"
               Start="0,0"
-              End="93.2777777777778,0">
+              End="77.8232323232324,0">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="93.2777777777778,0" />
+                    End="77.8232323232324,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -3576,11 +3509,11 @@ AND b.released = 1</property>
           Id="Package\Staging 2\Load Label_Interbranch_Stg\Load Label_Interbranch_Stg"
           TopLeft="85,39" />
         <NodeLayout
-          Size="186,42"
+          Size="193,42"
           Id="Package\Staging 2\Load Label_Interbranch_Stg\Label_Interbranch_Stg"
           TopLeft="456,139" />
         <NodeLayout
-          Size="241,42"
+          Size="252,42"
           Id="Package\Staging 2\Load Label_Interbranch_Stg\Label_Interbranch_Stg (Bulk load)"
           TopLeft="426,40" />
         <NodeLayout
@@ -3633,7 +3566,7 @@ AND b.released = 1</property>
         </EdgeLayout>
         <EdgeLayout
           Id="Package\Staging 2\Load Label_Interbranch_Stg.Paths[OLE DB Destination Error Output1]"
-          TopLeft="550.75,181">
+          TopLeft="552.5,181">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
@@ -3657,7 +3590,7 @@ AND b.released = 1</property>
         </EdgeLayout>
         <EdgeLayout
           Id="Package\Staging 2\Load Label_Interbranch_Stg.Paths[OLE DB Destination Error Output]"
-          TopLeft="547.75,82">
+          TopLeft="552.25,82">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"

@@ -8,19 +8,25 @@ Table / procedure names use schema_object from metadata (e.g. Staging_Courier_St
 from __future__ import annotations
 
 from datetime import datetime
-
+from airflow.operators.python import PythonOperator
+from airflow.operators.bash import BashOperator
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 import dotenv, os
 from airflow.utils.task_group import TaskGroup
 
-dotenv.load_dotenv("config/template_config.env", override=False)
+dotenv.load_dotenv("airflowBQDags/dags/config/template_config.env", override=False)
 
 # --- Project Configuration ---
 PROJECT_ID = os.getenv("PROJECT_ID")
 SP_DATASET_ID = os.getenv("SP_DATASET_ID")
 TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
+
+def print_env():
+    print(f"PROJECT_ID: {PROJECT_ID}")
+    print(f"SP_DATASET_ID: {SP_DATASET_ID}")
+    print(f"TARGET_DATASET_ID: {TARGET_DATASET_ID}")
 
 with DAG(
     dag_id="ssis_skeleton_hub_cf",
@@ -91,6 +97,7 @@ with DAG(
             },
         )
 
+    
     # --- Precedence ---
     op_4 >> op_3 >> [op_1, op_2]
 

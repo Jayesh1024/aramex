@@ -1,4 +1,7 @@
 ProceduresBQ/venv/
-airflowBQDags/dags/__pycache__
-airflowBQDags/dags/utils/__pycache__
 logs/
+.venv-excel/
+__pycache__
+*.xlsx
+*.csv
+excel_sheets_to_sts_manifest_workbook.py

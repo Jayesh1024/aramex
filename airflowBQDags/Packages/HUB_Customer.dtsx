@@ -11,8 +11,8 @@
   DTS:LocaleID="3081"
   DTS:ObjectName="HUB_Customer"
   DTS:PackageType="5"
-  DTS:VersionBuild="119"
-  DTS:VersionGUID="{7CEB65CE-C2E4-4135-B2D5-D9DAFC5ED042}">
+  DTS:VersionBuild="120"
+  DTS:VersionGUID="{C503CC1B-56BD-4999-9458-57F429F8043C}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:PackageParameters>
@@ -113,7 +113,7 @@
           DTS:LocaleID="-1"
           DTS:ObjectName="Load HUB_Customer"
           DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2012; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
-          DTS:ThreadHint="0">
+          DTS:ThreadHint="1">
           <DTS:Variables />
           <DTS:ObjectData>
             <SQLTask:SqlTaskData
@@ -143,7 +143,7 @@
           DTS:LocaleID="-1"
           DTS:ObjectName="Load SAL_Customer"
           DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2012; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
-          DTS:ThreadHint="1">
+          DTS:ThreadHint="0">
           <DTS:Variables />
           <DTS:ObjectData>
             <SQLTask:SqlTaskData
@@ -167,7 +167,7 @@
           DTS:LocaleID="-1"
           DTS:ObjectName="Load SAT_Customer"
           DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2012; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
-          DTS:ThreadHint="0">
+          DTS:ThreadHint="1">
           <DTS:Variables />
           <DTS:ObjectData>
             <SQLTask:SqlTaskData
@@ -4415,28 +4415,28 @@
                       description="The SQL command to be executed."
                       name="SqlCommand"
                       UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91">USE Fastway;
-                      SELECT 
-                          Concat(RFId, RIGHT('000'+CourierNumber,3), RIGHT('0000'+CAST(CustomerNumber AS VARCHAR(4)),4)) as CustomerKey, 
-                          ltrim(rtrim(fms.BusinessName)) as CustomerName,
-                          fms.NMId as CountryCode, 
-                          fms.RFId as RFCode,
-                          fms.CustomerId as FMSCustomerID, 
-                          lnk.OESCustomerID, 
-                          lnk.IFSCustomerCode,
-                          lnk.IFSCustomerType  
-                      FROM FMS_Customer fms
-                      LEFT JOIN (
-                          Select  
-                              coalesce(oes.CountryCode,ifs.CountryCode) as CountryCode, 
-                              coalesce(oes.CustomerID, ifs.FMSCustomerId) as FMSCustomerID, 
-                              OESCustomerID, 
-                              IFSCustomerCode,
-                              CustomerType as IFSCustomerType
-                          From DLS_CustomerLinks oes
-                          Full Join IFSCustomers ifs on oes.CustomerID = ifs.FMSCustomerId and oes.CountryCode = ifs.CountryCode and ifs.RFCode = oes.Franchise
-                      ) lnk ON fms.CustomerId = lnk.FMSCustomerID and fms.NMId = lnk.CountryCode
-                      WHERE fms.NMId in (1,6,11,24)
-                      ORDER BY 1;</property>
+SELECT 
+    Concat(RFId, RIGHT('000'+CourierNumber,3), RIGHT('0000'+CAST(CustomerNumber AS VARCHAR(4)),4)) as CustomerKey, 
+    ltrim(rtrim(fms.BusinessName)) as CustomerName,
+    fms.NMId as CountryCode, 
+    fms.RFId as RFCode,
+    fms.CustomerId as FMSCustomerID, 
+    lnk.OESCustomerID, 
+    lnk.IFSCustomerCode,
+    lnk.IFSCustomerType  
+FROM FMS_Customer fms
+LEFT JOIN (
+    Select  
+        coalesce(oes.CountryCode,ifs.CountryCode) as CountryCode, 
+        coalesce(oes.CustomerID, ifs.FMSCustomerId) as FMSCustomerID, 
+        OESCustomerID, 
+        IFSCustomerCode,
+        CustomerType as IFSCustomerType
+    From DLS_CustomerLinks oes
+    Full Join IFSCustomers ifs on oes.CustomerID = ifs.FMSCustomerId and oes.CountryCode = ifs.CountryCode and ifs.RFCode = oes.Franchise
+) lnk ON fms.CustomerId = lnk.FMSCustomerID and fms.NMId = lnk.CountryCode
+WHERE fms.NMId in (1,6,11,24)
+ORDER BY 1;</property>
                     <property
                       dataType="System.String"
                       description="The variable that contains the SQL command to be executed."
@@ -6655,6 +6655,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==]]></arrayElement>
       ,[StreetIsPostalAddress]
       ,[XLabelCustomer]
       ,[xLabelAlcoholDeliveries]
+      ,[SalesForceId]
   FROM [Fastway].[dbo].[FMS_Customer] c
 LEFT JOIN  [FMS_LookUpTableDetail] g on HeaderCode = 'IND' and c.IndustryClassification = g.ItemCode and g.NMid = c.NMId</property>
                     <property
@@ -7646,6 +7647,17 @@ LEFT JOIN  [FMS_LookUpTableDetail] g on HeaderCode = 'IND' and c.IndustryClassif
                           lineageId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer data (Fastway).Outputs[OLE DB Source Output].Columns[xLabelAlcoholDeliveries]"
                           name="xLabelAlcoholDeliveries"
                           truncationRowDisposition="FailComponent" />
+                        <outputColumn
+                          refId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer data (Fastway).Outputs[OLE DB Source Output].Columns[SalesForceId]"
+                          codePage="1252"
+                          dataType="str"
+                          errorOrTruncationOperation="Conversion"
+                          errorRowDisposition="FailComponent"
+                          externalMetadataColumnId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[SalesForceId]"
+                          length="30"
+                          lineageId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer data (Fastway).Outputs[OLE DB Source Output].Columns[SalesForceId]"
+                          name="SalesForceId"
+                          truncationRowDisposition="FailComponent" />
                       </outputColumns>
                       <externalMetadataColumns
                         isUsed="True">
@@ -8141,6 +8153,12 @@ LEFT JOIN  [FMS_LookUpTableDetail] g on HeaderCode = 'IND' and c.IndustryClassif
                           refId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[xLabelAlcoholDeliveries]"
                           dataType="bool"
                           name="xLabelAlcoholDeliveries" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer data (Fastway).Outputs[OLE DB Source Output].ExternalColumns[SalesForceId]"
+                          codePage="1252"
+                          dataType="str"
+                          length="30"
+                          name="SalesForceId" />
                       </externalMetadataColumns>
                     </output>
                     <output
@@ -8733,6 +8751,13 @@ LEFT JOIN  [FMS_LookUpTableDetail] g on HeaderCode = 'IND' and c.IndustryClassif
                           lineageId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer data (Fastway).Outputs[OLE DB Source Error Output].Columns[xLabelAlcoholDeliveries]"
                           name="xLabelAlcoholDeliveries" />
                         <outputColumn
+                          refId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer data (Fastway).Outputs[OLE DB Source Error Output].Columns[SalesForceId]"
+                          codePage="1252"
+                          dataType="str"
+                          length="30"
+                          lineageId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer data (Fastway).Outputs[OLE DB Source Error Output].Columns[SalesForceId]"
+                          name="SalesForceId" />
+                        <outputColumn
                           refId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer data (Fastway).Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
                           dataType="i4"
                           lineageId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer data (Fastway).Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
@@ -9121,6 +9146,14 @@ LEFT JOIN  [FMS_LookUpTableDetail] g on HeaderCode = 'IND' and c.IndustryClassif
                           cachedName="xLabelAlcoholDeliveries"
                           externalMetadataColumnId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer_Stg.Inputs[OLE DB Destination Input].ExternalColumns[xLabelAlcoholDeliveries]"
                           lineageId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer data (Fastway).Outputs[OLE DB Source Output].Columns[xLabelAlcoholDeliveries]" />
+                        <inputColumn
+                          refId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer_Stg.Inputs[OLE DB Destination Input].Columns[SalesForceId]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="30"
+                          cachedName="SalesForceId"
+                          externalMetadataColumnId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer_Stg.Inputs[OLE DB Destination Input].ExternalColumns[SalesForceId]"
+                          lineageId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer data (Fastway).Outputs[OLE DB Source Output].Columns[SalesForceId]" />
                       </inputColumns>
                       <externalMetadataColumns
                         isUsed="True">
@@ -9342,6 +9375,12 @@ LEFT JOIN  [FMS_LookUpTableDetail] g on HeaderCode = 'IND' and c.IndustryClassif
                           refId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer_Stg.Inputs[OLE DB Destination Input].ExternalColumns[xLabelAlcoholDeliveries]"
                           dataType="bool"
                           name="xLabelAlcoholDeliveries" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer_Stg.Inputs[OLE DB Destination Input].ExternalColumns[SalesForceId]"
+                          codePage="1252"
+                          dataType="str"
+                          length="30"
+                          name="SalesForceId" />
                       </externalMetadataColumns>
                     </input>
                   </inputs>
@@ -9742,6 +9781,14 @@ LEFT JOIN  [FMS_LookUpTableDetail] g on HeaderCode = 'IND' and c.IndustryClassif
                           cachedName="xLabelAlcoholDeliveries"
                           externalMetadataColumnId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[xLabelAlcoholDeliveries]"
                           lineageId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer data (Fastway).Outputs[OLE DB Source Output].Columns[xLabelAlcoholDeliveries]" />
+                        <inputColumn
+                          refId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer_Stg (Bulk Insert).Inputs[OLE DB Destination Input].Columns[SalesForceId]"
+                          cachedCodepage="1252"
+                          cachedDataType="str"
+                          cachedLength="30"
+                          cachedName="SalesForceId"
+                          externalMetadataColumnId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[SalesForceId]"
+                          lineageId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer data (Fastway).Outputs[OLE DB Source Output].Columns[SalesForceId]" />
                       </inputColumns>
                       <externalMetadataColumns
                         isUsed="True">
@@ -9963,6 +10010,12 @@ LEFT JOIN  [FMS_LookUpTableDetail] g on HeaderCode = 'IND' and c.IndustryClassif
                           refId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[xLabelAlcoholDeliveries]"
                           dataType="bool"
                           name="xLabelAlcoholDeliveries" />
+                        <externalMetadataColumn
+                          refId="Package\Staging\Load FMS_Customer_Stg\FMS_Customer_Stg (Bulk Insert).Inputs[OLE DB Destination Input].ExternalColumns[SalesForceId]"
+                          codePage="1252"
+                          dataType="str"
+                          length="30"
+                          name="SalesForceId" />
                       </externalMetadataColumns>
                     </input>
                   </inputs>
@@ -21019,7 +21072,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==]]></arrayElement>
           DTS:LocaleID="-1"
           DTS:ObjectName="Truncate CustomerLinks_Stg"
           DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2012; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
-          DTS:ThreadHint="2">
+          DTS:ThreadHint="1">
           <DTS:Variables />
           <DTS:ObjectData>
             <SQLTask:SqlTaskData
@@ -21036,7 +21089,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==]]></arrayElement>
           DTS:LocaleID="-1"
           DTS:ObjectName="Truncate FMS_Customer_Stg"
           DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2012; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
-          DTS:ThreadHint="3">
+          DTS:ThreadHint="2">
           <DTS:Variables />
           <DTS:ObjectData>
             <SQLTask:SqlTaskData
@@ -21053,7 +21106,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==]]></arrayElement>
           DTS:LocaleID="-1"
           DTS:ObjectName="Truncate IFSCustomers_Stg"
           DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2012; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
-          DTS:ThreadHint="0">
+          DTS:ThreadHint="3">
           <DTS:Variables />
           <DTS:ObjectData>
             <SQLTask:SqlTaskData
@@ -21070,7 +21123,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==]]></arrayElement>
           DTS:LocaleID="-1"
           DTS:ObjectName="Truncate tblCustomer_Stg"
           DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2012; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
-          DTS:ThreadHint="1">
+          DTS:ThreadHint="0">
           <DTS:Variables />
           <DTS:ObjectData>
             <SQLTask:SqlTaskData
@@ -21581,25 +21634,25 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==]]></arrayElement>
       <GraphLayout
         Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
         <NodeLayout
-          Size="128,42"
-          Id="Package\Staging\Load FMS_Customer_Stg\Save Error"
-          TopLeft="457,302" />
-        <NodeLayout
           Size="233,42"
           Id="Package\Staging\Load FMS_Customer_Stg\FMS_Customer_Stg (Bulk Insert)"
           TopLeft="396,48" />
+        <NodeLayout
+          Size="171,42"
+          Id="Package\Staging\Load FMS_Customer_Stg\FMS_Customer_Stg"
+          TopLeft="429,149" />
         <NodeLayout
           Size="157,42"
           Id="Package\Staging\Load FMS_Customer_Stg\Get Error Details"
           TopLeft="442,236" />
         <NodeLayout
+          Size="128,42"
+          Id="Package\Staging\Load FMS_Customer_Stg\Save Error"
+          TopLeft="457,302" />
+        <NodeLayout
           Size="223,42"
           Id="Package\Staging\Load FMS_Customer_Stg\FMS_Customer data (Fastway)"
           TopLeft="60,45" />
-        <NodeLayout
-          Size="171,42"
-          Id="Package\Staging\Load FMS_Customer_Stg\FMS_Customer_Stg"
-          TopLeft="429,149" />
         <EdgeLayout
           Id="Package\Staging\Load FMS_Customer_Stg.Paths[OLE DB Destination Error Output1]"
           TopLeft="517.5,191">

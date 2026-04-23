@@ -171,80 +171,80 @@
                       description="The SQL command to be executed."
                       name="SqlCommand"
                       UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=16.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91">DECLARE @synchronization_version bigint = ?;
-                      DECLARE @minimumVersion  bigint;
-                      DECLARE @IsReload bit = ?;
+DECLARE @minimumVersion  bigint;
+DECLARE @IsReload bit = ?;
 
-                      SET @minimumVersion  = CHANGE_TRACKING_MIN_VALID_VERSION(OBJECT_ID('dbo.FWFastlabel_ClickAndCollect'))
+SET @minimumVersion  = CHANGE_TRACKING_MIN_VALID_VERSION(OBJECT_ID('dbo.FWFastlabel_ClickAndCollect'))
 
-                      IF (@synchronization_version &lt; @minimumVersion AND @IsReload  = 0)  RAISERROR('ERROR - Synchronization version invalid', 11, 11);
+IF (@synchronization_version &lt; @minimumVersion AND @IsReload  = 0)  RAISERROR('ERROR - Synchronization version invalid', 11, 11);
 
-                      SELECT 
-                            Cng.[Id]
-                            ,Cng.[SYS_CHANGE_VERSION]
-                            ,Cng.[SYS_CHANGE_OPERATION]
-                            ,[Label]
-                            ,[ToContactName]
-                            ,[ToStreetAddress]
-                            ,[ToLocality]
-                            ,[ToStateOrProvince]
-                            ,[ToPostalCode]
-                            ,[ToCountry]
-                            ,[ToPhoneNumber]
-                            ,[ToEmail]
-                            ,[WeightDead]
-                            ,[WeightCubic]
-                            ,[Length]
-                            ,[Width]
-                            ,[Height]
-                            ,[FromRf]
-                            ,[FromStreetAddress]
-                            ,[FromLocality]
-                            ,[FromStateOrProvince]
-                            ,[FromPostalCode]
-                            ,[FromCountry]
-                            ,[FromPhoneNumber]
-                            ,[FromEmail]
-                            ,[CreatedOn]
-                            ,[CreatedBy]
-                            ,[Processed]
-                            ,[ProcessedOn]
-                        FROM CHANGETABLE (CHANGES FWFastlabel_ClickAndCollect, @synchronization_version) Cng 	
-                        LEFT JOIN [OnlineEnquiries_NEW].[dbo].[FWFastlabel_ClickAndCollect] AS CNC ON Cng.ID = CNC.Id
-                        WHERE @IsReload = 0
+SELECT 
+       Cng.[Id]
+      ,Cng.[SYS_CHANGE_VERSION]
+      ,Cng.[SYS_CHANGE_OPERATION]
+      ,[Label]
+      ,[ToContactName]
+      ,[ToStreetAddress]
+      ,[ToLocality]
+      ,[ToStateOrProvince]
+      ,[ToPostalCode]
+      ,[ToCountry]
+      ,[ToPhoneNumber]
+      ,[ToEmail]
+      ,[WeightDead]
+      ,[WeightCubic]
+      ,[Length]
+      ,[Width]
+      ,[Height]
+      ,[FromRf]
+      ,[FromStreetAddress]
+      ,[FromLocality]
+      ,[FromStateOrProvince]
+      ,[FromPostalCode]
+      ,[FromCountry]
+      ,[FromPhoneNumber]
+      ,[FromEmail]
+      ,[CreatedOn]
+      ,[CreatedBy]
+      ,[Processed]
+      ,[ProcessedOn]
+  FROM CHANGETABLE (CHANGES FWFastlabel_ClickAndCollect, @synchronization_version) Cng 	
+  LEFT JOIN [OnlineEnquiries_NEW].[dbo].[FWFastlabel_ClickAndCollect] AS CNC ON Cng.ID = CNC.Id
+  WHERE @IsReload = 0
 
-                        UNION
-                        SELECT
-                            [Id]
-                            ,@minimumVersion AS [SYS_CHANGE_VERSION]
-                            ,'I' AS [SYS_CHANGE_OPERATION]
-                            ,[Label]
-                            ,[ToContactName]
-                            ,[ToStreetAddress]
-                            ,[ToLocality]
-                            ,[ToStateOrProvince]
-                            ,[ToPostalCode]
-                            ,[ToCountry]
-                            ,[ToPhoneNumber]
-                            ,[ToEmail]
-                            ,[WeightDead]
-                            ,[WeightCubic]
-                            ,[Length]
-                            ,[Width]
-                            ,[Height]
-                            ,[FromRf]
-                            ,[FromStreetAddress]
-                            ,[FromLocality]
-                            ,[FromStateOrProvince]
-                            ,[FromPostalCode]
-                            ,[FromCountry]
-                            ,[FromPhoneNumber]
-                            ,[FromEmail]
-                            ,[CreatedOn]
-                            ,[CreatedBy]
-                            ,[Processed]
-                            ,[ProcessedOn]
-                        FROM [OnlineEnquiries_NEW].[dbo].[FWFastlabel_ClickAndCollect] AS CNC
-                        WHERE @IsReload = 1</property>
+  UNION
+  SELECT
+       [Id]
+      ,@minimumVersion AS [SYS_CHANGE_VERSION]
+      ,'I' AS [SYS_CHANGE_OPERATION]
+      ,[Label]
+      ,[ToContactName]
+      ,[ToStreetAddress]
+      ,[ToLocality]
+      ,[ToStateOrProvince]
+      ,[ToPostalCode]
+      ,[ToCountry]
+      ,[ToPhoneNumber]
+      ,[ToEmail]
+      ,[WeightDead]
+      ,[WeightCubic]
+      ,[Length]
+      ,[Width]
+      ,[Height]
+      ,[FromRf]
+      ,[FromStreetAddress]
+      ,[FromLocality]
+      ,[FromStateOrProvince]
+      ,[FromPostalCode]
+      ,[FromCountry]
+      ,[FromPhoneNumber]
+      ,[FromEmail]
+      ,[CreatedOn]
+      ,[CreatedBy]
+      ,[Processed]
+      ,[ProcessedOn]
+  FROM [OnlineEnquiries_NEW].[dbo].[FWFastlabel_ClickAndCollect] AS CNC
+  WHERE @IsReload = 1</property>
                     <property
                       dataType="System.String"
                       description="The variable that contains the SQL command to be executed."

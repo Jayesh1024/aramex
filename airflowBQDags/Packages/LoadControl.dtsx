@@ -11,8 +11,8 @@
   DTS:LocaleID="3081"
   DTS:ObjectName="LoadControl"
   DTS:PackageType="5"
-  DTS:VersionBuild="180"
-  DTS:VersionGUID="{2A2D4657-4F3A-49AD-A528-A3770DB724E8}">
+  DTS:VersionBuild="190"
+  DTS:VersionGUID="{95F93606-DD1B-4C79-9DD1-6DAE555D5693}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:PackageParameters>
@@ -87,6 +87,24 @@
       <DTS:Property
         DTS:DataType="8"
         DTS:Name="ParameterValue">glb-util-02</DTS:Property>
+    </DTS:PackageParameter>
+    <DTS:PackageParameter
+      DTS:CreationName=""
+      DTS:DataType="3"
+      DTS:DTSID="{30F5B9BB-B7F8-418B-93A3-6989CDC6BD9C}"
+      DTS:ObjectName="MyFastwayAltLargeWinDoW">
+      <DTS:Property
+        DTS:DataType="3"
+        DTS:Name="ParameterValue">1</DTS:Property>
+    </DTS:PackageParameter>
+    <DTS:PackageParameter
+      DTS:CreationName=""
+      DTS:DataType="3"
+      DTS:DTSID="{9A94E9F4-D154-42A1-A46E-75A7CF3BEEA1}"
+      DTS:ObjectName="MyFastwayWinSizeDays">
+      <DTS:Property
+        DTS:DataType="3"
+        DTS:Name="ParameterValue">7</DTS:Property>
     </DTS:PackageParameter>
     <DTS:PackageParameter
       DTS:CreationName=""
@@ -193,7 +211,7 @@
       DTS:Namespace="User"
       DTS:ObjectName="MaxDate">
       <DTS:VariableValue
-        DTS:DataType="7">4/23/2025 11:15:55 AM</DTS:VariableValue>
+        DTS:DataType="7">2/23/2026 6:16:51 PM</DTS:VariableValue>
     </DTS:Variable>
     <DTS:Variable
       DTS:CreationName=""
@@ -281,11 +299,18 @@
       <DTS:ObjectData>
         <SQLTask:SqlTaskData
           SQLTask:Connection="{66292261-9521-45A6-ACCA-54377A482A00}"
-          SQLTask:SqlStatementSource="Declare @ProcessId Int;&#xA;SELECT @ProcessId = max(ProcessId) FROM [Staging].[LoadLog] &#xA;SELECT Isnull(@ProcessId,0) +1 AS [NextProcessId] "
+          SQLTask:BypassPrepare="False"
+          SQLTask:SqlStatementSource="Declare @ProcessId Int;&#xA;Declare @sysrundate datetime = ?;&#xA;Declare @JobDate date = Convert(Date,@sysrundate);&#xA;&#xA;SELECT @ProcessId = max(ProcessId) FROM [Staging].[LoadLog] &#xA;&#xA;&#xA;exec [Staging].[Backup_LoadControl] @ProcessId,  'Load DataVault', @JobDate &#xA;&#xA;&#xA;SELECT Isnull(@ProcessId,0) +1 AS [NextProcessId] &#xA;&#xA;"
           SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
           <SQLTask:ResultBinding
             SQLTask:ResultName="NextProcessId"
             SQLTask:DtsVariableName="User::ProcessId" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="0"
+            SQLTask:DtsVariableName="System::StartTime"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="7"
+            SQLTask:ParameterSize="-1" />
         </SQLTask:SqlTaskData>
       </DTS:ObjectData>
     </DTS:Executable>
@@ -614,6 +639,14 @@
                 <ParameterName>DisableFinal</ParameterName>
                 <BindedVariableOrParameterName>$Package::DisableFinal</BindedVariableOrParameterName>
               </ParameterAssignment>
+              <ParameterAssignment>
+                <ParameterName>MyFastwayWinSizeDays</ParameterName>
+                <BindedVariableOrParameterName>$Package::MyFastwayWinSizeDays</BindedVariableOrParameterName>
+              </ParameterAssignment>
+              <ParameterAssignment>
+                <ParameterName>MyFastwayAltLargeWinDoW</ParameterName>
+                <BindedVariableOrParameterName>$Package::MyFastwayAltLargeWinDoW</BindedVariableOrParameterName>
+              </ParameterAssignment>
             </ExecutePackageTask>
           </DTS:ObjectData>
         </DTS:Executable>
@@ -777,35 +810,14 @@
               Language="CSharp"
               ReadOnlyVariables="User::BodyTable1,User::BodyTable2,User::BodyTable3,User::HtmlBody,System::MachineName,$Package::SendLoadEmailTo">
               <ProjectItem
-                Name="Properties\AssemblyInfo.cs"
-                Encoding="UTF8"><![CDATA[using System.Reflection;
-using System.Runtime.CompilerServices;
-
-//
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-//
-[assembly: AssemblyTitle("ST_4ad8ea3d559e4ebdbe76905e8506a1b7")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ST_4ad8ea3d559e4ebdbe76905e8506a1b7")]
-[assembly: AssemblyCopyright("Copyright @  2019")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-//
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Revision and Build Numbers 
-// by using the '*' as shown below:
-
-[assembly: AssemblyVersion("1.0.*")]]]></ProjectItem>
+                Name="Properties\Settings.settings"
+                Encoding="UTF8"><![CDATA[<?xml version='1.0' encoding='iso-8859-1'?>
+<SettingsFile xmlns="uri:settings" CurrentProfile="(Default)">
+  <Profiles>
+    <Profile Name="(Default)" />
+  </Profiles>
+  <Settings />
+</SettingsFile>]]></ProjectItem>
               <ProjectItem
                 Name="Properties\Resources.resx"
                 Encoding="UTF8"><![CDATA[<?xml version="1.0" encoding="utf-8"?>
@@ -1212,14 +1224,35 @@ namespace ST_4ad8ea3d559e4ebdbe76905e8506a1b7.Properties {
   </ProjectExtensions>
 </Project>]]></ProjectItem>
               <ProjectItem
-                Name="Properties\Settings.settings"
-                Encoding="UTF8"><![CDATA[<?xml version='1.0' encoding='iso-8859-1'?>
-<SettingsFile xmlns="uri:settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
-</SettingsFile>]]></ProjectItem>
+                Name="Properties\AssemblyInfo.cs"
+                Encoding="UTF8"><![CDATA[using System.Reflection;
+using System.Runtime.CompilerServices;
+
+//
+// General Information about an assembly is controlled through the following 
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
+//
+[assembly: AssemblyTitle("ST_4ad8ea3d559e4ebdbe76905e8506a1b7")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("ST_4ad8ea3d559e4ebdbe76905e8506a1b7")]
+[assembly: AssemblyCopyright("Copyright @  2019")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
+//
+// Version information for an assembly consists of the following four values:
+//
+//      Major Version
+//      Minor Version 
+//      Build Number
+//      Revision
+//
+// You can specify all the values or you can default the Revision and Build Numbers 
+// by using the '*' as shown below:
+
+[assembly: AssemblyVersion("1.0.*")]]]></ProjectItem>
               <ProjectItem
                 Name="Properties\Resources.Designer.cs"
                 Encoding="UTF8"><![CDATA[//------------------------------------------------------------------------------
@@ -1612,7 +1645,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</BinaryItem>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
             <mssgm:EdgeLabel
-              BoundingBox="-0.813404531649617,-17.609375,50.60890625,11.609375"
+              BoundingBox="-0.813404531649603,-17.609375,50.60890625,11.609375"
               RelativePosition="Any" />
           </EdgeLayout.Labels>
         </EdgeLayout>
@@ -1648,7 +1681,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</BinaryItem>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
             <mssgm:EdgeLabel
-              BoundingBox="1.22751618446291,1,50.60890625,11.609375"
+              BoundingBox="1.2275161844629,1,50.60890625,11.609375"
               RelativePosition="Any" />
           </EdgeLayout.Labels>
         </EdgeLayout>
