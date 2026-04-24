@@ -4,7 +4,7 @@ stored_procedures_params.json (array schema).
 
 USAGE
     python calling-2.py BQ_GOLD_RAW_STAGING/stored_procedures_params.json \\
-        --project <GCP_PROJECT> --dataset <SP_DATASET_ID> \\
+        --project <GCP_PROJECT_ID> --dataset <SP_DATASET_ID> \\
         --output_dir <OUTPUT_DIR>
 
     Jinja CALL targets ({{project_id}}.{{dataset_id}} in SQL):

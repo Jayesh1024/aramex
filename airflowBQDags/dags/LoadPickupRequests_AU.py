@@ -61,7 +61,7 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobO
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_ct_version, get_next_ct_version_null
 
-GCP_PROJECT = os.getenv("GCP_PROJECT")
+GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
 SP_DATASET_ID = os.getenv("SP_DATASET_ID")
 TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
@@ -108,7 +108,7 @@ with DAG(
         task_id=_TASK_ID_GET_LAST_CT,
         python_callable=get_last_ct_version,
         op_kwargs={
-            "project_id": GCP_PROJECT,
+            "project_id": GCP_PROJECT_ID,
             "dataset_id": TARGET_DATASET_ID,
             "target_name": "{{ params.RecordSource }}",
         },

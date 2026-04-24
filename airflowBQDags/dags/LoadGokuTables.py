@@ -12,7 +12,7 @@ from airflow.operators.empty import EmptyOperator
 from airflow.utils.task_group import TaskGroup
 
 
-GCP_PROJECT = os.getenv("GCP_PROJECT")
+GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
 
 with DAG(
     dag_id="ssis_skeleton_loadgokutables",

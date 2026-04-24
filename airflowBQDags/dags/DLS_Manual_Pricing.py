@@ -24,7 +24,7 @@ from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_value
 
 # --- Project Configuration ---
-GCP_PROJECT = os.getenv("GCP_PROJECT")
+GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
 SP_DATASET_ID = os.getenv("SP_DATASET_ID")
 TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 _TASK_ID_GET_LAST_ID = "tg_package_source2_dynamiclabel_dl.package_source2_dynamiclabel_dl_get_lastid_dynamiclabel"
@@ -67,7 +67,7 @@ with DAG(
             task_id="package_source2_dynamiclabel_dl_get_lastid_dynamiclabel",
             python_callable=get_last_value,
             op_kwargs={
-                "project_id": GCP_PROJECT,
+                "project_id": GCP_PROJECT_ID,
                 "dataset_id": SP_DATASET_ID,
                 "record_source": "{{ params.RecordSource2 }}",
             },

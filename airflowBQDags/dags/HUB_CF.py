@@ -16,7 +16,7 @@ from airflow.utils.task_group import TaskGroup
 import os
 
 # --- Project Configuration ---
-GCP_PROJECT = os.getenv("GCP_PROJECT")
+GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
 SP_DATASET_ID = os.getenv("SP_DATASET_ID")
 TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 

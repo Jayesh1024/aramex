@@ -29,7 +29,7 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobO
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_value, get_max_process_id
 
-GCP_PROJECT = os.getenv("GCP_PROJECT")
+GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
 SP_DATASET_ID = os.getenv("SP_DATASET_ID")
 TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
@@ -62,7 +62,7 @@ with DAG(
             task_id="package_sequence_container_get_processid",
             python_callable=get_max_process_id,
             op_kwargs={
-                "project_id": GCP_PROJECT,
+                "project_id": GCP_PROJECT_ID,
                 "dataset_id": TARGET_DATASET_ID,
             },
         )
@@ -86,7 +86,7 @@ with DAG(
             task_id="package_load_la_ruraonforwards_get_lastdate_la_ruralonforwards",
             python_callable=get_last_value,
             op_kwargs={
-                "project_id": GCP_PROJECT,
+                "project_id": GCP_PROJECT_ID,
                 "dataset_id": SP_DATASET_ID,
                 "record_source": "{{ params.RecordSource14 }}",
             },

@@ -34,7 +34,7 @@ from utils.getValue import (
     get_yesterday_eod_iso,
 )
 
-GCP_PROJECT = os.getenv("GCP_PROJECT")
+GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
 SP_DATASET_ID = os.getenv("SP_DATASET_ID")
 TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
@@ -76,7 +76,7 @@ with DAG(
             task_id="package_staging_get_next_processid",
             python_callable=allocate_dashboard_processid,
             op_kwargs={
-                "project_id": GCP_PROJECT,
+                "project_id": GCP_PROJECT_ID,
                 "dataset_id": TARGET_DATASET_ID,
             },
         )
@@ -99,7 +99,7 @@ with DAG(
                 task_id="package_staging_staging_1_get_lastdate_myfastway",
                 python_callable=get_last_value,
                 op_kwargs={
-                    "project_id": GCP_PROJECT,
+                    "project_id": GCP_PROJECT_ID,
                     "dataset_id": SP_DATASET_ID,
                     "record_source": "{{ params.RecordSource4 }}",
                 },
@@ -139,7 +139,7 @@ with DAG(
                 task_id="package_staging_staging_2_get_lastscandate_trackandtrace",
                 python_callable=get_last_value_scans,
                 op_kwargs={
-                    "project_id": GCP_PROJECT,
+                    "project_id": GCP_PROJECT_ID,
                     "dataset_id": SP_DATASET_ID,
                     "record_source": "{{ params.RecordSource3 }}",
                     "calc_method": GET_LASTVALUE_SCANS_CALC_METHOD,

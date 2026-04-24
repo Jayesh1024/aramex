@@ -85,7 +85,7 @@ I modelled every new DAG on the already-shipped, canonical-looking files:
 Kept identical to every shipped DAG:
 
 ```
-GCP_PROJECT       = "searce-sandbox-da-delivery"
+GCP_PROJECT_ID       = "searce-sandbox-da-delivery"
 SP_DATASET_ID     = "Aramex_oceania_SP"       # stored procedures
 TARGET_DATASET_ID = "Aramex_oceania"          # tables (staging + core)
 ```
