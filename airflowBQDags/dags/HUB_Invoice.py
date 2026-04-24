@@ -19,6 +19,7 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from utils.getValue import get_last_value
 
+PROJECT_ID = os.getenv("PROJECT_ID")
 SP_DATASET_ID = os.getenv("SP_DATASET_ID")
 TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
@@ -223,7 +224,7 @@ with DAG(
             task_id="package_staging_get_lastdate_fms_invoice",
             python_callable=get_last_value,
             op_kwargs={
-                "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
+                "project_id": PROJECT_ID,
                 "dataset_id": SP_DATASET_ID,
                 "record_source": "{{ params.RecordSource }}",
             },
@@ -300,7 +301,7 @@ with DAG(
             task_id="package_staging_undtcktinvoice_get_lastdate_undtckt_invoice",
             python_callable=get_last_value,
             op_kwargs={
-                "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
+                "project_id": PROJECT_ID,
                 "dataset_id": SP_DATASET_ID,
                 "record_source": "{{ params.RecordSource2 }}",
             },

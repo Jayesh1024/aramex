@@ -22,6 +22,7 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobO
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import allocate_negative_sentinel_processid
 
+PROJECT_ID = os.getenv("PROJECT_ID")
 SP_DATASET_ID = os.getenv("SP_DATASET_ID")
 TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
@@ -56,7 +57,7 @@ with DAG(
             task_id="package_staging_get_processid",
             python_callable=allocate_negative_sentinel_processid,
             op_kwargs={
-                "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
+                "project_id": PROJECT_ID,
                 "dataset_id": TARGET_DATASET_ID,
             },
         )

@@ -6,11 +6,13 @@ Sequence containers (STOCK:SEQUENCE) are wrapped in TaskGroup.
 from __future__ import annotations
 
 from datetime import datetime
-
+import os
 from airflow import DAG
 from airflow.operators.empty import EmptyOperator
 from airflow.utils.task_group import TaskGroup
 
+
+PROJECT_ID = os.getenv("PROJECT_ID")
 
 with DAG(
     dag_id="ssis_skeleton_export_kpi_performance",

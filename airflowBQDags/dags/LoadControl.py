@@ -41,6 +41,7 @@ from airflow.utils.task_group import TaskGroup
 
 from utils.getValue import get_next_process_id
 
+PROJECT_ID = os.getenv("PROJECT_ID")
 SP_DATASET_ID = os.getenv("SP_DATASET_ID")
 TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
@@ -75,7 +76,7 @@ with DAG(
         task_id="package_get_next_processid",
         python_callable=get_next_process_id,
         op_kwargs={
-            "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
+            "project_id": PROJECT_ID,
             "dataset_id": TARGET_DATASET_ID,
         },
     )
