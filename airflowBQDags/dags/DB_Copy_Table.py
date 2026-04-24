@@ -24,7 +24,6 @@ from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_working_load_ilocate_next_id
 
 # --- Project Configuration ---
-PROJECT_ID = os.getenv("PROJECT_ID")
 SP_DATASET_ID = os.getenv("SP_DATASET_ID")
 TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
@@ -49,8 +48,8 @@ with DAG(
         configuration={
             "query": {
                 "query": (
-                    f"INSERT INTO `{PROJECT_ID}.{TARGET_DATASET_ID}.dv_temp_SAT_Label_Allocation_DL_Copy` "
-                    f"SELECT * FROM `{PROJECT_ID}.{TARGET_DATASET_ID}.dv_SAT_Label_Allocation_DL`;"
+                    f"INSERT INTO `{TARGET_DATASET_ID}.dv_temp_SAT_Label_Allocation_DL_Copy` "
+                    f"SELECT * FROM `{TARGET_DATASET_ID}.dv_SAT_Label_Allocation_DL`;"
                 ),
                 "useLegacySql": False,
             }
@@ -62,7 +61,7 @@ with DAG(
         task_id="package_data_flow_task",
         configuration={
             "query": {
-                "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_dv_LNK_InvoiceHead`();",
+                "query": f"CALL `{SP_DATASET_ID}.sp_load_dv_LNK_InvoiceHead`();",
                 "useLegacySql": False,
             }
         },
@@ -74,7 +73,7 @@ with DAG(
         configuration={
             "query": {
                 "query": (
-                    f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_FMS_UndTcktInvoice_Stg__2`("
+                    f"CALL `{SP_DATASET_ID}.sp_load_Staging_FMS_UndTcktInvoice_Stg__2`("
                     f"{{{{ params.LastUndTcktId }}}});"
                 ),
                 "useLegacySql": False,
@@ -87,7 +86,7 @@ with DAG(
         task_id="package_load_fms_invoicehead",
         configuration={
             "query": {
-                "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_FMS_InvoiceHead_Stg_All`();",
+                "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_FMS_InvoiceHead_Stg_All`();",
                 "useLegacySql": False,
             }
         },
@@ -102,7 +101,7 @@ with DAG(
             task_id="package_sequence_container_get_next_id",
             python_callable=get_working_load_ilocate_next_id,
             op_kwargs={
-                "project_id": PROJECT_ID,
+                "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                 "dataset_id": TARGET_DATASET_ID,
             },
         )
@@ -113,7 +112,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_working_Load_iLocate_Stg`("
+                        f"CALL `{SP_DATASET_ID}.sp_load_working_Load_iLocate_Stg`("
                         f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_NEXT_ID}') }}}});"
                     ),
                     "useLegacySql": False,
@@ -126,7 +125,7 @@ with DAG(
             task_id="package_sequence_container_truncate_stg",
             configuration={
                 "query": {
-                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.working_Load_iLocate_Stg`;",
+                    "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.working_Load_iLocate_Stg`;",
                     "useLegacySql": False,
                 }
             },
@@ -141,11 +140,11 @@ with DAG(
                     "query": (
                         f"DECLARE end_id INT64; "
                         f"SET end_id = {_end_id}; "
-                        f"UPDATE `{PROJECT_ID}.{TARGET_DATASET_ID}.dv_LNK_Scan` AS LNK "
+                        f"UPDATE `{TARGET_DATASET_ID}.dv_LNK_Scan` AS LNK "
                         f"SET iLocate = S.iLocate "
-                        f"FROM `{PROJECT_ID}.{TARGET_DATASET_ID}.working_Load_iLocate_Stg` AS S "
+                        f"FROM `{TARGET_DATASET_ID}.working_Load_iLocate_Stg` AS S "
                         f"WHERE S.ID = LNK.TrackAndTraceID; "
-                        f"UPDATE `{PROJECT_ID}.{TARGET_DATASET_ID}.working_Load_iLocate_NextID` "
+                        f"UPDATE `{TARGET_DATASET_ID}.working_Load_iLocate_NextID` "
                         f"SET LastID = end_id;"
                     ),
                     "useLegacySql": False,

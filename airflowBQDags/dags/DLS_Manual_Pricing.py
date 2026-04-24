@@ -24,7 +24,6 @@ from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_value
 
 # --- Project Configuration ---
-PROJECT_ID = os.getenv("PROJECT_ID")
 SP_DATASET_ID = os.getenv("SP_DATASET_ID")
 TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 _TASK_ID_GET_LAST_ID = "tg_package_source2_dynamiclabel_dl.package_source2_dynamiclabel_dl_get_lastid_dynamiclabel"
@@ -55,7 +54,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_API_RF_AdHocLabel_AllocationHistory_Stg_Weekly`;"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_API_RF_AdHocLabel_AllocationHistory_Stg_Weekly`;"
                     ),
                     "useLegacySql": False,
                 }
@@ -67,7 +66,7 @@ with DAG(
             task_id="package_source2_dynamiclabel_dl_get_lastid_dynamiclabel",
             python_callable=get_last_value,
             op_kwargs={
-                "project_id": PROJECT_ID,
+                "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                 "dataset_id": SP_DATASET_ID,
                 "record_source": "{{ params.RecordSource2 }}",
             },
@@ -79,7 +78,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_API_RF_AdHocLabel_AllocationHistory_Stg_Weekly`("
+                        f"CALL `{SP_DATASET_ID}.sp_load_Staging_API_RF_AdHocLabel_AllocationHistory_Stg_Weekly`("
                         f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LAST_ID}') | int }}}});"
                     ),
                     "useLegacySql": False,
@@ -93,7 +92,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_API_RF_AdHocLabel_AllocationHistory_Stg`("
+                        f"CALL `{SP_DATASET_ID}.sp_load_Staging_API_RF_AdHocLabel_AllocationHistory_Stg`("
                         f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LAST_ID}') | int }}}});"
                     ),
                     "useLegacySql": False,
@@ -108,7 +107,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"SELECT COALESCE(MAX(ProcessId), 0) + 1 AS NextProcessId "
-                        f"FROM `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_LoadLog`;"
+                        f"FROM `{TARGET_DATASET_ID}.Staging_LoadLog`;"
                     ),
                     "useLegacySql": False,
                 }
@@ -121,7 +120,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_DL`({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource2 }}}}');"
+                        f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_DL`({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource2 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -134,7 +133,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Load_Dim_Label`("
+                        f"CALL `{SP_DATASET_ID}.dbo_Load_Dim_Label`("
                         f"{{{{ params.ProcessId }}}}, "
                         f"DATETIME('{{{{ params.ChangedSince }}}}') "
                         f");"

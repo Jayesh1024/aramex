@@ -33,7 +33,10 @@ from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_value
-from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
+
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+
 
 with DAG(
     dag_id="ssis_skeleton_hub_label",
@@ -82,7 +85,7 @@ with DAG(
         task_id="package_final_load_hub_load_hub_label",
         configuration={
             "query": {
-                "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_Label`({{{{ params.ProcessId }}}});",
+                "query": f"CALL `{SP_DATASET_ID}.dv_Load_HUB_Label`({{{{ params.ProcessId }}}});",
                 "useLegacySql": False,
             }
         },
@@ -94,7 +97,7 @@ with DAG(
             task_id="package_final_load_sat_allocation_truncate_sat_label_allocation_stg",
             configuration={
                 "query": {
-                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_SAT_Label_Allocation_Stg`",
+                    "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_SAT_Label_Allocation_Stg`",
                     "useLegacySql": False,
                 }
             }
@@ -105,7 +108,7 @@ with DAG(
             task_id="package_final_load_sat_allocation_load_sat_label_allocation_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.staging_Load_SAT_Label_Allocation_Stg2`({{{{ params.ProcessId }}}});",
+                    "query": f"CALL `{SP_DATASET_ID}.staging_Load_SAT_Label_Allocation_Stg2`({{{{ params.ProcessId }}}});",
                     "useLegacySql": False,
                 }
             }
@@ -116,7 +119,7 @@ with DAG(
             task_id="package_final_load_sat_allocation_load_sat_label_allocation",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation`({{{{ params.ProcessId }}}});",
+                    "query": f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation`({{{{ params.ProcessId }}}});",
                     "useLegacySql": False,
                 }
             }
@@ -135,7 +138,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Distribution`"
+                        f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Distribution`"
                         f"({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
@@ -150,7 +153,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                        f"CALL `{SP_DATASET_ID}.Staging_Set_LastValue`("
                         f"'{{{{ params.RecordSource1 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                     ),
                     "useLegacySql": False,
@@ -169,7 +172,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_DL`"
+                            f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_DL`"
                             f"({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource2 }}}}');"
                         ),
                         "useLegacySql": False,
@@ -184,7 +187,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_EBAY`"
+                            f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_EBAY`"
                             f"({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource10 }}}}');"
                         ),
                         "useLegacySql": False,
@@ -199,7 +202,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_FLE`"
+                            f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_FLE`"
                             f"({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource6 }}}}');"
                         ),
                         "useLegacySql": False,
@@ -213,7 +216,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                            f"CALL `{SP_DATASET_ID}.Staging_Set_LastValue`("
                             f"'{{{{ params.RecordSource2 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                         ),
                         "useLegacySql": False,
@@ -227,7 +230,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                            f"CALL `{SP_DATASET_ID}.Staging_Set_LastValue`("
                             f"'{{{{ params.RecordSource10 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                         ),
                         "useLegacySql": False,
@@ -241,7 +244,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                            f"CALL `{SP_DATASET_ID}.Staging_Set_LastValue`("
                             f"'{{{{ params.RecordSource6 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                         ),
                         "useLegacySql": False,
@@ -258,7 +261,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_IFS`"
+                            f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_IFS`"
                             f"({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource5 }}}}');"
                         ),
                         "useLegacySql": False,
@@ -273,7 +276,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_MF`"
+                            f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_MF`"
                             f"({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource4 }}}}');"
                         ),
                         "useLegacySql": False,
@@ -288,7 +291,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_PickupRequests`"
+                            f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_PickupRequests`"
                             f"({{{{ params.ProcessId }}}});"
                         ),
                         "useLegacySql": False,
@@ -302,7 +305,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                            f"CALL `{SP_DATASET_ID}.Staging_Set_LastValue`("
                             f"'{{{{ params.RecordSource4 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                         ),
                         "useLegacySql": False,
@@ -316,7 +319,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                            f"CALL `{SP_DATASET_ID}.Staging_Set_LastValue`("
                             f"'{{{{ params.RecordSource5 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                         ),
                         "useLegacySql": False,
@@ -333,7 +336,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_FL`"
+                            f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_FL`"
                             f"({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource3 }}}}');"
                         ),
                         "useLegacySql": False,
@@ -348,7 +351,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_RP`"
+                            f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_RP`"
                             f"({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource8 }}}}');"
                         ),
                         "useLegacySql": False,
@@ -363,7 +366,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_TMD`"
+                            f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_TMD`"
                             f"({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource7 }}}}');"
                         ),
                         "useLegacySql": False,
@@ -377,7 +380,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                            f"CALL `{SP_DATASET_ID}.Staging_Set_LastValue`("
                             f"'{{{{ params.RecordSource3 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                         ),
                         "useLegacySql": False,
@@ -391,7 +394,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                            f"CALL `{SP_DATASET_ID}.Staging_Set_LastValue`("
                             f"'{{{{ params.RecordSource8 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                         ),
                         "useLegacySql": False,
@@ -405,7 +408,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                            f"CALL `{SP_DATASET_ID}.Staging_Set_LastValue`("
                             f"'{{{{ params.RecordSource7 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                         ),
                         "useLegacySql": False,
@@ -444,7 +447,7 @@ with DAG(
                 task_id="package_staging_source1_labelmaster_get_lastdate_labelmaster",
                 python_callable=get_last_value,
                 op_kwargs={
-                    "project_id": PROJECT_ID,
+                    "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                     "dataset_id": SP_DATASET_ID,
                     "record_source": "{{ params.RecordSource1 }}",
                 },
@@ -456,7 +459,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_LabelMaster_Stg` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_LabelMaster_Stg` "
                             f"(SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_35.task_id}') }}}}' AS DATETIME))"
                         ),
                         "useLegacySql": False,
@@ -470,7 +473,7 @@ with DAG(
                 task_id="package_staging_source1_labelmaster_truncate_labelmaster_stg",
                 configuration={
                     "query": {
-                        "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_LabelMaster_Stg`",
+                        "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_LabelMaster_Stg`",
                         "useLegacySql": False,
                     }
                 }
@@ -482,7 +485,7 @@ with DAG(
                 task_id="package_staging_source10_ebay_ebay_get_lastid_ebay",
                 python_callable=get_last_value,
                 op_kwargs={
-                    "project_id": PROJECT_ID,
+                    "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                     "dataset_id": SP_DATASET_ID,
                     "record_source": "{{ params.RecordSource10 }}",
                 },
@@ -494,7 +497,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_Ebay_Labels_Stg` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_Ebay_Labels_Stg` "
                             f"({{{{ ti.xcom_pull(task_ids='{op_40.task_id}') }}}})"
                         ),
                         "useLegacySql": False,
@@ -508,7 +511,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_Ebay_Labels_Stg`"
+                            f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_Ebay_Labels_Stg`"
                         ),
                         "useLegacySql": False,
                     }
@@ -521,7 +524,7 @@ with DAG(
                 task_id="package_staging_source11_myfastwaysrv_mf_2_get_lastdate_myfastway",
                 python_callable=get_last_value,
                 op_kwargs={
-                    "project_id": PROJECT_ID,
+                    "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                     "dataset_id": SP_DATASET_ID,
                     "record_source": "{{ params.RecordSource11 }}",
                 },
@@ -533,7 +536,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_ConItemSrv_Stg` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_fl_ConItemSrv_Stg` "
                             f"(SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_45.task_id}') }}}}' AS DATETIME))"
                         ),
                         "useLegacySql": False,
@@ -547,7 +550,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_fl_ConItemSrv_Stg`"
+                            f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_fl_ConItemSrv_Stg`"
                         ),
                         "useLegacySql": False,
                     }
@@ -561,7 +564,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_PickupRequest_Stg` ()"
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_PickupRequest_Stg` ()"
                         ),
                         "useLegacySql": False,
                     }
@@ -574,7 +577,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_PickupRequest_Stg__2` ()"
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_PickupRequest_Stg__2` ()"
                         ),
                         "useLegacySql": False,
                     }
@@ -587,7 +590,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_PickupRequest_Stg__3` ()"
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_PickupRequest_Stg__3` ()"
                         ),
                         "useLegacySql": False,
                     }
@@ -600,7 +603,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_PickupRequest_Stg`"
+                            f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_PickupRequest_Stg`"
                         ),
                         "useLegacySql": False,
                     }
@@ -614,7 +617,7 @@ with DAG(
                 task_id="package_staging_source2_dynamiclabel_dl_get_lastid_dynamiclabel",
                 python_callable=get_last_value,
                 op_kwargs={
-                    "project_id": PROJECT_ID,
+                    "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                     "dataset_id": SP_DATASET_ID,
                     "record_source": "{{ params.RecordSource2 }}",
                 }
@@ -626,7 +629,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_API_RF_AdHocLabel_AllocationHistory_Stg` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_API_RF_AdHocLabel_AllocationHistory_Stg` "
                             f"({{{{ ti.xcom_pull(task_ids='{op_55.task_id}') }}}})"
                         ),
                         "useLegacySql": False,
@@ -640,7 +643,7 @@ with DAG(
                 task_id="package_staging_source2_dynamiclabel_dl_truncate_api_rf_adhoclabel_allocationhistory_stg",
                 configuration={
                     "query": {
-                        "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_API_RF_AdHocLabel_AllocationHistory_Stg`",
+                        "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_API_RF_AdHocLabel_AllocationHistory_Stg`",
                         "useLegacySql": False,
                     }
                 }
@@ -652,7 +655,7 @@ with DAG(
                 task_id="package_staging_source3_fastlabel_fl_get_lastdate_fastlabel",
                 python_callable=get_last_value,
                 op_kwargs={
-                    "project_id": PROJECT_ID,
+                    "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                     "dataset_id": SP_DATASET_ID,
                     "record_source": "{{ params.RecordSource3 }}",
                 },
@@ -664,7 +667,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_tblFastLabel_Consignment_Stg` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_tblFastLabel_Consignment_Stg` "
                             f"(SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_60.task_id}') }}}}' AS DATETIME))"
                         ),
                         "useLegacySql": False,
@@ -678,7 +681,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_tblFastLabel_Consignment_Stg`"
+                            f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_tblFastLabel_Consignment_Stg`"
                         ),
                         "useLegacySql": False,
                     }
@@ -691,7 +694,7 @@ with DAG(
                 task_id="package_staging_source4_myfastway_mf_get_lastdate_myfastway",
                 python_callable=get_last_value,
                 op_kwargs={
-                    "project_id": PROJECT_ID,
+                    "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                     "dataset_id": SP_DATASET_ID,
                     "record_source": "{{ params.RecordSource4 }}",
                 },
@@ -703,7 +706,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_ConItem_Stg` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_fl_ConItem_Stg` "
                             f"(SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_65.task_id}') }}}}' AS DATETIME))"
                         ),
                         "useLegacySql": False,
@@ -717,7 +720,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_fl_ConItem_Stg`"
+                            f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_fl_ConItem_Stg`"
                         ),
                         "useLegacySql": False,
                     }
@@ -730,7 +733,7 @@ with DAG(
                 task_id="package_staging_source5_hdmanifest_ifs_get_lastid_ifs",
                 python_callable=get_last_value,
                 op_kwargs={
-                    "project_id": PROJECT_ID,
+                    "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                     "dataset_id": SP_DATASET_ID,
                     "record_source": "{{ params.RecordSource5 }}",
                 },
@@ -742,7 +745,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_HDManifests_Stg` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_HDManifests_Stg` "
                             f"({{{{ ti.xcom_pull(task_ids='{op_70.task_id}') }}}})"
                         ),
                         "useLegacySql": False,
@@ -756,7 +759,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_HDManifests_Stg`"
+                            f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_HDManifests_Stg`"
                         ),
                         "useLegacySql": False,
                     }
@@ -769,7 +772,7 @@ with DAG(
                 task_id="package_staging_source6_fastlabelenterprise_fle_get_lastdate_fastlabelenterprise",
                 python_callable=get_last_value,
                 op_kwargs={
-                    "project_id": PROJECT_ID,
+                    "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                     "dataset_id": SP_DATASET_ID,
                     "record_source": "{{ params.RecordSource6 }}",
                 },
@@ -781,7 +784,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_ConsignmentItem_Stg` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_ConsignmentItem_Stg` "
                             f"(SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_75.task_id}') }}}}' AS DATETIME))"
                         ),
                         "useLegacySql": False,
@@ -795,7 +798,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_ConsignmentItem_Stg`"
+                            f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_ConsignmentItem_Stg`"
                         ),
                         "useLegacySql": False,
                     }
@@ -808,7 +811,7 @@ with DAG(
                 task_id="package_staging_source7_temando_tmd_get_lastid_temando",
                 python_callable=get_last_value,
                 op_kwargs={
-                    "project_id": PROJECT_ID,
+                    "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                     "dataset_id": SP_DATASET_ID,
                     "record_source": "{{ params.RecordSource7 }}",
                 },
@@ -820,7 +823,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_API_Temando_RequestLabel_Stg` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_API_Temando_RequestLabel_Stg` "
                             f"({{{{ ti.xcom_pull(task_ids='{op_80.task_id}') }}}})"
                         ),
                         "useLegacySql": False,
@@ -834,7 +837,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_API_Temando_RequestLabel_Stg`"
+                            f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_API_Temando_RequestLabel_Stg`"
                         ),
                         "useLegacySql": False,
                     }
@@ -847,7 +850,7 @@ with DAG(
                 task_id="package_staging_source8_receiverpays_rp_get_lastid_receiverpays",
                 python_callable=get_last_value,
                 op_kwargs={
-                    "project_id": PROJECT_ID,
+                    "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                     "dataset_id": SP_DATASET_ID,
                     "record_source": "{{ params.RecordSource8 }}",
                 },
@@ -859,7 +862,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_tblOnlineEnquiry_RP_Stg` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_tblOnlineEnquiry_RP_Stg` "
                             f"({{{{ ti.xcom_pull(task_ids='{op_85.task_id}') }}}})"
                         ),
                         "useLegacySql": False,
@@ -873,7 +876,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_tblOnlineEnquiry_RP_Stg`"
+                            f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_tblOnlineEnquiry_RP_Stg`"
                         ),
                         "useLegacySql": False,
                     }

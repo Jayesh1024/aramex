@@ -22,7 +22,10 @@ import os
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
-from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
+
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+
 
 with DAG(
     dag_id="ssis_skeleton_sat_overrides",
@@ -42,7 +45,7 @@ with DAG(
             task_id="package_customer_overrides_staging_load_customer_price_overrides",
             configuration={
                 "query": {
-                    "query": f"SELECT * FROM `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_fl_PriceListCustomerOverride_Stg`",
+                    "query": f"SELECT * FROM `{TARGET_DATASET_ID}.Staging_fl_PriceListCustomerOverride_Stg`",
                     "useLegacySql": False,
                 }
             },
@@ -57,7 +60,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_FL_PriceListCustomerOverride`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_SAT_FL_PriceListCustomerOverride`("
                         f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
@@ -74,8 +77,8 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.dv_SAT_FL_Zones`;\n"
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.dv_SAT_FL_ServiceZoneOverride`;"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.dv_SAT_FL_Zones`;\n"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.dv_SAT_FL_ServiceZoneOverride`;"
                     ),
                     "useLegacySql": False,
                 }
@@ -88,7 +91,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.dv_SAT_FL_ServiceZoneOverride`;"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.dv_SAT_FL_ServiceZoneOverride`;"
                     ),
                     "useLegacySql": False,
                 }
@@ -100,7 +103,7 @@ with DAG(
             task_id="package_zones_overrides_staging_load_fl_zones",
             configuration={
                 "query": {
-                    "query": f"SELECT * FROM `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_fl_Zones_Stg`",
+                    "query": f"SELECT * FROM `{TARGET_DATASET_ID}.Staging_fl_Zones_Stg`",
                     "useLegacySql": False,
                 }
             },
@@ -111,7 +114,7 @@ with DAG(
             task_id="package_zones_overrides_staging_load_zone_satchel_overiides",
             configuration={
                 "query": {
-                    "query": f"SELECT * FROM `{PROJECT_ID}.{TARGET_DATASET_ID}.vw_Staging_fl_ServiceZoneSatchelOverride_Stg`",
+                    "query": f"SELECT * FROM `{TARGET_DATASET_ID}.vw_Staging_fl_ServiceZoneSatchelOverride_Stg`",
                     "useLegacySql": False,
                 }
             },
@@ -122,7 +125,7 @@ with DAG(
             task_id="package_zones_overrides_staging_load_zone_weight_overiides",
             configuration={
                 "query": {
-                    "query": f"SELECT * FROM `{PROJECT_ID}.{TARGET_DATASET_ID}.vw_Staging_fl_ServiceZoneWeightOverride_Stg`",
+                    "query": f"SELECT * FROM `{TARGET_DATASET_ID}.vw_Staging_fl_ServiceZoneWeightOverride_Stg`",
                     "useLegacySql": False,
                 }
             },
@@ -141,7 +144,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_FL_Zones`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_SAT_FL_Zones`("
                         f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
@@ -155,7 +158,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_FL_Zone_Overrides`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_SAT_FL_Zone_Overrides`("
                         f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,

@@ -24,7 +24,10 @@ import os
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
-from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
+
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+
 
 _STAGING_TABLES_TO_TRUNCATE = [
     "Staging_SAT_Label_Allocation_Stg",
@@ -66,7 +69,7 @@ with DAG(
             task_id="package_source4_myfastway_mf_truncate_fl_conitem_stg",
             configuration={
                 "query": {
-                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_fl_ConItem_Stg`;",
+                    "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_fl_ConItem_Stg`;",
                     "useLegacySql": False,
                 }
             },
@@ -78,7 +81,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_ConItem_Stg`("
+                        f"CALL `{SP_DATASET_ID}.sp_load_Staging_fl_ConItem_Stg`("
                         f"DATETIME('{{{{ params.StartDate }}}}'));"
                     ),
                     "useLegacySql": False,
@@ -96,7 +99,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": "\n".join(
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.{tbl}`;"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.{tbl}`;"
                         for tbl in _STAGING_TABLES_TO_TRUNCATE
                     ),
                     "useLegacySql": False,
@@ -110,7 +113,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.staging_Load_SAT_Label_Allocation_Stg2`("
+                        f"CALL `{SP_DATASET_ID}.staging_Load_SAT_Label_Allocation_Stg2`("
                         f"{{{{ params.ProcessId }}}});"
                     ),
                     "useLegacySql": False,
@@ -124,7 +127,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation`("
                         f"{{{{ params.ProcessId }}}});"
                     ),
                     "useLegacySql": False,
@@ -138,7 +141,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_MF`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_MF`("
                         f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource4 }}}}');"
                     ),
                     "useLegacySql": False,
@@ -152,7 +155,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                        f"CALL `{SP_DATASET_ID}.Staging_Set_LastValue`("
                         f"'{{{{ params.RecordSource4 }}}}', "
                         "{% if params.ColumnName is not none %}'{{ params.ColumnName }}'{% else %}NULL{% endif %}, "
                         "{% if params.LastValue is not none %}'{{ params.LastValue }}'{% else %}NULL{% endif %}, "

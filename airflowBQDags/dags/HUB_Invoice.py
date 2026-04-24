@@ -18,7 +18,10 @@ from airflow.utils.task_group import TaskGroup
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from utils.getValue import get_last_value
-from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
+
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+
 
 # params.RecordSource2 is the HUB_Invoice.dtsx $Package::RecordSource2 value
 # used by UndTckt Staging get-last + Final set-last.
@@ -59,7 +62,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_Invoice`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_HUB_Invoice`("
                         f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
@@ -75,7 +78,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_Label_Invoices`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_Label_Invoices`("
                         f"{{{{ params.ProcessId }}}}, "
                         f"'{{{{ ti.xcom_pull(task_ids='{_TASK_IDS_LASTDATE_FMS_INVOICE}') }}}}', "
                         "{{'NULL'}});"
@@ -92,7 +95,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LNK_InvoiceLine`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_LNK_InvoiceLine`("
                         f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSourceFMS_InvoiceLines }}}}');"
                     ),
                     "useLegacySql": False,
@@ -107,7 +110,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LNK_Invoice_Label`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_LNK_Invoice_Label`("
                         f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSourceFMS_InvoiceBooks }}}}');"
                     ),
                     "useLegacySql": False,
@@ -122,7 +125,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LSAT_InvoiceHead`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_LSAT_InvoiceHead`("
                         f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSourceFMS_InvoiceHead }}}}');"
                     ),
                     "useLegacySql": False,
@@ -137,7 +140,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LSAT_InvoiceLine`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_LSAT_InvoiceLine`("
                         f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSourceFMS_InvoiceLines }}}}');"
                     ),
                     "useLegacySql": False,
@@ -152,7 +155,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`('{{{{ params.RecordSource }}}}', "
+                        f"CALL `{SP_DATASET_ID}.Staging_Set_LastValue`('{{{{ params.RecordSource }}}}', "
                         "'NULL', "
                         "'NULL', "
                         "FALSE);"
@@ -172,7 +175,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Load_UndTckt_Invoice`({{{{ params.ProcessId }}}});"
+                        f"CALL `{SP_DATASET_ID}.dbo_Load_UndTckt_Invoice`({{{{ params.ProcessId }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -186,7 +189,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                        f"CALL `{SP_DATASET_ID}.Staging_Set_LastValue`("
                         f"'{{{{ params.RecordSource2 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                     ),
                     "useLegacySql": False,
@@ -204,10 +207,10 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_FMS_InvoiceHead_Stg`;\n"
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_FMS_InvoiceLines_Stg`;\n"
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_FMS_InvoiceBooks_Stg`;\n"
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_FastwayLabels_Stg`;"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_FMS_InvoiceHead_Stg`;\n"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_FMS_InvoiceLines_Stg`;\n"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_FMS_InvoiceBooks_Stg`;\n"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_FastwayLabels_Stg`;"
                     ),
                     "useLegacySql": False,
                 }
@@ -220,7 +223,7 @@ with DAG(
             task_id="package_staging_get_lastdate_fms_invoice",
             python_callable=get_last_value,
             op_kwargs={
-                "project_id": PROJECT_ID,
+                "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                 "dataset_id": SP_DATASET_ID,
                 "record_source": "{{ params.RecordSource }}",
             },
@@ -233,7 +236,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_FMS_InvoiceBooks_Stg`("
+                        f"CALL `{SP_DATASET_ID}.sp_load_Staging_FMS_InvoiceBooks_Stg`("
                         f"SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_16.task_id}') }}}}' AS DATETIME));"
                     ),
                     "useLegacySql": False,
@@ -249,7 +252,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_FMS_InvoiceHead_Stg`("
+                        f"CALL `{SP_DATASET_ID}.sp_load_Staging_FMS_InvoiceHead_Stg`("
                         f"SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_16.task_id}') }}}}' AS DATETIME));"
                     ),
                     "useLegacySql": False,
@@ -265,7 +268,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_FMS_InvoiceLines_Stg`("
+                        f"CALL `{SP_DATASET_ID}.sp_load_Staging_FMS_InvoiceLines_Stg`("
                         f"SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_16.task_id}') }}}}' AS DATETIME));"
                     ),
                     "useLegacySql": False,
@@ -284,7 +287,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_FMS_UndTcktInvoice_Stg`;"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_FMS_UndTcktInvoice_Stg`;"
                     ),
                     "useLegacySql": False,
                 }
@@ -297,7 +300,7 @@ with DAG(
             task_id="package_staging_undtcktinvoice_get_lastdate_undtckt_invoice",
             python_callable=get_last_value,
             op_kwargs={
-                "project_id": PROJECT_ID,
+                "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                 "dataset_id": SP_DATASET_ID,
                 "record_source": "{{ params.RecordSource2 }}",
             },
@@ -309,7 +312,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_FMS_UndTcktInvoice_Stg`("
+                        f"CALL `{SP_DATASET_ID}.sp_load_Staging_FMS_UndTcktInvoice_Stg`("
                         f"SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_14.task_id}') }}}}' AS DATETIME));"
                     ),
                     "useLegacySql": False,

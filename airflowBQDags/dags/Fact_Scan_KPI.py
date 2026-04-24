@@ -15,7 +15,10 @@ import os
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
-from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
+
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+
 
 # --- Project Configuration ---
 with DAG(
@@ -45,8 +48,8 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_KPI_Labels_Stg`;\n"
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_Fact_Scan_KPI_Stg`;"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_KPI_Labels_Stg`;\n"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_Fact_Scan_KPI_Stg`;"
                     ),
                     "useLegacySql": False,
                 }
@@ -59,7 +62,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_KPI_Labels_Stg`({{{{ params.ProcessId }}}}, '{{{{ params.SinceScanDate }}}}', '{{{{ params.UntilScanDate }}}}', {{{{ params.UseScanDates }}}});"
+                        f"CALL `{SP_DATASET_ID}.Staging_Load_KPI_Labels_Stg`({{{{ params.ProcessId }}}}, '{{{{ params.SinceScanDate }}}}', '{{{{ params.UntilScanDate }}}}', {{{{ params.UseScanDates }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -72,7 +75,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_Fact_Scan_KPI_Stg`({{{{ params.ProcessId }}}});"
+                        f"CALL `{SP_DATASET_ID}.Staging_Load_Fact_Scan_KPI_Stg`({{{{ params.ProcessId }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -90,7 +93,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Load_Fact_Scan_KPI`({{{{ params.ProcessId }}}});"
+                        f"CALL `{SP_DATASET_ID}.dbo_Load_Fact_Scan_KPI`({{{{ params.ProcessId }}}});"
                     ),
                     "useLegacySql": False,
                 }

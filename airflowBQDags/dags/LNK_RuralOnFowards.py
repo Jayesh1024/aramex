@@ -28,7 +28,10 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_value, get_max_process_id
-from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
+
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+
 
 _TASK_ID_GET_PROCESS_ID = "tg_package_sequence_container.package_sequence_container_get_processid"
 _TASK_ID_GET_LASTDATE = "tg_package_load_la_ruraonforwards.package_load_la_ruraonforwards_get_lastdate_la_ruralonforwards"
@@ -58,7 +61,7 @@ with DAG(
             task_id="package_sequence_container_get_processid",
             python_callable=get_max_process_id,
             op_kwargs={
-                "project_id": PROJECT_ID,
+                "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                 "dataset_id": TARGET_DATASET_ID,
             },
         )
@@ -71,7 +74,7 @@ with DAG(
             task_id="package_load_la_ruraonforwards_truncate_staging_tables",
             configuration={
                 "query": {
-                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_LA_RuralOnforwards_Stg`;",
+                    "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_LA_RuralOnforwards_Stg`;",
                     "useLegacySql": False,
                 }
             },
@@ -82,7 +85,7 @@ with DAG(
             task_id="package_load_la_ruraonforwards_get_lastdate_la_ruralonforwards",
             python_callable=get_last_value,
             op_kwargs={
-                "project_id": PROJECT_ID,
+                "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                 "dataset_id": SP_DATASET_ID,
                 "record_source": "{{ params.RecordSource14 }}",
             },
@@ -94,7 +97,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_LA_RuralOnforwards_Stg`("
+                        f"CALL `{SP_DATASET_ID}.sp_load_Staging_LA_RuralOnforwards_Stg`("
                         f"SAFE_CAST('{_xcom_lastdate}' AS DATE), "
                         f"SAFE_CAST('{{{{ params.StartDate }}}}' AS DATE), "
                         f"SAFE_CAST('{{{{ params.EndDate }}}}' AS DATE));"
@@ -110,7 +113,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LNK_RuralOnforwards`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_LNK_RuralOnforwards`("
                         f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_PROCESS_ID}') or params.ProcessID }}}});"
                     ),
                     "useLegacySql": False,
@@ -124,7 +127,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                        f"CALL `{SP_DATASET_ID}.Staging_Set_LastValue`("
                         f"'{{{{ params.RecordSource14 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                     ),
                     "useLegacySql": False,

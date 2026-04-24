@@ -19,7 +19,10 @@ import os
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
-from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
+
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+
 
 with DAG(
     dag_id="ssis_skeleton_hub_customer",
@@ -48,7 +51,7 @@ with DAG(
             task_id="package_staging_truncate_customerlinks_stg",
             configuration={
                 "query": {
-                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_CustomerLinks_Stg`;",
+                    "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_CustomerLinks_Stg`;",
                     "useLegacySql": False,
                 }
             },
@@ -59,7 +62,7 @@ with DAG(
             task_id="package_staging_truncate_fms_customer_stg",
             configuration={
                 "query": {
-                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_FMS_Customer_Stg`;",
+                    "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_FMS_Customer_Stg`;",
                     "useLegacySql": False,
                 }
             },
@@ -70,7 +73,7 @@ with DAG(
             task_id="package_staging_truncate_ifscustomers_stg",
             configuration={
                 "query": {
-                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_IFSCustomers_Stg`;",
+                    "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_IFSCustomers_Stg`;",
                     "useLegacySql": False,
                 }
             },
@@ -84,8 +87,8 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_tblCustomer_Stg`;\n"
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.dv_SAT_Customer_OES`;"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_tblCustomer_Stg`;\n"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.dv_SAT_Customer_OES`;"
                     ),
                     "useLegacySql": False,
                 }
@@ -97,7 +100,7 @@ with DAG(
             task_id="package_staging_load_customerlinks_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_CustomerLinks_Stg`();",
+                    "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_CustomerLinks_Stg`();",
                     "useLegacySql": False,
                 }
             },
@@ -108,7 +111,7 @@ with DAG(
             task_id="package_staging_load_fms_customer_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_FMS_Customer_Stg`();",
+                    "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_FMS_Customer_Stg`();",
                     "useLegacySql": False,
                 }
             },
@@ -119,7 +122,7 @@ with DAG(
             task_id="package_staging_load_ifscustomers_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_IFSCustomers_Stg`();",
+                    "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_IFSCustomers_Stg`();",
                     "useLegacySql": False,
                 }
             },
@@ -130,7 +133,7 @@ with DAG(
             task_id="package_staging_load_tblcustomer_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_tblCustomer_Stg`();",
+                    "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_tblCustomer_Stg`();",
                     "useLegacySql": False,
                 }
             },
@@ -150,7 +153,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_Customer`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_HUB_Customer`("
                         f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
@@ -164,7 +167,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Customer`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Customer`("
                         f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
@@ -178,7 +181,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAL_Customer`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_SAL_Customer`("
                         f"{{{{ params.ProcessId }}}}, "
                         f"'{{{{ params.RecordSource_dv_Load_SAL_Customer }}}}');"
 

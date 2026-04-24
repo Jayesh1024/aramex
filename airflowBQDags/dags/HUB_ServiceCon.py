@@ -12,13 +12,17 @@ Notes:
   * SSIS $Package::RecordSource13 is bound to `params.RecordSource13`.
 """
 from __future__ import annotations
+import os
 
 from datetime import datetime
 
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
-from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
+
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+
 
 with DAG(
     dag_id="ssis_skeleton_hub_servicecon",
@@ -42,7 +46,7 @@ with DAG(
             task_id="package_staging_truncate_fl_consrv_stg",
             configuration={
                 "query": {
-                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_fl_ConSrv_Stg`;",
+                    "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_fl_ConSrv_Stg`;",
                     "useLegacySql": False,
                 }
             },
@@ -53,7 +57,7 @@ with DAG(
             task_id="package_staging_load_fl_consrv_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_ConSrv_Stg`();",
+                    "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_fl_ConSrv_Stg`();",
                     "useLegacySql": False,
                 }
             },
@@ -64,7 +68,7 @@ with DAG(
             task_id="package_staging_truncate_product_servicecon_stg",
             configuration={
                 "query": {
-                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_Product_ServiceCon_Stg`;",
+                    "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_Product_ServiceCon_Stg`;",
                     "useLegacySql": False,
                 }
             },
@@ -76,7 +80,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_Product_ServiceCon_Stg`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_Product_ServiceCon_Stg`("
                         f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource13 }}}}');"
                     ),
                     "useLegacySql": False,
@@ -94,7 +98,7 @@ with DAG(
             task_id="package_final_truncate_lnk_product_servicecon",
             configuration={
                 "query": {
-                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.dv_LNK_Product_ServiceCon`;",
+                    "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.dv_LNK_Product_ServiceCon`;",
                     "useLegacySql": False,
                 }
             },
@@ -106,7 +110,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LNK_Product_ServiceCon`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_LNK_Product_ServiceCon`("
                         f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource13 }}}}');"
                     ),
                     "useLegacySql": False,
@@ -119,7 +123,7 @@ with DAG(
             task_id="package_final_truncate_lsat_product_servicecon",
             configuration={
                 "query": {
-                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.dv_LSAT_Product_ServiceCon`;",
+                    "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.dv_LSAT_Product_ServiceCon`;",
                     "useLegacySql": False,
                 }
             },
@@ -131,7 +135,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LSAT_Product_ServiceCon`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_LSAT_Product_ServiceCon`("
                         f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource13 }}}}');"
                     ),
                     "useLegacySql": False,

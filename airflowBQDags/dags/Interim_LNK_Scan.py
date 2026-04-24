@@ -20,7 +20,10 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import allocate_negative_sentinel_processid, get_last_value
-from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
+
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+
 
 _TASK_ID_GET_PROCESS_ID = "tg_package_staging.package_staging_get_processid"
 _TASK_ID_GET_LAST_SIGAI = "tg_package_staging.package_staging_get_last_date_signatureai"
@@ -55,7 +58,7 @@ with DAG(
             task_id="package_staging_get_processid",
             python_callable=allocate_negative_sentinel_processid,
             op_kwargs={
-                "project_id": PROJECT_ID,
+                "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                 "dataset_id": TARGET_DATASET_ID,
             },
         )
@@ -66,8 +69,8 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.InterimStaging_TrackAndTrace_Stg`;\n"
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.InterimStaging_TrackAndTraceData_SignatureAI_Stg`;"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.InterimStaging_TrackAndTrace_Stg`;\n"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.InterimStaging_TrackAndTraceData_SignatureAI_Stg`;"
                     ),
                     "useLegacySql": False,
                 }
@@ -79,7 +82,7 @@ with DAG(
             task_id="package_staging_get_last_date_signatureai",
             python_callable=get_last_value,
             op_kwargs={
-                "project_id": PROJECT_ID,
+                "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                 "dataset_id": SP_DATASET_ID,
                 "record_source": "{{ params.RecordSource1 }}",
             },
@@ -90,7 +93,7 @@ with DAG(
             task_id="package_staging_get_last_id_trackandtraceid",
             python_callable=get_last_value,
             op_kwargs={
-                "project_id": PROJECT_ID,
+                "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                 "dataset_id": SP_DATASET_ID,
                 "record_source": "{{ params.RecordSource3 }}",
             },
@@ -102,7 +105,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_InterimStaging_TrackAndTraceData_SignatureAI_Stg`("
+                        f"CALL `{SP_DATASET_ID}.sp_load_InterimStaging_TrackAndTraceData_SignatureAI_Stg`("
                         f"SAFE_CAST('{_xcom_last_sigai}' AS DATETIME));"
                     ),
                     "useLegacySql": False,
@@ -116,7 +119,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_InterimStaging_TrackAndTrace_Stg`("
+                        f"CALL `{SP_DATASET_ID}.sp_load_InterimStaging_TrackAndTrace_Stg`("
                         f"SAFE_CAST('{_xcom_last_tt}' AS INT64));"
                     ),
                     "useLegacySql": False,
@@ -137,7 +140,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_Location`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_HUB_Location`("
                         f"{_xcom_processid}, '{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
@@ -154,8 +157,8 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_Scans_Stg`;\n"
-                            f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_LNK_Scan_Stg`;"
+                            f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_Scans_Stg`;\n"
+                            f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_LNK_Scan_Stg`;"
                         ),
                         "useLegacySql": False,
                     }
@@ -168,7 +171,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.interimStaging_Interim_Load_Scans_Stg`("
+                            f"CALL `{SP_DATASET_ID}.interimStaging_Interim_Load_Scans_Stg`("
                             f"{_xcom_processid});"
                         ),
                         "useLegacySql": False,
@@ -182,7 +185,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_LNK_Scan_Stg`("
+                            f"CALL `{SP_DATASET_ID}.Staging_Load_LNK_Scan_Stg`("
                             f"{_xcom_processid});"
                         ),
                         "useLegacySql": False,
@@ -196,7 +199,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LNK_Scan`("
+                            f"CALL `{SP_DATASET_ID}.dv_Load_LNK_Scan`("
                             f"{_xcom_processid});"
                         ),
                         "useLegacySql": False,
@@ -210,7 +213,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LNK_Scan_Signature`("
+                            f"CALL `{SP_DATASET_ID}.dv_Load_LNK_Scan_Signature`("
                             f"{_xcom_processid});"
                         ),
                         "useLegacySql": False,
@@ -224,7 +227,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.interimStaging_Set_LastValue`("
+                            f"CALL `{SP_DATASET_ID}.interimStaging_Set_LastValue`("
                             f"'{{{{ params.RecordSource3 }}}}', NULL, NULL, FALSE);"
                         ),
                         "useLegacySql": False,
@@ -244,7 +247,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LNK_Scan_SignatureAI`("
+                            f"CALL `{SP_DATASET_ID}.dv_Load_LNK_Scan_SignatureAI`("
                             f"{_xcom_processid}, '{{{{ params.RecordSourceLNKScanSignatureAI }}}}');"
                         ),
                         "useLegacySql": False,
@@ -258,7 +261,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.interimStaging_Set_LastValue`("
+                            f"CALL `{SP_DATASET_ID}.interimStaging_Set_LastValue`("
                             f"'{{{{ params.RecordSource1 }}}}', NULL, NULL, FALSE);"
                         ),
                         "useLegacySql": False,

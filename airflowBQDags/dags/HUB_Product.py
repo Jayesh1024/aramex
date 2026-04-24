@@ -22,7 +22,10 @@ import os
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
-from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
+
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+
 
 with DAG(
     dag_id="ssis_skeleton_hub_product",
@@ -45,7 +48,7 @@ with DAG(
             task_id="package_staging_truncate_prroduct_stg",
             configuration={
                 "query": {
-                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_Product_Stg`;",
+                    "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_Product_Stg`;",
                     "useLegacySql": False,
                 }
             },
@@ -56,7 +59,7 @@ with DAG(
             task_id="package_staging_load_product_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_Product_Stg`();",
+                    "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_Product_Stg`();",
                     "useLegacySql": False,
                 }
             },
@@ -71,7 +74,7 @@ with DAG(
             task_id="package_staging_2_truncate_stk_rfprroduct_stg",
             configuration={
                 "query": {
-                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_STK_RFProducts_Stg`;",
+                    "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_STK_RFProducts_Stg`;",
                     "useLegacySql": False,
                 }
             },
@@ -82,7 +85,7 @@ with DAG(
             task_id="package_staging_2_load_stk_rfprroduct_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_STK_RFProducts_Stg`();",
+                    "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_STK_RFProducts_Stg`();",
                     "useLegacySql": False,
                 }
             },
@@ -97,7 +100,7 @@ with DAG(
             task_id="package_staging_3_truncate_fms_customercommisionoverride",
             configuration={
                 "query": {
-                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_CustomerCommissionOverride_Stg`;",
+                    "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_CustomerCommissionOverride_Stg`;",
                     "useLegacySql": False,
                 }
             },
@@ -108,7 +111,7 @@ with DAG(
             task_id="package_staging_3_load_fms_customercommisionoverride",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_CustomerCommissionOverride_Stg`();",
+                    "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_CustomerCommissionOverride_Stg`();",
                     "useLegacySql": False,
                 }
             },
@@ -125,7 +128,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_Product`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_HUB_Product`("
                         f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
@@ -139,7 +142,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Product`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Product`("
                         f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
@@ -156,7 +159,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_CustomerCommissionOverride`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_SAT_CustomerCommissionOverride`("
                         f"'{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
@@ -170,7 +173,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_STK_RFProducts`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_SAT_STK_RFProducts`("
                         f"'{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,

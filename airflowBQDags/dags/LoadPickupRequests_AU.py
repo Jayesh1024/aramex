@@ -61,7 +61,6 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobO
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_ct_version, get_next_ct_version_null
 
-PROJECT_ID = os.getenv("PROJECT_ID")
 SP_DATASET_ID = os.getenv("SP_DATASET_ID")
 TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
@@ -108,7 +107,7 @@ with DAG(
         task_id=_TASK_ID_GET_LAST_CT,
         python_callable=get_last_ct_version,
         op_kwargs={
-            "project_id": PROJECT_ID,
+            "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
             "dataset_id": TARGET_DATASET_ID,
             "target_name": "{{ params.RecordSource }}",
         },
@@ -133,7 +132,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"TRUNCATE TABLE "
-                        f"`{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_PickupRequest_AU_Stg`;"
+                        f"`{TARGET_DATASET_ID}.Staging_PickupRequest_AU_Stg`;"
                     ),
                     "useLegacySql": False,
                 }
@@ -152,7 +151,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_PickupRequest_AU_Stg`("
+                        f"CALL `{SP_DATASET_ID}.Staging_load_PickupRequest_AU_Stg`("
                         f"SAFE_CAST('{_xcom_last_ct}' AS INT64), "
                         f"SAFE_CAST('{{{{ params.IsReload }}}}' AS BOOL));"
                     ),
@@ -172,7 +171,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"INSERT INTO `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_PickupRequest_Stg` ("
+                        f"INSERT INTO `{TARGET_DATASET_ID}.Staging_PickupRequest_Stg` ("
                         "ID, CreateDateUtc, ShouldPrintLabel, PickupFranchiseeCode, "
                         "PickupCourierNumber, LabelNumber, CollectionDate, CollectionCycle, "
                         "PickupAddress1, PickupAddress2, PickupSuburb, PickupPostcode, "
@@ -212,8 +211,8 @@ with DAG(
                         "Src.IsReturnService, Src.IsParcelConnectPickupLocation, "
                         "Src.SecondaryLabelNumber, Src.PickupSubDepotFranchiseeCode, "
                         "Src.CubicWeight, Src.PickupCompany, Src.DeliveryCompany, Src.IsPriority "
-                        f"FROM `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_PickupRequest_AU_Stg` AS Src "
-                        f"LEFT JOIN `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_PickupRequest_Stg` AS Tgt "
+                        f"FROM `{TARGET_DATASET_ID}.Staging_PickupRequest_AU_Stg` AS Src "
+                        f"LEFT JOIN `{TARGET_DATASET_ID}.Staging_PickupRequest_Stg` AS Tgt "
                         "ON Tgt.ID = Src.ID "
                         "WHERE Tgt.ID IS NULL;"
                     ),
@@ -230,7 +229,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_CT_SAT_Label_PickupRequests_AU`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_CT_SAT_Label_PickupRequests_AU`("
                         f"{{{{ params.ProcessID }}}});"
                     ),
                     "useLegacySql": False,
@@ -260,7 +259,7 @@ with DAG(
         configuration={
             "query": {
                 "query": (
-                    f"UPDATE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_LoadControl_ChangeTracking` "
+                    f"UPDATE `{TARGET_DATASET_ID}.Staging_LoadControl_ChangeTracking` "
                     f"SET LastSyncVersion = SAFE_CAST('{_xcom_next_ct}' AS INT64) "
                     f"WHERE TargetName = '{{{{ params.RecordSource }}}}' "
                     f"AND '{_xcom_next_ct}' != 'None';"

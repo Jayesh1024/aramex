@@ -13,7 +13,10 @@ import os
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
-from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
+
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+
 
 # --- Project Configuration ---
 with DAG(
@@ -37,8 +40,8 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_RFBatchingInvoiceLog_Stg`;"
-                        # f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.dv_LNK_RFBatchingInvoiceLog`;"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_RFBatchingInvoiceLog_Stg`;"
+                        # f"TRUNCATE TABLE `{TARGET_DATASET_ID}.dv_LNK_RFBatchingInvoiceLog`;"
                     ),
                     "useLegacySql": False,
                 }
@@ -50,7 +53,7 @@ with DAG(
             task_id="package_staging_load_rfbatchinginvoice_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_RFBatchingInvoiceLog_Stg`();",
+                    "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_RFBatchingInvoiceLog_Stg`();",
                     "useLegacySql": False,
                 }
             },
@@ -66,7 +69,7 @@ with DAG(
             task_id="package_final_load_lnk_rfbatchinginvoicelog",
             configuration={
                 "query": {
-                    "query": f"SELECT * FROM `{PROJECT_ID}.{TARGET_DATASET_ID}.dv_LNK_RFBatchingInvoiceLog`;",
+                    "query": f"SELECT * FROM `{TARGET_DATASET_ID}.dv_LNK_RFBatchingInvoiceLog`;",
                     "useLegacySql": False,
                 }
             },

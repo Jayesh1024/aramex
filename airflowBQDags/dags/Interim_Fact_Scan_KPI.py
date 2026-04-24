@@ -21,7 +21,10 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import allocate_negative_sentinel_processid
-from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
+
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+
 
 _TASK_ID_GET_PROCESS_ID = "tg_package_staging.package_staging_get_processid"
 
@@ -53,7 +56,7 @@ with DAG(
             task_id="package_staging_get_processid",
             python_callable=allocate_negative_sentinel_processid,
             op_kwargs={
-                "project_id": PROJECT_ID,
+                "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                 "dataset_id": TARGET_DATASET_ID,
             },
         )
@@ -64,8 +67,8 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_KPI_Labels_Stg`;\n"
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_Fact_Scan_KPI_Stg`;"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_KPI_Labels_Stg`;\n"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_Fact_Scan_KPI_Stg`;"
                     ),
                     "useLegacySql": False,
                 }
@@ -78,7 +81,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_KPI_Labels_Stg`("
+                        f"CALL `{SP_DATASET_ID}.Staging_Load_KPI_Labels_Stg`("
                         f"{_xcom_processid}, "
                         f"'{{{{ params.SinceScanDate }}}}', "
                         f"'{{{{ params.UntilScanDate }}}}', "
@@ -95,7 +98,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_Fact_Scan_KPI_Stg`("
+                        f"CALL `{SP_DATASET_ID}.Staging_Load_Fact_Scan_KPI_Stg`("
                         f"{_xcom_processid});"
                     ),
                     "useLegacySql": False,
@@ -114,7 +117,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Load_Fact_Scan_KPI`("
+                        f"CALL `{SP_DATASET_ID}.dbo_Load_Fact_Scan_KPI`("
                         f"{_xcom_processid});"
                     ),
                     "useLegacySql": False,
@@ -128,7 +131,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.interimStaging_Set_LastValue`("
+                        f"CALL `{SP_DATASET_ID}.interimStaging_Set_LastValue`("
                         f"'{{{{ params.RecordSource3 }}}}', NULL, NULL, FALSE);"
                     ),
                     "useLegacySql": False,

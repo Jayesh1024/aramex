@@ -16,7 +16,6 @@ from airflow.utils.task_group import TaskGroup
 import os
 
 # --- Project Configuration ---
-PROJECT_ID = os.getenv("PROJECT_ID")
 SP_DATASET_ID = os.getenv("SP_DATASET_ID")
 TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
@@ -44,7 +43,7 @@ with DAG(
             task_id="package_staging_truncate_courier_stg",
             configuration={
                 "query": {
-                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_Courier_Stg`",
+                    "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_Courier_Stg`",
                     "useLegacySql": False,
                 }
             },
@@ -55,7 +54,7 @@ with DAG(
             task_id="package_staging_load_courier_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_Courier_Stg`();",
+                    "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_Courier_Stg`();",
                     "useLegacySql": False,
                 }
             },
@@ -73,7 +72,7 @@ with DAG(
             configuration={
                 "query": {
                     # In f-strings, `{{`/`}}` are escapes; quadruple braces so Airflow receives Jinja `{{ ... }}`.
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_CF`({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');",
+                    "query": f"CALL `{SP_DATASET_ID}.dv_Load_HUB_CF`({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');",
                     "useLegacySql": False,
                 }
             },
@@ -84,7 +83,7 @@ with DAG(
             task_id="package_final_load_cf_sat",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_CF`({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');",
+                    "query": f"CALL `{SP_DATASET_ID}.dv_Load_SAT_CF`({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');",
                     "useLegacySql": False,
                 }
             },

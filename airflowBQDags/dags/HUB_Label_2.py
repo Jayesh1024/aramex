@@ -25,7 +25,10 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_value
-from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
+
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+
 
 # SSIS $Package::RecordSource12 is configured via DAG params.RecordSource12.
 # Package loads either 'InterBranchAU' or 'InterBranchNZ' per run.
@@ -53,7 +56,7 @@ with DAG(
             task_id="package_staging_2_truncate_label_interbranch_stg",
             configuration={
                 "query": {
-                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_Label_Interbranch_Stg`;",
+                    "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_Label_Interbranch_Stg`;",
                     "useLegacySql": False,
                 }
             },
@@ -64,7 +67,7 @@ with DAG(
             task_id="package_staging_2_get_lastid_interbranch",
             python_callable=get_last_value,
             op_kwargs={
-                "project_id": PROJECT_ID,
+                "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                 "dataset_id": SP_DATASET_ID,
                 "record_source": "{{ params.RecordSource12 }}",
             },
@@ -76,7 +79,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_Label_Interbranch_Stg`("
+                        f"CALL `{SP_DATASET_ID}.sp_load_Staging_Label_Interbranch_Stg`("
                         f"SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LAST_ID}') }}}}' AS INT64), "
                         f"'{{{{ params.RecordSource12 }}}}');"
                     ),
@@ -91,13 +94,13 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"UPDATE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_LoadControl` "
+                        f"UPDATE `{TARGET_DATASET_ID}.Staging_LoadControl` "
                         "SET LastValue = CAST(("
                         f"SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LAST_ID}') }}}}' AS INT64) + 1"
                         ") AS STRING) "
                         "WHERE RecordSource = '{{ params.RecordSource12 }}' "
                         "AND (SELECT COUNT(*) FROM "
-                        f"`{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_Label_Interbranch_Stg`) > 0;"
+                        f"`{TARGET_DATASET_ID}.Staging_Label_Interbranch_Stg`) > 0;"
                     ),
                     "useLegacySql": False,
                 }
@@ -115,7 +118,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LNK_Label_InterBranch`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_LNK_Label_InterBranch`("
                         f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource12 }}}}');"
                     ),
                     "useLegacySql": False,
@@ -129,7 +132,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_LSAT_Label_InterBranch`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_LSAT_Label_InterBranch`("
                         f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource12 }}}}');"
                     ),
                     "useLegacySql": False,
@@ -146,7 +149,7 @@ with DAG(
             task_id="package_monthly_miscellaneous_truncate_dlbs_rf_batching",
             configuration={
                 "query": {
-                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.dbo_DLBSRFBatching`;",
+                    "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.dbo_DLBSRFBatching`;",
                     "useLegacySql": False,
                 }
             },
@@ -157,7 +160,7 @@ with DAG(
             task_id="package_monthly_miscellaneous_maintain_dlbs_rfbatching",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_dbo_DLBSRFBatching`();",
+                    "query": f"CALL `{SP_DATASET_ID}.sp_load_dbo_DLBSRFBatching`();",
                     "useLegacySql": False,
                 }
             },

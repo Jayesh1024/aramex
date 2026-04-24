@@ -11,7 +11,10 @@ import os
 
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
-from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
+
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+
 
 # --- Project Configuration ---
 with DAG(
@@ -27,7 +30,7 @@ with DAG(
         task_id="package_execute_sql_task",
         configuration={
             "query": {
-                "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_tblCustomer_Stg`;",
+                "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_tblCustomer_Stg`;",
                 "useLegacySql": False,
             }
         },
@@ -38,7 +41,7 @@ with DAG(
         task_id="package_load_tblcustomer_stg",
         configuration={
             "query": {
-                "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_tblCustomer_Stg`();",
+                "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_tblCustomer_Stg`();",
                 "useLegacySql": False,
             }
         },

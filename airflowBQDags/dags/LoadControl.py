@@ -40,7 +40,10 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobO
 from airflow.utils.task_group import TaskGroup
 
 from utils.getValue import get_next_process_id
-from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
+
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+
 
 _GET_PROCESSID_XCOM = (
     "{{ ti.xcom_pull(task_ids='package_get_next_processid') }}"
@@ -72,7 +75,7 @@ with DAG(
         task_id="package_get_next_processid",
         python_callable=get_next_process_id,
         op_kwargs={
-            "project_id": PROJECT_ID,
+            "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
             "dataset_id": TARGET_DATASET_ID,
         },
     )
@@ -96,7 +99,7 @@ with DAG(
         "  'Load Labels - Job Start',\n"
         "  'Load TrackAndTrace - Job Start'\n"
         ");\n"
-        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_SaveLog`(\n"
+        f"CALL `{SP_DATASET_ID}.Staging_SaveLog`(\n"
         "  component,\n"
         "  process_id,\n"
         "  CURRENT_DATETIME(),\n"
@@ -219,7 +222,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Load_Dim_Label`("
+                        f"CALL `{SP_DATASET_ID}.dbo_Load_Dim_Label`("
                         f"{_GET_PROCESSID_XCOM}, "
                         f"SAFE_CAST('{{{{ data_interval_start }}}}' AS DATETIME));"
                     ),
@@ -236,7 +239,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Get_LoadReportHtml`("
+                        f"CALL `{SP_DATASET_ID}.Staging_Get_LoadReportHtml`("
                         f"{_GET_PROCESSID_XCOM}, "
                         f"CAST('{{{{ dag_run.id }}}}' AS INT64));"
                     ),

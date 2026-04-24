@@ -34,7 +34,10 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import allocate_negative_sentinel_processid, get_last_value
-from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
+
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+
 
 _TASK_ID_GET_PROCESS_ID = "package_get_processid"
 _TASK_ID_GET_LAST_SCAN = "tg_package_staging.package_staging_get_last_containercontents_lastscandate"
@@ -64,7 +67,7 @@ with DAG(
         task_id=_TASK_ID_GET_PROCESS_ID,
         python_callable=allocate_negative_sentinel_processid,
         op_kwargs={
-            "project_id": PROJECT_ID,
+            "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
             "dataset_id": TARGET_DATASET_ID,
         },
     )
@@ -79,8 +82,8 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_BLK_ContainerManifest_Stg`;\n"
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_BLK_ContainerManifestContents_Stg`;"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_BLK_ContainerManifest_Stg`;\n"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_BLK_ContainerManifestContents_Stg`;"
                     ),
                     "useLegacySql": False,
                 }
@@ -92,7 +95,7 @@ with DAG(
             task_id="package_staging_load_containermanifest",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_BLK_ContainerManifest_Stg`();",
+                    "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_BLK_ContainerManifest_Stg`();",
                     "useLegacySql": False,
                 }
             },
@@ -104,7 +107,7 @@ with DAG(
             task_id="package_staging_get_last_containercontents_lastscandate",
             python_callable=get_last_value,
             op_kwargs={
-                "project_id": PROJECT_ID,
+                "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                 "dataset_id": SP_DATASET_ID,
                 "record_source": "{{ params.RecordSource1 }}",
             },
@@ -116,7 +119,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_BLK_ContainerManifestContents_Stg`("
+                        f"CALL `{SP_DATASET_ID}.sp_load_Staging_BLK_ContainerManifestContents_Stg`("
                         f"'{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LAST_SCAN}') }}}}');"
                     ),
                     "useLegacySql": False,
@@ -138,7 +141,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_BLKContainerManifestContents`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_HUB_BLKContainerManifestContents`("
                         f"{_xcom_processid}, '{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
@@ -152,7 +155,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_BLKContainerManifest`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_SAT_BLKContainerManifest`("
                         f"{_xcom_processid}, '{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
@@ -166,7 +169,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_BLKContainerManifestContents`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_SAT_BLKContainerManifestContents`("
                         f"{_xcom_processid}, '{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
@@ -182,10 +185,10 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"UPDATE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_LoadControl` lc "
+                        f"UPDATE `{TARGET_DATASET_ID}.Staging_LoadControl` lc "
                         "SET lc.LastValue = CAST(("
                         "SELECT CAST(MAX(ScanDate) AS STRING) "
-                        f"FROM `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_BLK_ContainerManifestContents_Stg`"
+                        f"FROM `{TARGET_DATASET_ID}.Staging_BLK_ContainerManifestContents_Stg`"
                         ") AS STRING) "
                         "WHERE lc.RecordSource = '{{ params.RecordSource1 }}';"
                     ),

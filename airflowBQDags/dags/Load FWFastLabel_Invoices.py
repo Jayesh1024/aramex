@@ -17,7 +17,10 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_value
-from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
+
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+
 
 _TASK_ID_GET_LAST_HEADER = "tg_package_staging.package_staging_get_last_invoiceheaderdate"
 _TASK_ID_GET_LAST_PAYMENT = "tg_package_staging.package_staging_get_last_invoicepaymentdate"
@@ -49,8 +52,8 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_fl_InvoiceHeader_Stg`;\n"
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_fl_InvoicePayment_Stg`;"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_fl_InvoiceHeader_Stg`;\n"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_fl_InvoicePayment_Stg`;"
                     ),
                     "useLegacySql": False,
                 }
@@ -62,7 +65,7 @@ with DAG(
             task_id="package_staging_get_last_invoiceheaderdate",
             python_callable=get_last_value,
             op_kwargs={
-                "project_id": PROJECT_ID,
+                "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                 "dataset_id": SP_DATASET_ID,
                 "record_source": "{{ params.RecordSource1 }}",
             },
@@ -73,7 +76,7 @@ with DAG(
             task_id="package_staging_get_last_invoicepaymentdate",
             python_callable=get_last_value,
             op_kwargs={
-                "project_id": PROJECT_ID,
+                "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                 "dataset_id": SP_DATASET_ID,
                 "record_source": "{{ params.RecordSource2 }}",
             },
@@ -85,7 +88,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_InvoiceHeader_Stg`("
+                        f"CALL `{SP_DATASET_ID}.sp_load_Staging_fl_InvoiceHeader_Stg`("
                         f"SAFE_CAST('{_xcom_last_header}' AS DATETIME));"
                     ),
                     "useLegacySql": False,
@@ -99,7 +102,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_InvoicePayment_Stg`("
+                        f"CALL `{SP_DATASET_ID}.sp_load_Staging_fl_InvoicePayment_Stg`("
                         f"SAFE_CAST('{_xcom_last_payment}' AS DATETIME));"
                     ),
                     "useLegacySql": False,
@@ -119,7 +122,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_FL_InvoiceHeader`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_FL_InvoiceHeader`("
                         f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
@@ -133,7 +136,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                        f"CALL `{SP_DATASET_ID}.Staging_Set_LastValue`("
                         f"'{{{{ params.RecordSource1 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                     ),
                     "useLegacySql": False,
@@ -147,7 +150,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_FL_InvoicePayment`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_FL_InvoicePayment`("
                         f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource2 }}}}');"
                     ),
                     "useLegacySql": False,
@@ -161,7 +164,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                        f"CALL `{SP_DATASET_ID}.Staging_Set_LastValue`("
                         f"'{{{{ params.RecordSource2 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                     ),
                     "useLegacySql": False,

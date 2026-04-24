@@ -27,7 +27,10 @@ import os
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
-from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
+
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+
 
 with DAG(
     dag_id="ssis_skeleton_fact_kpi",
@@ -55,8 +58,8 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_Fact_KPI_Src_Stg`;\n"
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_Fact_KPI_Stg`;"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_Fact_KPI_Src_Stg`;\n"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_Fact_KPI_Stg`;"
                     ),
                     "useLegacySql": False,
                 }
@@ -69,7 +72,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_Fact_KPI_Src_Stg`("
+                        f"CALL `{SP_DATASET_ID}.Staging_Load_Fact_KPI_Src_Stg`("
                         f"{{{{ params.ProcessId }}}}, "
                         f"'{{{{ params.StartDateOverRide }}}}', "
                         f"'{{{{ params.EndDateOverRide }}}}');"
@@ -85,7 +88,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Load_Fact_KPI_Daily_Stg`("
+                        f"CALL `{SP_DATASET_ID}.Staging_Load_Fact_KPI_Daily_Stg`("
                         f"{{{{ params.ProcessId }}}}, "
                         f"'{{{{ params.StartDateOverRide }}}}', "
                         f"'{{{{ params.EndDateOverRide }}}}');"
@@ -106,7 +109,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Load_Fact_KPI_Daily`("
+                        f"CALL `{SP_DATASET_ID}.dbo_Load_Fact_KPI_Daily`("
                         f"{{{{ params.ProcessId }}}});"
                     ),
                     "useLegacySql": False,
@@ -120,7 +123,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Load_Fact_KPI_Priority`("
+                        f"CALL `{SP_DATASET_ID}.dbo_Load_Fact_KPI_Priority`("
                         f"{{{{ params.ProcessId }}}});"
                     ),
                     "useLegacySql": False,
@@ -134,7 +137,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Load_Fact_KPI_Performance`("
+                        f"CALL `{SP_DATASET_ID}.dbo_Load_Fact_KPI_Performance`("
                         f"{{{{ params.ProcessId }}}});"
                     ),
                     "useLegacySql": False,

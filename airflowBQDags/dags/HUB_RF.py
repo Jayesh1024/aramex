@@ -13,7 +13,10 @@ import os
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
-from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
+
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+
 
 # --- Project Configuration ---
 with DAG(
@@ -39,7 +42,7 @@ with DAG(
             task_id="package_staging_truncate_franchisee_stg",
             configuration={
                 "query": {
-                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_Franchisee_Stg`",
+                    "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_Franchisee_Stg`",
                     "useLegacySql": False,
                 }
             },
@@ -50,7 +53,7 @@ with DAG(
             task_id="package_staging_load_franchisee_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_Franchisee_Stg`();",
+                    "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_Franchisee_Stg`();",
                     "useLegacySql": False,
                 }
             },
@@ -65,7 +68,7 @@ with DAG(
             task_id="package_final_load_hub_rf",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_RF`({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');",
+                    "query": f"CALL `{SP_DATASET_ID}.dv_Load_HUB_RF`({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');",
                     "useLegacySql": False,
                 }
             },
@@ -76,7 +79,7 @@ with DAG(
             task_id="package_final_load_sat_rf",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_RF`({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');",
+                    "query": f"CALL `{SP_DATASET_ID}.dv_Load_SAT_RF`({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');",
                     "useLegacySql": False,
                 }
             },

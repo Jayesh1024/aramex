@@ -14,7 +14,10 @@ import os
 
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
-from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
+
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+
 
 # --- Project Configuration ---
 with DAG(
@@ -36,7 +39,7 @@ with DAG(
             "query": {
                 "query": (
                     f"SELECT CASE WHEN {{{{ params.ProcessId }}}} > 0 THEN {{{{ params.ProcessId }}}} "
-                    f"ELSE COALESCE((SELECT MAX(ProcessId) FROM `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_LoadLog`), 0) + 1 "
+                    f"ELSE COALESCE((SELECT MAX(ProcessId) FROM `{TARGET_DATASET_ID}.Staging_LoadLog`), 0) + 1 "
                     f"END AS NextProcessId"
                 ),
                 "useLegacySql": False,
@@ -49,7 +52,7 @@ with DAG(
         task_id="package_load_fact_delivery_performance",
         configuration={
             "query": {
-                "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Load_Fact_Delivery_Performance`({{{{ params.ProcessId }}}}, {{{{ params.Force }}}});",
+                "query": f"CALL `{SP_DATASET_ID}.dbo_Load_Fact_Delivery_Performance`({{{{ params.ProcessId }}}}, {{{{ params.Force }}}});",
                 "useLegacySql": False,
             }
         },

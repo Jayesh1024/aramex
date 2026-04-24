@@ -23,7 +23,10 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import allocate_negative_sentinel_processid, get_last_value
-from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
+
+SP_DATASET_ID = os.getenv("SP_DATASET_ID")
+TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+
 
 _TASK_ID_GET_PROCESS_ID = "tg_package_staging.package_staging_get_processid"
 _TASK_ID_GET_LAST_RUN = "tg_package_staging.package_staging_get_last_run_date_zenlog"
@@ -50,7 +53,7 @@ with DAG(
             task_id="package_staging_get_processid",
             python_callable=allocate_negative_sentinel_processid,
             op_kwargs={
-                "project_id": PROJECT_ID,
+                "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                 "dataset_id": TARGET_DATASET_ID,
             },
         )
@@ -59,7 +62,7 @@ with DAG(
             task_id="package_staging_truncate_zen_ticket_stg",
             configuration={
                 "query": {
-                    "query": f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_ZEN_Ticket_Stg`;",
+                    "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_ZEN_Ticket_Stg`;",
                     "useLegacySql": False,
                 }
             },
@@ -70,7 +73,7 @@ with DAG(
             task_id="package_staging_get_last_run_date_zenlog",
             python_callable=get_last_value,
             op_kwargs={
-                "project_id": PROJECT_ID,
+                "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
                 "dataset_id": SP_DATASET_ID,
                 "record_source": "{{ params.RecordSource }}",
             },
@@ -82,7 +85,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_ZEN_Ticket_Stg`("
+                        f"CALL `{SP_DATASET_ID}.sp_load_Staging_ZEN_Ticket_Stg`("
                         f"SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LAST_RUN}') }}}}' AS DATETIME));"
                     ),
                     "useLegacySql": False,
@@ -103,7 +106,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_HUB_ZEN_Ticket`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_HUB_ZEN_Ticket`("
                         f"{_xcom_processid}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
@@ -117,7 +120,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_ZEN_Ticket`("
+                        f"CALL `{SP_DATASET_ID}.dv_Load_SAT_ZEN_Ticket`("
                         f"{_xcom_processid}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
@@ -132,10 +135,10 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"UPDATE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_LoadControl` "
+                        f"UPDATE `{TARGET_DATASET_ID}.Staging_LoadControl` "
                         "SET LastValue = CAST(("
                         "SELECT FORMAT_DATETIME('%Y-%m-%d %H:%M:%E3S', MAX(SysLastUpdatedUtc)) "
-                        f"FROM `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_ZEN_Ticket_Stg`"
+                        f"FROM `{TARGET_DATASET_ID}.Staging_ZEN_Ticket_Stg`"
                         ") AS STRING) "
                         "WHERE RecordSource = '{{ params.RecordSource }}';"
                     ),
