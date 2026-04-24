@@ -1,0 +1,234 @@
+[
+    {
+        "sp_name": "dbo_Load_Dim_Label",
+        "sp_params": [
+            {
+                "param_name": "ProcessID",
+                "param_type": "INT64"
+            },
+            {
+                "param_name": "ChangedSince",
+                "param_type": "DATETIME"
+            }
+        ]
+    },
+    {
+        "sp_name": "dbo_Load_Fact_KPI_Daily",
+        "sp_params": [
+            {
+                "param_name": "ProcessID",
+                "param_type": "INT64"
+            }
+        ]
+    },
+    {
+        "sp_name": "dbo_Load_Fact_KPI",
+        "sp_params": [
+            {
+                "param_name": "ProcessID",
+                "param_type": "INT64"
+            }
+        ]
+    },
+    {
+        "sp_name": "dv_Load_LNK_Label_Product_ServiceItem",
+        "sp_params": [
+            {
+                "param_name": "ProcessID",
+                "param_type": "INT64"
+            },
+            {
+                "param_name": "RecordSource",
+                "param_type": "STRING"
+            }
+        ]
+    },
+    {
+        "sp_name": "dv_Load_LNK_Product_ServiceCon",
+        "sp_params": [
+            {
+                "param_name": "ProcessID",
+                "param_type": "INT64"
+            },
+            {
+                "param_name": "RecordSource",
+                "param_type": "STRING"
+            }
+        ]
+    },
+    {
+        "sp_name": "dv_Load_LNK_RuralOnforwards",
+        "sp_params": [
+            {
+                "param_name": "ProcessID",
+                "param_type": "INT64"
+            }
+        ]
+    },
+    {
+        "sp_name": "dv_Load_LNK_Scan",
+        "sp_params": [
+            {
+                "param_name": "ProcessID",
+                "param_type": "INT64"
+            }
+        ]
+    },
+    {
+        "sp_name": "dv_Load_LNK_Scan_Signature",
+        "sp_params": [
+            {
+                "param_name": "ProcessID",
+                "param_type": "INT64"
+            }
+        ]
+    },
+    {
+        "sp_name": "dv_Load_LNK_Scan_SignatureAI",
+        "sp_params": [
+            {
+                "param_name": "ProcessID",
+                "param_type": "INT64"
+            },
+            {
+                "param_name": "RecordSource",
+                "param_type": "STRING"
+            }
+        ]
+    },
+    {
+        "sp_name": "dv_Load_SAT_BLKContainerManifest",
+        "sp_params": [
+            {
+                "param_name": "ProcessID",
+                "param_type": "INT64"
+            },
+            {
+                "param_name": "RecordSource",
+                "param_type": "STRING"
+            }
+        ]
+    },
+    {
+        "sp_name": "dv_Load_SAT_BLKContainerManifestContents",
+        "sp_params": [
+            {
+                "param_name": "ProcessID",
+                "param_type": "INT64"
+            },
+            {
+                "param_name": "RecordSource",
+                "param_type": "STRING"
+            }
+        ]
+    },
+    {
+        "sp_name": "dv_Load_SAT_CF",
+        "sp_params": [
+            {
+                "param_name": "ProcessID",
+                "param_type": "INT64"
+            },
+            {
+                "param_name": "RecordSource",
+                "param_type": "STRING"
+            }
+        ]
+    },
+    {
+        "sp_name": "dv_Load_SAT_Customer",
+        "sp_params": [
+            {
+                "param_name": "p_ProcessID",
+                "param_type": "INT64"
+            },
+            {
+                "param_name": "p_RecordSource",
+                "param_type": "STRING"
+            }
+        ]
+    },
+    {
+        "sp_name": "dv_Load_SAT_Label_Allocation_FLE",
+        "sp_params": [
+            {
+                "param_name": "ProcessID",
+                "param_type": "INT64"
+            },
+            {
+                "param_name": "RecordSource",
+                "param_type": "STRING"
+            }
+        ]
+    },
+    {
+        "sp_name": "dv_Load_SAT_Label_Allocation_IFS",
+        "sp_params": [
+            {
+                "param_name": "ProcessID",
+                "param_type": "INT64"
+            },
+            {
+                "param_name": "RecordSource",
+                "param_type": "STRING"
+            }
+        ]
+    },
+    {
+        "sp_name": "dv_Load_SAT_ScanStatus",
+        "sp_params": [
+            {
+                "param_name": "ProcessID",
+                "param_type": "INT64"
+            },
+            {
+                "param_name": "RecordSource",
+                "param_type": "STRING"
+            }
+        ]
+    },
+    {
+        "sp_name": "dv_Load_SAT_ZEN_Ticket",
+        "sp_params": [
+            {
+                "param_name": "ProcessID",
+                "param_type": "INT64"
+            },
+            {
+                "param_name": "RecordSource",
+                "param_type": "STRING"
+            }
+        ]
+    },
+    {
+        "sp_name": "dv_Load_Weekly_Priced_Invoices",
+        "sp_params": [
+            {
+                "param_name": "ProcessID",
+                "param_type": "INT64"
+            },
+            {
+                "param_name": "LastID",
+                "param_type": "INT64"
+            }
+        ]
+    },
+    {
+        "sp_name": "staging_Load_SAT_Label_Allocation_Stg2",
+        "sp_params": [
+            {
+                "param_name": "ProcessID",
+                "param_type": "INT64"
+            }
+        ]
+    },
+    {
+        "sp_name": "staging_Load_Scans_Stg",
+        "sp_params": [
+            {
+                "param_name": "ProcessID",
+                "param_type": "INT64"
+            }
+        ]
+    }
+]
