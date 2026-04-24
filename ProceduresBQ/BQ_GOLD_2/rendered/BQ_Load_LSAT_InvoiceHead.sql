@@ -7,7 +7,7 @@
 --
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_LSAT_InvoiceHead`(IN p_ProcessID INT64)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_LSAT_InvoiceHead`(IN p_ProcessID INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_LSAT_InvoiceHead
@@ -24,8 +24,6 @@ BEGIN
   DECLARE v_ErrorMessage STRING DEFAULT NULL;
   DECLARE v_Inserted INT64 DEFAULT 0;
   DECLARE v_Updated INT64 DEFAULT 0;
-  DECLARE v_RecordSource STRING DEFAULT 'FMS_InvoiceHead';
-
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
     INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceHead` (
@@ -124,7 +122,7 @@ BEGIN
       Src.ExcludedFromBaseRate,
       v_Loaded AS Loaded,
       p_ProcessId AS ProcessId,
-      v_RecordSource
+      p_RecordSource
     FROM InvoiceHeadStg AS Src
     WHERE NOT EXISTS (
       SELECT 1 

@@ -17,9 +17,6 @@ BEGIN
   DECLARE v_Inserted_Count INT64 DEFAULT 0;
   DECLARE v_Updated_Count INT64 DEFAULT 0;
 
-  -- Static Record Source as defined in the source file's default parameter
-  DECLARE v_StaticRecordSource STRING DEFAULT 'Tasman';
-
   -- Constants for SCD Type 2
   DECLARE v_DefaultValidFrom DATETIME DEFAULT DATETIME('1900-01-01 00:00:00');
   DECLARE v_DefaultValidTo DATETIME DEFAULT DATETIME('9999-12-31 23:59:59');
@@ -125,7 +122,7 @@ BEGIN
         Height,
         v_Loaded,
         p_ProcessID,
-        v_StaticRecordSource,
+        p_RecordSource,
         TasmanID,
         CASE WHEN ActionType = 'I' THEN v_DefaultValidFrom ELSE v_Loaded END,
         v_DefaultValidTo,

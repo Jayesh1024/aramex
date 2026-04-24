@@ -27,6 +27,7 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
+from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
 from utils.getValue import (
     allocate_dashboard_processid,
     get_last_value,
@@ -34,12 +35,7 @@ from utils.getValue import (
     get_yesterday_eod_iso,
 )
 
-PROJECT_ID = os.getenv("PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
-
 _TASK_ID_GET_PROCESS_ID = "tg_package_staging.tg_package_staging_initial.package_staging_initial_get_next_processid"
-_TASK_ID_GET_LAST_MF = "tg_package_staging.tg_package_staging_staging_1.package_staging_staging_1_get_lastdate_myfastway"
 _TASK_ID_GET_LASTSCANID = "tg_package_staging.tg_package_staging_staging_2.package_staging_staging_2_get_lastscanid_trackandtrace"
 _TASK_ID_GET_STARTDATE = "tg_package_staging_3.package_staging_3_get_start_date"
 
@@ -51,13 +47,13 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "fact_kpi_dashboard"],
     params={
-        "RecordSource4": "RecordSource",
+        # SSIS $Package::RecordSource4 — must match `Staging_LoadControl.RecordSource` (e.g. MyFastway).
+        "RecordSource4": "MyFastway",
         "ISOCountryCodes": "AUNZ",
     },
 ) as dag:
 
     _xcom_processid = f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_PROCESS_ID}') }}}}"
-    _xcom_last_mf = f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LAST_MF}') }}}}"
     _xcom_last_scan = f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LASTSCANID}') }}}}"
     _xcom_start_date = f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_STARTDATE}') }}}}"
 
@@ -102,15 +98,13 @@ with DAG(
                 },
             )
 
-            # ref_id: Package\Staging\Staging 1\Load fl_MF_Interim_Stg — pipeline -> inferred SP
+            # ref_id: Package\Staging\Staging 1\Load fl_MF_Interim_Stg — BQ SP has no args (date window computed inside; see ProceduresBQ BQ_GOLD_1).
             op_15 = BigQueryInsertJobOperator(
                 task_id="package_staging_staging_1_load_fl_mf_interim_stg",
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_MF_Interim_Stg`("
-                            f"SAFE_CAST('{_xcom_last_mf}' AS DATETIME), "
-                            f"'{{{{ params.ISOCountryCodes }}}}');"
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_MF_Interim_Stg`();"
                         ),
                         "useLegacySql": False,
                     }

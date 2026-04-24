@@ -5,7 +5,7 @@
 -- History:
 --  17/09/2020  P. Waldron      Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_LSAT_Label_Product_ServiceItem`(IN p_ProcessID INT64)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_LSAT_Label_Product_ServiceItem`(IN p_ProcessID INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_LSAT_Label_Product_ServiceItem
@@ -23,8 +23,6 @@ BEGIN
   DECLARE v_ErrorMessage STRING DEFAULT NULL;
   DECLARE v_Inserted INT64 DEFAULT 0;
   DECLARE v_Updated INT64 DEFAULT 0;
-  DECLARE v_RecordSource STRING DEFAULT 'MyFastway';
-
   BEGIN
     -- Using a single MERGE to handle SCD Type 2 logic (Expire + Insert)
     -- As per CORE RULES: v_Updated = Inserted + Updated; v_Inserted = 0.
@@ -97,7 +95,7 @@ BEGIN
         Src.PLBSBatchId, Src.PLBSInvoiceNo, Src.PLBSInvoiceDate, Src.PLBSPrice, Src.PLBSTax,
         Src.PLBSTotal, Src.BareProfileId, Src.ServicePrice, Src.ServicePriceComm, Src.ServicePriceCommPercent,
         Src.ServicePriceDiscountFixed, Src.ServicePriceDiscountPercent, Src.UpdatedOn,
-        v_Loaded, p_ProcessID, v_RecordSource, Src.ConId, 
+        v_Loaded, p_ProcessID, p_RecordSource, Src.ConId, 
         IF(Src.Tgt_HSK IS NULL, v_DefaultValidFrom, v_Loaded), v_DefaultValidTo, 1
       );
 

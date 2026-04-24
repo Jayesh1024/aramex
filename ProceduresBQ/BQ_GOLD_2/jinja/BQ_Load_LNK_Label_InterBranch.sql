@@ -7,7 +7,8 @@
 --  21/06/2022  B. Woods         Cloned
 -- ==========================================================================================
 CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_LNK_Label_InterBranch`(
-    IN p_ProcessID INT64
+    IN p_ProcessID INT64,
+    IN p_RecordSource STRING
 )
 OPTIONS(strict_mode=false)
 BEGIN
@@ -22,9 +23,6 @@ BEGIN
     DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
     DECLARE v_DefaultValidFrom TIMESTAMP DEFAULT TIMESTAMP('1900-01-01');
     DECLARE v_DefaultValidTo TIMESTAMP DEFAULT TIMESTAMP('9999-12-31');
-
-    -- Static RecordSource as per original T-SQL default logic
-    DECLARE v_RecordSource STRING DEFAULT 'InterBranchAU';
 
     BEGIN
         -- Using MERGE to handle the "Insert if Not Exists" logic in a single scan.
@@ -75,7 +73,7 @@ BEGIN
                 Src.BatchId,
                 v_Loaded,
                 p_ProcessID,
-                v_RecordSource,
+                p_RecordSource,
                 NULL 
             );
 

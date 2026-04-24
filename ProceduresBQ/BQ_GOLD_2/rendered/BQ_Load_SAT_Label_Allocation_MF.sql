@@ -13,7 +13,7 @@
 -- ==========================================================================================
 CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_Label_Allocation_MF`(
   p_ProcessID INT64,
-  p_RecordSource STRING -- Kept for signature compatibility
+  p_RecordSource STRING
 )
 BEGIN
   DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
@@ -22,9 +22,6 @@ BEGIN
   DECLARE v_Error_Msg STRING DEFAULT NULL;
   DECLARE v_Inserted_Count INT64 DEFAULT 0;
   DECLARE v_Updated_Count INT64 DEFAULT 0;
-  
-  -- Static Record Source as defined in the source file's default parameter
-  DECLARE v_StaticRecordSource STRING DEFAULT 'MyFastway';
 
   -- Constants for SCD Type 2
   DECLARE v_DefaultValidFrom DATETIME DEFAULT DATETIME('1900-01-01 00:00:00');
@@ -111,7 +108,7 @@ BEGIN
         Stg.SatchelSize, Stg.WeightPriceTypeId, Stg.SubDepot, Stg.ToRfSubDepotCode,
         Stg.BareProfileId, Stg.ConUpdatedOn, Stg.ConItemUpdatedOn, Stg.ItemSumPrice,
         Stg.ItemSumTax, Stg.ItemSumTotal, Stg.ItemSumPackageTypeId, Stg.LabelExternal,
-        v_Loaded, p_ProcessID, v_StaticRecordSource, Stg.ConItemId,
+        v_Loaded, p_ProcessID, p_RecordSource, Stg.ConItemId,
         CASE WHEN T.RType = 'I' THEN v_DefaultValidFrom ELSE v_Loaded END,
         v_DefaultValidTo, 1
       FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_fl_ConItem_Stg` AS Stg

@@ -17,10 +17,7 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_value
-
-PROJECT_ID = os.getenv("PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
 
 _TASK_ID_GET_LAST_HEADER = "tg_package_staging.package_staging_get_last_invoiceheaderdate"
 _TASK_ID_GET_LAST_PAYMENT = "tg_package_staging.package_staging_get_last_invoicepaymentdate"
@@ -130,14 +127,14 @@ with DAG(
             },
         )
 
-        # ref_id: Package\Final\Set Last InvoiceHeaderDate — Staging_Set_LastValue(RecordSource1)
+        # ref_id: Package\Final\Set Last InvoiceHeaderDate — Staging_Set_LastValue(4 args)
         op_3 = BigQueryInsertJobOperator(
             task_id="package_final_set_last_invoiceheaderdate",
             configuration={
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
-                        f"'{{{{ params.RecordSource1 }}}}');"
+                        f"'{{{{ params.RecordSource1 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                     ),
                     "useLegacySql": False,
                 }
@@ -158,14 +155,14 @@ with DAG(
             },
         )
 
-        # ref_id: Package\Final\Set Last InvoicePaymentDate — Staging_Set_LastValue(RecordSource2)
+        # ref_id: Package\Final\Set Last InvoicePaymentDate — Staging_Set_LastValue(4 args)
         op_4 = BigQueryInsertJobOperator(
             task_id="package_final_set_last_invoicepaymentdate",
             configuration={
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
-                        f"'{{{{ params.RecordSource2 }}}}');"
+                        f"'{{{{ params.RecordSource2 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                     ),
                     "useLegacySql": False,
                 }

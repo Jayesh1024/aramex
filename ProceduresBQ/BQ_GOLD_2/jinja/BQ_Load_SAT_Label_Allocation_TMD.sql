@@ -17,7 +17,6 @@ BEGIN
   DECLARE v_Inserted_Count INT64 DEFAULT 0;
   DECLARE v_Updated_Count INT64 DEFAULT 0;
 
-  DECLARE v_StaticRecordSource STRING DEFAULT 'Temando';
   DECLARE v_DefaultValidFrom DATETIME DEFAULT DATETIME('1900-01-01 00:00:00');
   DECLARE v_DefaultValidTo DATETIME DEFAULT DATETIME('9999-12-31 23:59:59');
 
@@ -104,7 +103,7 @@ BEGIN
         OriginRF, DestinationRF,
         CreateDateLocal, CreateDateUTC, RequestID, LabelColour, LabelType,
         LabelCost, Weight, Length, Width, Height, v_Loaded, p_ProcessID,
-        v_StaticRecordSource, globalRequestID,
+        p_RecordSource, globalRequestID,
         CASE WHEN ActionType = 'I' THEN v_DefaultValidFrom ELSE v_Loaded END,
         v_DefaultValidTo, 1
       FROM temp_SAT_TMD_Toload;

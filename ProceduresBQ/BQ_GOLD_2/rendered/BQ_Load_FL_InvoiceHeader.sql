@@ -5,7 +5,7 @@
 -- History:
 --  21/07/2025  B. Woods        Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_FL_InvoiceHeader`(IN p_ProcessId INT64)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_FL_InvoiceHeader`(IN p_ProcessId INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_FL_InvoiceHeader
@@ -20,8 +20,6 @@ BEGIN
   DECLARE v_ErrorMessage STRING DEFAULT NULL;
   DECLARE v_Inserted INT64 DEFAULT 0;
   DECLARE v_Updated INT64 DEFAULT 0;
-  DECLARE v_RecordSource STRING DEFAULT 'fl_InvoiceHeader';
-
   BEGIN
     -- MERGE Rule: Use single MERGE for SP containing both INSERT + UPDATE
     MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LSAT_FL_InvoiceHeader` AS Tgt
@@ -94,13 +92,13 @@ BEGIN
       GroupTaxExempt = Src.GroupTaxExempt,
       Loaded = v_Loaded,
       ProcessId = p_ProcessId,
-      RecordSource = v_RecordSource
+      RecordSource = p_RecordSource
     WHEN NOT MATCHED THEN
       INSERT (
         InvoiceHeaderId, BatchId, RF, ParentRF, CountryId, CustomerId, ParentCustomerId, InvoiceNo, InvoiceDate, Price, Tax, Total, GroupPrice, GroupTax, GroupTotal, Released, RFLegalEntity, ParentRFLegalEntity, CFLegalEntity, Level, BankProcess, ParentInvoiceHeaderId, CFOverride, CFOverrideBasePriceCommPercent, CFOverrideExcessPriceCommPercent, SelectedUI, EnterpriseFastlabelType, DueDate, CloseDate, TotalPaid, CourierNumber, GroupTaxExempt, Loaded, ProcessId, RecordSource
       )
       VALUES (
-        Src.InvoiceHeaderId, Src.BatchId, Src.RF, Src.ParentRF, Src.CountryId, Src.CustomerId, Src.ParentCustomerId, Src.InvoiceNo, Src.InvoiceDate, Src.Price, Src.Tax, Src.Total, Src.GroupPrice, Src.GroupTax, Src.GroupTotal, Src.Released, Src.RFLegalEntity, Src.ParentRFLegalEntity, Src.CFLegalEntity, Src.Level, Src.BankProcess, Src.ParentInvoiceHeaderId, Src.CFOverride, Src.CFOverrideBasePriceCommPercent, Src.CFOverrideExcessPriceCommPercent, Src.SelectedUI, Src.EnterpriseFastlabelType, Src.DueDate, Src.CloseDate, Src.TotalPaid, Src.CourierNumber, Src.GroupTaxExempt, v_Loaded, p_ProcessId, v_RecordSource
+        Src.InvoiceHeaderId, Src.BatchId, Src.RF, Src.ParentRF, Src.CountryId, Src.CustomerId, Src.ParentCustomerId, Src.InvoiceNo, Src.InvoiceDate, Src.Price, Src.Tax, Src.Total, Src.GroupPrice, Src.GroupTax, Src.GroupTotal, Src.Released, Src.RFLegalEntity, Src.ParentRFLegalEntity, Src.CFLegalEntity, Src.Level, Src.BankProcess, Src.ParentInvoiceHeaderId, Src.CFOverride, Src.CFOverrideBasePriceCommPercent, Src.CFOverrideExcessPriceCommPercent, Src.SelectedUI, Src.EnterpriseFastlabelType, Src.DueDate, Src.CloseDate, Src.TotalPaid, Src.CourierNumber, Src.GroupTaxExempt, v_Loaded, p_ProcessId, p_RecordSource
       );
 
     -- When MERGE is used: @@row_count returns total rows affected (inserts + updates combined). 

@@ -14,12 +14,9 @@ import os
 
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
+from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
 
 # --- Project Configuration ---
-PROJECT_ID = os.getenv("PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
-
 with DAG(
     dag_id="ssis_skeleton_fact_delivery_performance",
     start_date=datetime(2024, 1, 1),

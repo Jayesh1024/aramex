@@ -7,7 +7,8 @@
 -- ==========================================================================================
 
 CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_Label_Allocation_EBAY`(
-    IN p_ProcessID INT64
+    IN p_ProcessID INT64,
+    IN p_RecordSource STRING
 )
 OPTIONS(strict_mode=false)
 BEGIN
@@ -23,9 +24,6 @@ BEGIN
     -- FIX: Changed these to DATETIME to match your table schema
     DECLARE v_DefaultValidFrom DATETIME DEFAULT DATETIME '1900-01-01';
     DECLARE v_DefaultValidTo DATETIME DEFAULT DATETIME '9999-12-31';
-
-    -- Static RecordSource
-    DECLARE v_RecordSource STRING DEFAULT 'EBAY';
 
     BEGIN
         -- Step 1: Identify and Expire existing records that have changed
@@ -80,7 +78,7 @@ BEGIN
             Src.LabelCost,
             v_Loaded, -- DATETIME
             p_ProcessID,
-            v_RecordSource,
+            p_RecordSource,
             Src.ID,
             IF(Src.IsNewKey, v_DefaultValidFrom, v_Loaded),
             v_DefaultValidTo,

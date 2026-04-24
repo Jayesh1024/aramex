@@ -6,7 +6,8 @@
 --	17/08/2020  P. Waldron		Routine Written
 -- ==========================================================================================
 CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.Staging_Load_Label_Product_ServiceItem_Stg`(
-  IN p_ProcessId    INT64
+  IN p_ProcessId    INT64,
+  IN p_RecordSource STRING
 )
 BEGIN
 
@@ -17,7 +18,6 @@ BEGIN
   DECLARE v_ErrorMessage  STRING;
   DECLARE v_Inserted      INT64 DEFAULT 0;
   DECLARE v_Loaded        DATETIME DEFAULT CURRENT_DATETIME();
-  DECLARE v_RecordSource STRING DEFAULT 'MyFastway';
 
   BEGIN
 
@@ -114,7 +114,7 @@ BEGIN
       Src.UpdatedOn,
       v_Loaded          AS Loaded,
       p_ProcessId       AS ProcessId,
-      v_RecordSource    AS RecordSource,
+      p_RecordSource    AS RecordSource,
       Src.ServiceItemId AS RecordSourceId
     FROM (
       SELECT DISTINCT

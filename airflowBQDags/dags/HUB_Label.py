@@ -33,10 +33,8 @@ from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_value
+from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
 
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-PROJECT_ID = os.getenv("PROJECT_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 with DAG(
     dag_id="ssis_skeleton_hub_label",
     start_date=datetime(2024, 1, 1),
@@ -146,14 +144,14 @@ with DAG(
         )
 
         # ref_id: Package\\Final (Load SAT_Distribution)\\Set LastDate (LabelMaster)
-        # SSIS: Exec [Staging].[Set_LastValue] 'LabelMaster'
+        # SSIS: Exec [Staging].[Set_LastValue] 'LabelMaster' — BQ: Staging_Set_LastValue(4 args)
         op_9 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_distribution_set_lastdate_labelmaster",
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
-                        f"('{{{{ params.RecordSource1 }}}}');"
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                        f"'{{{{ params.RecordSource1 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                     ),
                     "useLegacySql": False,
                 }
@@ -172,7 +170,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_DL`"
-                            f"({{{{ params.ProcessId }}}});"
+                            f"({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource2 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -187,7 +185,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_EBAY`"
-                            f"({{{{ params.ProcessId }}}});"
+                            f"({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource10 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -215,8 +213,8 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
-                            f"('{{{{ params.RecordSource2 }}}}');"
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                            f"'{{{{ params.RecordSource2 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                         ),
                         "useLegacySql": False,
                     }
@@ -229,8 +227,8 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
-                            f"('{{{{ params.RecordSource10 }}}}');"
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                            f"'{{{{ params.RecordSource10 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                         ),
                         "useLegacySql": False,
                     }
@@ -243,8 +241,8 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
-                            f"('{{{{ params.RecordSource6 }}}}');"
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                            f"'{{{{ params.RecordSource6 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                         ),
                         "useLegacySql": False,
                     }
@@ -304,8 +302,8 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
-                            f"('{{{{ params.RecordSource4 }}}}');"
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                            f"'{{{{ params.RecordSource4 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                         ),
                         "useLegacySql": False,
                     }
@@ -318,8 +316,8 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
-                            f"('{{{{ params.RecordSource5 }}}}');"
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                            f"'{{{{ params.RecordSource5 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                         ),
                         "useLegacySql": False,
                     }
@@ -336,7 +334,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_FL`"
-                            f"({{{{ params.ProcessId }}}});"
+                            f"({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource3 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -379,8 +377,8 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
-                            f"('{{{{ params.RecordSource3 }}}}');"
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                            f"'{{{{ params.RecordSource3 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                         ),
                         "useLegacySql": False,
                     }
@@ -393,8 +391,8 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
-                            f"('{{{{ params.RecordSource8 }}}}');"
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                            f"'{{{{ params.RecordSource8 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                         ),
                         "useLegacySql": False,
                     }
@@ -407,8 +405,8 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`"
-                            f"('{{{{ params.RecordSource7 }}}}');"
+                            f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
+                            f"'{{{{ params.RecordSource7 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
                         ),
                         "useLegacySql": False,
                     }

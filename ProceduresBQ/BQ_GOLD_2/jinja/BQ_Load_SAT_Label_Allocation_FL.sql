@@ -7,7 +7,8 @@
 -- ==========================================================================================
 
 CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_SAT_Label_Allocation_FL`(
-    IN p_ProcessID INT64
+    IN p_ProcessID INT64,
+    IN p_RecordSource STRING
 )
 OPTIONS(strict_mode=false)
 BEGIN
@@ -22,9 +23,6 @@ BEGIN
     DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
     DECLARE v_DefaultValidFrom DATETIME DEFAULT DATETIME '1900-01-01';
     DECLARE v_DefaultValidTo DATETIME DEFAULT DATETIME '9999-12-31';
-
-    -- Static RecordSource
-    DECLARE v_RecordSource STRING DEFAULT 'FastLabel';
 
     BEGIN
         -- STEP 1: Identify and Expire current records that have changed attributes
@@ -90,7 +88,7 @@ BEGIN
             Src.ClientID, Src.ConsumedByCustomerUserID, Src.LblColour, Src.LblPrice, Src.LblPrice1, 
             Src.Reference, Src.Packaging, Src.Weight, Src.WeightCubic, Src.Length, Src.Width, Src.Height, 
             Src.ManifestID, Src.Town, Src.PostCode, Src.destRF, Src.CreateDate, Src.ConsignmentID,
-            v_Loaded, p_ProcessID, v_RecordSource, Src.BookID,
+            v_Loaded, p_ProcessID, p_RecordSource, Src.BookID,
             IF(Src.IsNewKey, v_DefaultValidFrom, v_Loaded),
             v_DefaultValidTo,
             1 

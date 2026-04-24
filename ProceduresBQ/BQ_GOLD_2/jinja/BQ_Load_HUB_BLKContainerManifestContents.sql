@@ -7,16 +7,13 @@
 -- -- ==========================================================================================
 CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_HUB_BLKContainerManifestContents`(
   p_ProcessID INT64,
-  p_RecordSource STRING -- Parameter kept for signature compatibility
+  p_RecordSource STRING
 )
 BEGIN
   DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
   DECLARE v_Status STRING DEFAULT 'Success';
   DECLARE v_Error_Msg STRING DEFAULT NULL;
   DECLARE v_Inserted_Count INT64 DEFAULT 0;
-
-  -- Static Record Source as defined in the source file's default parameter
-  DECLARE v_StaticRecordSource STRING DEFAULT 'BLK_ManifestContents';
 
   BEGIN
     -- BigQuery MERGE: Atomic check for existing business keys before insertion
@@ -29,7 +26,7 @@ BEGIN
         TRIM(LabelNo) AS LabelNo,
         v_Started AS Loaded,
         p_ProcessID AS ProcessID,
-        v_StaticRecordSource AS RecordSource
+        p_RecordSource AS RecordSource
       FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_BLK_ContainerManifestContents_Stg` AS Src
       -- Replicating the 'New Keys' check against the Satellite as per original logic
       WHERE NOT EXISTS (

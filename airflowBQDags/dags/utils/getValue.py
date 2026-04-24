@@ -17,14 +17,19 @@ Grouped by responsibility:
 """
 from __future__ import annotations
 
+import math
+import numbers
+import re
 from datetime import datetime, timedelta
 import pandas as pd
-import numbers
-import math
-import re
 from airflow.providers.google.cloud.hooks.bigquery import BigQueryHook
 
+# Staging_LoadControl.LastValue may be a LastId (integer) or a LastDate string.
+# Pandas / XCom can turn datetime-shaped strings into forms BigQuery CAST cannot parse
+# (e.g. "Aug 12 2025 12:00 AM"). Pure integer strings must pass through unchanged for
+# SAFE_CAST(... AS INT64) call sites.
 _INT_STRING = re.compile(r"^-?\d+$")
+
 
 def _escape_sql_literal(value: str) -> str:
     """Escape a string for safe inclusion inside a BigQuery single-quoted literal."""
@@ -40,18 +45,21 @@ def _normalize_load_control_last_value(value):
             return None
     except TypeError:
         pass
+
     if isinstance(value, (bytes, bytearray)):
         value = value.decode("utf-8", errors="replace")
     if isinstance(value, bool):
         return str(int(value))
     if isinstance(value, numbers.Integral):
         return str(int(value))
+
     if isinstance(value, numbers.Real):
         fv = float(value)
         if math.isnan(fv):
             return None
         if fv.is_integer() and abs(fv) <= 2**53:
             return str(int(fv))
+
     if isinstance(value, str):
         s = value.strip()
         if not s:
@@ -65,6 +73,7 @@ def _normalize_load_control_last_value(value):
         ts = pd.to_datetime(value, errors="coerce")
         if pd.isna(ts):
             return None
+
     if getattr(ts, "tzinfo", None) is not None:
         ts = ts.tz_convert("UTC").tz_localize(None)
     return ts.strftime("%Y-%m-%d %H:%M:%S")

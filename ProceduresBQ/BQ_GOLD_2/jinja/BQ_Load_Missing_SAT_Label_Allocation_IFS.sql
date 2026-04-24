@@ -4,7 +4,7 @@
 -- History:
 --  25/07/2019  B. Woods      Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_Missing_SAT_Label_Allocation_IFS`(IN p_ProcessID INT64)
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_Missing_SAT_Label_Allocation_IFS`(IN p_ProcessID INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_Missing_SAT_Label_Allocation_IFS
@@ -22,8 +22,6 @@ BEGIN
   DECLARE v_ErrorMessage STRING DEFAULT NULL;
   DECLARE v_Inserted INT64 DEFAULT 0;
   DECLARE v_Updated INT64 DEFAULT 0;
-  DECLARE v_RecordSource STRING DEFAULT 'IFS';
-
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
     INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_IFS` (
@@ -77,7 +75,7 @@ BEGIN
       Stg.RecordId,
       v_Loaded AS Loaded,
       p_ProcessID AS ProcessId,
-      v_RecordSource AS RecordSource,
+      p_RecordSource AS RecordSource,
       Stg.RecordId AS RecordSourceId,
       v_Loaded AS ValidFrom,
       v_DefaultValidTo AS ValidTo,

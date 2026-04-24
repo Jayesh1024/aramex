@@ -19,10 +19,7 @@ import os
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
-
-PROJECT_ID = os.getenv("PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
 
 with DAG(
     dag_id="ssis_skeleton_hub_customer",
@@ -39,6 +36,7 @@ with DAG(
         "RecordSource1": 'FMS_Customer',
         "RecordSource2": 'tblCustomer',
         "RecordSource_dv_Load_SAL_Customer": 'CustomerLinks'
+
     },
 ) as dag:
 
@@ -183,6 +181,7 @@ with DAG(
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dv_Load_SAL_Customer`("
                         f"{{{{ params.ProcessId }}}}, "
                         f"'{{{{ params.RecordSource_dv_Load_SAL_Customer }}}}');"
+
                     ),
                     "useLegacySql": False,
                 }

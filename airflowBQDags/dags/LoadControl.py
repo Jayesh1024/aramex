@@ -40,10 +40,7 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobO
 from airflow.utils.task_group import TaskGroup
 
 from utils.getValue import get_next_process_id
-
-PROJECT_ID = os.getenv("PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+from utils.bq_env import PROJECT_ID, SP_DATASET_ID, TARGET_DATASET_ID
 
 _GET_PROCESSID_XCOM = (
     "{{ ti.xcom_pull(task_ids='package_get_next_processid') }}"
