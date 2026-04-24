@@ -25,6 +25,7 @@ with DAG(
     tags=["ssis", "skeleton", "fact_delivery_performance"],
     params={
         "ProcessId": 0,
+        "Force":1,
     },
 ) as dag:
 
@@ -48,7 +49,7 @@ with DAG(
         task_id="package_load_fact_delivery_performance",
         configuration={
             "query": {
-                "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Load_Fact_Delivery_Performance`({{ params.ProcessId }});",
+                "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.dbo_Load_Fact_Delivery_Performance`({{{{ params.ProcessId }}}}, {{{{ params.Force }}}});",
                 "useLegacySql": False,
             }
         },

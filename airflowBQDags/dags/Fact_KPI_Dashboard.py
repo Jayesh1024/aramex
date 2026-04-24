@@ -16,7 +16,7 @@ Overall flow (from executable_dependencies.json):
 See DAG_COMPLETION_NOTES.md §Fact_KPI_Dashboard for the (many) SP-name
 inferences, the negative-sentinel ProcessID scheme (-30000), the
 ISOCountryCodes package-level variable (hardcoded constant), and the
-RecordSource4 / RecordSource1 defaults (also hardcoded).
+RecordSource4 default `MyFastway` (also hardcoded).
 """
 from __future__ import annotations
 
@@ -47,7 +47,6 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "fact_kpi_dashboard"],
     params={
-        # SSIS $Package::RecordSource4 — must match `Staging_LoadControl.RecordSource` (e.g. MyFastway).
         "RecordSource4": "MyFastway",
         "ISOCountryCodes": "AUNZ",
     },

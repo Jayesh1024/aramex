@@ -14,6 +14,7 @@ Grouped by responsibility:
 * `get_max_id`                                    — generic MAX(<col>) on a table.
 * `get_last_value_scans`                          — calls Staging_Get_LastValue_Scans SP.
 * `get_yesterday_eod_iso`                         — SSIS `DATEADD(DAY, -1, GETDATE())` + `T23:59:59.999`.
+* `get_working_load_ilocate_next_id`              — `DB_Copy_Table` «Get Next ID» from `working_Load_iLocate_NextID`.
 """
 from __future__ import annotations
 
@@ -83,8 +84,10 @@ def get_last_value(project_id: str, dataset_id: str, record_source: str):
     escaped = _escape_sql_literal(record_source)
     hook = BigQueryHook(project_id=project_id)
     query = f"CALL `{project_id}.{dataset_id}.Staging_Get_LastValue`('{escaped}')"
+
     raw = hook.get_pandas_df(sql=query, dialect="standard").iloc[0, 0]
     return _normalize_load_control_last_value(raw)
+
 
 
 def get_next_process_id(project_id: str, dataset_id: str) -> int:
@@ -193,6 +196,14 @@ def get_last_value_scans(
     )
     df = hook.get_pandas_df(sql=query, dialect="standard")
     return str(df.iloc[0]["LastDate"])
+
+
+def get_working_load_ilocate_next_id(project_id: str, dataset_id: str) -> int:
+    """`SELECT LastID FROM working.Load_iLocate_NextID` (SSIS Package\\Sequence Container\\Get Next ID)."""
+    hook = BigQueryHook(project_id=project_id)
+    q = f"SELECT LastID FROM `{project_id}.{dataset_id}.working_Load_iLocate_NextID`"
+    df = hook.get_pandas_df(sql=q, dialect="standard")
+    return int(df.iloc[0, 0])
 
 
 def get_yesterday_eod_iso() -> str:

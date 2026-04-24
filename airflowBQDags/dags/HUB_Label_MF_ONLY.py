@@ -35,7 +35,7 @@ _STAGING_TABLES_TO_TRUNCATE = [
     "Staging_ConsignmentItem_Stg",
     "Staging_tblOnlineEnquiry_RP_Stg",
     "Staging_PickupRequest_Stg",
-    "Staging_Ebay_labels_Stg",
+    "Staging_Ebay_Labels_Stg",
     "Staging_fl_ConItemSrv_Stg",
 ]
 
@@ -50,8 +50,12 @@ with DAG(
         "DisableFinal": 0,
         "DisableStage": 0,
         "ProcessId": -4,
-        "RecordSource4": 'MyFastway',
-        "StartDate": '1/1/1900',
+        "RecordSource4": "MyFastway",
+        "StartDate": "1900-01-01 00:00:00",
+        # Staging_Set_LastValue: use None so Jinja renders SQL NULL; override from trigger UI when needed.
+        "ColumnName": None,
+        "LastValue": None,
+        "Force": False,
     },
 ) as dag:
 
@@ -73,7 +77,10 @@ with DAG(
             task_id="package_source4_myfastway_mf_load_fl_conitem_stg",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_ConItem_Stg`();",
+                    "query": (
+                        f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.sp_load_Staging_fl_ConItem_Stg`("
+                        f"DATETIME('{{{{ params.StartDate }}}}'));"
+                    ),
                     "useLegacySql": False,
                 }
             },
@@ -146,7 +153,10 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_Set_LastValue`("
-                        f"'{{{{ params.RecordSource4 }}}}');"
+                        f"'{{{{ params.RecordSource4 }}}}', "
+                        "{% if params.ColumnName is not none %}'{{ params.ColumnName }}'{% else %}NULL{% endif %}, "
+                        "{% if params.LastValue is not none %}'{{ params.LastValue }}'{% else %}NULL{% endif %}, "
+                        f"{{{{ params.Force }}}});"
                     ),
                     "useLegacySql": False,
                 }

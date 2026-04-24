@@ -37,34 +37,16 @@ with DAG(
 ) as dag:
 
     with TaskGroup(group_id="tg_package_customer_overrides_staging") as tg_cust_stg:
-        # STOCK:SEQUENCE — ref_id: Package\Customer Overrides - Staging
-
-        # ref_id: ...\Truncate Customer Overrides
-        op_4 = BigQueryInsertJobOperator(
-            task_id="package_customer_overrides_staging_truncate_customer_overrides",
-            configuration={
-                "query": {
-                    "query": (
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_fl_PriceListCustomerOverride_Stg`;\n"
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.dv_SAT_FL_PriceListCustomerOverride`;"
-                    ),
-                    "useLegacySql": False,
-                }
-            },
-        )
-
         # ref_id: ...\Load Customer Price Overrides — pipeline -> inferred SP
         op_3 = BigQueryInsertJobOperator(
             task_id="package_customer_overrides_staging_load_customer_price_overrides",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_fl_PriceListCustomerOverride_Stg`();",
+                    "query": f"SELECT * FROM `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_fl_PriceListCustomerOverride_Stg`",
                     "useLegacySql": False,
                 }
             },
         )
-
-        op_4 >> op_3
 
     with TaskGroup(group_id="tg_package_customer_overrides_final") as tg_cust_final:
         # STOCK:SEQUENCE — ref_id: Package\Customer Overrides - Final
@@ -92,7 +74,6 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_fl_Zones_Stg`;\n"
                         f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.dv_SAT_FL_Zones`;\n"
                         f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.dv_SAT_FL_ServiceZoneOverride`;"
                     ),
@@ -107,8 +88,6 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_fl_ServiceZoneSatchelOverride_Stg`;\n"
-                        f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_fl_ServiceZoneWeightOverride_Stg`;\n"
                         f"TRUNCATE TABLE `{PROJECT_ID}.{TARGET_DATASET_ID}.dv_SAT_FL_ServiceZoneOverride`;"
                     ),
                     "useLegacySql": False,
@@ -121,7 +100,7 @@ with DAG(
             task_id="package_zones_overrides_staging_load_fl_zones",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_fl_Zones_Stg`();",
+                    "query": f"SELECT * FROM `{PROJECT_ID}.{TARGET_DATASET_ID}.Staging_fl_Zones_Stg`",
                     "useLegacySql": False,
                 }
             },
@@ -132,7 +111,7 @@ with DAG(
             task_id="package_zones_overrides_staging_load_zone_satchel_overiides",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_fl_ServiceZoneSatchelOverride_Stg`();",
+                    "query": f"SELECT * FROM `{PROJECT_ID}.{TARGET_DATASET_ID}.vw_Staging_fl_ServiceZoneSatchelOverride_Stg`",
                     "useLegacySql": False,
                 }
             },
@@ -143,7 +122,7 @@ with DAG(
             task_id="package_zones_overrides_staging_load_zone_weight_overiides",
             configuration={
                 "query": {
-                    "query": f"CALL `{PROJECT_ID}.{SP_DATASET_ID}.Staging_load_fl_ServiceZoneWeightOverride_Stg`();",
+                    "query": f"SELECT * FROM `{PROJECT_ID}.{TARGET_DATASET_ID}.vw_Staging_fl_ServiceZoneWeightOverride_Stg`",
                     "useLegacySql": False,
                 }
             },

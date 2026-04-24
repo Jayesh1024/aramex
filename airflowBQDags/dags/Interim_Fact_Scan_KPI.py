@@ -37,8 +37,8 @@ with DAG(
         "DisableStaging": 0,
         "ProcessId": 706,
         "RecordSource3": 'TrackAndTraceID',
-        "SinceScanDate": '12:00:00 AM',
-        "UntilScanDate": '12:00:00 AM',
+        "SinceScanDate": "1900-01-01 00:00:00",
+        "UntilScanDate": "1900-01-01 00:00:00",
         "UseScanDates": 0,
     },
 ) as dag:

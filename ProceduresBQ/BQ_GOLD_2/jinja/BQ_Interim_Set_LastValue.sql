@@ -69,11 +69,11 @@ BEGIN
 
   SET v_StagingTableFQN = CONCAT('`{{ project_id }}.{{ target_dataset_id }}.', v_StagingTable, '`');
 
-  -- Verify staging table exists via INFORMATION_SCHEMA
+  -- Verify staging table exists via INFORMATION_SCHEMA (compare table_name only; v_StagingTable is bare name e.g. Staging_TrackAndTrace_Stg)
   SET v_TableExists = (
     SELECT COUNT(*)
     FROM `{{ project_id }}.{{ target_dataset_id }}`.INFORMATION_SCHEMA.TABLES
-    WHERE CONCAT(table_schema, '.', table_name) = REPLACE(REPLACE(v_StagingTable, '`', ''), '{{ project_id }}.{{ target_dataset_id }}.', '')
+    WHERE table_name = v_StagingTable
   );
 
   IF v_TableExists = 0 THEN

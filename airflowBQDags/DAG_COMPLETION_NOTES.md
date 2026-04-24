@@ -304,7 +304,7 @@ _(populated as each DAG is completed — see the tail of this document.)_
 - **ISOCountryCodes** — SSIS `$Package::ISOCountryCodes` not in extracted
   metadata. Hardcoded to `"AUNZ"`. All three pipelines that filter on
   `CountryId IN (@AUCode, @NZCode)` receive this value as a SP argument.
-- **RecordSource4** — default unavailable; hardcoded to `"RecordSource"`.
+- **RecordSource4** — hardcoded to `"MyFastway"` (matches `Fact_KPI_Dashboard2` / HUB Label packages).
 - **4 pipelines → inferred SPs**, following HUB_Invoice's naming:
   * `Staging_load_fl_ConItem_Stg()` — no args; SSIS source is
     `FWFastlabel.tmp.fl_Contitem_Stg`.
