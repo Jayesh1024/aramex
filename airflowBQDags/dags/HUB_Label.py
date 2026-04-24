@@ -34,7 +34,7 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobO
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_value
 
-PROJECT_ID = os.getenv("PROJECT_ID")
+GCP_PROJECT = os.getenv("GCP_PROJECT")
 SP_DATASET_ID = os.getenv("SP_DATASET_ID")
 TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
@@ -448,7 +448,7 @@ with DAG(
                 task_id="package_staging_source1_labelmaster_get_lastdate_labelmaster",
                 python_callable=get_last_value,
                 op_kwargs={
-                    "project_id": PROJECT_ID,
+                    "project_id": GCP_PROJECT,
                     "dataset_id": SP_DATASET_ID,
                     "record_source": "{{ params.RecordSource1 }}",
                 },
@@ -486,7 +486,7 @@ with DAG(
                 task_id="package_staging_source10_ebay_ebay_get_lastid_ebay",
                 python_callable=get_last_value,
                 op_kwargs={
-                    "project_id": PROJECT_ID,
+                    "project_id": GCP_PROJECT,
                     "dataset_id": SP_DATASET_ID,
                     "record_source": "{{ params.RecordSource10 }}",
                 },
@@ -525,7 +525,7 @@ with DAG(
                 task_id="package_staging_source11_myfastwaysrv_mf_2_get_lastdate_myfastway",
                 python_callable=get_last_value,
                 op_kwargs={
-                    "project_id": PROJECT_ID,
+                    "project_id": GCP_PROJECT,
                     "dataset_id": SP_DATASET_ID,
                     "record_source": "{{ params.RecordSource11 }}",
                 },
@@ -618,7 +618,7 @@ with DAG(
                 task_id="package_staging_source2_dynamiclabel_dl_get_lastid_dynamiclabel",
                 python_callable=get_last_value,
                 op_kwargs={
-                    "project_id": PROJECT_ID,
+                    "project_id": GCP_PROJECT,
                     "dataset_id": SP_DATASET_ID,
                     "record_source": "{{ params.RecordSource2 }}",
                 }
@@ -656,7 +656,7 @@ with DAG(
                 task_id="package_staging_source3_fastlabel_fl_get_lastdate_fastlabel",
                 python_callable=get_last_value,
                 op_kwargs={
-                    "project_id": PROJECT_ID,
+                    "project_id": GCP_PROJECT,
                     "dataset_id": SP_DATASET_ID,
                     "record_source": "{{ params.RecordSource3 }}",
                 },
@@ -695,7 +695,7 @@ with DAG(
                 task_id="package_staging_source4_myfastway_mf_get_lastdate_myfastway",
                 python_callable=get_last_value,
                 op_kwargs={
-                    "project_id": PROJECT_ID,
+                    "project_id": GCP_PROJECT,
                     "dataset_id": SP_DATASET_ID,
                     "record_source": "{{ params.RecordSource4 }}",
                 },
@@ -734,7 +734,7 @@ with DAG(
                 task_id="package_staging_source5_hdmanifest_ifs_get_lastid_ifs",
                 python_callable=get_last_value,
                 op_kwargs={
-                    "project_id": PROJECT_ID,
+                    "project_id": GCP_PROJECT,
                     "dataset_id": SP_DATASET_ID,
                     "record_source": "{{ params.RecordSource5 }}",
                 },
@@ -773,7 +773,7 @@ with DAG(
                 task_id="package_staging_source6_fastlabelenterprise_fle_get_lastdate_fastlabelenterprise",
                 python_callable=get_last_value,
                 op_kwargs={
-                    "project_id": PROJECT_ID,
+                    "project_id": GCP_PROJECT,
                     "dataset_id": SP_DATASET_ID,
                     "record_source": "{{ params.RecordSource6 }}",
                 },
@@ -812,7 +812,7 @@ with DAG(
                 task_id="package_staging_source7_temando_tmd_get_lastid_temando",
                 python_callable=get_last_value,
                 op_kwargs={
-                    "project_id": PROJECT_ID,
+                    "project_id": GCP_PROJECT,
                     "dataset_id": SP_DATASET_ID,
                     "record_source": "{{ params.RecordSource7 }}",
                 },
@@ -851,7 +851,7 @@ with DAG(
                 task_id="package_staging_source8_receiverpays_rp_get_lastid_receiverpays",
                 python_callable=get_last_value,
                 op_kwargs={
-                    "project_id": PROJECT_ID,
+                    "project_id": GCP_PROJECT,
                     "dataset_id": SP_DATASET_ID,
                     "record_source": "{{ params.RecordSource8 }}",
                 },

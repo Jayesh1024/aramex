@@ -12,7 +12,7 @@ from airflow.operators.empty import EmptyOperator
 from airflow.utils.task_group import TaskGroup
 
 
-PROJECT_ID = os.getenv("PROJECT_ID")
+GCP_PROJECT = os.getenv("GCP_PROJECT")
 
 with DAG(
     dag_id="ssis_skeleton_hub_label_old",

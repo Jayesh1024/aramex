@@ -20,5 +20,5 @@ services:
       GOOGLE_CLOUD_PROJECT: prj-drgfly-dev-sp-01
       SP_DATASET_ID: bq_ds_dev_euw2_store_procedure
       TARGET_DATASET_ID: bq_ds_dev_euw2_oceania_cube_gold_1
-      PROJECT_ID: prj-drgfly-dev-sp-01
+      GCP_PROJECT: prj-drgfly-dev-sp-01
     command: airflow standalone
