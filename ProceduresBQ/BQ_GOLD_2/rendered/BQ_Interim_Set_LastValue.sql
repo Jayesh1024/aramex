@@ -62,7 +62,11 @@ BEGIN
   -- Locate Staging Table
   -- -----------------------------------------------------------------------
   SET v_StagingTable = (
-    SELECT CONCAT('Staging_', REGEXP_EXTRACT(DatasetName, r'[^.]+$'), '_Stg')
+    SELECT CASE
+      WHEN p_RecordSource = 'TrackAndTraceData_SignatureAI'
+        THEN 'InterimStaging_TrackAndTraceData_SignatureAI_Stg'
+      ELSE CONCAT('Staging_', REGEXP_EXTRACT(DatasetName, r'[^.]+$'), '_Stg')
+    END
     FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
     WHERE RecordSource = p_RecordSource
   );
