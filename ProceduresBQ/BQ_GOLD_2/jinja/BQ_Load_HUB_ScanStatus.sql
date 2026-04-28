@@ -25,6 +25,7 @@ BEGIN
         MERGE INTO `{{ project_id }}.{{ target_dataset_id }}.dv_HUB_ScanStatus` AS Dest
         USING (
             SELECT DISTINCT 
+                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(IFNULL(RTRIM(CountryName), 'Unknown'), '^', StatusCode), '^') as ScanStatus_HSK,
                 IFNULL(RTRIM(CountryName), 'Unknown') AS CountryName, 
                 StatusCode AS ScanStatus 
             FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_ScanStatus_Stg`
@@ -42,7 +43,7 @@ BEGIN
             )
             VALUES (
                 -- UDF reference converted to Jinja2 path format
-                `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(Src.CountryName, '^', Src.ScanStatus), '^'),
+                Src.ScanStatus_HSK,
                 Src.CountryName,
                 Src.ScanStatus,
                 v_Loaded,

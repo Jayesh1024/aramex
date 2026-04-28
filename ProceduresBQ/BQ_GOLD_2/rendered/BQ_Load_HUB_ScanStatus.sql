@@ -24,7 +24,8 @@ BEGIN
         -- A MERGE statement handles the "Insert if Not Exists" logic using Jinja2 templates for paths.
         MERGE INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_HUB_ScanStatus` AS Dest
         USING (
-            SELECT DISTINCT 
+            SELECT DISTINCT
+                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(IFNULL(RTRIM(CountryName), 'Unknown'), '^', StatusCode), '^') as ScanStatus_HSK,
                 IFNULL(RTRIM(CountryName), 'Unknown') AS CountryName, 
                 StatusCode AS ScanStatus 
             FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_ScanStatus_Stg`
@@ -42,7 +43,7 @@ BEGIN
             )
             VALUES (
                 -- UDF reference converted to Jinja2 path format
-                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(Src.CountryName, '^', Src.ScanStatus), '^'),
+                Src.ScanStatus_HSK,
                 Src.CountryName,
                 Src.ScanStatus,
                 v_Loaded,

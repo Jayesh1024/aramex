@@ -7,7 +7,7 @@
 --  23/04/2020  P. Waldron      LTRIM FastLabel address elements
 --  06/09/2022  B. Woods        Changed order of address sources the same 
 --                              as Label allocation load. (Part of BI-265)
---	05/02/2024	B. Woods		Added PickupRequest source as the second preference address
+--  05/02/2024  B. Woods        Added PickupRequest source as the second preference address
 -- ==========================================================================================
 CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.Staging_Load_Label_Address_Stg`(
     IN p_ProcessID INT64
@@ -146,7 +146,7 @@ BEGIN
                     REPLACE(TRIM(PickupSuburb), CHR(34), '') AS Town,
                     CAST(NULL AS STRING) AS State,
                     TRIM(PickupPostcode) AS Postcode,
-                    CAST(NULL AS STRING) AS CountryCode
+                    CAST(NULL AS INT64) AS CountryCode
                 FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_PickupRequest_Stg`
                 UNION ALL
                 SELECT 
@@ -219,7 +219,7 @@ BEGIN
                     REPLACE(TRIM(PickupTown), CHR(34), '') AS Town,
                     CAST(NULL AS STRING) AS State,
                     TRIM(PickupPostcode) AS Postcode,
-                    CAST(NULL AS STRING) AS CountryCode
+                    CAST(NULL AS INT64) AS CountryCode
                 FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_API_RF_AdHocLabel_AllocationHistory_Stg`
                 UNION ALL
                 SELECT 
@@ -366,7 +366,7 @@ BEGIN
                     ) AS Town,
                     CAST(NULL AS STRING) AS State,
                     TRIM(ReceiverPostcode) AS Postcode,
-                    CAST(NULL AS STRING) AS CountryCode
+                    CAST(NULL AS INT64) AS CountryCode
                 FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_ConsignmentItem_Stg` 
             ) AS a
             LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode
@@ -585,7 +585,7 @@ BEGIN
                     TRIM(IF(IFNULL(Sender_Suburb, '') = '', Sender_City, Sender_Suburb)) AS Town,
                     CAST(NULL AS STRING) AS State,
                     Sender_Postcode AS PostCode,
-                    CAST(NULL AS STRING) AS CountryCode
+                    CAST(NULL AS INT64) AS CountryCode
                 FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_tblOnlineEnquiry_RP_Stg` 
                 UNION ALL
                 SELECT DISTINCT
@@ -595,7 +595,7 @@ BEGIN
                     TRIM(IF(IFNULL(Receiver_Suburb, '') = '', Receiver_City, Receiver_Suburb)) AS Town,
                     CAST(NULL AS STRING) AS State,
                     Receiver_Postcode AS PostCode,
-                    CAST(NULL AS STRING) AS CountryCode
+                    CAST(NULL AS INT64) AS CountryCode
                 FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_tblOnlineEnquiry_RP_Stg` 
             ) AS a
             LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS c ON c.CountryCode = a.CountryCode

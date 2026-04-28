@@ -53,7 +53,7 @@ _GET_PROCESSID_XCOM = (
 with DAG(
     dag_id="ssis_skeleton_loadcontrol",
     start_date=datetime(2024, 1, 1),
-    schedule=None,
+    schedule_interval='30 18 * * *',
     catchup=False,
     tags=["ssis", "skeleton", "loadcontrol"],
     params={
@@ -91,23 +91,34 @@ with DAG(
     )
 
     _reserve_process_sql = (
+        # Assign process_id and disable_lnk_load from params/XCOM (mimicking input params in original SQL)
         f"DECLARE process_id INT64 DEFAULT {_GET_PROCESSID_XCOM};\n"
-        "DECLARE disable_lnk_load BOOL DEFAULT "
-        "{% if params.DisableLNKLoad %}TRUE{% else %}FALSE{% endif %};\n"
-        "DECLARE component STRING;\n"
-        "SET component = IF(\n"
-        "  disable_lnk_load,\n"
-        "  'Load Labels - Job Start',\n"
-        "  'Load TrackAndTrace - Job Start'\n"
-        ");\n"
+        "DECLARE disable_lnk_load BOOL DEFAULT {% if params.DisableLNKLoad %}TRUE{% else %}FALSE{% endif %};\n"
+        "\n"
+        "-- Reserve ProcessId for this job\n"
+        "DECLARE component STRING DEFAULT 'Load TrackAndTrace - Job Start';\n"
+        "DECLARE started DATETIME DEFAULT CURRENT_DATETIME();\n"
+        "DECLARE ended DATETIME;\n"
+        "DECLARE result STRING;\n"
+        "DECLARE error_message STRING DEFAULT '';\n"
+        "DECLARE inserted INT64 DEFAULT 0;\n"
+        "\n"
+        "-- Adjust component name based on load flag\n"
+        "IF (disable_lnk_load) THEN\n"
+        "  SET component = 'Load Labels - Job Start';\n"
+        "END IF;\n"
+        "\n"
+        "-- Execute logging procedure\n"
         f"CALL `{SP_DATASET_ID}.Staging_SaveLog`(\n"
         "  component,\n"
         "  process_id,\n"
-        "  CURRENT_DATETIME(),\n"
-        "  CAST(NULL AS DATETIME),\n"
-        "  CAST(NULL AS STRING),\n"
-        "  '',\n"
-        "  CAST(0 AS INT64)\n"
+        "  started,\n"
+        "  ended,\n"
+        "  result,\n"
+        "  error_message,\n"
+        "  inserted,\n"
+        "  -1,\n"
+        "  -1\n"
         ");\n"
     )
 

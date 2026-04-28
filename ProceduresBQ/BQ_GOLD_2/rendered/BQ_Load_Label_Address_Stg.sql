@@ -219,7 +219,7 @@ BEGIN
                     REPLACE(TRIM(PickupTown), CHR(34), '') AS Town,
                     CAST(NULL AS STRING) AS State,
                     TRIM(PickupPostcode) AS Postcode,
-                    CAST(NULL AS STRING) AS CountryCode
+                    CAST(NULL AS STRING) AS CountryCode --CHANGE
                 FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_API_RF_AdHocLabel_AllocationHistory_Stg`
                 UNION ALL
                 SELECT 
