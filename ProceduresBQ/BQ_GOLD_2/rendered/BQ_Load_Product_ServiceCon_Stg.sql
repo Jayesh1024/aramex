@@ -65,8 +65,8 @@ BEGIN
       RecordSourceId
     )
     SELECT
-      (SHA256(CONCAT(Src.Country, '^', CAST(Src.ConId AS STRING), '^', Src.ProductCode, '^', CAST(Src.ServiceItemId AS STRING)))) AS Product_ServiceCon_HSK,
-      (SHA256(CONCAT(Src.Country, '^', Src.ProductCode))) AS Product_HSK,
+      `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(Src.Country, '^', CAST(Src.ConId AS STRING), '^', Src.ProductCode, '^', CAST(Src.ServiceItemId AS STRING)), '^') AS Product_ServiceCon_HSK,
+      `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(Src.Country, '^', Src.ProductCode), '^') AS Product_HSK,
       Src.ConId,
       Src.Country,
       Src.ProductCode,

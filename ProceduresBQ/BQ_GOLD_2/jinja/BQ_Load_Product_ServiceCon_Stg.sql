@@ -65,8 +65,8 @@ BEGIN
       RecordSourceId
     )
     SELECT
-      (SHA256(CONCAT(Src.Country, '^', CAST(Src.ConId AS STRING), '^', Src.ProductCode, '^', CAST(Src.ServiceItemId AS STRING)))) AS Product_ServiceCon_HSK,
-      (SHA256(CONCAT(Src.Country, '^', Src.ProductCode))) AS Product_HSK,
+      `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(Src.Country, '^', CAST(Src.ConId AS STRING), '^', Src.ProductCode, '^', CAST(Src.ServiceItemId AS STRING)), '^') AS Product_ServiceCon_HSK,
+      `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(Src.Country, '^', Src.ProductCode), '^') AS Product_HSK,
       Src.ConId,
       Src.Country,
       Src.ProductCode,

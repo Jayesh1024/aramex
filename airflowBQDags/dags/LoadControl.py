@@ -38,6 +38,7 @@ from airflow.operators.python import PythonOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
+import pendulum
 
 from utils.getValue import get_next_process_id
 
@@ -45,6 +46,7 @@ GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
 SP_DATASET_ID = os.getenv("SP_DATASET_ID")
 TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
+nz_tz = pendulum.timezone("Pacific/Auckland")
 
 _GET_PROCESSID_XCOM = (
     "{{ ti.xcom_pull(task_ids='package_get_next_processid') }}"
@@ -52,8 +54,8 @@ _GET_PROCESSID_XCOM = (
 
 with DAG(
     dag_id="ssis_skeleton_loadcontrol",
-    start_date=datetime(2024, 1, 1),
-    schedule_interval='30 18 * * *',
+    start_date=pendulum.datetime(2026, 4, 1, tz="Pacific/Auckland"),
+    schedule_interval="0 1 * * *",
     catchup=False,
     tags=["ssis", "skeleton", "loadcontrol"],
     params={

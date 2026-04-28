@@ -1,0 +1,1 @@
+gcloud storage cp "airflowBQDags/dags/LoadControl.py" gs://gcs-dev-euw2-composer-01/dags/
