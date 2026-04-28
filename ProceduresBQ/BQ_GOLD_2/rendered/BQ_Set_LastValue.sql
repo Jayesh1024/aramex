@@ -62,7 +62,7 @@ BEGIN
   -- -----------------------------------------------------------------------
   SET v_StagingTable = (
     SELECT
-      CASE
+      CASE 
         WHEN p_RecordSource = 'EBAY' THEN
           CONCAT(
             'Staging_',

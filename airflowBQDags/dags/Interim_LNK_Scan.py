@@ -135,20 +135,6 @@ with DAG(
     with TaskGroup(group_id="tg_package_final") as tg_final:
         # STOCK:SEQUENCE — ref_id: Package\Final
 
-        # ref_id: Package\Final\Load HUB_Location — dv_Load_HUB_Location(ProcessId, RecordSource1)
-        op_2 = BigQueryInsertJobOperator(
-            task_id="package_final_load_hub_location",
-            configuration={
-                "query": {
-                    "query": (
-                        f"CALL `{SP_DATASET_ID}.dv_Load_HUB_Location`("
-                        f"{_xcom_processid}, '{{{{ params.RecordSource1 }}}}');"
-                    ),
-                    "useLegacySql": False,
-                }
-            },
-        )
-
         with TaskGroup(group_id="tg_package_final_load_lnk") as tg_lnk:
             # STOCK:SEQUENCE — ref_id: Package\Final\Load LNK
 
@@ -272,7 +258,6 @@ with DAG(
 
             op_12 >> op_13
 
-        op_2 >> tg_lnk
         tg_lnk >> tg_sigai
 
     tg_staging >> tg_final

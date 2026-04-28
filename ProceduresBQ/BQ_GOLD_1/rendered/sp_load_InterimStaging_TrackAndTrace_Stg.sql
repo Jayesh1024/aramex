@@ -29,7 +29,7 @@ BEGIN
       ID, RecordId, CountryCode, FranchiseeCode, ScanType,
       Status AS ScanStatus, LabelNo, CAST(ScanDate AS DATETIME) AS ScanDate, CourierNo,
       '' AS CountryName, CAST(UploadDate AS DATETIME) AS UploadDate, CAST(RecordCreateDate AS DATETIME) AS RecordCreateDate, iLocate, ProductId
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_vegeta_silver.FastwayReports_dbo_TrackAndTrace_7Day` T7
+    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_vegeta_silver.FastwayReports_dbo_TrackAndTraceDataP` T7
     WHERE ID > lastId AND ID <= endID
       AND Countrycode IN (1, 6, 11, 24)
   ) a
