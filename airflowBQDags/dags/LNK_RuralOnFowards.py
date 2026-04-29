@@ -20,7 +20,6 @@ Notes:
 """
 from __future__ import annotations
 
-from datetime import datetime
 import os
 
 from airflow import DAG
@@ -28,6 +27,7 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_value, get_max_process_id
+import pendulum
 
 GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
 SP_DATASET_ID = os.getenv("SP_DATASET_ID")
@@ -39,8 +39,8 @@ _TASK_ID_GET_LASTDATE = "tg_package_load_la_ruraonforwards.package_load_la_rurao
 
 with DAG(
     dag_id="ssis_skeleton_lnk_ruralonfowards",
-    start_date=datetime(2024, 1, 1),
-    schedule=None,
+    start_date=pendulum.datetime(2026, 4, 1, tz="Pacific/Auckland"),
+    schedule_interval="30 0 * * *",
     catchup=False,
     tags=["ssis", "skeleton", "lnk_ruralonfowards"],
     params={

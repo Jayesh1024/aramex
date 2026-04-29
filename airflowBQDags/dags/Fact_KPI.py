@@ -74,7 +74,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.Staging_Load_Fact_KPI_Src_Stg`("
-                        f"{{{{ params.ProcessId }}}}, "
+                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, "
                         f"'{{{{ params.StartDateOverRide }}}}', "
                         f"'{{{{ params.EndDateOverRide }}}}');"
                     ),
@@ -90,7 +90,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.Staging_Load_Fact_KPI_Daily_Stg`("
-                        f"{{{{ params.ProcessId }}}}, "
+                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, "
                         f"'{{{{ params.StartDateOverRide }}}}', "
                         f"'{{{{ params.EndDateOverRide }}}}');"
                     ),
@@ -111,7 +111,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dbo_Load_Fact_KPI_Daily`("
-                        f"{{{{ params.ProcessId }}}});"
+                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -125,7 +125,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dbo_Load_Fact_KPI_Priority`("
-                        f"{{{{ params.ProcessId }}}});"
+                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -139,7 +139,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dbo_Load_Fact_KPI_Performance`("
-                        f"{{{{ params.ProcessId }}}});"
+                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});"
                     ),
                     "useLegacySql": False,
                 }

@@ -115,7 +115,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.staging_Load_SAT_Label_Allocation_Stg2`("
-                        f"{{{{ params.ProcessId }}}});"
+                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -129,7 +129,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation`("
-                        f"{{{{ params.ProcessId }}}});"
+                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -143,7 +143,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_MF`("
-                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource4 }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource4 }}}}');"
                     ),
                     "useLegacySql": False,
                 }

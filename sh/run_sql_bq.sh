@@ -1,7 +1,7 @@
 python src/run_sql_bq.py \
-    ProceduresBQ/BQ_GOLD_2/rendered \
+    misc/truncateQueriesGold/rendered \
     ~/.config/gcloud/application_default_credentials.json \
     --project prj-drgfly-dev-sp-01 \
     --location europe-west2 \
     --max-workers 20 \
-    --log-dir ProceduresBQ/BQ_GOLD_2/logs
+    --log-dir misc/truncateQueriesGold/rendered/logs

@@ -82,7 +82,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_Product_ServiceCon_Stg`("
-                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource13 }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource13 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -112,7 +112,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_LNK_Product_ServiceCon`("
-                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource13 }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource13 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -137,7 +137,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_LSAT_Product_ServiceCon`("
-                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource13 }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource13 }}}}');"
                     ),
                     "useLegacySql": False,
                 }

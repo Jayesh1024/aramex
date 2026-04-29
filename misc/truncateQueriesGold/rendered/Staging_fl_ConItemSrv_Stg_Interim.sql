@@ -1,0 +1,1 @@
+TRUNCATE TABLE prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_fl_ConItemSrv_Stg_Interim;

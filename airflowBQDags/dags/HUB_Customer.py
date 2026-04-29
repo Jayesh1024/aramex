@@ -155,7 +155,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_HUB_Customer`("
-                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource1 }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -169,7 +169,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Customer`("
-                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource1 }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -183,7 +183,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_SAL_Customer`("
-                        f"{{{{ params.ProcessId }}}}, "
+                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, "
                         f"'{{{{ params.RecordSource_dv_Load_SAL_Customer }}}}');"
 
                     ),

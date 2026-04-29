@@ -14,9 +14,8 @@ is approximated with params.adhoc_history_last_id and params.ProcessId — adjus
 """
 from __future__ import annotations
 
-from datetime import datetime
 import os
-
+import pendulum
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
@@ -31,13 +30,13 @@ _TASK_ID_GET_LAST_ID = "tg_package_source2_dynamiclabel_dl.package_source2_dynam
 
 with DAG(
     dag_id="ssis_skeleton_dls_manual_pricing",
-    start_date=datetime(2024, 1, 1),
-    schedule=None,
+    start_date=pendulum.datetime(2026, 4, 1, tz="Pacific/Auckland"),
+    schedule_interval="0 8 * * 0",
     catchup=False,
     tags=["ssis", "skeleton", "dls_manual_pricing"],
     params={
         "Disable_DynamicLabel": 0,
-        "ProcessId": 1347,
+        "ProcessId": 3000,
         "RecordSource2": 'DynamicLabel',
         "ReturnCode2": 0,
         "adhoc_history_last_id": 0,
@@ -121,7 +120,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_DL`({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource2 }}}}');"
+                        f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_DL`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource2 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -135,7 +134,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dbo_Load_Dim_Label`("
-                        f"{{{{ params.ProcessId }}}}, "
+                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, "
                         f"DATETIME('{{{{ params.ChangedSince }}}}') "
                         f");"
                     ),

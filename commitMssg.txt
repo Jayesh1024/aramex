@@ -1,2 +1,2 @@
-1. Import env variables from config/template_config.env file in all the DAGs
-2. Add new dag scoped parameters to the DAGs.
+1. Add 4 new DAGs
+2. Modify dag for passing parent dag's configs to child dags.

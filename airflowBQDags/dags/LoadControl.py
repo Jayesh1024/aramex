@@ -29,7 +29,6 @@ is used when LoadControl is not the parent).
 """
 from __future__ import annotations
 
-from datetime import datetime
 import os
 
 from airflow import DAG
@@ -83,14 +82,6 @@ with DAG(
         },
     )
 
-    op_2 = TriggerDagRunOperator(
-        task_id="package_get_misceallaneous_data",
-        trigger_dag_id="ssis_skeleton_miscellaneous",
-        wait_for_completion=True,
-        poke_interval=30,
-        reset_dag_run=True,
-        conf={"process_id": _GET_PROCESSID_XCOM}, 
-    )
 
     _reserve_process_sql = (
         # Assign process_id and disable_lnk_load from params/XCOM (mimicking input params in original SQL)
@@ -266,7 +257,6 @@ with DAG(
 
         op_20 >> op_21
 
-    op_3 >> op_2
     op_3 >> op_18
     op_18 >> tg_load_hub_tables
     tg_load_hub_tables >> tg_load_dim_tables

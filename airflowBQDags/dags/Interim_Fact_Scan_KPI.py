@@ -39,7 +39,7 @@ with DAG(
     params={
         "DisableFinal": 0,
         "DisableStaging": 0,
-        "ProcessId": 706,
+        "ProcessId": 0,
         "RecordSource3": 'TrackAndTraceID',
         "SinceScanDate": "1900-01-01 00:00:00",
         "UntilScanDate": "1900-01-01 00:00:00",

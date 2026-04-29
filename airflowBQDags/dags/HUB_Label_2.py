@@ -23,6 +23,7 @@ import os
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
+from airflow.operators.bash import BashOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_value
 
@@ -46,7 +47,7 @@ with DAG(
         "DisableFinal": 0,
         "DisableInterBranch": 0,
         "ProcessId": 1,
-        "RecordSource12": 'InterBranchNZ',
+        "RecordSource12": "InterBranchNZ"
     },
 ) as dag:
 
@@ -70,7 +71,7 @@ with DAG(
             op_kwargs={
                 "project_id": GCP_PROJECT_ID,
                 "dataset_id": SP_DATASET_ID,
-                "record_source": "{{ params.RecordSource12 }}",
+                "record_source": "{{ dag_run.conf.get('RecordSource12','params.RecordSource12') }}",
             },
         )
 
@@ -82,12 +83,13 @@ with DAG(
                     "query": (
                         f"CALL `{SP_DATASET_ID}.sp_load_Staging_Label_Interbranch_Stg`("
                         f"SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LAST_ID}') }}}}' AS INT64), "
-                        f"'{{{{ params.RecordSource12 }}}}');"
+                        f"'{{{{ dag_run.conf.get(\'RecordSource12\',params.RecordSource12) }}}}');"
                     ),
                     "useLegacySql": False,
                 }
             },
         )
+        
 
         # ref_id: Package\Staging 2\Set LastValue (InterBranch) — only update if staging has rows.
         op_9 = BigQueryInsertJobOperator(
@@ -99,7 +101,7 @@ with DAG(
                         "SET LastValue = CAST(("
                         f"SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LAST_ID}') }}}}' AS INT64) + 1"
                         ") AS STRING) "
-                        "WHERE RecordSource = '{{ params.RecordSource12 }}' "
+                        "WHERE RecordSource = '{{ dag_run.conf.get(\'RecordSource12\',params.RecordSource12) }}' "
                         "AND (SELECT COUNT(*) FROM "
                         f"`{TARGET_DATASET_ID}.Staging_Label_Interbranch_Stg`) > 0;"
                     ),
@@ -120,7 +122,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_LNK_Label_InterBranch`("
-                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource12 }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ dag_run.conf.get(\'RecordSource12\',params.RecordSource12) }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -134,7 +136,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_LSAT_Label_InterBranch`("
-                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource12 }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ dag_run.conf.get(\'RecordSource12\',params.RecordSource12) }}}}');"
                     ),
                     "useLegacySql": False,
                 }

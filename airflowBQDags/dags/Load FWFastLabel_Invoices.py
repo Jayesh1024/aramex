@@ -124,7 +124,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_FL_InvoiceHeader`("
-                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource1 }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -152,7 +152,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_FL_InvoicePayment`("
-                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource2 }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource2 }}}}');"
                     ),
                     "useLegacySql": False,
                 }

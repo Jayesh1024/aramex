@@ -7,7 +7,7 @@ Table / procedure names use schema_object from metadata.json (e.g. Staging_RFBat
 """
 from __future__ import annotations
 
-from datetime import datetime
+import pendulum
 import os
 
 from airflow import DAG
@@ -22,8 +22,8 @@ TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 # --- Project Configuration ---
 with DAG(
     dag_id="ssis_skeleton_rfbatchinginvoicelog",
-    start_date=datetime(2024, 1, 1),
-    schedule=None,
+    start_date=pendulum.datetime(2026, 4, 1, tz="Pacific/Auckland"),
+    schedule_interval='0 6 2 * *',
     catchup=False,
     tags=["ssis", "skeleton", "rfbatchinginvoicelog"],
     params={

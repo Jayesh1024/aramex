@@ -73,7 +73,7 @@ with DAG(
             configuration={
                 "query": {
                     # In f-strings, `{{`/`}}` are escapes; quadruple braces so Airflow receives Jinja `{{ ... }}`.
-                    "query": f"CALL `{SP_DATASET_ID}.dv_Load_HUB_CF`({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');",
+                    "query": f"CALL `{SP_DATASET_ID}.dv_Load_HUB_CF`({{{{ dag_run.conf.get(\'process_id\',params.process_id) }}}}, '{{{{ params.RecordSource }}}}');",
                     "useLegacySql": False,
                 }
             },
@@ -84,7 +84,7 @@ with DAG(
             task_id="package_final_load_cf_sat",
             configuration={
                 "query": {
-                    "query": f"CALL `{SP_DATASET_ID}.dv_Load_SAT_CF`({{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');",
+                    "query": f"CALL `{SP_DATASET_ID}.dv_Load_SAT_CF`({{{{ dag_run.conf.get(\'process_id\',params.process_id) }}}}, '{{{{ params.RecordSource }}}}');",
                     "useLegacySql": False,
                 }
             },

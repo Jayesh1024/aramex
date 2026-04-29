@@ -191,7 +191,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_CT_SAT_Label_PickupRequests_SA`("
-                        f"{{{{ params.ProcessID }}}});"
+                        f"{{{{ dag_run.conf.get('process_id', params.ProcessID) }}}});"
                     ),
                     "useLegacySql": False,
                 }

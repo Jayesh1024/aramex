@@ -63,7 +63,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{SP_DATASET_ID}.Staging_Load_KPI_Labels_Stg`({{{{ params.ProcessId }}}}, '{{{{ params.SinceScanDate }}}}', '{{{{ params.UntilScanDate }}}}', {{{{ params.UseScanDates }}}});"
+                        f"CALL `{SP_DATASET_ID}.Staging_Load_KPI_Labels_Stg`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.SinceScanDate }}}}', '{{{{ params.UntilScanDate }}}}', {{{{ params.UseScanDates }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -76,7 +76,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{SP_DATASET_ID}.Staging_Load_Fact_Scan_KPI_Stg`({{{{ params.ProcessId }}}});"
+                        f"CALL `{SP_DATASET_ID}.Staging_Load_Fact_Scan_KPI_Stg`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -94,7 +94,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{SP_DATASET_ID}.dbo_Load_Fact_Scan_KPI`({{{{ params.ProcessId }}}});"
+                        f"CALL `{SP_DATASET_ID}.dbo_Load_Fact_Scan_KPI`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});"
                     ),
                     "useLegacySql": False,
                 }

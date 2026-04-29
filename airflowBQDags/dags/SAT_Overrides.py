@@ -16,12 +16,12 @@ RecordSource defaults not in metadata.
 """
 from __future__ import annotations
 
-from datetime import datetime
 import os
 
 from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
+import pendulum
 
 GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
 SP_DATASET_ID = os.getenv("SP_DATASET_ID")
@@ -30,8 +30,8 @@ TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
 with DAG(
     dag_id="ssis_skeleton_sat_overrides",
-    start_date=datetime(2024, 1, 1),
-    schedule=None,
+    start_date=pendulum.datetime(2026, 4, 1, tz="Pacific/Auckland"),
+    schedule_interval="10 5 * * *",
     catchup=False,
     tags=["ssis", "skeleton", "sat_overrides"],
     params={
@@ -62,7 +62,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_SAT_FL_PriceListCustomerOverride`("
-                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -146,7 +146,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_SAT_FL_Zones`("
-                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -160,7 +160,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_SAT_FL_Zone_Overrides`("
-                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
                 }
