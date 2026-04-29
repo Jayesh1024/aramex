@@ -62,11 +62,19 @@ BEGIN
   -- -----------------------------------------------------------------------
   SET v_StagingTable = (
     SELECT
-      CONCAT(
-        'Staging_',
-        ARRAY_REVERSE(SPLIT(DatasetName, '.'))[OFFSET(0)],
-        '_Stg'
-      )
+      CASE
+        WHEN p_RecordSource = 'EBAY' THEN
+          CONCAT(
+            'Staging_',
+            (SELECT STRING_AGG(CONCAT(UPPER(SUBSTR(word, 1, 1)), LOWER(SUBSTR(word, 2))), "_" ORDER BY OFFSET)
+                FROM UNNEST(SPLIT(ARRAY_REVERSE(SPLIT(DatasetName, '.'))[OFFSET(0)], "_")) AS word
+                WITH OFFSET),
+            '_Stg'
+          )
+        ELSE
+          CONCAT('Staging_', ARRAY_REVERSE(SPLIT(DatasetName, '.'))[OFFSET(0)],'_Stg')
+      END
+
     FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_LoadControl`
     WHERE RecordSource = p_RecordSource
   );

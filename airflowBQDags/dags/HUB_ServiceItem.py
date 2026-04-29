@@ -74,19 +74,9 @@ with DAG(
             },
         )
 
-        # ref_id: Package\Final\Load SAT_ServiceItem — [dv].[Load_SAT_ServiceItem] ?,?
-        op_2 = BigQueryInsertJobOperator(
-            task_id="package_final_load_sat_serviceitem",
-            configuration={
-                "query": {
-                    "query": f"CALL `{SP_DATASET_ID}.dv_Load_SAT_ServiceItem`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource }}}}');",
-                    "useLegacySql": False,
-                }
-            },
-        )
 
     # --- Precedence ---
-    op_4 >> op_3 >> [op_1, op_2]
+    op_4 >> op_3 >> op_1
 
     # TaskGroup-level precedence
     tg_staging >> tg_final
