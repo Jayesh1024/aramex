@@ -87,33 +87,59 @@ BEGIN
     ),
     NewInvoiceLines AS (
       SELECT 
-        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(InvoiceNumber AS STRING), '^', FranchiseeCode, '^', CourierNumber, '^', CustomerKey, '^', ProductCode, '^', Country), '^') AS InvoiceLine_HSK,
-        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(InvoiceNumber AS STRING), '^', FranchiseeCode), '^') AS Invoice_HSK,
-        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(FranchiseeCode, '^') AS FranchiseeCode_HSK,
-        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(FranchiseeCode, '^', CourierNumber), '^') AS Courier_HSK,
-        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CustomerKey, '^') AS Customer_HSK,
-        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(Country, '^', ProductCode), '^') AS Product_HSK,
-        InvoiceNumber,
-        FranchiseeCode,
-        CourierNumber,
-        CustomerKey,
-        ProductCode,
-        Country,
-        EnteredDate,
-        SystemDate,
-        InvoiceDateInvLine,
-        Qty,
-        Price,
-        Commission,
-        PayCommission,
-        PriceDiscounted,
-        GSTAmount,
-        SaleType,
-        LineType
-      FROM RawData AS Src
-      WHERE NOT EXISTS (
-        SELECT 1 FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_InvoiceLine` AS Tgt WHERE Tgt.InvoiceLine_HSK = `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(Src.InvoiceNumber AS STRING), '^', Src.FranchiseeCode, '^', Src.CourierNumber, '^', Src.CustomerKey, '^', Src.ProductCode, '^', Src.Country), '^')
-      )
+        h.InvoiceLine_HSK,
+        h.Invoice_HSK,
+        h.FranchiseeCode_HSK,
+        h.Courier_HSK,
+        h.Customer_HSK,
+        h.Product_HSK,
+        h.InvoiceNumber,
+        h.FranchiseeCode,
+        h.CourierNumber,
+        h.CustomerKey,
+        h.ProductCode,
+        h.Country,
+        h.EnteredDate,
+        h.SystemDate,
+        h.InvoiceDateInvLine,
+        h.Qty,
+        h.Price,
+        h.Commission,
+        h.PayCommission,
+        h.PriceDiscounted,
+        h.GSTAmount,
+        h.SaleType,
+        h.LineType
+      FROM (
+        SELECT 
+          `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(InvoiceNumber AS STRING), '^', FranchiseeCode, '^', CourierNumber, '^', CustomerKey, '^', ProductCode, '^', Country), '^') AS InvoiceLine_HSK,
+          `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(InvoiceNumber AS STRING), '^', FranchiseeCode), '^') AS Invoice_HSK,
+          `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(FranchiseeCode, '^') AS FranchiseeCode_HSK,
+          `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(FranchiseeCode, '^', CourierNumber), '^') AS Courier_HSK,
+          `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CustomerKey, '^') AS Customer_HSK,
+          `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(Country, '^', ProductCode), '^') AS Product_HSK,
+          InvoiceNumber,
+          FranchiseeCode,
+          CourierNumber,
+          CustomerKey,
+          ProductCode,
+          Country,
+          EnteredDate,
+          SystemDate,
+          InvoiceDateInvLine,
+          Qty,
+          Price,
+          Commission,
+          PayCommission,
+          PriceDiscounted,
+          GSTAmount,
+          SaleType,
+          LineType
+        FROM RawData
+      ) AS h
+      LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_InvoiceLine` AS Tgt
+        ON Tgt.InvoiceLine_HSK = h.InvoiceLine_HSK
+      WHERE Tgt.InvoiceLine_HSK IS NULL
     )
     SELECT
       InvoiceLine_HSK,

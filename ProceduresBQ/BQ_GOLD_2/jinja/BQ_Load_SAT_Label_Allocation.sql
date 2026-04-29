@@ -70,6 +70,7 @@ BEGIN
           Stg.RecordSource,
           Stg.RecordSourceId,
           Stg.Action,
+          `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CAST(Stg.LabelNo AS STRING), '^') AS LabelNo_HSK,
           ROW_NUMBER() OVER (PARTITION BY Stg.LabelNo ORDER BY Stg.CountryCode) AS RowNum
         FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_SAT_Label_Allocation_Stg` AS Stg
         LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
@@ -124,7 +125,7 @@ BEGIN
         IsCurrent
       )
       VALUES (
-        (`{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CAST(Src.LabelNo AS STRING), '^')),
+        Src.LabelNo_HSK,
         Src.LabelNo,
         Src.CountryCode,
         Src.Country,
