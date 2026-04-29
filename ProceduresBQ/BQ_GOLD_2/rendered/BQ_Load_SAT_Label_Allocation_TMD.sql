@@ -5,7 +5,7 @@
 -- History:
 --  06/11/2019  P. Waldron    Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_Label_Allocation_TMD`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_SAT_Label_Allocation_TMD`(
   p_ProcessID INT64,
   p_RecordSource STRING
 )
@@ -46,14 +46,14 @@ BEGIN
           Stg.parcelWidth  as Width,
           Stg.parcelLength as Length,
           Stg.globalRequestID 
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_API_Temando_RequestLabel_Stg` Stg 
-        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` cty
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_API_Temando_RequestLabel_Stg` Stg 
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` cty
           -- CAST only for the JOIN comparison
           ON CAST(cty.CountryCode AS STRING) = CAST(Stg.originCountry AS STRING)
         WHERE result_LabelNumber IS NOT NULL AND result_LabelNumber <> ''
       ),
       Current_Sat AS (
-        SELECT * FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_TMD` WHERE IsCurrent = 1
+        SELECT * FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_TMD` WHERE IsCurrent = 1
       )
       SELECT 
         S.*,
@@ -80,7 +80,7 @@ BEGIN
          );
 
       -- 2. Expire old versions
-      UPDATE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_TMD` Target
+      UPDATE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_TMD` Target
       SET IsCurrent = 0,
           ValidTo = v_Loaded
       FROM temp_SAT_TMD_Toload Source
@@ -91,7 +91,7 @@ BEGIN
       SET v_Updated_Count = @@row_count;
 
       -- 3. Insert new versions
-      INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_TMD` (
+      INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_TMD` (
         LabelNo_HSK, LabelNo, Country, CountryCode, OriginRF, DestinationRF,
         CreateDateLocal, CreateDateUTC, RequestID, LabelColour, LabelType,
         LabelCost, Weight, Length, Width, Height, Loaded, ProcessId,
@@ -118,7 +118,7 @@ BEGIN
     SET v_Error_Msg = @@error.message;
   END;
 
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     'dv_Load_SAT_Label_Allocation_TMD', p_ProcessID, v_Started, CURRENT_DATETIME(), v_Status, v_Error_Msg, v_Inserted_Count, v_Updated_Count, 0
   );
 

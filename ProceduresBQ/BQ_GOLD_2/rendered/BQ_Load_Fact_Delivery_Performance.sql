@@ -14,7 +14,7 @@
 --  27/06/2022  B. Woods        BI-264 - Add local bulk customers
 --  09/01/2024  J. Rogers       BI-460 - Improve speed of Load_Fact_Delivery_Performance
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dbo_Load_Fact_Delivery_Performance`(IN p_ProcessID INT64, IN p_Force INT64)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_Load_Fact_Delivery_Performance`(IN p_ProcessID INT64, IN p_Force INT64)
 BEGIN
   /*
   ** Routine: Load_Fact_Delivery_Performance
@@ -33,11 +33,11 @@ BEGIN
   BEGIN
     -- Handle the TRUNCATE logic if p_Force is 1 (simulating SQL Server BIT)
     IF p_Force = 1 THEN
-      TRUNCATE TABLE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Fact_Delivery_Performance`;
+      TRUNCATE TABLE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Delivery_Performance`;
     END IF;
 
     -- MERGE Rule: Single MERGE since SP contains both INSERT and UPDATE
-    MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Fact_Delivery_Performance` AS Tgt
+    MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Delivery_Performance` AS Tgt
     USING (
       SELECT
         ReceivedRF,  
@@ -67,11 +67,11 @@ BEGIN
           CASE WHEN k.KPI + 1 + k.StopHoliday - k.StopDays >= 0 THEN 1 ELSE 0 END AS KPI1,
           CASE WHEN k.KPI + 2 + k.StopHoliday - k.StopDays >= 0 THEN 1 ELSE 0 END AS KPI2,
           CASE WHEN k.SLA + k.DeliveryHoliday - k.DeliveryDays >= 0 THEN 1 ELSE 0 END AS SLA
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Fact_Scan_KPI` AS k
-        INNER JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_RF` AS r ON k.FirstStopRF = r.FranchiseeCode
-        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Label` AS l ON k.LabelNo = l.LabelNo AND r.CountryCode = l.CountryCode
-        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPIBulkCustomer` AS c ON l.OESCustomerID = c.OESCustomerID AND l.CountryCode = c.CountryCode
-        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPIBulkLocalCustomer` AS lc ON l.FMSCustomerID = lc.FMSCustomerId AND l.CountryCode = lc.CountryCode            
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan_KPI` AS k
+        INNER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_RF` AS r ON k.FirstStopRF = r.FranchiseeCode
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` AS l ON k.LabelNo = l.LabelNo AND r.CountryCode = l.CountryCode
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIBulkCustomer` AS c ON l.OESCustomerID = c.OESCustomerID AND l.CountryCode = c.CountryCode
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIBulkLocalCustomer` AS lc ON l.FMSCustomerID = lc.FMSCustomerId AND l.CountryCode = lc.CountryCode            
       ) AS d
       GROUP BY ReceivedRF, DeliveryRF, DeliveryCF, DeliveryDate, Category
     ) AS Src
@@ -144,7 +144,7 @@ BEGIN
 
   -- Logging Rule: Every translated SP MUST end with CALL Staging_SaveLog covering success and failure
   SET v_Ended = CURRENT_DATETIME();
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     v_Component,
     p_ProcessID,
     v_Started,

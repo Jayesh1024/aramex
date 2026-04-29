@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.sp_load_Staging_fl_ConItem_Stg__2`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.sp_load_Staging_fl_ConItem_Stg__2`(
 )
 BEGIN
   DECLARE startDate DATETIME;
@@ -19,7 +19,7 @@ BEGIN
 
   SET ConId = (
     SELECT ConId
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_Con`
+    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_Con`
     WHERE CreatedOn >= startDate
     ORDER BY CreatedOn
     LIMIT 1
@@ -27,13 +27,13 @@ BEGIN
 
   SET EndConId = (
     SELECT ConId
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_Con`
+    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_Con`
     WHERE CreatedOn <= endDate
     ORDER BY CreatedOn DESC
     LIMIT 1
   );
 
-  INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_fl_ConItem_Stg`
+  INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_fl_ConItem_Stg`
   SELECT
     ci.Label,
     con.ConId,
@@ -119,9 +119,9 @@ BEGIN
     cis.Total AS ItemSumTotal,
     cis.PackageTypeId AS ItemSumPackageTypeId,
     ci.LabelExternal
-  FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_Con` con
-  JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_ConItemSum` cis ON cis.ConId = con.ConId
-  JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_ConItem` ci ON ci.ConId = cis.ConId AND ci.LineNo = cis.LineNo
+  FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_Con` con
+  JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_ConItemSum` cis ON cis.ConId = con.ConId
+  JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_ConItem` ci ON ci.ConId = cis.ConId AND ci.LineNo = cis.LineNo
   WHERE con.ConId >= ConId
     AND con.ConId < EndConId
     AND con.RealisedDate IS NOT NULL

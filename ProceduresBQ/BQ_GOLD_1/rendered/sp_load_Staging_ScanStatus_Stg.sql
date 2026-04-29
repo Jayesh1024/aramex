@@ -1,7 +1,7 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.sp_load_Staging_ScanStatus_Stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.sp_load_Staging_ScanStatus_Stg`(
 )
 BEGIN
-  INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_ScanStatus_Stg`
+  INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_ScanStatus_Stg`
   SELECT 
   	CountryCode, 
   	IFNULL(ct.Country,'Unknown') as CountryName, 
@@ -34,8 +34,8 @@ BEGIN
                     CAST(Onforward AS INT64) AS Onforward,
                     CAST(Delayed AS INT64) AS Delayed,
                     CAST(ReadyToCollect AS INT64) AS ReadyToCollect
-  FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_krillin_silver.Fastway_dbo_status` st 
-  LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_krillin_silver.Fastway_dbo_Country` ct ON ct.Code = st.CountryCode
+  FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.Fastway_dbo_status` st 
+  LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.Fastway_dbo_Country` ct ON ct.Code = st.CountryCode
   ;
 
 END;

@@ -9,7 +9,7 @@
 --  16/12/2021  B. Woods    Changed the order of label source systems to match
 --                the order in Load_SAT_Label_Allocation.
 -- ==========================================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_HUB_Label`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_HUB_Label`(
   p_ProcessID INT64
 )
 BEGIN
@@ -21,20 +21,20 @@ BEGIN
 
   BEGIN
     -- Use a MERGE to handle multi-source consolidation and deduplication in one pass
-    MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_HUB_Label` AS Target
+    MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_HUB_Label` AS Target
     USING (
       WITH UnifiedLabels AS (
         -- Consolidate all sources with a priority rank (SourceOrder)
-        SELECT 0 AS SrcOrder, LabelNo FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LabelMaster_Stg` UNION ALL
-        SELECT 1 AS SrcOrder, Label AS LabelNo FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_fl_ConItem_Stg` UNION ALL
-        SELECT 2 AS SrcOrder, LabelNumber AS LabelNo FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_API_RF_AdHocLabel_AllocationHistory_Stg` UNION ALL
-        SELECT 3 AS SrcOrder, LabelNumber AS LabelNo FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_tblFastLabel_Consignment_Stg` UNION ALL
-        SELECT 4 AS SrcOrder, LabelNumber AS LabelNo FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_ConsignmentItem_Stg` UNION ALL
-        SELECT 5 AS SrcOrder, LabelNo FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_HDManifests_Stg` UNION ALL
-        SELECT 6 AS SrcOrder, LabelNumber AS LabelNo FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Ebay_Labels_Stg` UNION ALL
-        SELECT 7 AS SrcOrder, label_number AS LabelNo FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_tblOnlineEnquiry_RP_Stg` UNION ALL
-        SELECT 8 AS SrcOrder, LabelNumber AS LabelNo FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_tblTasman_Consignment_Stg` UNION ALL
-        SELECT 9 AS SrcOrder, result_LabelNumber AS LabelNo FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_API_Temando_RequestLabel_Stg`
+        SELECT 0 AS SrcOrder, LabelNo FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LabelMaster_Stg` UNION ALL
+        SELECT 1 AS SrcOrder, Label AS LabelNo FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_fl_ConItem_Stg` UNION ALL
+        SELECT 2 AS SrcOrder, LabelNumber AS LabelNo FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_API_RF_AdHocLabel_AllocationHistory_Stg` UNION ALL
+        SELECT 3 AS SrcOrder, LabelNumber AS LabelNo FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_tblFastLabel_Consignment_Stg` UNION ALL
+        SELECT 4 AS SrcOrder, LabelNumber AS LabelNo FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_ConsignmentItem_Stg` UNION ALL
+        SELECT 5 AS SrcOrder, LabelNo FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_HDManifests_Stg` UNION ALL
+        SELECT 6 AS SrcOrder, LabelNumber AS LabelNo FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Ebay_Labels_Stg` UNION ALL
+        SELECT 7 AS SrcOrder, label_number AS LabelNo FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_tblOnlineEnquiry_RP_Stg` UNION ALL
+        SELECT 8 AS SrcOrder, LabelNumber AS LabelNo FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_tblTasman_Consignment_Stg` UNION ALL
+        SELECT 9 AS SrcOrder, result_LabelNumber AS LabelNo FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_API_Temando_RequestLabel_Stg`
       ),
       RankedLabels AS (
         -- Group by LabelNo and pick the minimum SourceOrder to determine RecordSource priority
@@ -79,7 +79,7 @@ BEGIN
   END;
 
   -- Metadata Logging
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     'dv_Load_HUB_Label',
     p_ProcessID,
     v_Started,

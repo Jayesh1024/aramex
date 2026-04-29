@@ -74,6 +74,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Load KPI_Labels_Stg — Staging_Load_KPI_Labels_Stg(ProcessId, SinceScanDate, UntilScanDate, UseScanDates)
@@ -91,6 +92,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Load Fact_Scan_KPI_Stg — Staging_Load_Fact_Scan_KPI_Stg(ProcessId)
@@ -105,6 +107,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_5 >> op_8 >> op_7 >> op_6
@@ -124,6 +127,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Final\Set Last ID (TrackAndTraceID) — interimStaging_Set_LastValue(RecordSource, NULL, NULL, 0)
@@ -138,6 +142,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_1 >> op_2

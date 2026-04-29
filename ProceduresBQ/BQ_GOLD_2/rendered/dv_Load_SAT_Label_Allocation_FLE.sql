@@ -1,11 +1,11 @@
 -- ==========================================================================================
 -- Routine:     dv_Load_SAT_Label_Allocation_FLE
--- Description: Loads attributes into SAT_Label_Allocation_FLE from `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_ConsignmentItem_Stg`
+-- Description: Loads attributes into SAT_Label_Allocation_FLE from `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_ConsignmentItem_Stg`
 -- Fixes:       1. Comparison logic uses CAST to STRING for IFNULL safety.
 --              2. INSERT logic uses original types (INT64) to match table schema.
 --              3. Joins and HSK use matching types (BYTES for MD5).
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_Label_Allocation_FLE`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_SAT_Label_Allocation_FLE`(
     IN ProcessID    INT64,
     IN RecordSource STRING
 )
@@ -27,7 +27,7 @@ BEGIN
         -- -----------------------------------------------------------------------
         -- STEP 1: Expire changed current rows (IsCurrent=0, ValidTo=Loaded)
         -- -----------------------------------------------------------------------
-        MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_FLE` AS Tgt
+        MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_FLE` AS Tgt
         USING (
             SELECT DISTINCT
                 MD5(CAST(Stg.LabelNumber AS STRING)) AS LabelNo_HSK,
@@ -59,8 +59,8 @@ BEGIN
                 Stg.Height,
                 Stg.Colour,
                 Stg.ConsignmentItemId
-            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_ConsignmentItem_Stg` Stg
-            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` cty 
+            FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_ConsignmentItem_Stg` Stg
+            LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` cty 
                 ON CAST(cty.CountryCode AS STRING) = CAST(Stg.CountryId AS STRING)
         ) AS Src
         ON  Tgt.LabelNo_HSK = Src.LabelNo_HSK
@@ -105,7 +105,7 @@ BEGIN
         -- -----------------------------------------------------------------------
         -- STEP 2: Insert new rows (IsCurrent=1)
         -- -----------------------------------------------------------------------
-        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_FLE`
+        INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_FLE`
         (
             LabelNo_HSK, LabelNo, CountryCode, Country, OESCustomerId, FMSCustomerID,
             ToContactName, ToAddress1, ToAddress2, ToSuburb, ToPostcode, ToPhone, ToEmail,
@@ -151,12 +151,12 @@ BEGIN
             Loaded,
             DefaultValidTo,
             1
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_ConsignmentItem_Stg` Stg
-        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` cty 
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_ConsignmentItem_Stg` Stg
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` cty 
             ON CAST(cty.CountryCode AS STRING) = CAST(Stg.CountryId AS STRING)
         WHERE NOT EXISTS (
             SELECT 1
-            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_FLE` AS Tgt
+            FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_FLE` AS Tgt
             WHERE Tgt.LabelNo_HSK = MD5(CAST(Stg.LabelNumber AS STRING))
               AND Tgt.IsCurrent   = 1
         );
@@ -170,7 +170,7 @@ BEGIN
     END;
 
     SET Ended = CURRENT_DATETIME();
-    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+    CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
         Component, ProcessID, Started, Ended, Result, ErrorMessage, Inserted, Updated, -1
     );
 

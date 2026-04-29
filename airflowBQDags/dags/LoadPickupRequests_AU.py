@@ -139,6 +139,7 @@ with DAG(
                 }
             },
             gcp_conn_id="google_cloud_default",
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Pickup Requests\Get PickupRequests (AU)
@@ -160,6 +161,7 @@ with DAG(
                 }
             },
             gcp_conn_id="google_cloud_default",
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Pickup Requests\Copy Country Staging to PickupRequest_Stg
@@ -221,6 +223,7 @@ with DAG(
                 }
             },
             gcp_conn_id="google_cloud_default",
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Pickup Requests\Load Target Table
@@ -237,6 +240,7 @@ with DAG(
                 }
             },
             gcp_conn_id="google_cloud_default",
+            job_id="bq_gold_transformation_oceania",
         )
 
         # Sequence inside Pickup Requests (from executable_dependencies.json):
@@ -269,6 +273,7 @@ with DAG(
             }
         },
         gcp_conn_id="google_cloud_default",
+        job_id="bq_gold_transformation_oceania",
     )
 
     # --- precedence (from executable_dependencies.json) ---

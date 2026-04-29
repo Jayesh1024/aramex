@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.sp_load_Staging_PickupRequest_Stg__3`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.sp_load_Staging_PickupRequest_Stg__3`(
 )
 BEGIN
   DECLARE startDate DATETIME;
@@ -7,13 +7,13 @@ BEGIN
 
   SET NextID = (
     SELECT ID
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_goku_silver.FastwayGlobal_24_PickupDashboard_PickupRequest`
+    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_goku_silver.FastwayGlobal_24_PickupDashboard_PickupRequest`
     WHERE CreateDateUtc > startDate
     ORDER BY CreateDateUtc
     LIMIT 1
   );
 
-  INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_PickupRequest_Stg`
+  INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_PickupRequest_Stg`
   SELECT Id
   
         ,CreateDateUtc
@@ -75,7 +75,7 @@ BEGIN
         ,PickupCompany
         ,DeliveryCompany
         ,CAST(IsPriority AS INT64) AS IsPriority
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_goku_silver.FastwayGlobal_24_PickupDashboard_PickupRequest`
+    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_goku_silver.FastwayGlobal_24_PickupDashboard_PickupRequest`
     WHERE ID >= NextID
   ;
 

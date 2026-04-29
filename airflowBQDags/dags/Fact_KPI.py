@@ -65,6 +65,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Load KPI_Labels_Src_Stg — Exec [Staging].[Load_Fact_KPI_Src_Stg] ProcessId, StartDateOverRide, EndDateOverRide
@@ -81,6 +82,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Load Fact_KPI_Daily_Stg — Exec [Staging].[Load_Fact_KPI_Daily_Stg] ProcessId
@@ -97,6 +99,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_8 >> op_7 >> op_6
@@ -116,6 +119,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Final\Load Fact_KPI_Priority — EXEC [dbo].[Load_Fact_KPI_Priority] ProcessId
@@ -130,6 +134,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Final\Load Fact KPI Performance — Exec [dbo].[Load_Fact_KPI_Performance] ProcessId
@@ -144,6 +149,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_1 >> op_3 >> op_2

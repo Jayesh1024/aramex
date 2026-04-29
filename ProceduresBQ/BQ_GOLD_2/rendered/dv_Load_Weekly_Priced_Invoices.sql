@@ -10,7 +10,7 @@
 --  13/07/2021  B. Woods        Routine Written
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_Weekly_Priced_Invoices`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_Weekly_Priced_Invoices`(
     IN ProcessID INT64,
     IN LastID    INT64
 )
@@ -36,13 +36,13 @@ BEGIN
     -- UPDATE: replicate UPDATE ... FROM ... INNER JOIN using MERGE
     -- Updates Price and FMSInvoiceID on current rows that meet change criteria
     -- -----------------------------------------------------------------------
-    MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_DL` AS DL
+    MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_DL` AS DL
     USING (
         SELECT
             H.HistoryID,
             H.PriceSoldAtExGST,
             H.FMSInvoiceID
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_API_RF_AdHocLabel_AllocationHistory_Stg` H
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_API_RF_AdHocLabel_AllocationHistory_Stg` H
     ) AS H
     ON  DL.RecordSourceId = H.HistoryID
     AND DL.IsCurrent      = 1
@@ -61,7 +61,7 @@ BEGIN
     SET Ended        = CURRENT_DATETIME();
     SET SubComponent = Component || ' (' || Step || ')';
 
-    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+    CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
         SubComponent,
         ProcessID,
         Started,

@@ -90,6 +90,7 @@ with DAG(
                 "useLegacySql": False,
             }
         },
+        job_id="bq_gold_transformation_oceania",
     )
 
     with TaskGroup(group_id="tg_package_final_load_sat_allocation"):
@@ -102,6 +103,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             }
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\\Final (Load SAT_Allocation)\\Load SAT_Label_Allocation_Stg
@@ -113,6 +115,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             }
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\\Final (Load SAT_Allocation)\\Load SAT_Label_Allocation
@@ -124,6 +127,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             }
+            job_id="bq_gold_transformation_oceania",
         )
 
         
@@ -145,6 +149,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\\Final (Load SAT_Distribution)\\Set LastDate (LabelMaster)
@@ -160,6 +165,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
     with TaskGroup(group_id="tg_package_final_load_sat_label_allocation") as tg_sat_label_allocation:
@@ -179,6 +185,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 1\\Load SAT_Label_Allocation_EBAY
@@ -194,6 +201,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 1\\Load SAT_Label_Allocation_FLE
@@ -209,6 +217,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 1\\Set LastDate (DynamicLabel)
@@ -223,6 +232,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 1\\Set LastDate (EBAY)
@@ -237,6 +247,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 1\\Set LastDate (FastLabelEnterprise)
@@ -251,6 +262,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
         with TaskGroup(group_id="tg_package_final_load_sat_label_allocation_group_2") as tg_sat_label_allocation_group_2:
@@ -268,6 +280,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 2\\Load SAT_Label_Allocation_MF
@@ -283,6 +296,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 2\\Load SAT_Label_Pickup_Requests
@@ -298,6 +312,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 2\\Set LastDate (MyFastway)
@@ -312,6 +327,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 2\\Set LastID (IFS)
@@ -326,6 +342,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
         with TaskGroup(group_id="tg_package_final_load_sat_label_allocation_group_3") as tg_sat_label_allocation_group_3:
@@ -343,6 +360,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Load SAT_Label_Allocation_RP
@@ -358,6 +376,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Load SAT_Label_Allocation_TMD
@@ -373,6 +392,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Set LastDate (FastLabel)
@@ -387,6 +407,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Set LastDate (ReceiverPays)
@@ -401,6 +422,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Set LastDate (Temando)
@@ -415,6 +437,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
     # ref_id: Package\\HUB_Address — SSIS Microsoft.ExecutePackageTask (HUB_Address.dtsx)
@@ -466,6 +489,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
 
@@ -478,6 +502,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 }
+                job_id="bq_gold_transformation_oceania",
             )
 
         with TaskGroup(group_id="tg_package_staging_source10_ebay_ebay"):
@@ -504,6 +529,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Staging\\Source10 (EBAY) _EBAY\\Truncate Ebay_labels_Stg
@@ -517,6 +543,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
         with TaskGroup(group_id="tg_package_staging_source11_myfastwaysrv_mf_2"):
@@ -543,6 +570,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Truncate fl_ConItemSrv_Stg
@@ -556,6 +584,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
         with TaskGroup(group_id="tg_package_staging_source13_pickuprequests"):
@@ -570,6 +599,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (NZ)
@@ -583,6 +613,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (SA)
@@ -596,6 +627,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Staging\\Source13 (PickupRequests)\\Truncate Staging Tables
@@ -609,6 +641,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
         with TaskGroup(group_id="tg_package_staging_source2_dynamiclabel_dl"):
@@ -636,6 +669,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
 
@@ -648,6 +682,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 }
+                job_id="bq_gold_transformation_oceania",
             )
 
         with TaskGroup(group_id="tg_package_staging_source3_fastlabel_fl"):
@@ -674,6 +709,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Staging\\Source3 (FastLabel) _FL\\Truncate tblFastLabel_Consignment_Stg
@@ -687,6 +723,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
         with TaskGroup(group_id="tg_package_staging_source4_myfastway_mf"):
@@ -713,6 +750,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Staging\\Source4 (MyFastway) _MF\\Truncate fl_ConItem_Stg
@@ -726,6 +764,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
         with TaskGroup(group_id="tg_package_staging_source5_hdmanifest_ifs"):
@@ -752,6 +791,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Staging\\Source5 (HDManifest) _IFS\\Truncate HDManifests_Stg
@@ -765,6 +805,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
         with TaskGroup(group_id="tg_package_staging_source6_fastlabelenterprise_fle"):
@@ -791,6 +832,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Truncate ConsignmentItem_Stg
@@ -804,6 +846,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
         with TaskGroup(group_id="tg_package_staging_source7_temando_tmd"):
@@ -830,6 +873,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Staging\\Source7 (Temando) _TMD\\Truncate API_Temando_RequestLabel_Stg
@@ -843,6 +887,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
         with TaskGroup(group_id="tg_package_staging_source8_receiverpays_rp"):
@@ -869,6 +914,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\\Staging\\Source8 (ReceiverPays) _RP\\Truncate tblOnlineEnquiry_RP_Stg
@@ -882,6 +928,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
     # --- precedence (upstream >> downstream) ---

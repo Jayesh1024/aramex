@@ -18,6 +18,7 @@ with DAG(
                 "use_legacy_sql": False,
             }
         }
+        job_id="bq_gold_transformation_oceania",
     )
     
     op_1

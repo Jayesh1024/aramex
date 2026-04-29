@@ -67,6 +67,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Get Last Run Date (ZENLog) — Staging_Get_LastValue
@@ -92,6 +93,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_6 >> op_8 >> op_5 >> op_7
@@ -113,6 +115,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Final\Load SAT_Zen_Tickets — EXEC [dv].[Load_SAT_ZEN_Ticket] ProcessId, RecordSource
@@ -127,6 +130,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Final\(ZENLog) — UPDATE Staging.LoadControl LastValue
@@ -146,6 +150,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         [op_2, op_3] >> op_1

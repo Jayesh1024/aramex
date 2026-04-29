@@ -47,6 +47,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Load RFBatchingInvoice_Stg — destination Staging.RFBatchingInvoiceLog_Stg (BQ: SP replaces SSIS pipeline)
@@ -58,6 +59,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
 
@@ -74,6 +76,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
     # --- Precedence ---

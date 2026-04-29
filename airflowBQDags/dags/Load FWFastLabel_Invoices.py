@@ -59,6 +59,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Get Last InvoiceHeaderDate — [Staging].[Get_LastValue] RecordSource1
@@ -95,6 +96,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Load fl_InvoicePayment_Stg — pipeline -> inferred SP (LastPaymentDate)
@@ -109,6 +111,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_10 >> op_6 >> op_8
@@ -129,6 +132,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Final\Set Last InvoiceHeaderDate — Staging_Set_LastValue(4 args)
@@ -143,6 +147,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Final\Load LSAT_FL_InvoicePayment — [dv].[Load_FL_InvoicePayment] ProcessId, RecordSource2
@@ -157,6 +162,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Final\Set Last InvoicePaymentDate — Staging_Set_LastValue(4 args)
@@ -171,6 +177,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_1 >> op_3

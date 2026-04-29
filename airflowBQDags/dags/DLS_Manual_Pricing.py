@@ -59,6 +59,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: …\Get LastId (DynamicLabel) — Exec [Staging].[Get_LastValue] ? (RecordSource2)
@@ -84,6 +85,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: …\Insert Into API_RF_AdHocLabel_AllocationHistory_Stg — metadata TRUNCATE+INSERT script (BQ: SP)
@@ -98,6 +100,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: …\Get Next ProcessID — metadata inline DECLARE/SELECT from Staging.LoadLog
@@ -112,6 +115,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: …\Load Lastest Priced Invoices — Exec [dv].[Load_SAT_Label_Allocation_DL] ?,? (ProcessId, RecordSource2)
@@ -125,6 +129,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: …\Update Dim_Label — metadata UPDATE … WHERE ProcessId = ? (BQ: SP)
@@ -141,6 +146,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_1 >> op_2 >> op_3 >> op_4 >> op_5 >> op_6 >> op_7

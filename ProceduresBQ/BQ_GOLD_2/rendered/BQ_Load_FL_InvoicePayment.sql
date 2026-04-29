@@ -6,7 +6,7 @@
 --  21/07/2025  B. Woods        Routine Written
 --
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_FL_InvoicePayment`(IN p_ProcessId INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_FL_InvoicePayment`(IN p_ProcessId INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_FL_InvoicePayment
@@ -23,8 +23,8 @@ BEGIN
   DECLARE v_Updated INT64 DEFAULT 0;
   BEGIN
     -- MERGE Rule: Use single MERGE for Insert + Update logic
-    MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LSAT_FL_InvoicePayment` AS Tgt
-    USING `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_fl_InvoicePayment_Stg` AS Src
+    MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_FL_InvoicePayment` AS Tgt
+    USING `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_fl_InvoicePayment_Stg` AS Src
     ON Tgt.InvoicePaymentId = Src.InvoicePaymentId
     WHEN MATCHED AND (
       Tgt.CountryId IS DISTINCT FROM Src.CountryId OR
@@ -86,7 +86,7 @@ BEGIN
 
   -- Logging Rule: Every translated SP MUST end with CALL Staging_SaveLog
   SET v_Ended = CURRENT_DATETIME();
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     v_Component,
     p_ProcessId,
     v_Started,

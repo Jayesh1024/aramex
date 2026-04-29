@@ -6,12 +6,12 @@
 -- History:
 --  17/01/2024  B. Woods        Routine Written
 --  [BQ Port]   Converted from SQL Server to BigQuery
---  [BQ Fix]    Dim_Country → fully qualified `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country`
+--  [BQ Fix]    Dim_Country → fully qualified `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country`
 --  [BQ Fix]    Src.Date + Src.Time → Src.Date only (Src.Time contains non-time values e.g. "Time_49")
 --  [BQ Fix]    TO_HEX(MD5(...)) → MD5(...) for all HSK columns (target columns are BYTES not STRING)
 --  [BQ Fix]    SaveLog → Staging_SaveLog with additional -1, -1 arguments.
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_LNK_RuralOnforwards`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_LNK_RuralOnforwards`(
     IN ProcessID INT64
 )
 BEGIN
@@ -29,7 +29,7 @@ BEGIN
 
     BEGIN
 
-        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_RuralOnforwards`
+        INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LNK_RuralOnforwards`
         (
             OnForwards_HSK,
             LabelNo_HSK,
@@ -70,12 +70,12 @@ BEGIN
             Loaded,
             ProcessID,
             ''                                                          AS RecordSource
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LA_RuralOnforwards_Stg` Src
-        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` C ON C.CountryCode = Src.CountryCode
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LA_RuralOnforwards_Stg` Src
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` C ON C.CountryCode = Src.CountryCode
         WHERE NOT EXISTS (
             -- Check already done in Load_LNK_Scan_Stg but kept here in case routine is re-run
             SELECT 1
-            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_RuralOnforwards` tgt
+            FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LNK_RuralOnforwards` tgt
             WHERE tgt.RF          = Src.RF
               AND tgt.CF          = Src.CF
               AND tgt.LabelNo     = Src.LabelNo
@@ -93,7 +93,7 @@ BEGIN
 
     -- Record load metrics in log
     SET Ended = CURRENT_DATETIME();
-    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+    CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
         Component,
         ProcessID,
         Started,
@@ -108,7 +108,7 @@ BEGIN
     -- Return next date (the day after the max CreatedDate loaded)
     SET NextDate = (
         SELECT DATE_ADD(DATE(MAX(CreatedDate)), INTERVAL 1 DAY)
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_RuralOnforwards`
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LNK_RuralOnforwards`
     );
 
     SELECT NextDate;

@@ -62,6 +62,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging 2\Get LastId (InterBranch) — Staging_Get_LastValue(RecordSource12)
@@ -88,6 +89,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
         
 
@@ -108,6 +110,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_10 >> op_7 >> op_8 >> op_9
@@ -127,6 +130,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Final\Load LSAT_Label_InterBranch — Exec [dv].[Load_LSAT_Label_InterBranch] ProcessId, RecordSource12
@@ -141,6 +145,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_1 >> op_2
@@ -156,6 +161,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Monthly Miscellaneous\Maintain DLBS RFBatching (Pipeline -> SP)
@@ -167,6 +173,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_5 >> op_4

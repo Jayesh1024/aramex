@@ -47,6 +47,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Load Franchisee_Stg — destination Staging.Franchisee_Stg (BQ: SP replaces SSIS pipeline)
@@ -58,6 +59,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
     # --- Package\Final ---
@@ -73,6 +75,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Final\Load SAT_RF — Exec [dv].[Load_SAT_RF] ?,? (param_1 → params.RecordSource)
@@ -84,6 +87,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
     # --- Precedence ---

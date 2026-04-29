@@ -1,10 +1,10 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_FL_Zones`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_SAT_FL_Zones`(
     IN p_ProcessID INT64,
     IN p_RecordSource STRING
 )
 BEGIN
     -- Logging Variables
-    DECLARE v_Component STRING DEFAULT 'prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_Load_SAT_FL_Zones';
+    DECLARE v_Component STRING DEFAULT 'prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_Load_SAT_FL_Zones';
     
     -- OPTION 2: Changed from TIMESTAMP to DATETIME
     DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
@@ -21,7 +21,7 @@ BEGIN
     DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
 
     BEGIN
-        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_FL_Zones` (
+        INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_FL_Zones` (
             Zone_HSK,
             CountryId,
             ZoneCode,
@@ -33,7 +33,7 @@ BEGIN
         )
         SELECT
             -- Call UDF: dbo.GetHashKey -> dbo_GetHashKey
-            `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
+            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
                 CONCAT(
                     IFNULL(NULLIF(CAST(CountryId AS STRING), ''), '') || v_delim,
                     IFNULL(NULLIF(CAST(ZoneCode AS STRING), ''), '') || v_delim
@@ -46,7 +46,7 @@ BEGIN
             DomOrInt,
             v_Loaded AS Loaded,
             p_RecordSource AS RecordSource
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_fl_Zones_Stg`;
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_fl_Zones_Stg`;
         
         SET v_Inserted = @@row_count;
         SET v_Result = 'Success';
@@ -57,7 +57,7 @@ BEGIN
     END;
 
     -- Record load metrics in log (Option 2: Using DATETIME and CURRENT_DATETIME)
-    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+    CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

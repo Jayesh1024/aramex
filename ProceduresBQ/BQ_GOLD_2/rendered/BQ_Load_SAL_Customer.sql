@@ -7,7 +7,7 @@
 --  13/02/2020  P. Waldron      Add [IFSCustomerType] column to [SAL_Customer] table
 --  12/03/2021  B. Woods		Fixed bug causing duplicate rows to be loaded  (ticket BI-70)
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAL_Customer`(IN p_ProcessID INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_SAL_Customer`(IN p_ProcessID INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_SAL_Customer 
@@ -24,7 +24,7 @@ BEGIN
   DECLARE v_Updated INT64 DEFAULT 0;
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAL_Customer` (
+    INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAL_Customer` (
       Customer_HSK,
       CustomerKey,
       RFCode,
@@ -52,16 +52,16 @@ BEGIN
           Cty.CountryName, 
           (SHA256(CAST(CustomerKey AS STRING))) AS Customer_HSK
         FROM (
-          SELECT CustomerKey, CountryCode, CAST(FMSCustomerID AS STRING) AS CustomerId, 'FMS' AS CustomerType, IFSCustomerType, RFCode FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_CustomerLinks_Stg` WHERE FMSCustomerID IS NOT NULL 
+          SELECT CustomerKey, CountryCode, CAST(FMSCustomerID AS STRING) AS CustomerId, 'FMS' AS CustomerType, IFSCustomerType, RFCode FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_CustomerLinks_Stg` WHERE FMSCustomerID IS NOT NULL 
           UNION DISTINCT
-          SELECT CustomerKey, CountryCode, CAST(OESCustomerID AS STRING) AS CustomerId, 'OES' AS CustomerType, IFSCustomerType, RFCode FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_CustomerLinks_Stg` WHERE OESCustomerID IS NOT NULL 
+          SELECT CustomerKey, CountryCode, CAST(OESCustomerID AS STRING) AS CustomerId, 'OES' AS CustomerType, IFSCustomerType, RFCode FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_CustomerLinks_Stg` WHERE OESCustomerID IS NOT NULL 
           UNION DISTINCT
-          SELECT CustomerKey, CountryCode, IFSCustomerCode AS CustomerId, 'IFS' AS CustomerType, IFSCustomerType, RFCode FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_CustomerLinks_Stg` WHERE IFSCustomerCode IS NOT NULL AND IFSCustomerCode <> ''
+          SELECT CustomerKey, CountryCode, IFSCustomerCode AS CustomerId, 'IFS' AS CustomerType, IFSCustomerType, RFCode FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_CustomerLinks_Stg` WHERE IFSCustomerCode IS NOT NULL AND IFSCustomerCode <> ''
         ) AS Stg
-        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS Cty ON Cty.CountryCode = Stg.CountryCode
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS Cty ON Cty.CountryCode = Stg.CountryCode
       ) AS Src
       WHERE NOT EXISTS ( 
-        SELECT 1 FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAL_Customer` AS Hub 
+        SELECT 1 FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAL_Customer` AS Hub 
         WHERE Src.CustomerKey = Hub.CustomerKey
           AND Src.CustomerType = Hub.CustomerType
           AND (Src.CustomerType IN ('FMS', 'OES') OR (Src.IFSCustomerType = Hub.IFSCustomerType))
@@ -95,7 +95,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     v_Component,
     p_ProcessID,
     v_Started,

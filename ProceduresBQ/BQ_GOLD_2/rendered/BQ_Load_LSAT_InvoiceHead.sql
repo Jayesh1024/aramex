@@ -7,7 +7,7 @@
 --
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_LSAT_InvoiceHead`(IN p_ProcessID INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_LSAT_InvoiceHead`(IN p_ProcessID INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_LSAT_InvoiceHead
@@ -26,7 +26,7 @@ BEGIN
   DECLARE v_Updated INT64 DEFAULT 0;
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceHead` (
+    INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceHead` (
       Invoice_HSK,
       FranchiseeCode_HSK,
       FranchiseeCode,
@@ -89,7 +89,7 @@ BEGIN
         PurchaseOrderNumber,
         Comments,
         ExcludedFromBaseRate
-      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_FMS_InvoiceHead_Stg`
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_FMS_InvoiceHead_Stg`
     )
     SELECT
       Src.Invoice_HSK,
@@ -126,7 +126,7 @@ BEGIN
     FROM InvoiceHeadStg AS Src
     WHERE NOT EXISTS (
       SELECT 1 
-      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceHead` AS Tgt 
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceHead` AS Tgt 
       WHERE Tgt.FranchiseeCode = Src.FranchiseeCode 
         AND Tgt.InvoiceNumber = Src.InvoiceNumber
     );
@@ -141,7 +141,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     v_Component, 
     p_ProcessID, 
     v_Started, 

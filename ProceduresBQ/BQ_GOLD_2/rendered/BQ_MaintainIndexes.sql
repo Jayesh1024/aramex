@@ -15,7 +15,7 @@
 --  12/11/2020  P. Waldron      Improve selection of partioned indexes
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dbo_MaintainIndexes`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_MaintainIndexes`(
   p_Operation STRING,
   p_SchemaName STRING,
   p_TableName STRING,
@@ -38,7 +38,7 @@ BEGIN
   DECLARE v_Updated INT64 DEFAULT 0;
 
   -- Initial logging to track start of maintenance task
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(v_Component_Start, 0, v_Started, NULL, NULL, NULL, 0, 0, -1);
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(v_Component_Start, 0, v_Started, NULL, NULL, NULL, 0, 0, -1);
 
   BEGIN
     -- BIGQUERY NOTE: This procedure is intentionally a No-Op. 
@@ -55,7 +55,7 @@ BEGIN
 
   -- End logging covering both success and failure paths.
   SET v_Ended = CURRENT_DATETIME();
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     v_Component_End, 
     0, 
     v_Started, 

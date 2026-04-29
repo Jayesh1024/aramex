@@ -6,7 +6,7 @@
 --	06/11/2019  P. Waldron		Routine Written
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_Label_Allocation_EBAY`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_SAT_Label_Allocation_EBAY`(
     IN p_ProcessID INT64,
     IN p_RecordSource STRING
 )
@@ -27,13 +27,13 @@ BEGIN
 
     BEGIN
         -- Step 1: Identify and Expire existing records that have changed
-        UPDATE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_EBAY` AS Tgt
+        UPDATE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_EBAY` AS Tgt
         SET 
             IsCurrent = 0, 
             ValidTo = v_Loaded -- Both are now DATETIME
         FROM (
             SELECT 
-                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(Stg.LabelNumber, '^') AS LabelNo_HSK,
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(Stg.LabelNumber, '^') AS LabelNo_HSK,
                 IFNULL(cty.CountryName, 'Unknown') AS Country,
                 Stg.B_CountryCode AS CountryCode,
                 Stg.B_RF AS OriginRF,
@@ -41,8 +41,8 @@ BEGIN
                 Stg.CreatedDateUTC AS CreateDateUTC,
                 Stg.LabelColour,
                 Stg.TotalLabelCost AS LabelCost
-            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Ebay_Labels_Stg` AS Stg
-            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.B_CountryCode
+            FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Ebay_Labels_Stg` AS Stg
+            LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.B_CountryCode
             WHERE Stg.LabelNumber IS NOT NULL AND Stg.LabelNumber != ''
         ) AS Src
         WHERE Tgt.LabelNo_HSK = Src.LabelNo_HSK 
@@ -61,13 +61,13 @@ BEGIN
         SET v_Updated = @@row_count;
 
         -- Step 2: Insert New Records
-        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_EBAY` (
+        INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_EBAY` (
             LabelNo_HSK, LabelNo, Country, CountryCode, OriginRF, DestinationRF,
             CreateDateUTC, LabelColour, LabelCost, Loaded, ProcessId,
             RecordSource, RecordSourceId, ValidFrom, ValidTo, IsCurrent
         )
         SELECT
-            `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(Src.LabelNo, '^'),
+            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(Src.LabelNo, '^'),
             Src.LabelNo,
             Src.Country,
             Src.CountryCode,
@@ -100,9 +100,9 @@ BEGIN
                     ELSE FALSE 
                 END AS ShouldInsert,
                 CASE WHEN Sat.LabelNo_HSK IS NULL THEN TRUE ELSE FALSE END AS IsNewKey
-            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Ebay_Labels_Stg` AS Stg
-            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.B_CountryCode
-            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_EBAY` AS Sat 
+            FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Ebay_Labels_Stg` AS Stg
+            LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.B_CountryCode
+            LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_EBAY` AS Sat 
                 ON Sat.LabelNo = Stg.LabelNumber AND Sat.IsCurrent = 1 
             WHERE Stg.LabelNumber IS NOT NULL AND Stg.LabelNumber != ''
         ) AS Src
@@ -116,7 +116,7 @@ BEGIN
     END;
 
     -- Final Log Call
-    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+    CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

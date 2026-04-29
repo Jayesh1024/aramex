@@ -6,7 +6,7 @@
 --  17/09/2020  P. Waldron      Routine Written
 --  21/06/2022  B. Woods         Cloned
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_LSAT_Label_InterBranch`(IN p_ProcessID INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_LSAT_Label_InterBranch`(IN p_ProcessID INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_LSAT_Label_InterBranch
@@ -27,7 +27,7 @@ BEGIN
   DECLARE v_Updated INT64 DEFAULT 0;
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LSAT_Label_Interbranch` (
+    INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_Label_Interbranch` (
       Label_InterBranch_HSK,
       LabelNo,
       CountryCode,
@@ -43,12 +43,12 @@ BEGIN
       Loaded,
       ProcessId,
       RecordSource,
-      BatchId
+      RecordSourceId
     )
     SELECT
       Src.Label_InterBranch_HSK,
       Src.LabelNo,
-      CAST(Src.CountryCode AS STRING),
+      Src.CountryCode,
       Src.InvoiceNumber,
       Src.InvoiceDate,
       Src.InvoiceFromRF,
@@ -83,11 +83,11 @@ BEGIN
         DeliveryTime,
         Price,
         BatchId
-      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Interbranch_Stg`
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Label_Interbranch_Stg`
     ) AS Src
     WHERE NOT EXISTS (
       SELECT 1 
-      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LSAT_Label_Interbranch` AS Tgt
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_Label_Interbranch` AS Tgt
       WHERE Tgt.Label_InterBranch_HSK = Src.Label_InterBranch_HSK
     );
 
@@ -101,7 +101,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     v_Component,
     p_ProcessID,
     v_Started,

@@ -6,7 +6,7 @@
 --	13/11/2018  P. Waldron		Routine Written
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_HUB_ScanStatus`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_HUB_ScanStatus`(
     IN p_ProcessID INT64,
     IN p_RecordSource STRING
 )
@@ -22,13 +22,13 @@ BEGIN
 
     BEGIN
         -- A MERGE statement handles the "Insert if Not Exists" logic using Jinja2 templates for paths.
-        MERGE INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_HUB_ScanStatus` AS Dest
+        MERGE INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_HUB_ScanStatus` AS Dest
         USING (
-            SELECT DISTINCT
-                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(IFNULL(RTRIM(CountryName), 'Unknown'), '^', StatusCode), '^') as ScanStatus_HSK,
+            SELECT DISTINCT 
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(IFNULL(RTRIM(CountryName), 'Unknown'), '^', StatusCode), '^') as ScanStatus_HSK,
                 IFNULL(RTRIM(CountryName), 'Unknown') AS CountryName, 
                 StatusCode AS ScanStatus 
-            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_ScanStatus_Stg`
+            FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_ScanStatus_Stg`
         ) AS Src
         ON Dest.CountryName = Src.CountryName 
            AND Dest.ScanStatus = Src.ScanStatus
@@ -60,7 +60,7 @@ BEGIN
     END;
 
     -- Final Log Call (Handles both Success and Failure metrics)
-    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+    CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

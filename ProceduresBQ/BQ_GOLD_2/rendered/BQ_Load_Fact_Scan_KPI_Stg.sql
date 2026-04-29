@@ -1,9 +1,9 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_Load_Fact_Scan_KPI_Stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_Load_Fact_Scan_KPI_Stg`(
     IN p_ProcessID INT64
 )
 BEGIN
     -- System and Logging Variables
-    DECLARE v_Component STRING DEFAULT 'prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Load_Fact_Scan_KPI_Stg';
+    DECLARE v_Component STRING DEFAULT 'prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Load_Fact_Scan_KPI_Stg';
     
     -- OPTION 2: Use DATETIME and CURRENT_DATETIME()
     DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
@@ -20,7 +20,7 @@ BEGIN
     -- FIX: COALESCE type safety. Ensure ID is cast to INT64 to match the default 0
     SET v_LastID = (
         SELECT COALESCE(MAX(CAST(ID AS INT64)), 0) 
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_KPI_Labels_Stg`
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_KPI_Labels_Stg`
     );
 
     IF v_LastID = 0 THEN
@@ -28,7 +28,7 @@ BEGIN
     END IF;
 
     BEGIN
-        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_Scan_KPI_Stg` (
+        INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_KPI_Stg` (
             LabelNo, FirstScanDate, FirstScanRF, FirstScanCF, FirstScanType, FirstScanStatus,
             LastScanDate, LastScanRF, LastScanCF, LastScanType, LastScanStatus,
             FirstPscanDate, FirstPscanRF, FirstPscanCF, FirstPScanStatus, 
@@ -61,20 +61,20 @@ BEGIN
             ) + IF(EXTRACT(DAYOFWEEK FROM FirstStopDate) = 1, 1, 0) AS StopDays,
             
             -- StopHoliday
-            (SELECT COUNT(*) FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPIExcludedDates` xd 
+            (SELECT COUNT(*) FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIExcludedDates` xd 
              WHERE xd.Franchise = FirstStopRF AND xd.Date BETWEEN DATE(FirstReceivedDate) AND DATE(FirstStopDate)) AS StopHoliday,
             
             -- KPI
-            (SELECT MAX(m.Days) FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPIMatrix` m 
+            (SELECT MAX(m.Days) FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIMatrix` m 
              WHERE m.PickupFranchise = FirstReceivedRF AND m.DeliveryFranchise = FirstStopRF) AS KPI,
              
             -- SingleCycle (Note: Cast to String for Coalesce Safety)
-            (SELECT COUNT(DISTINCT sc.CFCode) FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_SingleCycleCF` sc 
+            (SELECT COUNT(DISTINCT sc.CFCode) FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_SingleCycleCF` sc 
              WHERE sc.RFCode = COALESCE(CAST(FirstStopRF AS STRING), CAST(FirstDeliveryRF AS STRING)) 
                AND sc.CFCode = COALESCE(CAST(FirstStopCF AS STRING), CAST(FirstDeliveryCF AS STRING))) AS SingleCycle,
              
             -- SubDepot
-            (SELECT COUNT(DISTINCT sd.SubDepotCode) FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_SubDepot` sd 
+            (SELECT COUNT(DISTINCT sd.SubDepotCode) FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_SubDepot` sd 
              WHERE sd.DeedRF = COALESCE(CAST(FirstStopRF AS STRING), CAST(FirstDeliveryRF AS STRING)) 
                AND sd.CF = COALESCE(CAST(FirstStopCF AS STRING), CAST(FirstDeliveryCF AS STRING))) AS SubDepot,
              
@@ -85,11 +85,11 @@ BEGIN
             ) + IF(EXTRACT(DAYOFWEEK FROM FirstDeliveryDate) = 1, 1, 0) AS DeliveryDays,
             
             -- DeliveryHoliday
-            (SELECT COUNT(*) FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPIExcludedDates` xd 
+            (SELECT COUNT(*) FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIExcludedDates` xd 
              WHERE xd.Franchise = FirstDeliveryRF AND xd.Date BETWEEN DATE(FirstReceivedDate) AND DATE(FirstDeliveryDate)) AS DeliveryHoliday,
              
             -- SLA
-            (SELECT MAX(m.Days) FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPICustomerMatrix` m 
+            (SELECT MAX(m.Days) FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPICustomerMatrix` m 
              WHERE m.`Pickup RF` = FirstReceivedRF 
                AND m.`Delivery RF` = FirstDeliveryRF 
                AND DATE(FirstDeliveryDate) BETWEEN m.ValidFrom AND m.ValidTo 
@@ -232,12 +232,12 @@ BEGIN
                         ROW_NUMBER() OVER(PARTITION BY scan.LabelNo, k.KPIGroup ORDER BY scan.ScanDate DESC) AS KPIGroupReverse,
                         ROW_NUMBER() OVER(PARTITION BY scan.LabelNo, scan.ScanType ORDER BY scan.ScanDate) AS ScanTypeOrder,
                         scan.CountryName, scan.FranchiseeCode, scan.CourierNumber, scan.ScanType, scan.ScanStatus
-                    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_Scan_By_LabelNo` AS scan 
-                    JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_KPI_Labels_Stg` batch 
+                    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LNK_Scan_By_LabelNo` AS scan 
+                    JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_KPI_Labels_Stg` batch 
                         ON batch.LabelNo = scan.LabelNo
-                    LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPICodes` AS k 
+                    LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPICodes` AS k 
                         ON scan.ScanStatus = k.ScanStatus 
-                    LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS dc 
+                    LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS dc 
                         ON dc.CountryCode = k.CountryCode AND scan.CountryName = dc.CountryName
                     WHERE scan.ScanDate >= v_MinScanDate
                 ) sc
@@ -254,7 +254,7 @@ BEGIN
 
     -- OPTION 2: Logging logic
     SET v_Ended = CURRENT_DATETIME();
-    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+    CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

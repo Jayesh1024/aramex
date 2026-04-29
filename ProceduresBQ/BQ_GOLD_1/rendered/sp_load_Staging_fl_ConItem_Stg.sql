@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.sp_load_Staging_fl_ConItem_Stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.sp_load_Staging_fl_ConItem_Stg`(
   startDate DATETIME
 )
 BEGIN
@@ -7,7 +7,7 @@ BEGIN
 
   SET v_ConId = (
     SELECT ConId
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_Con`
+    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_Con`
     WHERE CreatedOn >= startDate2
     ORDER BY CreatedOn
     LIMIT 1
@@ -15,7 +15,7 @@ BEGIN
 
   SET startDate2 = DATE_SUB(CURRENT_DATETIME(), INTERVAL 60 DAY);
 
-  INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_fl_ConItem_Stg`
+  INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_fl_ConItem_Stg`
   SELECT
   ci.Label,
   con.ConId,
@@ -104,9 +104,9 @@ BEGIN
   CAST(NULL AS STRING) AS ItemSumHSCodeExternal,
   CAST(NULL AS STRING) AS ItemSumDescriptionOfGoods,
   ci.LabelExternal
-  FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_Con` con  
-  JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_ConItemSum` cis  on cis.ConId = con.ConId
-  JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_ConItem` ci  on ci.ConId = cis.ConId and ci.LineNo = cis.LineNo
+  FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_Con` con  
+  JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_ConItemSum` cis  on cis.ConId = con.ConId
+  JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_ConItem` ci  on ci.ConId = cis.ConId and ci.LineNo = cis.LineNo
   WHERE con.ConId >= v_ConId
   ;
 

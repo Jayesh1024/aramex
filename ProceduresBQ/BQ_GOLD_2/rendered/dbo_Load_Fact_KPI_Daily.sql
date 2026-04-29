@@ -22,7 +22,7 @@
 --  03/12/2022  B. Woods        Routine Written
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dbo_Load_Fact_KPI_Daily`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_Load_Fact_KPI_Daily`(
     IN ProcessID INT64
 )
 BEGIN
@@ -50,11 +50,11 @@ BEGIN
         ROW_NUMBER() OVER(PARTITION BY fr.FranchiseCode ORDER BY dt.Calendar_Date) AS BusDaySeq
     FROM (
         SELECT DISTINCT ToRf AS FranchiseCode
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Stg`
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Stg`
         WHERE ToRf IS NOT NULL
     ) fr
-    CROSS JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Time` dt
-    LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPIExcludedDates` ex
+    CROSS JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Time` dt
+    LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIExcludedDates` ex
       ON dt.Calendar_Date = ex.Date
      AND ex.Franchise     = fr.FranchiseCode
     WHERE dt.week_day_flag = 'Y'
@@ -72,8 +72,8 @@ BEGIN
         -- Get Dates by finding (StartSeq + Offset)
         calArrival.Calendar_Date   AS Calculated_KPIArrivalDate,
         calAttempted.Calendar_Date AS Calculated_KPIAttemptedDate
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Stg` AS stg
-    LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Daily` AS tgt
+    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Stg` AS stg
+    LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Daily` AS tgt
         ON tgt.LabelNo = stg.LabelNo
     -- Join to get Start Sequence for Departure
     LEFT JOIN BusinessDayCalendar startDep
@@ -98,7 +98,7 @@ BEGIN
     SET v_Step = 'Updates';
 
     BEGIN
-        MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Daily` AS Tgt
+        MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Daily` AS Tgt
         USING (SELECT * FROM CalculatedKPIs WHERE IsUpdate = TRUE) AS Src
         ON Tgt.LabelNo = Src.LabelNo
         WHEN MATCHED THEN
@@ -121,7 +121,7 @@ BEGIN
     IF v_Result = 'Success' THEN
         SET v_Step = 'Inserts';
         BEGIN
-            INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Daily`
+            INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Daily`
             (
                 LabelNo, CountryCode, Category, CreatedOn, ServiceType, RealisedDate,
                 KPIArrivalDate, KPIAttemptedDate, LastUpdated, ProcessID
@@ -141,7 +141,7 @@ BEGIN
     -- -----------------------------------------------------------------------
     -- Final Log
     -- -----------------------------------------------------------------------
-    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+    CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
         CONCAT(v_Component, ' (', v_Step, ')'),
         ProcessID,
         v_Started,

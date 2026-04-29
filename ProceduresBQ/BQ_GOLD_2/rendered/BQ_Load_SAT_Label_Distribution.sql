@@ -7,7 +7,7 @@
 --  27/06/2019  P. Waldron      Refactor to use SAT_Label_Distribution instead of SAT_Label
 --  12/12/2019  P. Waldron      Add CustomerKey
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_Label_Distribution`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_SAT_Label_Distribution`(
   IN p_ProcessId    INT64,
   IN p_RecordSource STRING
 )
@@ -27,13 +27,13 @@ BEGIN
     -- -----------------------------------------------------------------------
     -- Step 1: MERGE logic (Expire old and Insert brand new)
     -- -----------------------------------------------------------------------
-    MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Distribution` AS Tgt
+    MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Distribution` AS Tgt
     USING (
       SELECT * FROM (
         SELECT
           COALESCE(
             Sat.LabelNo_HSK,
-            `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(Stg.LabelNo, '^')
+            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(Stg.LabelNo, '^')
           ) AS LabelNo_HSK,
           Stg.LabelNo,
           Stg.CountryCode,
@@ -52,10 +52,10 @@ BEGIN
             PARTITION BY Stg.LabelNo, Stg.CountryCode
             ORDER BY Stg.Distribution_Date DESC
           )                                     AS RowNum
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LabelMaster_Stg` Stg
-        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` cty
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LabelMaster_Stg` Stg
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` cty
           ON cty.CountryCode = Stg.CountryCode
-        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Distribution` Sat
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Distribution` Sat
           ON  Sat.LabelNo    = Stg.LabelNo
           AND Sat.CountryCode = Stg.CountryCode
           AND Sat.IsCurrent  = 1
@@ -109,7 +109,7 @@ BEGIN
     -- -----------------------------------------------------------------------
     -- Step 2: Insert new current versions for expired records
     -- -----------------------------------------------------------------------
-    INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Distribution`
+    INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Distribution`
     (
       LabelNo_HSK, LabelNo, CountryCode, Country,
       Electronic_CustomerType, Electronic_CustomerID, Electronic_Reference,
@@ -137,8 +137,8 @@ BEGIN
             PARTITION BY Stg.LabelNo, Stg.CountryCode
             ORDER BY Stg.Distribution_Date DESC
           )                                     AS RowNum
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LabelMaster_Stg` Stg
-        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` cty
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LabelMaster_Stg` Stg
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` cty
           ON cty.CountryCode = Stg.CountryCode
       ) S
       WHERE RowNum = 1
@@ -151,7 +151,7 @@ BEGIN
       Src.Distribution_FranchiseeCode, Src.OESCustomerID, Src.FMSCustomerID, Src.FMSRfID,
       v_Loaded, p_ProcessId, p_RecordSource,
       v_Loaded AS ValidFrom, DATETIME '9999-12-31 00:00:00' AS ValidTo, 1 AS IsCurrent
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Distribution` Sat
+    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Distribution` Sat
     INNER JOIN LatestSrc Src
       ON  Sat.LabelNo    = Src.LabelNo
       AND Sat.CountryCode = Src.CountryCode
@@ -159,8 +159,8 @@ BEGIN
       AND Sat.ValidTo        = v_Loaded;
 
     -- Update counts for logging
-    SET v_Updated = (SELECT COUNTIF(IsCurrent = 0 AND ValidTo = v_Loaded) FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Distribution` WHERE ProcessId = p_ProcessId);
-    SET v_Inserted = (SELECT COUNTIF(IsCurrent = 1 AND ValidFrom = v_Loaded) FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Distribution` WHERE ProcessId = p_ProcessId);
+    SET v_Updated = (SELECT COUNTIF(IsCurrent = 0 AND ValidTo = v_Loaded) FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Distribution` WHERE ProcessId = p_ProcessId);
+    SET v_Inserted = (SELECT COUNTIF(IsCurrent = 1 AND ValidFrom = v_Loaded) FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Distribution` WHERE ProcessId = p_ProcessId);
 
     SET v_Result = 'Success';
 
@@ -173,7 +173,7 @@ BEGIN
   -- -----------------------------------------------------------------------
   -- Record load metrics in log
   -- -----------------------------------------------------------------------
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     v_Component, p_ProcessId, v_Started, CURRENT_DATETIME(), v_Result, v_ErrorMessage, v_Inserted, v_Updated, -1
   );
 

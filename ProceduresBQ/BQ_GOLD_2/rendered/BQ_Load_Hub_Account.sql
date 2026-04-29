@@ -5,7 +5,7 @@
 -- History:
 --  24/10/2019  P. Waldron    Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_HUB_Account`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_HUB_Account`(
   p_ProcessID INT64,
   p_RecordSource STRING
 )
@@ -18,7 +18,7 @@ BEGIN
 
   BEGIN
     -- Perform Idempotent Insert using MERGE
-    MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_HUB_Account` AS Target
+    MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_HUB_Account` AS Target
     USING (
       SELECT DISTINCT
         -- Hashing Business Keys: DV 2.0 Standard (SHA256) returns BYTES
@@ -33,7 +33,7 @@ BEGIN
           CustomerType,
           -- Native BQ cleaning (replaces dbo.CleanString and LTRIM/RTRIM)
           TRIM(REGEXP_REPLACE(IFSCustomerCode, r'\s+', ' ')) AS CleanedCustomerCode
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_IFSCustomers_Stg`
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_IFSCustomers_Stg`
       )
       WHERE CleanedCustomerCode != ''
     ) AS Source
@@ -50,7 +50,7 @@ BEGIN
   END;
 
   -- Metadata Logging (Signature updated to 9 arguments)
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     'dv_Load_HUB_Account',
     p_ProcessID,
     v_Started,

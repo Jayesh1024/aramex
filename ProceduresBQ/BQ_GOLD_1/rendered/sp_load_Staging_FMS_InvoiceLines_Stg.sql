@@ -1,8 +1,8 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.sp_load_Staging_FMS_InvoiceLines_Stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.sp_load_Staging_FMS_InvoiceLines_Stg`(
   FromDate DATETIME
 )
 BEGIN
-  INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_FMS_InvoiceLines_Stg`
+  INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_FMS_InvoiceLines_Stg`
   /*
     Invoices are read with a >= SystemDate rather than >
     meaning some invoices already in FastwayDW are re-read
@@ -37,9 +37,9 @@ BEGIN
         ,LineType
         ,BatchingProgram
         ,BatchingArguments
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_krillin_silver.Fastway_dbo_FMS_InvoiceLines` stg
+    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.Fastway_dbo_FMS_InvoiceLines` stg
     WHERE EXISTS (
-        select 1 from `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_krillin_silver.Fastway_dbo_FMS_InvoiceHead` h 
+        select 1 from `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.Fastway_dbo_FMS_InvoiceHead` h 
         where h.EnteredDate >= FromDate
           and h.InvoiceNumber = stg.InvoiceNumber 
           and h.RFCode = stg.RFId 

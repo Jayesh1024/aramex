@@ -6,7 +6,7 @@
 --  02/02/2023  B. Woods      Routine Written
 --
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dbo_Load_FMS_RFBatchingPerformanceBonus`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_Load_FMS_RFBatchingPerformanceBonus`(
   IN p_ProcessId INT64
 )
 BEGIN
@@ -33,7 +33,7 @@ BEGIN
   -- -----------------------------------------------------------------------
   SET v_DateBOM = (
     SELECT CAST(LastValue AS DATE)
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
+    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LoadControl`
     WHERE RecordSource = 'Fact_KPI_DPFM_Export'
     LIMIT 1
   );
@@ -78,12 +78,12 @@ BEGIN
         Category,
         v_DateBOM                                                         AS DateBOM,
         CAST(ROUND(SUM(OnTimeDelivery) * 100.0 / SUM(NumofLabels), 0) AS INT64) AS PerformancePercentage
-      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Delivery_Performance`
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Delivery_Performance`
       WHERE Category    = 'Interbranch'
         AND DeliveryDate BETWEEN v_StartDate AND v_EndDate
       GROUP BY CountryCode, PickupRF, DeliveryRF, Category
     ) t
-    LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPIRate` r ON t.DateBOM = r.DateBOM
+    LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIRate` r ON t.DateBOM = r.DateBOM
     WHERE t.PerformancePercentage >= COALESCE(r.Rate, 95);
 
     -- Capture the number of rows calculated
@@ -94,7 +94,7 @@ BEGIN
     -- -----------------------------------------------------------------------
     -- Advance LoadControl to next month on success
     -- -----------------------------------------------------------------------
-    UPDATE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
+    UPDATE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LoadControl`
     SET LastValue = CAST(DATE_ADD(v_DateBOM, INTERVAL 1 MONTH) AS STRING)
     WHERE RecordSource = 'Fact_KPI_DPFM_Export';
 
@@ -108,7 +108,7 @@ BEGIN
   -- -----------------------------------------------------------------------
   SET v_Ended = CURRENT_DATETIME();
 
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     v_Component,
     p_ProcessId,
     v_Started,

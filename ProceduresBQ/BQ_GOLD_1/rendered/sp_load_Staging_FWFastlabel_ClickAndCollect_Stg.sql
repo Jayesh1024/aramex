@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.sp_load_Staging_FWFastlabel_ClickAndCollect_Stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.sp_load_Staging_FWFastlabel_ClickAndCollect_Stg`(
   synchronization_version INT64,
   IsReload BOOL
 )
@@ -8,7 +8,7 @@ BEGIN
 
   DECLARE minimumVersion INT64;
 
-  INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_FWFastlabel_ClickAndCollect_Stg`
+  INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_FWFastlabel_ClickAndCollect_Stg`
   SELECT 
                               CNC.Id
                               ,CAST(NULL AS INT64) AS SYS_CHANGE_VERSION
@@ -39,7 +39,7 @@ BEGIN
                               ,CreatedBy
                               ,CAST(Processed AS INT64) AS Processed
                               ,ProcessedOn
-                          FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_FWFastlabel_ClickAndCollect` AS CNC
+                          FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_FWFastlabel_ClickAndCollect` AS CNC
                           WHERE IsReload = FALSE
   
                           UNION DISTINCT
@@ -73,7 +73,7 @@ BEGIN
                               ,CreatedBy
                               ,CAST(Processed AS INT64) AS Processed
                               ,ProcessedOn
-                          FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_FWFastlabel_ClickAndCollect` AS CNC
+                          FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_FWFastlabel_ClickAndCollect` AS CNC
                           WHERE IsReload = TRUE
   ;
 

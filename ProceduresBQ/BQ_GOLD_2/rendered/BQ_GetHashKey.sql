@@ -10,7 +10,7 @@
 --   - BigQuery does not support DEFAULT on function parameters; pass '^' (or the
 --     delimiter used in the business_key) explicitly at every call site.
 -- ==========================================================================================
-CREATE OR REPLACE FUNCTION `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dbo_GetHashKey`(
+CREATE OR REPLACE FUNCTION `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(
   business_key STRING,
   delim STRING
 )

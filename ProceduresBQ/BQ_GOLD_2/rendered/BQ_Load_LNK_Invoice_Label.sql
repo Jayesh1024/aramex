@@ -6,7 +6,7 @@
 --	19/11/2019  P. Waldron		Routine Written
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_LNK_Invoice_Label`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_LNK_Invoice_Label`(
     IN p_ProcessID INT64,
     IN p_RecordSource STRING
 )
@@ -23,20 +23,20 @@ BEGIN
     BEGIN
         -- A MERGE statement handles the "Insert if Not Exists" Link load pattern.
         -- Identifiers use the Jinja2 template and underscore schema naming.
-        MERGE INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_Invoice_Label` AS Tgt
+        MERGE INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LNK_Invoice_Label` AS Tgt
         USING (
             SELECT DISTINCT
-                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(CAST(stg.InvoiceNumber AS STRING), '^', stg.RFCode, '^', stg.Label), '^') AS Invoice_Label_HSK,
-                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(CAST(stg.InvoiceNumber AS STRING), '^', stg.RFCode), '^') AS Invoice_HSK,
-                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(stg.RFCode, '^') AS FranchiseeCode_HSK,
-                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(TRIM(stg.Label), '^') AS LabelNo_HSK,
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(CAST(stg.InvoiceNumber AS STRING), '^', stg.RFCode, '^', stg.Label), '^') AS Invoice_Label_HSK,
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(CAST(stg.InvoiceNumber AS STRING), '^', stg.RFCode), '^') AS Invoice_HSK,
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(stg.RFCode, '^') AS FranchiseeCode_HSK,
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(TRIM(stg.Label), '^') AS LabelNo_HSK,
                 stg.InvoiceNumber,
                 stg.RFCode AS FranchiseeCode,
                 TRIM(stg.Label) AS LabelNo
-            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_FMS_InvoiceBooks_Stg` AS stg
+            FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_FMS_InvoiceBooks_Stg` AS stg
             WHERE EXISTS (
                 SELECT 1 
-                FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_FMS_InvoiceHead_Stg` AS h 
+                FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_FMS_InvoiceHead_Stg` AS h 
                 WHERE h.InvoiceNumber = stg.InvoiceNumber 
                   AND h.RFCode = stg.RFCode
             )
@@ -79,7 +79,7 @@ BEGIN
     END;
 
     -- Final Log Call (Handles both Success and Failure metrics)
-    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+    CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

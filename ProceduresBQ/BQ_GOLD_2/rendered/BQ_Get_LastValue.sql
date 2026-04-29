@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_Get_LastValue`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_Get_LastValue`(
     IN p_RecordSource STRING
 )
 BEGIN
@@ -11,7 +11,7 @@ BEGIN
 
     SET v_LastValue = (
         SELECT LastValue 
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LoadControl`
         WHERE RecordSource = p_RecordSource
         LIMIT 1
     );

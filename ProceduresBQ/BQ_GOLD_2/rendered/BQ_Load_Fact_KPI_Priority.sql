@@ -6,7 +6,7 @@
 --  04/05/2023  B. Woods        Routine Written
 --
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dbo_Load_Fact_KPI_Priority`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_Load_Fact_KPI_Priority`(
   IN p_ProcessId INT64
 )
 BEGIN
@@ -29,9 +29,9 @@ BEGIN
     -- -----------------------------------------------------------------------
     -- Truncate and reload Priority labels
     -- -----------------------------------------------------------------------
-    TRUNCATE TABLE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Daily_Priority`;
+    TRUNCATE TABLE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Daily_Priority`;
 
-    INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Daily_Priority`
+    INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Daily_Priority`
     (
       LabelNo,
       CountryCode,
@@ -101,8 +101,8 @@ BEGIN
       SELECT
         ex.Franchise,
         ARRAY_AGG(dt.Calendar_Date ORDER BY dt.Calendar_Date) AS CalendarDates
-      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Time` dt
-      LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPIExcludedDates` ex
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Time` dt
+      LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIExcludedDates` ex
         ON  dt.Calendar_Date = ex.Date
         AND ex.Comment       IS NULL
       WHERE dt.week_day_flag = 'Y'
@@ -171,8 +171,8 @@ BEGIN
         CAST(COALESCE(K.KPILEA, 0) + COALESCE(K.KPIDelivery, 0) AS INT64) AS lea_del_offset,
         CAST(K.ActualDepartureDate AS DATE)                                AS dep_date,
         CAST(K.ActualArrivalDate AS DATE)                                  AS arr_date
-      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Daily` K
-      LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` MF
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Daily` K
+      LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` MF
         ON  MF.LabelNo     = K.LabelNo
         AND MF.IsCurrent   = 1
         AND MF.CountryCode = K.CountryCode
@@ -262,7 +262,7 @@ BEGIN
     -- -----------------------------------------------------------------------
     SET v_Inserted = (
       SELECT COUNT(*)
-      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Daily_Priority`
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Daily_Priority`
       WHERE ProcessId = p_ProcessId
     );
 
@@ -280,7 +280,7 @@ BEGIN
   SET v_Ended        = CURRENT_DATETIME();
   SET v_SubComponent = CONCAT(v_Component, ' (', v_Step, ')');
 
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     v_SubComponent,
     p_ProcessId,
     v_Started,

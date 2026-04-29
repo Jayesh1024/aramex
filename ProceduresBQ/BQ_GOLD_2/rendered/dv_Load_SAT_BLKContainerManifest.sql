@@ -1,6 +1,6 @@
 -- ==========================================================================================
 -- Routine:     dv_Load_SAT_BLKContainerManifest
--- Description: Loads SAT_BLKContainerManifest from `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_BLK_ContainerManifest_Stg`
+-- Description: Loads SAT_BLKContainerManifest from `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_BLK_ContainerManifest_Stg`
 --              BigQuery compatible version of Load_SAT_BLKContainerManifest
 --              Note: TRUNCATE + INSERT pattern preserved.
 --                    WITH (TABLOCK) hint removed (not supported in BQ).
@@ -9,7 +9,7 @@
 --  30/05/2024  B. Woods        Routine Written
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_BLKContainerManifest`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_SAT_BLKContainerManifest`(
     IN ProcessID    INT64,
     IN RecordSource STRING
 )
@@ -26,9 +26,9 @@ BEGIN
 
     BEGIN
 
-        TRUNCATE TABLE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_BLKContainerManifest`;
+        TRUNCATE TABLE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_BLKContainerManifest`;
 
-        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_BLKContainerManifest`
+        INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_BLKContainerManifest`
         SELECT
              ContainerManifestId
             ,ContainerId
@@ -49,7 +49,7 @@ BEGIN
             ,Started  AS Loaded
             ,ProcessID AS ProcessID
             ,RecordSource AS RecordSource
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_BLK_ContainerManifest_Stg`;
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_BLK_ContainerManifest_Stg`;
 
         SET Inserted = @@ROW_COUNT;
         SET Result   = 'Success';
@@ -63,7 +63,7 @@ BEGIN
     -- Record load metrics in log
     SET Result = 'Success';
     SET Ended  = CURRENT_DATETIME();
-    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+    CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
         Component,
         ProcessID,
         Started,

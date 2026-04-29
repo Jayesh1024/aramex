@@ -5,7 +5,7 @@
 -- History:
 --  17/08/2020  P. Waldron      Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_Product_ServiceCon_Stg`(IN p_ProcessID INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_Product_ServiceCon_Stg`(IN p_ProcessID INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_Product_ServiceCon_Stg
@@ -25,7 +25,7 @@ BEGIN
   DECLARE v_Updated INT64 DEFAULT 0;
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Product_ServiceCon_Stg` (
+    INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Product_ServiceCon_Stg` (
       Product_ServiceCon_HSK,
       Product_HSK,
       ConId,
@@ -65,8 +65,8 @@ BEGIN
       RecordSourceId
     )
     SELECT
-      `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(Src.Country, '^', CAST(Src.ConId AS STRING), '^', Src.ProductCode, '^', CAST(Src.ServiceItemId AS STRING)), '^') AS Product_ServiceCon_HSK,
-      `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(Src.Country, '^', Src.ProductCode), '^') AS Product_HSK,
+      `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(Src.Country, '^', CAST(Src.ConId AS STRING), '^', Src.ProductCode, '^', CAST(Src.ServiceItemId AS STRING)), '^') AS Product_ServiceCon_HSK,
+      `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(Src.Country, '^', Src.ProductCode), '^') AS Product_HSK,
       Src.ConId,
       Src.Country,
       Src.ProductCode,
@@ -136,9 +136,9 @@ BEGIN
         Srv.ServicePriceCommPercent,
         Srv.ServicePriceComm,
         Srv.UpdatedOn
-      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_fl_ConSrv_Stg` AS Srv  
-      LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS cty ON cty.CountryCode = Srv.CountryId
-      LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Product_Stg` AS Prod ON Srv.CountryId = Prod.CountryCode AND Srv.ProductId = Prod.ProductId
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_fl_ConSrv_Stg` AS Srv  
+      LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS cty ON cty.CountryCode = Srv.CountryId
+      LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Product_Stg` AS Prod ON Srv.CountryId = Prod.CountryCode AND Srv.ProductId = Prod.ProductId
     ) AS Src;
 
     SET v_Inserted = @@row_count;
@@ -151,7 +151,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     v_Component, 
     p_ProcessID, 
     v_Started, 

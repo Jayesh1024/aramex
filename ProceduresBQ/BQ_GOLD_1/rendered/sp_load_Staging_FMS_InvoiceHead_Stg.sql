@@ -1,8 +1,8 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.sp_load_Staging_FMS_InvoiceHead_Stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.sp_load_Staging_FMS_InvoiceHead_Stg`(
   FromDate DATETIME
 )
 BEGIN
-  INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_FMS_InvoiceHead_Stg`
+  INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_FMS_InvoiceHead_Stg`
   /*
     Invoices are read with a >= EnteredDate rather than >
     meaning some invoices already in FastwayDW are re-read
@@ -35,7 +35,7 @@ BEGIN
         ,PurchaseOrderNumber
         ,Comments
         ,CAST(ExcludedFromBaseRate AS INT64) AS ExcludedFromBaseRate
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_krillin_silver.Fastway_dbo_FMS_InvoiceHead`
+    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.Fastway_dbo_FMS_InvoiceHead`
   WHERE EnteredDate >= FromDate
     AND NMId IN(1,6)
   ;

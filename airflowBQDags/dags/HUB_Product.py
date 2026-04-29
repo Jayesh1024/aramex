@@ -53,6 +53,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Load Product_Stg (Pipeline -> SP)
@@ -64,6 +65,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_14 >> op_13
@@ -79,6 +81,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging 2\Load STK_RFPrroduct_Stg (Pipeline -> SP)
@@ -90,6 +93,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_9 >> op_8
@@ -105,6 +109,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging 3\Load FMS_CustomerCommisionOverride (Pipeline -> SP)
@@ -116,6 +121,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_12 >> op_11
@@ -135,6 +141,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Final\Load SAT_Product — Exec [dv].[Load_SAT_Product] ProcessId, RecordSource
@@ -149,6 +156,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
     with TaskGroup(group_id="tg_package_final_2") as tg_final_2:
@@ -166,6 +174,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Final 2\Load SAT_STK_RFProduct — Exec [dv].[Load_SAT_STK_RFProducts] RecordSource
@@ -180,6 +189,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
     tg_staging >> tg_final

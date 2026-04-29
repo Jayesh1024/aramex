@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_STK_RFProducts`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_SAT_STK_RFProducts`(
     IN p_RecordSource STRING
 )
 BEGIN
@@ -7,7 +7,7 @@ BEGIN
     -- Description: Full refresh of dv_SAT_STK_RFProducts from Staging
     -- ------------------------------------------------------------------------------------------
 
-    DECLARE v_Component STRING DEFAULT 'prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_Load_SAT_STK_RFProducts';
+    DECLARE v_Component STRING DEFAULT 'prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_Load_SAT_STK_RFProducts';
     
     -- OPTION 2: Changed from TIMESTAMP to DATETIME
     DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
@@ -20,10 +20,10 @@ BEGIN
 
     BEGIN
         -- 1. Clear the target table
-        TRUNCATE TABLE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_STK_RFProducts`;
+        TRUNCATE TABLE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_STK_RFProducts`;
 
         -- 2. Load the data from Staging
-        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_STK_RFProducts` (
+        INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_STK_RFProducts` (
             RFCode,
             ProductId,
             QtyOnHand,
@@ -58,7 +58,7 @@ BEGIN
             UpdatedBy,
             v_Started AS Loaded, -- Now a DATETIME
             p_RecordSource AS RecordSource
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_STK_RFProducts_Stg`;
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_STK_RFProducts_Stg`;
 
         -- Capture row count of the insert
         SET v_Inserted = @@row_count;
@@ -73,7 +73,7 @@ BEGIN
     SET v_Ended = CURRENT_DATETIME();
 
     -- Standardize Call Logging block (Option 2: Using DATETIME and status logic)
-    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+    CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
         v_Component,
         -1,                 
         v_Started,

@@ -56,6 +56,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Truncate FMS_Customer_Stg
@@ -67,7 +68,9 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
+   
 
         # ref_id: Package\Staging\Truncate IFSCustomers_Stg
         op_12 = BigQueryInsertJobOperator(
@@ -78,6 +81,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Truncate tblCustomer_Stg
@@ -94,6 +98,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Load CustomerLinks_Stg (Pipeline -> SP)
@@ -105,6 +110,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Load FMS_Customer_Stg (Pipeline -> SP)
@@ -116,6 +122,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Load IFSCustomers_Stg (Pipeline -> SP)
@@ -127,6 +134,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Load tblCustomer_Stg (Pipeline -> SP)
@@ -138,6 +146,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_10 >> op_6
@@ -160,6 +169,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Final\Load SAT_Customer — Exec [dv].[Load_SAT_Customer] ProcessId, RecordSource
@@ -174,6 +184,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Final\Load SAL_Customer — Exec [dv].[Load_SAL_Customer] ProcessId
@@ -190,6 +201,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Final\Load SAT_Customer_OES (Pipeline -> SP)

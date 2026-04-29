@@ -10,7 +10,7 @@
 --	23/11/2018  P. Waldron		Routine Written
 --	02/07/2019  P. Waldron		Refactor to use RecordSource instead of DatasetName
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.interimStaging_Set_LastValue`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.interimStaging_Set_LastValue`(
   IN  p_RecordSource  STRING,
   IN  p_ColumnName    STRING,
   IN  p_LastValue     STRING,
@@ -37,19 +37,19 @@ BEGIN
   -- -----------------------------------------------------------------------
   SET v_RowCount = (
     SELECT COUNT(*)
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
+    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LoadControl`
     WHERE RecordSource = p_RecordSource
   );
 
   SET v_Stg_ColumnName = (
     SELECT MAX(ColumnName)
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
+    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LoadControl`
     WHERE RecordSource = p_RecordSource
   );
 
   SET v_Stg_LastValue = (
     SELECT MAX(LastValue)
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
+    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LoadControl`
     WHERE RecordSource = p_RecordSource
   );
 
@@ -67,16 +67,16 @@ BEGIN
         THEN 'InterimStaging_TrackAndTraceData_SignatureAI_Stg'
       ELSE CONCAT('Staging_', REGEXP_EXTRACT(DatasetName, r'[^.]+$'), '_Stg')
     END
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
+    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LoadControl`
     WHERE RecordSource = p_RecordSource
   );
 
-  SET v_StagingTableFQN = CONCAT('`prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.', v_StagingTable, '`');
+  SET v_StagingTableFQN = CONCAT('`prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.', v_StagingTable, '`');
 
   -- Verify staging table exists via INFORMATION_SCHEMA (compare table_name only; v_StagingTable is bare name e.g. Staging_TrackAndTrace_Stg)
   SET v_TableExists = (
     SELECT COUNT(*)
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1`.INFORMATION_SCHEMA.TABLES
+    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1`.INFORMATION_SCHEMA.TABLES
     WHERE table_name = v_StagingTable
   );
 
@@ -104,7 +104,7 @@ BEGIN
   -- Update LoadControl if a value was found or force flag is set
   -- -----------------------------------------------------------------------
   IF v_LastValue IS NOT NULL OR p_Force = TRUE THEN
-    UPDATE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
+    UPDATE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LoadControl`
     SET LastValue = v_LastValue
     WHERE RecordSource = p_RecordSource;
   END IF;

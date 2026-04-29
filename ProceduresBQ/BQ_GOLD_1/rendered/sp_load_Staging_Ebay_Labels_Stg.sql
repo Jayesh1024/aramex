@@ -1,10 +1,10 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.sp_load_Staging_Ebay_Labels_Stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.sp_load_Staging_Ebay_Labels_Stg`(
   startID INT64
 )
 BEGIN
   -- Explicit column list = table schema order. Keys (ID, LabelNumber, LabelColour, AccountId) are
   -- required by dv_Load_SAT_Label_Allocation_EBAY / BQ_Load_HUB_Label; drop from INSERT if your DDL omits them.
-  INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Ebay_Labels_Stg` (
+  INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_Ebay_Labels_Stg` (
     ID,
     LabelNumber,
     LabelColour,
@@ -119,7 +119,7 @@ BEGIN
     v.TotalReplacementPckCost,
     v.GST_Number,
     v.TotalValue
-  FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_vw_ebay_labels` AS v
+  FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_vw_ebay_labels` AS v
   -- WHERE v.ID > startID
   ;
 

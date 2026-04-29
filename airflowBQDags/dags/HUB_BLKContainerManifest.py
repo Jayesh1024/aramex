@@ -89,6 +89,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Load ContainerManifest (Pipeline -> SP, no params)
@@ -100,6 +101,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Get Last ContainerContents LastScanDate
@@ -126,6 +128,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_10 >> op_9 >> op_7 >> op_8
@@ -148,6 +151,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Final\Load SAT_BLKContainerManifest — EXEC [dv].[Load_SAT_BLKContainerManifest] ?,?
@@ -162,6 +166,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Final\Load SAT_BLKContainerManifestContent — EXEC [dv].[Load_SAT_BLKContainerManifestContents] ?,?
@@ -176,6 +181,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Final\Update LoadControl LastScanDate (BLK_ManifestID)
@@ -196,6 +202,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_2 >> op_3

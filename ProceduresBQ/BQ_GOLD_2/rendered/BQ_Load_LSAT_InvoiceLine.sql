@@ -6,7 +6,7 @@
 --	27/12/2019  P. Waldron		Routine Written
 --	24/03/2019  P. Waldron		Add EnteredDate to dv_LSAT_InvoiceLine
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_LSAT_InvoiceLine`(IN p_ProcessID INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_LSAT_InvoiceLine`(IN p_ProcessID INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_LSAT_InvoiceLine
@@ -24,7 +24,7 @@ BEGIN
   DECLARE v_Updated INT64 DEFAULT 0;
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceLine` (
+    INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceLine` (
       InvoiceLine_HSK, 
       Invoice_HSK,
       FranchiseeCode_HSK,
@@ -71,10 +71,10 @@ BEGIN
         il.GSTAmount,
         il.SaleType,
         il.LineType
-      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_FMS_InvoiceHead_Stg` AS ih
-      JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_FMS_InvoiceLines_Stg` AS il ON il.InvoiceNumber = ih.InvoiceNumber
-      JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS c ON c.CountryCode = il.NMId 
-      JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Product_Stg` AS ps ON ps.ProductId = il.ProductId AND ps.Country = c.CountryName 
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_FMS_InvoiceHead_Stg` AS ih
+      JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_FMS_InvoiceLines_Stg` AS il ON il.InvoiceNumber = ih.InvoiceNumber
+      JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS c ON c.CountryCode = il.NMId 
+      JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Product_Stg` AS ps ON ps.ProductId = il.ProductId AND ps.Country = c.CountryName 
       INNER JOIN (
         -- Replacing T-SQL CROSS APPLY Top 1 logic
         SELECT 
@@ -82,7 +82,7 @@ BEGIN
           RFId, 
           CustomerKey, 
           ROW_NUMBER() OVER (PARTITION BY CustomerID, RFId ORDER BY Active DESC) as rn
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_FMS_Customer_Stg`
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_FMS_Customer_Stg`
       ) AS cust ON cust.CustomerID = ih.CustomerId AND cust.RFId = il.RFId AND cust.rn = 1
     ),
     NewInvoiceLines AS (
@@ -112,7 +112,7 @@ BEGIN
         LineType
       FROM RawData AS Src
       WHERE NOT EXISTS (
-        SELECT 1 FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceLine` AS Tgt WHERE Tgt.InvoiceLine_HSK = SHA256(CONCAT(CAST(Src.InvoiceNumber AS STRING), '^', Src.FranchiseeCode, '^', Src.CourierNumber, '^', Src.CustomerKey, '^', Src.ProductCode, '^', Src.Country))
+        SELECT 1 FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceLine` AS Tgt WHERE Tgt.InvoiceLine_HSK = SHA256(CONCAT(CAST(Src.InvoiceNumber AS STRING), '^', Src.FranchiseeCode, '^', Src.CourierNumber, '^', Src.CustomerKey, '^', Src.ProductCode, '^', Src.Country))
       )
     )
     SELECT
@@ -154,7 +154,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     v_Component, 
     p_ProcessID, 
     v_Started, 

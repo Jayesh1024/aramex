@@ -46,6 +46,7 @@ with DAG(
                 "useLegacySql": False,
             }
         },
+        job_id="bq_gold_transformation_oceania",
     )
 
     # ref_id: Package\Load_Fact_Delivery_Performance — metadata: Exec [dbo].[Load_Fact_Delivery_Performance] (ReturnCode + ProcessId)
@@ -57,6 +58,7 @@ with DAG(
                 "useLegacySql": False,
             }
         },
+        job_id="bq_gold_transformation_oceania",
     )
 
     op_0 >> op_1

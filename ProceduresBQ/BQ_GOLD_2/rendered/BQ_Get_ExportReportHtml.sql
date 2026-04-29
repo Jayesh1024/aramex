@@ -5,7 +5,7 @@
 -- History:
 --  02/02/2023  B. Woods      Copied & modified
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_Get_ExportReportHtml`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_Get_ExportReportHtml`(
   IN p_ProcessId INT64
 )
 BEGIN
@@ -65,7 +65,7 @@ BEGIN
       )
     FROM (
       SELECT DeliveryRF, COUNT(*) AS cnt
-      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Export_KPI_Delivery_Perf_Data`
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Export_KPI_Delivery_Perf_Data`
       GROUP BY DeliveryRF
     )
   );
@@ -83,7 +83,7 @@ BEGIN
           '</tbody>',
         '</table>'
       )
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Export_KPI_Delivery_Perf_Data`
+    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Export_KPI_Delivery_Perf_Data`
   );
 
   -- -----------------------------------------------------------------------
@@ -91,7 +91,7 @@ BEGIN
   -- -----------------------------------------------------------------------
   SET v_DateBOM = (
     SELECT DATE(MIN(DateBOM))
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Export_KPI_Delivery_Perf_Data`
+    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Export_KPI_Delivery_Perf_Data`
   );
 
   SET v_BodyIntro = CONCAT(

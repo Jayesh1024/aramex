@@ -25,7 +25,7 @@
 --  10/09/2019  P. Waldron      Add PickupCF and DeliveryCF columns
 --  [BQ Port]   Converted from SQL Server to BigQuery
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dbo_Load_Dim_Label`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_Load_Dim_Label`(
     IN ProcessID    INT64,
     IN ChangedSince DATETIME
 )
@@ -70,16 +70,16 @@ BEGIN
         IF(tgt.LabelNo IS NULL, ROW_NUMBER() OVER(PARTITION BY IF(tgt.LabelNo IS NULL, 1, NULL) ORDER BY sat.LabelNo), NULL) AS InsertId
     FROM (
         SELECT LabelNo_HSK, LabelNo
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Distribution` d
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Distribution` d
         WHERE d.Loaded >= IFNULL(ChangedSince, DefaultDate) AND d.isCurrent = 1
         UNION DISTINCT
         SELECT LabelNo_HSK, LabelNo
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation` a
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation` a
         WHERE a.Loaded >= IFNULL(ChangedSince, DefaultDate) AND a.isCurrent = 1
     ) sat
-    LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Label` AS tgt
+    LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` AS tgt
         ON tgt.LabelNo = sat.LabelNo
-    LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_Label_Address` lnk
+    LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LNK_Label_Address` lnk
         ON lnk.LabelNo_HSK = sat.LabelNo_HSK;
 
     -- Pre-calculate Product Mapping to avoid correlated subquery errors
@@ -89,8 +89,8 @@ BEGIN
             dist.LabelNo_HSK,
             prod.ProductId,
             ROW_NUMBER() OVER (PARTITION BY dist.LabelNo_HSK ORDER BY LENGTH(prod.ProductCode) DESC) AS rank
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Distribution` dist
-        JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Product` prod
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Distribution` dist
+        JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Product` prod
             ON dist.Country = prod.Country
             AND (prod.ProductCode = SUBSTR(dist.LabelNo, 1, 2) OR prod.ProductCode = SUBSTR(dist.LabelNo, 1, 1))
         INNER JOIN LabelsToProcess sel ON dist.LabelNo_HSK = sel.LabelNo_HSK
@@ -101,7 +101,7 @@ BEGIN
     SET (MaxInsertId, MaxUpdateId) = (SELECT AS STRUCT IFNULL(MAX(InsertId), 0), IFNULL(MAX(UpdateId), 0) FROM LabelsToProcess);
 
     SET Ended = CURRENT_DATETIME();
-    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+    CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
         Component || ' (Setup)',
         ProcessID,
         Started,
@@ -120,7 +120,7 @@ BEGIN
     SET Started = CURRENT_DATETIME();
 
     BEGIN
-        MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Label` AS Tgt
+        MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` AS Tgt
         USING (
             WITH CombinedSats AS (
                 SELECT
@@ -143,7 +143,7 @@ BEGIN
                     alloc.ParcelWeight, alloc.ParcelCubicWeight
                 FROM (
                     SELECT d.*, m.ProductId
-                    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Distribution` d
+                    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Distribution` d
                     INNER JOIN LabelsToProcess sel ON d.LabelNo_HSK = sel.LabelNo_HSK
                     LEFT JOIN LabelProductMapping m ON d.LabelNo_HSK = m.LabelNo_HSK
                     WHERE d.isCurrent = 1
@@ -151,11 +151,11 @@ BEGIN
                 FULL OUTER JOIN (
                     SELECT al.*, p.Town AS PickupTown, p.Postcode AS PickupPostcode,
                            d.Town AS DeliveryTown, d.Postcode AS DeliveryPostcode
-                    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation` al
+                    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation` al
                     INNER JOIN LabelsToProcess sel ON al.LabelNo_HSK = sel.LabelNo_HSK
-                    LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Address` p
+                    LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Address` p
                         ON p.Address_HSK = sel.Pickup_Address_HSK AND p.IsCurrent = 1
-                    LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Address` d
+                    LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Address` d
                         ON d.Address_HSK = sel.Delivery_Address_HSK AND d.IsCurrent = 1
                     WHERE al.isCurrent = 1
                 ) alloc ON dist.LabelNo_HSK = alloc.LabelNo_HSK
@@ -261,8 +261,8 @@ BEGIN
         );
 
         -- Record counts for log
-        SET Inserted = (SELECT COUNT(*) FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Label` WHERE Created = Loaded);
-        SET Updated  = (SELECT COUNT(*) FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Label` WHERE Updated = Loaded AND Created <> Loaded);
+        SET Inserted = (SELECT COUNT(*) FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` WHERE Created = Loaded);
+        SET Updated  = (SELECT COUNT(*) FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` WHERE Updated = Loaded AND Created <> Loaded);
 
     EXCEPTION WHEN ERROR THEN
         SET Result       = 'Failed';
@@ -273,7 +273,7 @@ BEGIN
     -- Final Logging and cleanup
     -- -----------------------------------------------------------------------
     SET Ended = CURRENT_DATETIME();
-    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+    CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
         Component,
         ProcessID,
         Started,

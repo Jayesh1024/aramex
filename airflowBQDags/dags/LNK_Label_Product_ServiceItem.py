@@ -53,6 +53,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Load Label_Product_ServiceItem_Stg — Exec [dv].[Load_Label_Product_ServiceItem_Stg] ?,?
@@ -66,6 +67,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
 
@@ -84,6 +86,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Final\Load LSAT_Label_Product_ServiceItem — Exec [dv].[Load_LSAT_Label_Product_ServiceItem] ?,?
@@ -97,6 +100,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
 

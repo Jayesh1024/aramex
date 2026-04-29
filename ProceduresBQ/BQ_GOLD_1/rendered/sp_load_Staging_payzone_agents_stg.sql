@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.sp_load_Staging_payzone_agents_stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.sp_load_Staging_payzone_agents_stg`(
   synchronization_version INT64,
   IsReload BOOL
 )
@@ -10,7 +10,7 @@ BEGIN
 
   -- TODO: CHANGE_TRACKING_MIN_VALID_VERSION not available in BQIF (synchronization_version < minimumVersion  AND IsReload  = 0 )  RAISE USING MESSAGE = 'ERROR - Synchronization version invalid';
 
-  INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_payzone_agents_stg`
+  INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_payzone_agents_stg`
   SELECT Src.id
         ,Src.region_id
         ,Src.courier_no
@@ -43,7 +43,7 @@ BEGIN
         ,Src.store_state
         ,CAST(NULL AS INT64) AS SYS_CHANGE_VERSION
         ,CAST(NULL AS STRING) AS SYS_CHANGE_OPERATION
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_payzone_agents` AS Src
+    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_payzone_agents` AS Src
     WHERE IsReload = FALSE
 
   UNION DISTINCT
@@ -79,7 +79,7 @@ BEGIN
         ,Src.store_state
         ,minimumVersion AS SYS_CHANGE_VERSION
         ,'I' AS SYS_CHANGE_OPERATION
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_payzone_agents` AS Src
+    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_payzone_agents` AS Src
     WHERE IsReload = TRUE
   ;
 

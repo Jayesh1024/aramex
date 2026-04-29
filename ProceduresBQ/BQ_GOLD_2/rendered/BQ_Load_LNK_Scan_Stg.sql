@@ -7,7 +7,7 @@
 --  17/07/2020  P. Waldron      Check for already existing LNK_Scan rows based on Scan_HSK
 --  12/10/2020  P. Waldron      Replace Joins to HUB_Label and HUB_Location with HSK calc 
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_Load_LNK_Scan_Stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_Load_LNK_Scan_Stg`(
     IN p_ProcessID INT64
 )
 OPTIONS(strict_mode=false)
@@ -32,12 +32,12 @@ BEGIN
         -- Calculate MinScanDate for the filter logic
         SET v_MinScanDate = (
             SELECT MIN(ScanDate)
-            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Scans_Stg`
+            FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Scans_Stg`
             WHERE ScanDate >= v_ABSMinDate
         );
 
         -- Process the entire load in one step (Removed broken GUID-based WHILE loop)
-        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LNK_Scan_Stg` (
+        INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LNK_Scan_Stg` (
             Scan_HSK, FranchiseeCode_HSK, Courier_HSK, LabelNo_HSK, Location_HSK, ScanStatus_HSK, 
             FranchiseeCode, CourierNumber, LabelNo, Latitude, Longitude, ScanStatus, CountryName, ScanDate, ScanType,
             RecordSource, RecordSourceId, Loaded, ProcessId, TrackAndTraceID, iLocate, `Signature`, UploadDate
@@ -49,7 +49,7 @@ BEGIN
         FROM 
         (
             SELECT 
-                `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
                     CONCAT(
                         Src.FranchiseeCode, '^',
                         Src.CourierNumber, '^',
@@ -71,8 +71,8 @@ BEGIN
                 SELECT 
                     rf.FranchiseeCode_HSK, 
                     cf.Courier_HSK, 
-                    `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(COALESCE(stg.LabelNo, 'Unknown'), '^') AS LabelNo_HSK, 
-                    `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(CAST(COALESCE(stg.Latitude, 0) AS STRING), '/', CAST(COALESCE(stg.Longitude, 0) AS STRING)), '^') AS Location_HSK,
+                    `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(COALESCE(stg.LabelNo, 'Unknown'), '^') AS LabelNo_HSK, 
+                    `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(CAST(COALESCE(stg.Latitude, 0) AS STRING), '/', CAST(COALESCE(stg.Longitude, 0) AS STRING)), '^') AS Location_HSK,
                     stat.ScanStatus_HSK,
                     COALESCE(rf.FranchiseeCode, stg.FranchiseeCode, 'Unk') AS FranchiseeCode,
                     COALESCE(cf.CourierNumber, stg.CourierNo, 'Unk') AS CourierNumber,
@@ -89,18 +89,18 @@ BEGIN
                     stg.iLocate,
                     stg.`Signature`,
                     stg.UploadDate
-                FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Scans_Stg` as stg
-                LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_HUB_RF` AS rf 
+                FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Scans_Stg` as stg
+                LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_HUB_RF` AS rf 
                   ON rf.FranchiseeCode = stg.FranchiseeCode
-                LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_HUB_CF` AS cf
+                LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_HUB_CF` AS cf
                   ON cf.RFCode = stg.FranchiseeCode AND cf.CourierNumber = stg.CourierNo
-                LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_HUB_ScanStatus` AS stat 
+                LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_HUB_ScanStatus` AS stat 
                   ON stat.ScanStatus = stg.ScanStatus AND stat.CountryName = stg.CountryName
                 WHERE stg.ScanDate >= v_ABSMinDate
             ) Src
         ) AS new_scans
         WHERE NOT EXISTS (
-            SELECT 1 FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_Scan` scan 
+            SELECT 1 FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LNK_Scan` scan 
             WHERE scan.Scan_HSK = new_scans.Scan_HSK
             AND scan.ScanDate >= v_MinScanDate
         );
@@ -114,7 +114,7 @@ BEGIN
 
     -- Final Log Call
     SET v_Ended = CURRENT_DATETIME();
-    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+    CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

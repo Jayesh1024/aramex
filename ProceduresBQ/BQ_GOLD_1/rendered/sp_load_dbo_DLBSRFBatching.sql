@@ -1,7 +1,7 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.sp_load_dbo_DLBSRFBatching`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.sp_load_dbo_DLBSRFBatching`(
 )
 BEGIN
-  INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_DLBSRFBatching`
+  INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_DLBSRFBatching`
   SELECT CAST(BatchId AS INT64) AS BatchId
         ,Date
         ,Time
@@ -15,7 +15,7 @@ BEGIN
         ,CAST(IsOpen AS STRING) AS IsOpen
         ,CAST(LastExceptionNo AS INT64) AS LastExceptionNo
         ,CAST(PricedAndPrinted AS STRING) AS PricedAndPrinted
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_krillin_silver.Fastway_dbo_invbtch`
+    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.Fastway_dbo_invbtch`
     WHERE CountryCode in (1,6)
   ;
 

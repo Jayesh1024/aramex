@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.sp_load_Staging_fl_ConSrv_Stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.sp_load_Staging_fl_ConSrv_Stg`(
 )
 BEGIN
   DECLARE startDate2 DATETIME;
@@ -7,13 +7,13 @@ BEGIN
 
   SET v_ConId = (
     SELECT ConId
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_Con`
+    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_Con`
     WHERE CreatedOn >= startDate2
     ORDER BY CreatedOn
     LIMIT 1
   );
 
-  INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_fl_ConSrv_Stg`
+  INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_fl_ConSrv_Stg`
   SELECT cs.ConId
   ,con.CountryId
   ,cs.ServiceItemId
@@ -44,8 +44,8 @@ BEGIN
   ,CAST(cs.ServicePriceCommPercent AS NUMERIC) AS ServicePriceCommPercent
   ,CAST(cs.ServicePriceComm AS NUMERIC) AS ServicePriceComm
   ,cs.UpdatedOn
-  FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_ConSrv` cs 
-  INNER JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_Con` con  on con.ConId = cs.ConId
+  FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_ConSrv` cs 
+  INNER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_Con` con  on con.ConId = cs.ConId
   WHERE con.ConId >= v_ConId
   ;
 

@@ -74,6 +74,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Source4 (MyFastway) _MF\Load fl_ConItem_Stg (Pipeline -> SP)
@@ -88,6 +89,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_9 >> op_7
@@ -106,6 +108,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Sequence Container\Load SAT_Label_Allocation_Stg — Exec [Staging].[Load_SAT_Label_Allocation_Stg] ProcessId
@@ -120,6 +123,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Sequence Container\Load SAT_Label_Allocation — Exec [dv].[Load_SAT_Label_Allocation] ProcessId
@@ -134,6 +138,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Sequence Container\Load SAT_Label_Allocation_MF — Exec [dv].[Load_SAT_Label_Allocation_MF] ProcessId, RecordSource4
@@ -148,6 +153,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Sequence Container\Set LastDate (MyFastway) — Staging_Set_LastValue(RecordSource4)
@@ -165,6 +171,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_5 >> op_3 >> op_1 >> op_2 >> op_4

@@ -1,7 +1,7 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.sp_load_Staging_tblCustomer_Stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.sp_load_Staging_tblCustomer_Stg`(
 )
 BEGIN
-  INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_tblCustomer_Stg`
+  INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_tblCustomer_Stg`
   SELECT CustomerID
         ,CustomerNumber
         ,CountryCode
@@ -126,7 +126,7 @@ BEGIN
        ,CAST(ImportsAllocateToHdManifests AS INT64) AS ImportsAllocateToHdManifests
        ,FastLabelDefaultDeliveryService
        ,CAST(FastLabelSignatureRequiredServiceAllImports AS INT64) AS FastLabelSignatureRequiredServiceAllImports
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_tblCustomer`
+    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_tblCustomer`
   ;
 
 END;

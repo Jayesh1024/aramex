@@ -6,7 +6,7 @@
 --	25/10/2018  P. Waldron		Routine Written
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_HUB_Truck`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_HUB_Truck`(
     IN p_ProcessID INT64,
     IN p_RecordSource STRING
 )
@@ -24,10 +24,10 @@ BEGIN
     BEGIN
         -- A MERGE statement handles the load pattern using Jinja2 templates for identifiers.
         -- p_RecordSource remains a dynamic input parameter as requested.
-        MERGE INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_HUB_Truck` AS Dest
+        MERGE INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_HUB_Truck` AS Dest
         USING (
             SELECT DISTINCT Container AS TruckNum
-            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_BBA_ContainerMaster_Stg`
+            FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_BBA_ContainerMaster_Stg`
             WHERE TruckOrContainer = 'T'
         ) AS Src
         ON Dest.TruckNum = Src.TruckNum
@@ -41,7 +41,7 @@ BEGIN
             )
             VALUES (
                 -- UDF reference converted to Jinja2 path format
-                TO_HEX(`prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(Src.TruckNum, '^')),
+                TO_HEX(`prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(Src.TruckNum, '^')),
                 Src.TruckNum,
                 v_Loaded,
                 p_ProcessID,
@@ -57,7 +57,7 @@ BEGIN
     END;
 
     -- Final Log Call (Handles both Success and Failure metrics)
-    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+    CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

@@ -79,6 +79,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Load LA_RuraOnForwards\Get LastDate (LA_RuralOnforwards) — [Staging].[Get_LastValue] RecordSource14
@@ -106,6 +107,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Load LA_RuraOnForwards\Execute SQL Task — BQ: dv_Load_LNK_RuralOnforwards(ProcessID)
@@ -120,6 +122,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Load LA_RuraOnForwards\Set LastDate — Staging_Set_LastValue(4 args)
@@ -134,6 +137,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_5 >> op_3 >> op_1 >> op_2 >> op_4

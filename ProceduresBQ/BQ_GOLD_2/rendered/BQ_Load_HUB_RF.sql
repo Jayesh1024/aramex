@@ -5,7 +5,7 @@
 -- History:
 --  09/11/2018  P. Waldron    Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_HUB_RF`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_HUB_RF`(
   p_ProcessID INT64,
   p_RecordSource STRING
 )
@@ -18,7 +18,7 @@ BEGIN
 
   BEGIN
     -- BigQuery MERGE handles the deduplication and 'Not Exists' logic efficiently
-    MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_HUB_RF` AS Target
+    MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_HUB_RF` AS Target
     USING (
       SELECT DISTINCT
         -- Hashing: FranchiseeCode (Standard DV 2.0 SHA256 returns BYTES)
@@ -27,7 +27,7 @@ BEGIN
         v_Loaded AS Loaded,
         p_ProcessID AS ProcessID,
         p_RecordSource AS RecordSource
-      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Franchisee_Stg`
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Franchisee_Stg`
       WHERE FranchiseeCode IS NOT NULL AND TRIM(FranchiseeCode) != ''
     ) AS Source
     ON Target.FranchiseeCode_HSK = Source.FranchiseeCode_HSK
@@ -43,7 +43,7 @@ BEGIN
   END;
 
   -- Metadata Logging
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     'dv_Load_HUB_RF',
     p_ProcessID,
     v_Started,

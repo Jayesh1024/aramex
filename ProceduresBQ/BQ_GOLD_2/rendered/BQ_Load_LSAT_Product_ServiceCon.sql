@@ -5,7 +5,7 @@
 -- History:
 --  17/09/2020  P. Waldron      Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_LSAT_Product_ServiceCon`(IN p_ProcessID INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_LSAT_Product_ServiceCon`(IN p_ProcessID INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_LSAT_Label_Product_ServiceItem
@@ -25,7 +25,7 @@ BEGIN
   DECLARE v_Updated INT64 DEFAULT 0;
   BEGIN
     -- Only INSERT is present in the active logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LSAT_Product_ServiceCon` (
+    INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_Product_ServiceCon` (
       Product_ServiceCon_HSK,
       Product_HSK,
       ConId,
@@ -110,8 +110,8 @@ BEGIN
       v_Loaded AS ValidFrom,
       v_DefaultValidTo AS ValidTo,
       1 AS IsCurrent
-    FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Product_ServiceCon_Stg` AS Src
-    LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LSAT_Product_ServiceCon` AS Tgt ON Tgt.Product_ServiceCon_HSK = Src.Product_ServiceCon_HSK
+    FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Product_ServiceCon_Stg` AS Src
+    LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_Product_ServiceCon` AS Tgt ON Tgt.Product_ServiceCon_HSK = Src.Product_ServiceCon_HSK
     WHERE Tgt.Product_ServiceCon_HSK IS NULL;
 
     SET v_Inserted = @@row_count;
@@ -124,7 +124,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CAST(CURRENT_TIMESTAMP() AS DATETIME);
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     v_Component,
     p_ProcessID,
     v_Started,

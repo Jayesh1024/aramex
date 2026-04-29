@@ -12,7 +12,7 @@
 --  [BQ Fix]    MERGE source deduplicated with ROW_NUMBER() to avoid "multiple source rows"
 --              error when staging has duplicate RFCode/CourierNumber combinations.
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_CF`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_SAT_CF`(
     IN ProcessID    INT64,
     IN RecordSource STRING
 )
@@ -37,7 +37,7 @@ BEGIN
         -- -----------------------------------------------------------------------
         -- STEP 1: Expire changed current rows (IsCurrent=0, ValidTo=Loaded)
         -- -----------------------------------------------------------------------
-        MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_CF` AS Tgt
+        MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_CF` AS Tgt
         USING (
             SELECT
                 Courier_HSK,
@@ -87,8 +87,8 @@ BEGIN
                         PARTITION BY IFNULL(Sat.Courier_HSK, MD5(Stg.RFCode || '^' || Stg.CourierNumber))
                         ORDER BY Stg.RFCode, Stg.CourierNumber
                     ) AS rn
-                FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Courier_Stg` Stg
-                LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_CF` Sat
+                FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Courier_Stg` Stg
+                LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_CF` Sat
                     ON Sat.RFCode = Stg.RFCode AND Sat.CourierNumber = Stg.CourierNumber
             )
             WHERE rn = 1
@@ -119,7 +119,7 @@ BEGIN
         -- -----------------------------------------------------------------------
         -- STEP 2: Insert new rows for unmatched source records (IsCurrent=1)
         -- -----------------------------------------------------------------------
-        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_CF`
+        INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_CF`
         (
             Courier_HSK,
             RFCode,
@@ -182,13 +182,13 @@ BEGIN
                     PARTITION BY RFCode, CourierNumber
                     ORDER BY RFCode, CourierNumber
                 ) AS rn
-            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Courier_Stg`
+            FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Courier_Stg`
         ) Stg
-        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_CF` Sat
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_CF` Sat
             ON Sat.RFCode = Stg.RFCode AND Sat.CourierNumber = Stg.CourierNumber
         WHERE Stg.rn = 1
           AND NOT EXISTS (
-            SELECT 1 FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_CF` Tgt
+            SELECT 1 FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_CF` Tgt
             WHERE Tgt.Courier_HSK = IFNULL(Sat.Courier_HSK, MD5(Stg.RFCode || '^' || Stg.CourierNumber))
               AND Tgt.IsCurrent   = 1
         );

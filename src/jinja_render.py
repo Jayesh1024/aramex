@@ -10,8 +10,7 @@ parser.add_argument("output_dir_path", default="BQ_GOLD_RAW_STAGING/rendered", t
 parser.add_argument("config_file_path", default="config/template_config.env", type=str)
 
 args = parser.parse_args()
-
-dotenv.load_dotenv(args.config_file_path, override=False)
+dotenv.load_dotenv(args.config_file_path)
 
 env = Environment(
     loader=FileSystemLoader(args.jinja_dir_path),
@@ -19,15 +18,14 @@ env = Environment(
 )
 
 
-
 def render_gold_1_sps():
     '''
     Renders the SPs that loads the Gold_1 layer tables, i.e - Data from Silver to Gold_1
     '''
-    with open("BQ_GOLD_RAW_STAGING/fileToSourceServer.json", "r") as f:
+    with open("misc/fileToSourceServer.json", "r") as f:
         fileToSourceServer = json.load(f)
 
-    with open("BQ_GOLD_RAW_STAGING/serverToBQPath.json", "r") as f:
+    with open("misc/serverToBQPath.json", "r") as f:
         serverToBQPath = json.load(f)
 
     for file, server in fileToSourceServer.items():
@@ -52,4 +50,16 @@ def render_gold_2_sps():
             with open(f"{args.output_dir_path}/{path}", "w") as f:
                 f.write(sql)
 
-render_gold_2_sps()
+def render_gold_views():
+    '''
+    Renders the SPs that loads the Gold_2 layer tables, i.e - Data from Gold_1 to Gold_2
+    '''
+    paths = os.listdir(args.jinja_dir_path)
+    for path in paths:
+        if path.endswith(".sql"):
+            template = env.get_template(os.path.basename(path))
+            sql = template.render(project_id=os.getenv("project_id"), dataset_id=os.getenv("dataset_id"))
+            with open(f"{args.output_dir_path}/{path}", "w") as f:
+                f.write(sql)
+
+render_gold_views()

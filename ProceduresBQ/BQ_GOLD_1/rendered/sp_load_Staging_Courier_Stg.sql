@@ -1,7 +1,7 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.sp_load_Staging_Courier_Stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.sp_load_Staging_Courier_Stg`(
 )
 BEGIN
-  INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Courier_Stg`
+  INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_Courier_Stg`
   SELECT
       c.RFCode,
       CourierNumber,
@@ -20,9 +20,9 @@ BEGIN
       w.Description AS CFOwnershipModel,
       CAST(c.Inactive AS INT64) AS Inactive,
       ParcelConnectCFTerritory
-  FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_krillin_silver.Fastway_dbo_FMS_Courier` c
-           left join `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_krillin_silver.Fastway_dbo_FMS_LookUpTableDetail` g ON c.RFCode = g.RFCode AND HeaderCode = 'GRP' AND c.CourierGroup = g.ItemCode
-           left join `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_krillin_silver.Fastway_dbo_FMS_LookUpTableDetail` w ON w.HeaderCode = 'OWN' AND w.ItemCode = c.CFOwnershipModel AND c.NMid = w.NMid
+  FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.Fastway_dbo_FMS_Courier` c
+           left join `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.Fastway_dbo_FMS_LookUpTableDetail` g ON c.RFCode = g.RFCode AND HeaderCode = 'GRP' AND c.CourierGroup = g.ItemCode
+           left join `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.Fastway_dbo_FMS_LookUpTableDetail` w ON w.HeaderCode = 'OWN' AND w.ItemCode = c.CFOwnershipModel AND c.NMid = w.NMid
   WHERE Inactive = FALSE
   ;
 

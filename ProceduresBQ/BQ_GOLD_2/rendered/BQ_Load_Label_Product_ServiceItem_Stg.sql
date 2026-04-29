@@ -5,7 +5,7 @@
 -- History:
 --	17/08/2020  P. Waldron		Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_Load_Label_Product_ServiceItem_Stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_Load_Label_Product_ServiceItem_Stg`(
   IN p_ProcessId    INT64,
   IN p_RecordSource STRING
 )
@@ -21,7 +21,7 @@ BEGIN
 
   BEGIN
 
-    INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Product_ServiceItem_Stg`
+    INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Label_Product_ServiceItem_Stg`
     (
       Label_Product_ServiceItem_HSK,
       LabelNo_HSK,
@@ -158,13 +158,13 @@ BEGIN
         Srv.ServicePriceDiscountFixed,
         Srv.ServicePriceDiscountPercent,
         Srv.UpdatedOn
-      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_fl_ConItemSrv_Stg` AS Srv
-      LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` cty
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_fl_ConItemSrv_Stg` AS Srv
+      LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` cty
         ON cty.CountryCode   = Srv.CountryId
-      LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Product_Stg` AS Prod
+      LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Product_Stg` AS Prod
         ON Srv.CountryId     = Prod.CountryCode
        AND Srv.ProductId     = Prod.ProductId
-      INNER JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_fl_ServiceItem_Stg` AS SI   -- INNER JOIN preserved from original
+      INNER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_fl_ServiceItem_Stg` AS SI   -- INNER JOIN preserved from original
         ON Srv.CountryId     = SI.CountryId
        AND Srv.ProductId     = SI.ProductId
        AND Srv.ServiceItemId = SI.ServiceItemId
@@ -173,7 +173,7 @@ BEGIN
     -- Capture inserted row count scoped to this process
     SET v_Inserted = (
       SELECT COUNT(*)
-      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Product_ServiceItem_Stg`
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Label_Product_ServiceItem_Stg`
       WHERE ProcessId = p_ProcessId
         AND Loaded    = v_Loaded
     );
@@ -191,7 +191,7 @@ BEGIN
   -- -----------------------------------------------------------------------
   SET v_Ended = CURRENT_DATETIME();
 
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     v_Component,
     p_ProcessId,
     v_Started,

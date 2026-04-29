@@ -1,11 +1,11 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.sp_load_Staging_tblFastLabel_Consignment_Stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.sp_load_Staging_tblFastLabel_Consignment_Stg`(
   startDate DATETIME
 )
 BEGIN
   SET startDate = DATE_SUB(startDate, INTERVAL 1 DAY);
   --SET startDate = '2022-06-01T00:00:00'
 
-  INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_tblFastLabel_Consignment_Stg`
+  INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_tblFastLabel_Consignment_Stg`
   SELECT 
   	d.LabelNumber,
   	d.CreateDate,
@@ -34,9 +34,9 @@ BEGIN
   	d.BookID,
                     d.DateConsumed,
                     i.ConsignmentID
-  FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_tblFastLabel_Book_Detail` d
-  LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_tblFastLabel_Consignment_Items` i on d.AppliedToItemID = i.ItemID
-  LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_tblFastLabel_Consignment` b on i.ConsignmentID = b.ConsignmentID
+  FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_tblFastLabel_Book_Detail` d
+  LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_tblFastLabel_Consignment_Items` i on d.AppliedToItemID = i.ItemID
+  LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_tblFastLabel_Consignment` b on i.ConsignmentID = b.ConsignmentID
   WHERE d.CreateDate > startDate OR d.DateConsumed > startDate
   ;
 

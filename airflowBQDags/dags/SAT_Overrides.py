@@ -50,6 +50,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
     with TaskGroup(group_id="tg_package_customer_overrides_final") as tg_cust_final:
@@ -67,6 +68,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
     with TaskGroup(group_id="tg_package_zones_overrides_staging") as tg_zones_stg:
@@ -84,6 +86,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: ...\Truncate Zone Overrides
@@ -97,6 +100,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: ...\Load fl_Zones — pipeline -> inferred SP
@@ -108,6 +112,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: ...\Load Zone Satchel Overiides — pipeline -> inferred SP
@@ -119,6 +124,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: ...\Load Zone Weight Overiides — pipeline -> inferred SP
@@ -130,6 +136,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_13 >> op_11
@@ -151,6 +158,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: ...\Load SAT Zone Overrides — dv_Load_SAT_FL_Zone_Overrides(ProcessId, RecordSource)
@@ -165,6 +173,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_7 >> op_6

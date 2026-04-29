@@ -1,11 +1,11 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_Load_Fact_KPI_Daily_Stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_Load_Fact_KPI_Daily_Stg`(
     IN p_ProcessID INT64, 
     IN p_StartDateOverRide STRING, 
     IN p_EndDateOverRide STRING
 )
 BEGIN
     -- Variables Setup
-    DECLARE v_Component STRING DEFAULT 'prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Load_Fact_KPI_Daily_Stg';
+    DECLARE v_Component STRING DEFAULT 'prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Load_Fact_KPI_Daily_Stg';
     DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
     DECLARE v_Result STRING DEFAULT 'Success';
     DECLARE v_ErrorMessage STRING;
@@ -13,10 +13,10 @@ BEGIN
 
     BEGIN
         -- Clear staging table
-        TRUNCATE TABLE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Stg`;
+        TRUNCATE TABLE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Stg`;
 
         -- INSERT START
-        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Stg` (
+        INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Stg` (
             LabelNo, CountryCode, Category, ServiceType, RealisedDate, CreatedOn, FromRf, ToRf, SLA, 
             KPIPickup, KPILEA, KPIDelivery, KPIPickupImpact, KPILEAImpact, KPIDeliveryImpact, DueDate, 
             KPIDepartureDate, KPIArrivalDate, KPIAttemptedDate, KPIAttemptedDateAdjust, ActualDepartureDate, 
@@ -46,14 +46,14 @@ BEGIN
                 COALESCE(t.MaxDays, 0) as MaxDays,
                 COALESCE(t.MaxDaysWithExceptionEconomy, 0) as MaxDaysWithExceptionEconomy,
                 COALESCE(t.MaxDaysWithExceptionPriority, 0) as MaxDaysWithExceptionPriority
-            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Src_Stg` AS L
-            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPIScanGroups` G 
+            FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Src_Stg` AS L
+            LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIScanGroups` G 
                 ON G.ScanStatus = L.ScanStatus AND G.CountryCode = L.CountryCode
-            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPIMatrix` k 
+            LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIMatrix` k 
                 ON L.FromRf = k.PickupFranchise AND (CASE WHEN L.ToRf = '' THEN L.Zone ELSE L.ToRf END) = k.DeliveryFranchise
-            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_TSS_PostCodeMaster` t 
+            LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_TSS_PostCodeMaster` t 
                 ON L.ToLocality = t.Suburb AND L.ToPostalCode = CAST(t.Postcode AS STRING) AND t.CountryCode = 1
-            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LSAT_Label_Product_ServiceItem` s  
+            LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_Label_Product_ServiceItem` s  
                 ON s.ProductCode = 'MYFPRI' AND s.Labelno = L.LabelNo 
         ),
 
@@ -148,8 +148,8 @@ BEGIN
                 dt.Calendar_Date,
                 ROW_NUMBER() OVER(PARTITION BY src.LabelNo ORDER BY dt.Calendar_Date ASC) - 1 AS WorkingDayIndex
             FROM AggregatedData src
-            CROSS JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Time` dt
-            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_KPIExcludedDates` ex
+            CROSS JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Time` dt
+            LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIExcludedDates` ex
                 ON dt.Calendar_Date = ex.Date 
                 AND ex.CountryCode = src.CountryCode 
                 AND ex.Franchise IN (src.FromRf, src.ToRf)
@@ -192,7 +192,7 @@ BEGIN
     END;
 
     -- Standardize Call Logging block
-    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+    CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
         v_Component, 
         p_ProcessID, 
         v_Started, 

@@ -7,7 +7,7 @@
 --  07/11/2019  P. Waldron      Remove CountryName from Label_HSK 
 --  12/01/2024  B. Woods        Replaced MERGE with DELETE and INSERT
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_Label_Allocation_DL`(IN p_ProcessID INT64, IN p_RecordSource STRING)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_SAT_Label_Allocation_DL`(IN p_ProcessID INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_SAT_Label_Allocation_DL
@@ -29,7 +29,7 @@ BEGIN
     -- Use MERGE to handle the DELETE + INSERT pattern (Replace Current) in a single scan.
     -- v_Updated will contain the total rows affected. v_Inserted = 0 per CORE RULES.
     
-    MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_DL` AS Tgt
+    MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_DL` AS Tgt
     USING (
       SELECT DISTINCT 
         (SHA256(CAST(Stg.LabelNumber AS STRING))) AS LabelNo_HSK,
@@ -54,8 +54,8 @@ BEGIN
         Stg.CubicWeight AS ParcelCubicWeight,
         Stg.GroupTransId,
         Stg.HistoryId AS RecordSourceId
-      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_API_RF_AdHocLabel_AllocationHistory_Stg` AS Stg  
-      LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_API_RF_AdHocLabel_AllocationHistory_Stg` AS Stg  
+      LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
     ) AS Src
     ON Tgt.LabelNo = Src.LabelNo AND Tgt.IsCurrent = 1
     WHEN MATCHED THEN
@@ -112,7 +112,7 @@ BEGIN
 
   -- Record load metrics in log
   SET v_Ended = CURRENT_DATETIME();
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     v_Component,
     p_ProcessID,
     v_Started,

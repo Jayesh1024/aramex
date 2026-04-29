@@ -5,7 +5,7 @@
 -- History:
 --  06/11/2019  P. Waldron    Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_Label_Allocation_TAS`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_SAT_Label_Allocation_TAS`(
   p_ProcessID INT64,
   p_RecordSource STRING
 )
@@ -43,13 +43,13 @@ BEGIN
           Stg.Width,
           Stg.Length,
           stg.TasmanID 
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_tblTasman_Consignment_Stg` Stg 
-        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` cty
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_tblTasman_Consignment_Stg` Stg 
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` cty
           ON cty.CountryCode = Stg.Origin_CountryCode 
         WHERE stg.LabelNumber IS NOT NULL AND stg.LabelNumber <> ''
       ),
       Current_Sat AS (
-        SELECT * FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_TAS` WHERE IsCurrent = 1
+        SELECT * FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_TAS` WHERE IsCurrent = 1
       )
       SELECT 
         S.*,
@@ -73,7 +73,7 @@ BEGIN
          );
 
       -- 2. Expire old versions (SCD Type 2 Update)
-      UPDATE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_TAS` Target
+      UPDATE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_TAS` Target
       SET IsCurrent = 0,
           ValidTo = v_Loaded
       FROM temp_SAT_TAS_Toload Source
@@ -84,7 +84,7 @@ BEGIN
       SET v_Updated_Count = @@row_count;
 
       -- 3. Insert new versions
-      INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_TAS` (
+      INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_TAS` (
         LabelNo_HSK,
         LabelNo,
         Country,
@@ -140,7 +140,7 @@ BEGIN
   END;
 
   -- Metadata Logging
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     'dv_Load_SAT_Label_Allocation_TAS',
     p_ProcessID,
     v_Started,

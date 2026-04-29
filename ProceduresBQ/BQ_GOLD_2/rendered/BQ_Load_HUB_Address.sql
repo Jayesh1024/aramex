@@ -5,7 +5,7 @@
 -- History:
 --  30/10/2019  P. Waldron    Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_HUB_Address`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_HUB_Address`(
   p_ProcessID INT64
 )
 BEGIN
@@ -18,7 +18,7 @@ BEGIN
 
   BEGIN
     -- BigQuery MERGE is the modern replacement for WHERE NOT EXISTS logic
-    MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_HUB_Address` AS Target
+    MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_HUB_Address` AS Target
     USING (
       SELECT DISTINCT
         Address_HSK,
@@ -26,7 +26,7 @@ BEGIN
         RecordSource,
         v_Loaded AS Loaded,
         p_ProcessID AS ProcessID
-      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Label_Address_Stg`
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Label_Address_Stg`
       WHERE AddressSeq = 1
     ) AS Source
     ON Target.Address_HSK = Source.Address_HSK
@@ -42,7 +42,7 @@ BEGIN
   END;
 
   -- Metadata Logging (9 Arguments total)
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     'dv_Load_HUB_Address',
     p_ProcessID,
     v_Started,

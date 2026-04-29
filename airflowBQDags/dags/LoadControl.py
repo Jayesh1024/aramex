@@ -123,6 +123,7 @@ with DAG(
                 "useLegacySql": False,
             }
         },
+        job_id="bq_gold_transformation_oceania",
     )
 
     with TaskGroup(group_id="tg_package_load_hub_tables") as tg_load_hub_tables:
@@ -234,6 +235,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
     with TaskGroup(
@@ -251,6 +253,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_21 = EmptyOperator(task_id="package_send_notification_email_send_email")

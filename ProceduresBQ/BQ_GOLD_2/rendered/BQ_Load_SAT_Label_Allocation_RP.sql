@@ -5,7 +5,7 @@
 -- History:
 --  23/10/2019  P. Waldron    Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_Label_Allocation_RP`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_SAT_Label_Allocation_RP`(
   p_ProcessID INT64,
   p_RecordSource STRING
 )
@@ -32,13 +32,13 @@ BEGIN
             S.*, 
             IFNULL(cty.CountryName, 'Unknown') AS CountryResolved,
             ROW_NUMBER() OVER (PARTITION BY label_number ORDER BY RPID) AS rn
-          FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_tblOnlineEnquiry_RP_Stg` S
-          LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` cty ON cty.CountryCode = S.CountryId
+          FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_tblOnlineEnquiry_RP_Stg` S
+          LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` cty ON cty.CountryCode = S.CountryId
           WHERE label_number IS NOT NULL AND label_number != ''
         ) WHERE rn = 1
       ),
       Current_Sat AS (
-        SELECT * FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_RP` WHERE IsCurrent = 1
+        SELECT * FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_RP` WHERE IsCurrent = 1
       )
       SELECT 
         -- Standardized to BYTES (Removed UPPER(TO_HEX))
@@ -61,7 +61,7 @@ BEGIN
          );
 
       -- 2. Expire old versions (SCD Type 2 Update)
-      UPDATE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_RP` Target
+      UPDATE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_RP` Target
       SET IsCurrent = 0,
           ValidTo = v_Loaded
       FROM temp_SAT_RP_Toload Source
@@ -72,7 +72,7 @@ BEGIN
       SET v_Updated_Count = @@row_count;
 
       -- 3. Insert new versions
-      INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_RP` (
+      INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_RP` (
         LabelNo_HSK, LabelNo, Country, CountryCode, CreateDateUTC,
         PickupRF, DeliveryRF, PickupCF, DeliveryCF, SenderLocalRF,
         ReceiverLocalRF, CustomerID, PickupDateLocal, LabelColour,
@@ -101,7 +101,7 @@ BEGIN
   END;
 
   -- Metadata Logging
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     'dv_Load_SAT_Label_Allocation_RP',
     p_ProcessID,
     v_Started,

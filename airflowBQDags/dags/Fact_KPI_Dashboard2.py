@@ -92,6 +92,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\Staging\Staging 1\Get LastDate (MyFastway) — [Staging].[Get_LastValue] RecordSource4
@@ -117,6 +118,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             op_9 >> op_7 >> op_8
@@ -132,6 +134,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\Staging\Staging 2\Get LastScanDate (TrackAndTrace) — Staging_Get_LastValue_Scans
@@ -159,6 +162,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             op_14 >> op_12 >> op_13
@@ -177,6 +181,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\Staging\Staging 3\Get Start Date — Python scalar push
@@ -197,6 +202,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\Staging\Staging 3\Load Product ServiceItem_Stg — [dv].[Load_Label_Product_ServiceItem_Stg_Interim] ProcessId, RecordSource4
@@ -212,6 +218,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             op_19 >> op_16 >> op_18 >> op_17
@@ -233,6 +240,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Load Interim Labels\Load Fact_KPI_Daily_Stg — [Staging].[Load_Fact_KPI_Daily_Stg] ProcessId
@@ -247,6 +255,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Load Interim Labels\Load Fact_KPI_Interim — [dbo].[Load_Fact_KPI_Interim] ProcessId
@@ -261,6 +270,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_3 >> op_1 >> op_2

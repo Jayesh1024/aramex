@@ -5,7 +5,7 @@
 -- History:
 --  25/10/2018  P. Waldron    Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_HUB_CF`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_HUB_CF`(
   p_ProcessID INT64,
   p_RecordSource STRING
 )
@@ -18,7 +18,7 @@ BEGIN
 
   BEGIN
     -- BigQuery MERGE replaces the EXCEPT logic by checking the Hash Key
-    MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_HUB_CF` AS Target
+    MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_HUB_CF` AS Target
     USING (
       SELECT DISTINCT
         -- Hashing: RFCode + '^' + CourierNumber (Standard DV 2.0 SHA256)
@@ -28,7 +28,7 @@ BEGIN
         v_Loaded AS Loaded,
         p_ProcessID AS ProcessID,
         p_RecordSource AS RecordSource
-      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Courier_Stg`
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Courier_Stg`
       -- Ensure we don't process entirely null business keys
       WHERE RFCode IS NOT NULL OR CourierNumber IS NOT NULL
     ) AS Source
@@ -45,7 +45,7 @@ BEGIN
   END;
 
   -- Metadata Logging
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     'dv_Load_HUB_CF',
     p_ProcessID,
     v_Started,

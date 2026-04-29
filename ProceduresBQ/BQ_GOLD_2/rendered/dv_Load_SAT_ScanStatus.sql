@@ -26,7 +26,7 @@
 --  [BQ Fix]    SaveLog → Staging_SaveLog with additional -1 argument.
 --  [BQ Fix]    StatusCode cast to STRING in JOIN and MD5 hash.
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_ScanStatus`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_SAT_ScanStatus`(
     IN ProcessID    INT64,
     IN RecordSource STRING
 )
@@ -51,7 +51,7 @@ BEGIN
         -- ALL columns cast to STRING in USING subquery so every IFNULL(...,'')
         -- comparison in WHEN MATCHED is guaranteed STRING vs STRING.
         -- -----------------------------------------------------------------------
-        MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_ScanStatus` AS Tgt
+        MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_ScanStatus` AS Tgt
         USING (
             SELECT DISTINCT
                 Sat.ScanStatus_HSK,
@@ -85,8 +85,8 @@ BEGIN
                 CAST(Stg.Onforward AS STRING)                                   AS Onforward,
                 CAST(Stg.Delayed AS STRING)                                     AS Delayed,
                 CAST(Stg.ReadyToCollect AS STRING)                              AS ReadyToCollect
-            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_ScanStatus_Stg` Stg
-            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_ScanStatus` Sat
+            FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_ScanStatus_Stg` Stg
+            LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_ScanStatus` Sat
                 ON  Sat.CountryName = Stg.CountryName
                 AND Sat.ScanStatus  = CAST(Stg.StatusCode AS STRING)
         ) AS Src
@@ -137,7 +137,7 @@ BEGIN
         -- CURRENT_DATETIME(), CAST(ProcessID), CAST(RecordSource) and inlined
         -- DATETIME literals used to avoid NULL from procedure variable resolution.
         -- -----------------------------------------------------------------------
-        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_ScanStatus`
+        INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_ScanStatus`
         (
             ScanStatus_HSK,
             CountryName,
@@ -258,13 +258,13 @@ BEGIN
                     )
                     ORDER BY Stg.StatusCode
                 ) AS rn
-            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_ScanStatus_Stg` Stg
-            LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_ScanStatus` Sat
+            FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_ScanStatus_Stg` Stg
+            LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_ScanStatus` Sat
                 ON  Sat.CountryName = Stg.CountryName
                 AND Sat.ScanStatus  = CAST(Stg.StatusCode AS STRING)
             WHERE NOT EXISTS (
                 SELECT 1
-                FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_ScanStatus` AS Tgt
+                FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_ScanStatus` AS Tgt
                 WHERE Tgt.ScanStatus_HSK = IFNULL(
                         Sat.ScanStatus_HSK,
                         MD5(IF(Stg.CountryName IS NULL, 'Unknown', TRIM(Stg.CountryName)) || '^' || CAST(Stg.StatusCode AS STRING))
@@ -288,17 +288,17 @@ BEGIN
     -- -----------------------------------------------------------------------
     SET Updated = (
         SELECT IFNULL(COUNTIF(IsCurrent = 0), 0)
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Product`
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Product`
         WHERE ProcessId = ProcessID
     );
     SET Inserted = (
         SELECT IFNULL(COUNTIF(IsCurrent = 1), 0)
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Product`
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Product`
         WHERE ProcessId = ProcessID
     );
 
     SET Ended = CURRENT_DATETIME();
-    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+    CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
         Component,
         ProcessID,
         Started,

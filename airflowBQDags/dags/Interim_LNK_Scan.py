@@ -76,6 +76,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Get Last Date (SignatureAI) — [Staging].[Get_LastValue] RecordSource1
@@ -112,6 +113,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Load TrackAndTrace_Stg — pipeline -> inferred SP (LastId)
@@ -126,6 +128,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_18 >> op_21
@@ -150,6 +153,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\Final\Load LNK\Interim Load_Scans_Stg — interimStaging_Interim_Load_Scans_Stg(ProcessId)
@@ -164,6 +168,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\Final\Load LNK\Load LNK_Scan_Stg — Staging_Load_LNK_Scan_Stg(ProcessId)
@@ -178,6 +183,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\Final\Load LNK\Load LNK_Scan — dv_Load_LNK_Scan(ProcessId)
@@ -192,6 +198,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\Final\Load LNK\Load LNK_Scan_Signatures — dv_Load_LNK_Scan_Signature(ProcessId)
@@ -206,6 +213,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\Final\Load LNK\Set Last ID (TrackAndTraceID) — Interim_Set_LastValue(RecordSource3, NULL, NULL, 0)
@@ -220,6 +228,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             op_10 >> op_5 >> op_8 >> op_6
@@ -240,6 +249,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             # ref_id: Package\Final\Load SignatureAI\Set Last ID (SignatureAI) — Interim_Set_LastValue(RecordSource1, NULL, NULL, 0)
@@ -254,6 +264,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
+                job_id="bq_gold_transformation_oceania",
             )
 
             op_12 >> op_13

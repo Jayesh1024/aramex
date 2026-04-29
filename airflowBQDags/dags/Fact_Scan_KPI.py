@@ -55,6 +55,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Load KPI_Labels_Stg — Exec [Staging].[Load_KPI_Labels_Stg] (ProcessId, SinceScanDate, UntilScanDate, UseScanDates)
@@ -68,6 +69,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Load Fact_Scan_KPI_Stg — Exec [Staging].[Load_Fact_Scan_KPI_Stg]
@@ -81,6 +83,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
 
@@ -99,6 +102,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
     # --- Precedence (executable_dependencies: Truncate → KPI_Labels → Fact_Scan_KPI_Stg → Defrag → Final) ---

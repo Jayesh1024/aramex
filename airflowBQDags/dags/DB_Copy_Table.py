@@ -55,6 +55,7 @@ with DAG(
                 "useLegacySql": False,
             }
         },
+        job_id="bq_gold_transformation_oceania",
     )
 
     # ref_id: Package\Data Flow Task
@@ -66,6 +67,7 @@ with DAG(
                 "useLegacySql": False,
             }
         },
+        job_id="bq_gold_transformation_oceania",
     )
 
     # ref_id: Package\FMS_UndTcktInvoice_Load
@@ -80,6 +82,7 @@ with DAG(
                 "useLegacySql": False,
             }
         },
+        job_id="bq_gold_transformation_oceania",
     )
 
     # ref_id: Package\Load FMS_InvoiceHead
@@ -91,6 +94,7 @@ with DAG(
                 "useLegacySql": False,
             }
         },
+        job_id="bq_gold_transformation_oceania",
     )
 
     with TaskGroup(group_id="tg_package_sequence_container"):
@@ -119,6 +123,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Sequence Container\Truncate Stg
@@ -130,6 +135,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Sequence Container\Update LNK_Scan
@@ -151,6 +157,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # executable_dependencies.json (sequence container)

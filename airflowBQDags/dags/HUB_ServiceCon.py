@@ -51,6 +51,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Load fl_ConSrv_Stg (Pipeline -> SP, no params)
@@ -62,6 +63,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Truncate Product_ServiceCon_Stg
@@ -73,6 +75,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Staging\Load_LSAT_Product_ServiceCon — SSIS Exec [dv].[Load_Product_ServiceCon_Stg] ProcessId, RecordSource13;
@@ -87,6 +90,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_10 >> op_6 >> op_9 >> op_7
@@ -103,6 +107,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Final\Load HUB_ServiceCon — Exec [dv].[Load_LNK_Product_ServiceCon] ProcessId, RecordSource13
@@ -117,6 +122,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Final\Truncate LSAT_Product_ServiceCon
@@ -128,6 +134,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\Final\Load SAT_ServiceCon — SSIS Exec [dv].[Load_LSAT_Product_ServiceCon] ProcessId, RecordSource13;
@@ -142,6 +149,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
+            job_id="bq_gold_transformation_oceania",
         )
 
         op_3 >> op_1 >> op_4 >> op_2

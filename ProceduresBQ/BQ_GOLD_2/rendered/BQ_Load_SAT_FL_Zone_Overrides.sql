@@ -6,7 +6,7 @@
 -- History:
 --	06/09/2024  B. Woods		Routine Written
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_FL_Zone_Overrides`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_SAT_FL_Zone_Overrides`(
     IN p_ProcessID INT64,
     IN p_RecordSource STRING
 )
@@ -32,9 +32,9 @@ BEGIN
     BEGIN
         -- Insert with UNION DISTINCT to match T-SQL's implicit distinct UNION
         -- All table and function identifiers use Jinja2 templates and underscore schema naming.
-        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_FL_ServiceZoneOverride`
+        INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_FL_ServiceZoneOverride`
         SELECT
-            `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
+            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
                 CONCAT(
                     'Satchel', v_delim,
                     IFNULL(CONCAT(NULLIF(CAST(OverrideId AS STRING), ''), v_delim), ''),
@@ -58,12 +58,12 @@ BEGIN
             UpdatedBy,
             v_Loaded,
             p_RecordSource
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_fl_ServiceZoneSatchelOverride_Stg`
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_fl_ServiceZoneSatchelOverride_Stg`
         
         UNION DISTINCT
         
         SELECT
-            `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
+            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
                 CONCAT(
                     'Weight', v_delim,
                     IFNULL(CONCAT(NULLIF(CAST(OverrideId AS STRING), ''), v_delim), ''),
@@ -88,7 +88,7 @@ BEGIN
             UpdatedBy,
             v_Loaded,
             p_RecordSource
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_fl_ServiceZoneWeightOverride_Stg`;	 
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_fl_ServiceZoneWeightOverride_Stg`;	 
         
         SET v_Inserted = @@row_count;
 
@@ -98,7 +98,7 @@ BEGIN
     END;
 
     -- Final Log Call (Handles both Success and Failure metrics)
-    CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+    CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

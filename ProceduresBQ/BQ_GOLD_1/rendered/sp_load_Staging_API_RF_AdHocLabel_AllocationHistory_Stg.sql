@@ -1,8 +1,8 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.sp_load_Staging_API_RF_AdHocLabel_AllocationHistory_Stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.sp_load_Staging_API_RF_AdHocLabel_AllocationHistory_Stg`(
   LastID INT64
 )
 BEGIN
-  INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_API_RF_AdHocLabel_AllocationHistory_Stg`
+  INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_API_RF_AdHocLabel_AllocationHistory_Stg`
   SELECT
          HistoryID
         ,SystemID
@@ -37,7 +37,7 @@ BEGIN
         ,WidthInCm
         ,HeightInCm
         ,CAST(CubicWeight AS NUMERIC) AS CubicWeight
-  FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_API_RF_AdHocLabel_AllocationHistory`
+  FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_API_RF_AdHocLabel_AllocationHistory`
   WHERE HistoryID > LastID
   ;
 

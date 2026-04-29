@@ -1,11 +1,11 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_Load_Fact_KPI_Src_Stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_Load_Fact_KPI_Src_Stg`(
     IN p_ProcessID INT64, 
     IN p_StartDateOverRide STRING, 
     IN p_EndDateOverRide STRING
 )
 BEGIN
     -- Core Variables
-    DECLARE v_Component STRING DEFAULT 'prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Load_Fact_KPI_Src_Stg';
+    DECLARE v_Component STRING DEFAULT 'prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Load_Fact_KPI_Src_Stg';
     DECLARE v_Step STRING DEFAULT 'Initialization';
     
     -- OPTION 2: Changed from TIMESTAMP to DATETIME
@@ -28,7 +28,7 @@ BEGIN
         -- Get LastValue for StartDate
         SET v_StartDate = (
             SELECT SAFE_CAST(LastValue AS DATETIME) 
-            FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl` 
+            FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LoadControl` 
             WHERE RecordSource = 'Fact_KPI_Scan' 
             LIMIT 1
         );
@@ -47,9 +47,9 @@ BEGIN
         -- ====================================================================
         SET v_Step = 'Part1';
 
-        TRUNCATE TABLE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Src_Stg`;
+        TRUNCATE TABLE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Src_Stg`;
 
-        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Src_Stg` (
+        INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Src_Stg` (
             LabelNo, CountryCode, ScanDateTime, ScanType, ScanStatus, FranchiseeCode, 
             CourierNumber, ScanDate, CreatedOn, FromRf, FromCf, ToRf, ToCf, 
             ToLocality, ToPostalCode, RealisedDate, Zone, CustomerId
@@ -73,8 +73,8 @@ BEGIN
             MF.RealisedDate,
             MF.Zone,
             MF.CustomerId
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Fact_Scan_Recent` R 
-        JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` MF 
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan_Recent` R 
+        JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` MF 
             ON MF.CountryCode = 1 
             AND MF.LabelNo = R.LabelNo 
             AND MF.IsCurrent = 1 
@@ -87,11 +87,11 @@ BEGIN
         SET v_Inserted = @@row_count;
 
         -- Update Watermark / Last Loaded Date
-        CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_Set_LastValue`('Fact_KPI_Scan', 'ScanDateTime', CAST(v_EndDate AS STRING),FALSE);
+        CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_Set_LastValue`('Fact_KPI_Scan', 'ScanDateTime', CAST(v_EndDate AS STRING),FALSE);
 
         -- Log Part 1 Success (Option 2: Use DATETIME and CURRENT_DATETIME)
         SET v_Ended = CURRENT_DATETIME();
-        CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+        CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
             CONCAT(v_Component, '-Part1'),
             p_ProcessID,
             v_Started,
@@ -112,7 +112,7 @@ BEGIN
         -- StartDate moves back to 30 days ago
         SET v_StartDate = DATETIME_SUB(v_Loaded, INTERVAL 30 DAY);
 
-        INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Src_Stg` (
+        INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Src_Stg` (
             LabelNo, CountryCode, ScanDateTime, ScanType, ScanStatus, FranchiseeCode, 
             CourierNumber, ScanDate, CreatedOn, FromRf, FromCf, ToRf, ToCf, 
             ToLocality, ToPostalCode, RealisedDate, Zone, CustomerId
@@ -136,14 +136,14 @@ BEGIN
             MF.RealisedDate,
             MF.Zone,
             MF.CustomerId
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LNK_Scan` R 
-        JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` MF 
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LNK_Scan` R 
+        JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` MF 
             ON MF.CountryCode = 1 
             AND MF.LabelNo = R.LabelNo 
             AND MF.IsCurrent = 1 
             AND MF.RealisedDate IS NOT NULL
             AND MF.RealisedDate > v_RealisedDateCutOff
-        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Src_Stg` stg 
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Src_Stg` stg 
             ON stg.LabelNo = MF.LabelNo 
             AND stg.ScanDateTime = R.ScanDate  
         WHERE stg.LabelNo IS NULL   -- not already in todays load
@@ -159,7 +159,7 @@ BEGIN
 
         -- Log Part 2 Success
         SET v_Ended = CURRENT_DATETIME();
-        CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+        CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
             CONCAT(v_Component, '-Part2'),
             p_ProcessID,
             v_Started,
@@ -176,7 +176,7 @@ BEGIN
         SET v_Result = 'Failed';
         SET v_ErrorMessage = @@error.message;
         
-        CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+        CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
             CONCAT(v_Component, '-', v_Step),
             p_ProcessID,
             v_Started,
