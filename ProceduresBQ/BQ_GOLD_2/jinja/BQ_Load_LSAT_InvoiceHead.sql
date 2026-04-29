@@ -61,8 +61,8 @@ BEGIN
     )
     WITH InvoiceHeadStg AS (
       SELECT
-        SHA256(CONCAT(CAST(InvoiceNumber AS STRING), '^', RFCode)) AS Invoice_HSK,
-        SHA256(RFCode) AS FranchiseeCode_HSK,
+        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(InvoiceNumber AS STRING), '^', RFCode), '^') AS Invoice_HSK,
+        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(RFCode, '^') AS FranchiseeCode_HSK,
         RFCode AS FranchiseeCode,
         InvoiceNumber,
         EnteredDate,

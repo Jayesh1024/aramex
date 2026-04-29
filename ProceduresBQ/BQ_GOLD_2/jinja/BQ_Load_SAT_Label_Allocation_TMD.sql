@@ -27,7 +27,7 @@ BEGIN
       CREATE TEMP TABLE temp_SAT_TMD_Toload AS
       WITH Stg AS (
         SELECT DISTINCT
-          SHA256(TRIM(Stg.result_LabelNumber)) AS LabelNo_HSK,
+          `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(TRIM(Stg.result_LabelNumber), '^') AS LabelNo_HSK,
           Stg.result_LabelNumber as LabelNo,
           IFNULL(cty.CountryName,'Unknown') as Country,
           -- KEEPING THIS AS INT64 for the target table

@@ -64,13 +64,13 @@ BEGIN
       Src.BatchId
     FROM (
       SELECT
-        (SHA256(CONCAT(
+        (`{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(
           IFNULL(Country, ''), '^',
           IFNULL(LabelNo, ''), '^',
           IFNULL(CAST(BatchId AS STRING), ''), '^',
           IFNULL(InvoiceFromRF, ''), '^',
           IFNULL(InvoiceToRF, '')
-        ))) AS Label_InterBranch_HSK,
+        ), '^')) AS Label_InterBranch_HSK,
         LabelNo,
         CountryCode,
         InvoiceNumber,

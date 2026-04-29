@@ -23,9 +23,8 @@ BEGIN
     MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_HUB_Container` AS Target
     USING (
       SELECT DISTINCT
-        -- Hashing the business key 'Container' (Standard DV 2.0 SHA256)
-        -- Kept as STRING (TO_HEX) to match existing table schema
-        UPPER(TO_HEX(SHA256(TRIM(Container)))) AS Container_HSK,
+        -- Hashing the business key 'Container' via dbo_GetHashKey; TO_HEX for STRING column schema
+        UPPER(TO_HEX(`{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(TRIM(Container), '^'))) AS Container_HSK,
         Container,
         v_Loaded AS Loaded,
         p_ProcessID AS ProcessID,

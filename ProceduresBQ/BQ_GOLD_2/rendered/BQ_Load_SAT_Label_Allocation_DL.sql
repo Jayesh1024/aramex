@@ -32,7 +32,7 @@ BEGIN
     MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_DL` AS Tgt
     USING (
       SELECT DISTINCT 
-        (SHA256(CAST(Stg.LabelNumber AS STRING))) AS LabelNo_HSK,
+        (`prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CAST(Stg.LabelNumber AS STRING), '^')) AS LabelNo_HSK,
         Stg.LabelNumber AS LabelNo,
         Stg.CountryCode,
         IFNULL(cty.CountryName, 'Unknown') AS Country,

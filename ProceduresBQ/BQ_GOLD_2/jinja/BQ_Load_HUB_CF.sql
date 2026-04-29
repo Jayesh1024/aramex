@@ -21,8 +21,8 @@ BEGIN
     MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_HUB_CF` AS Target
     USING (
       SELECT DISTINCT
-        -- Hashing: RFCode + '^' + CourierNumber (Standard DV 2.0 SHA256)
-        SHA256(CONCAT(IFNULL(RFCode, ''), '^', IFNULL(CourierNumber, ''))) AS Courier_HSK,
+        -- Hashing: RFCode + '^' + CourierNumber via dbo_GetHashKey
+        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(IFNULL(RFCode, ''), '^', IFNULL(CourierNumber, '')), '^') AS Courier_HSK,
         RFCode,
         CourierNumber,
         v_Loaded AS Loaded,

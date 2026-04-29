@@ -22,8 +22,8 @@ BEGIN
     MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_HUB_Product` AS Target
     USING (
       SELECT DISTINCT
-        -- Hashing: Country + '^' + ProductId (SHA256 returns BYTES)
-        SHA256(CONCAT(TRIM(Country), '^', CAST(ProductId AS STRING))) AS Product_HSK,
+        -- Hashing: Country + '^' + ProductId via dbo_GetHashKey (BYTES)
+        `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(TRIM(Country), '^', CAST(ProductId AS STRING)), '^') AS Product_HSK,
         TRIM(Country) AS Country,
         ProductId,
         TRIM(Code) AS ProductCode,

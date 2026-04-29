@@ -70,6 +70,7 @@ BEGIN
           Stg.RecordSource,
           Stg.RecordSourceId,
           Stg.Action,
+          `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CAST(Stg.LabelNo AS STRING), '^') AS LabelNo_HSK,
           ROW_NUMBER() OVER (PARTITION BY Stg.LabelNo ORDER BY Stg.CountryCode) AS RowNum
         FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_SAT_Label_Allocation_Stg` AS Stg
         LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
@@ -124,7 +125,7 @@ BEGIN
         IsCurrent
       )
       VALUES (
-        (SHA256(CAST(Src.LabelNo AS STRING))),
+        Src.LabelNo_HSK,
         Src.LabelNo,
         Src.CountryCode,
         Src.Country,

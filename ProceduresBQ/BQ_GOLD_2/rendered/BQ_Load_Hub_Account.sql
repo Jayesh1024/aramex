@@ -21,8 +21,8 @@ BEGIN
     MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_HUB_Account` AS Target
     USING (
       SELECT DISTINCT
-        -- Hashing Business Keys: DV 2.0 Standard (SHA256) returns BYTES
-        SHA256(CONCAT(IFNULL(CustomerType, ''), '^', IFNULL(CleanedCustomerCode, ''))) AS Account_HSK,
+        -- Hashing business keys via dbo_GetHashKey (BYTES)
+        `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(IFNULL(CustomerType, ''), '^', IFNULL(CleanedCustomerCode, '')), '^') AS Account_HSK,
         CustomerType,
         CleanedCustomerCode AS CustomerCode,
         v_Loaded AS Loaded,

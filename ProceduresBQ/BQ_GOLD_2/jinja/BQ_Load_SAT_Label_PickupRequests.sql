@@ -45,11 +45,11 @@ BEGIN
             IsPriority, Loaded, ProcessId, RecordSourceId, RecordSource
         )
         SELECT 
-            -- Hashing Logic (Using SHA256 directly for BYTES columns)
-            SHA256(CONCAT(IFNULL(SUBSTR(Src.LabelNumber, 1, 12), ''), '^', IFNULL(CAST(Src.CountryCode AS STRING), ''), '^')) AS PickupRequest_HSK,
-            SHA256(IFNULL(Src.LabelNumber, '')) AS LabelNo_HSK,
-            SHA256(IFNULL(Src.PickupFranchiseeCode, '')) AS FranchiseeCode_HSK,
-            SHA256(CONCAT(IFNULL(Src.PickupFranchiseeCode, ''), '^', IFNULL(Src.PickupCourierNumber, ''))) AS Courier_HSK,
+            -- Hashing via dbo_GetHashKey (BYTES columns)
+            `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(IFNULL(SUBSTR(Src.LabelNumber, 1, 12), ''), '^', IFNULL(CAST(Src.CountryCode AS STRING), ''), '^'), '^') AS PickupRequest_HSK,
+            `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(IFNULL(Src.LabelNumber, ''), '^') AS LabelNo_HSK,
+            `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(IFNULL(Src.PickupFranchiseeCode, ''), '^') AS FranchiseeCode_HSK,
+            `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(IFNULL(Src.PickupFranchiseeCode, ''), '^', IFNULL(Src.PickupCourierNumber, '')), '^') AS Courier_HSK,
             
             Src.CreateDateUtc, Src.ShouldPrintLabel, Src.PickupFranchiseeCode, Src.PickupCourierNumber,
             Src.LabelNumber, C.CountryName, Src.CollectionDate, Src.CollectionCycle, 

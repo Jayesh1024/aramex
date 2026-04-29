@@ -42,11 +42,11 @@ BEGIN
       )
       SELECT 
         -- Standardized to BYTES (Removed UPPER(TO_HEX))
-        SHA256(TRIM(Stg.label_number)) AS LabelNo_HSK,
+        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(TRIM(Stg.label_number), '^') AS LabelNo_HSK,
         Stg.*,
         CASE WHEN T.LabelNo_HSK IS NULL THEN 'I' ELSE 'U' END AS ActionType
       FROM Stg
-      LEFT JOIN Current_Sat T ON T.LabelNo_HSK = SHA256(TRIM(Stg.label_number))
+      LEFT JOIN Current_Sat T ON T.LabelNo_HSK = `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(TRIM(Stg.label_number), '^')
       WHERE T.LabelNo_HSK IS NULL -- New Business Key
          OR (
            -- Change Detection Logic
