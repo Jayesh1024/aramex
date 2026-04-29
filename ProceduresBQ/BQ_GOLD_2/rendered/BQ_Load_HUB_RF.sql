@@ -21,8 +21,8 @@ BEGIN
     MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_HUB_RF` AS Target
     USING (
       SELECT DISTINCT
-        -- Hashing: FranchiseeCode (Standard DV 2.0 SHA256 returns BYTES)
-        SHA256(TRIM(FranchiseeCode)) AS FranchiseeCode_HSK,
+        -- Hashing: FranchiseeCode via dbo_GetHashKey (BYTES)
+        `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(TRIM(FranchiseeCode), '^') AS FranchiseeCode_HSK,
         TRIM(FranchiseeCode) AS FranchiseeCode,
         v_Loaded AS Loaded,
         p_ProcessID AS ProcessID,

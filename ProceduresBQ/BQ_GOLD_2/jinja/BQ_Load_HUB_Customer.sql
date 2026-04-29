@@ -21,8 +21,8 @@ BEGIN
     MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_HUB_Customer` AS Target
     USING (
       SELECT DISTINCT
-        -- Generate SHA256 Hash Key for the Business Key
-        SHA256(TRIM(CAST(CustomerKey AS STRING))) AS CustomerKey_HSK,
+        -- Generate hash key via dbo_GetHashKey (matches SQL Server normalization)
+        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(TRIM(CAST(CustomerKey AS STRING)), '^') AS CustomerKey_HSK,
         CustomerKey,
         v_Loaded AS Loaded,
         p_ProcessID AS ProcessID,

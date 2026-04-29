@@ -86,7 +86,7 @@ BEGIN
         RecordSourceId, ValidFrom, ValidTo, IsCurrent
       )
       SELECT
-        SHA256(TRIM(Stg.Label)) AS LabelNo_HSK,
+        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(TRIM(Stg.Label), '^') AS LabelNo_HSK,
         Stg.Label, Stg.ConId, Stg.ConItemId, Stg.LineNo, Stg.CountryId,
         IFNULL(cty.CountryName, 'Unknown'),
         Stg.CreatedOn, Stg.CustomerId, Stg.FromRf, Stg.FromCf, Stg.ToRf, Stg.ToCf,

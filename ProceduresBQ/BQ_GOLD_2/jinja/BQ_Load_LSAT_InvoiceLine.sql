@@ -87,12 +87,12 @@ BEGIN
     ),
     NewInvoiceLines AS (
       SELECT 
-        SHA256(CONCAT(CAST(InvoiceNumber AS STRING), '^', FranchiseeCode, '^', CourierNumber, '^', CustomerKey, '^', ProductCode, '^', Country)) AS InvoiceLine_HSK,
-        SHA256(CONCAT(CAST(InvoiceNumber AS STRING), '^', FranchiseeCode)) AS Invoice_HSK,
-        SHA256(FranchiseeCode) AS FranchiseeCode_HSK,
-        SHA256(CONCAT(FranchiseeCode, '^', CourierNumber)) AS Courier_HSK,
-        SHA256(CustomerKey) AS Customer_HSK,
-        SHA256(CONCAT(Country, '^', ProductCode)) AS Product_HSK,
+        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(InvoiceNumber AS STRING), '^', FranchiseeCode, '^', CourierNumber, '^', CustomerKey, '^', ProductCode, '^', Country), '^') AS InvoiceLine_HSK,
+        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(InvoiceNumber AS STRING), '^', FranchiseeCode), '^') AS Invoice_HSK,
+        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(FranchiseeCode, '^') AS FranchiseeCode_HSK,
+        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(FranchiseeCode, '^', CourierNumber), '^') AS Courier_HSK,
+        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CustomerKey, '^') AS Customer_HSK,
+        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(Country, '^', ProductCode), '^') AS Product_HSK,
         InvoiceNumber,
         FranchiseeCode,
         CourierNumber,
@@ -112,7 +112,7 @@ BEGIN
         LineType
       FROM RawData AS Src
       WHERE NOT EXISTS (
-        SELECT 1 FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_InvoiceLine` AS Tgt WHERE Tgt.InvoiceLine_HSK = SHA256(CONCAT(CAST(Src.InvoiceNumber AS STRING), '^', Src.FranchiseeCode, '^', Src.CourierNumber, '^', Src.CustomerKey, '^', Src.ProductCode, '^', Src.Country))
+        SELECT 1 FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_InvoiceLine` AS Tgt WHERE Tgt.InvoiceLine_HSK = `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(Src.InvoiceNumber AS STRING), '^', Src.FranchiseeCode, '^', Src.CourierNumber, '^', Src.CustomerKey, '^', Src.ProductCode, '^', Src.Country), '^')
       )
     )
     SELECT

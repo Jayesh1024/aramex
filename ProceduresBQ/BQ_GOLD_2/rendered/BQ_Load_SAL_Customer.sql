@@ -50,7 +50,7 @@ BEGIN
         SELECT 
           Stg.*, 
           Cty.CountryName, 
-          (SHA256(CAST(CustomerKey AS STRING))) AS Customer_HSK
+          (`prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CAST(CustomerKey AS STRING), '^')) AS Customer_HSK
         FROM (
           SELECT CustomerKey, CountryCode, CAST(FMSCustomerID AS STRING) AS CustomerId, 'FMS' AS CustomerType, IFSCustomerType, RFCode FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_CustomerLinks_Stg` WHERE FMSCustomerID IS NOT NULL 
           UNION DISTINCT
@@ -71,7 +71,7 @@ BEGIN
       ) 
     )
     SELECT
-      (SHA256(CAST(CustomerKey AS STRING))) AS CustomerKey_HSK,
+      (`prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CAST(CustomerKey AS STRING), '^')) AS CustomerKey_HSK,
       RTRIM(CustomerKey) AS CustomerKey,
       RFCode,
       CustomerType,

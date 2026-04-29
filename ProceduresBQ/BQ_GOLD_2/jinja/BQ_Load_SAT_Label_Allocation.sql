@@ -124,7 +124,7 @@ BEGIN
         IsCurrent
       )
       VALUES (
-        (SHA256(CAST(Src.LabelNo AS STRING))),
+        (`{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CAST(Src.LabelNo AS STRING), '^')),
         Src.LabelNo,
         Src.CountryCode,
         Src.Country,

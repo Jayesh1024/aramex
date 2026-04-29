@@ -124,7 +124,7 @@ BEGIN
         IsCurrent
       )
       VALUES (
-        (SHA256(CAST(Src.LabelNo AS STRING))),
+        (`prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CAST(Src.LabelNo AS STRING), '^')),
         Src.LabelNo,
         Src.CountryCode,
         Src.Country,

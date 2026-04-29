@@ -46,7 +46,7 @@ BEGIN
         GROUP BY LabelNo
       )
       SELECT 
-        SHA256(TRIM(LabelNo)) AS LabelNo_HSK,
+        `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(TRIM(LabelNo), '^') AS LabelNo_HSK,
         LabelNo,
         v_Loaded AS Loaded,
         p_ProcessID AS ProcessID,

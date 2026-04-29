@@ -22,7 +22,7 @@ BEGIN
     USING (
       SELECT DISTINCT
         -- Using 'Unknown' for Country as confirmed missing from staging
-        SHA256(CONCAT('Unknown', '^', TRIM(CAST(InvoiceNumber AS STRING)))) AS Invoice_HSK,
+        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT('Unknown', '^', TRIM(CAST(InvoiceNumber AS STRING))), '^') AS Invoice_HSK,
         'Unknown' AS Country,
         InvoiceNumber,
         -- Mapping Required fields from Staging schema

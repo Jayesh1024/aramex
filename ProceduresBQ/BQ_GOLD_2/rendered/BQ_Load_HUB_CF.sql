@@ -21,8 +21,8 @@ BEGIN
     MERGE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_HUB_CF` AS Target
     USING (
       SELECT DISTINCT
-        -- Hashing: RFCode + '^' + CourierNumber (Standard DV 2.0 SHA256)
-        SHA256(CONCAT(IFNULL(RFCode, ''), '^', IFNULL(CourierNumber, ''))) AS Courier_HSK,
+        -- Hashing: RFCode + '^' + CourierNumber via dbo_GetHashKey
+        `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(IFNULL(RFCode, ''), '^', IFNULL(CourierNumber, '')), '^') AS Courier_HSK,
         RFCode,
         CourierNumber,
         v_Loaded AS Loaded,

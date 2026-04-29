@@ -46,7 +46,7 @@ BEGIN
         GROUP BY LabelNo
       )
       SELECT 
-        SHA256(TRIM(LabelNo)) AS LabelNo_HSK,
+        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(TRIM(LabelNo), '^') AS LabelNo_HSK,
         LabelNo,
         v_Loaded AS Loaded,
         p_ProcessID AS ProcessID,

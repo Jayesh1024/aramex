@@ -21,7 +21,7 @@ BEGIN
     USING (
       SELECT DISTINCT
         -- Hashing: CONVERT(varchar(10), ContainerManifestId) + RTRIM(LabelNo)
-        SHA256(CONCAT(CAST(ContainerManifestId AS STRING), TRIM(LabelNo))) AS ContainerManifestContents_HSK,
+        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(CAST(ContainerManifestId AS STRING), TRIM(LabelNo)), '^') AS ContainerManifestContents_HSK,
         ContainerManifestId,
         TRIM(LabelNo) AS LabelNo,
         v_Started AS Loaded,

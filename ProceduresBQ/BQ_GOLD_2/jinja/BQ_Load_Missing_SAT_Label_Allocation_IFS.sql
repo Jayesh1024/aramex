@@ -54,7 +54,7 @@ BEGIN
       UniqueParcelIdentifier
     )
     SELECT
-      (SHA256(CAST(Stg.LabelNo AS STRING))) AS Label_HSK,
+      (`{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CAST(Stg.LabelNo AS STRING), '^')) AS Label_HSK,
       Stg.LabelNo,
       Stg.CountryCode,
       cty.CountryName,

@@ -29,7 +29,7 @@ BEGIN
     USING (
       SELECT DISTINCT
         -- Generate HSK as BYTES for the join and insert
-        SHA256(CAST(Stg.FranchiseeCode AS STRING)) AS Calculated_HSK,
+        `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CAST(Stg.FranchiseeCode AS STRING), '^') AS Calculated_HSK,
         Stg.FranchiseeCode,
         Stg.CountryCode,
         Stg.RFId,
@@ -152,7 +152,7 @@ BEGIN
       IsCurrent
     )
     SELECT DISTINCT
-      SHA256(CAST(Stg.FranchiseeCode AS STRING)),
+      `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CAST(Stg.FranchiseeCode AS STRING), '^'),
       Stg.FranchiseeCode,
       Stg.CountryCode,
       Stg.RFId,

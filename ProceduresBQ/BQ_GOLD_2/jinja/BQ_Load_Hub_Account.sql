@@ -21,8 +21,8 @@ BEGIN
     MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_HUB_Account` AS Target
     USING (
       SELECT DISTINCT
-        -- Hashing Business Keys: DV 2.0 Standard (SHA256) returns BYTES
-        SHA256(CONCAT(IFNULL(CustomerType, ''), '^', IFNULL(CleanedCustomerCode, ''))) AS Account_HSK,
+        -- Hashing business keys via dbo_GetHashKey (BYTES)
+        `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(IFNULL(CustomerType, ''), '^', IFNULL(CleanedCustomerCode, '')), '^') AS Account_HSK,
         CustomerType,
         CleanedCustomerCode AS CustomerCode,
         v_Loaded AS Loaded,

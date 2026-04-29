@@ -32,7 +32,7 @@ BEGIN
         SELECT 
           *,
           -- Hash key calculation consistent with original logic
-          SHA256(CONCAT(IFNULL(Country, ''), '^', IFNULL(LabelNo, ''), '^', IFNULL(ProductCode, ''), '^', IFNULL(ServiceItem, ''))) AS Calc_HSK
+          `{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CONCAT(IFNULL(Country, ''), '^', IFNULL(LabelNo, ''), '^', IFNULL(ProductCode, ''), '^', IFNULL(ServiceItem, '')), '^') AS Calc_HSK
         FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_Label_Product_ServiceItem_Stg`
       ),
       -- Identify changes compared to current records

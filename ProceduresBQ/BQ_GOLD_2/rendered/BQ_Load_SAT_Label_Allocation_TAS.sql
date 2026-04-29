@@ -29,7 +29,7 @@ BEGIN
       WITH Stg AS (
         SELECT DISTINCT
           -- Standardized to BYTES
-          SHA256(TRIM(Stg.LabelNumber)) AS LabelNo_HSK,
+          `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(TRIM(Stg.LabelNumber), '^') AS LabelNo_HSK,
           Stg.LabelNumber as LabelNo,
           IFNULL(cty.CountryName,'Unknown') as Country,
           stg.Origin_CountryCode as CountryCode,

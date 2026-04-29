@@ -32,7 +32,7 @@ BEGIN
     MERGE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_DL` AS Tgt
     USING (
       SELECT DISTINCT 
-        (SHA256(CAST(Stg.LabelNumber AS STRING))) AS LabelNo_HSK,
+        (`{{ project_id }}.{{ target_dataset_id }}.dbo_GetHashKey`(CAST(Stg.LabelNumber AS STRING), '^')) AS LabelNo_HSK,
         Stg.LabelNumber AS LabelNo,
         Stg.CountryCode,
         IFNULL(cty.CountryName, 'Unknown') AS Country,
