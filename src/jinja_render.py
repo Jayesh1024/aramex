@@ -62,4 +62,6 @@ def render_gold_views():
             with open(f"{args.output_dir_path}/{path}", "w") as f:
                 f.write(sql)
 
-render_gold_views()
+render_gold_1_sps()
+# render_gold_2_sps()
+# render_gold_views()

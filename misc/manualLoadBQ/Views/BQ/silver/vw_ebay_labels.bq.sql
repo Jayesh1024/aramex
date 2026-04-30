@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_vw_ebay_labels` AS
+CREATE OR REPLACE VIEW `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_vw_ebay_labels` AS
 SELECT  
     c.ID, c.AccountId, c.EbayUserID, c.CreatedDateUTC, c.EmailAddress, 
     c.FirstName, c.LastName, c.B_CompanyName, c.B_Address1, c.B_Address2,
@@ -22,8 +22,8 @@ SELECT
     cil.AdminStatus AS ItemLabelAdminStatus, cil.ID AS ItemLabelID,
     cil.CreatedDateUTC AS ItemLabelCreateDateUTC, c.CreateDateLocal
 FROM            
-    `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_tblEbay_Consignments` c
+    `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_tblEbay_Consignments` c
 INNER JOIN
-    `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_tblEbay_Consignments_Items` ci ON c.ID = ci.EbayConsignmentID
+    `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_tblEbay_Consignments_Items` ci ON c.ID = ci.EbayConsignmentID
 INNER JOIN
-    `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_tblEbay_Consignments_Items_Labels` cil ON ci.ID = cil.EbayConsignmentItemID
+    `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_tblEbay_Consignments_Items_Labels` cil ON ci.ID = cil.EbayConsignmentItemID
