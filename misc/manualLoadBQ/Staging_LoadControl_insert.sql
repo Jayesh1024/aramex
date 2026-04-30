@@ -1,4 +1,4 @@
-INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LoadControl`
+INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_LoadControl`
   (RecordSource, DatasetName, ColumnName, Description, LastValue, DestinationTable, JobName)
 VALUES
   ('MyFastway', 'FWFastlabel.dbo.fl_ConItem', 'CreatedOn', 'Labels', NULL, 'SAT_Label_Allocation_MF', 'Load DataVault'),
