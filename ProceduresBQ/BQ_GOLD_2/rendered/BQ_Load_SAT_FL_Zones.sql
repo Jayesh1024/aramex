@@ -33,7 +33,7 @@ BEGIN
         )
         SELECT
             -- Call UDF: dbo.GetHashKey -> dbo_GetHashKey
-            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
+            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(
                 CONCAT(
                     IFNULL(NULLIF(CAST(CountryId AS STRING), ''), '') || v_delim,
                     IFNULL(NULLIF(CAST(ZoneCode AS STRING), ''), '') || v_delim

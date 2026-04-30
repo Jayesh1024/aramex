@@ -43,7 +43,7 @@ BEGIN
             )
             VALUES (
                 -- Assuming GetHashKey is migrated as a BigQuery UDF within the target project/dataset
-                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(SUBSTR(CAST(Src.ZenDeskTicketId AS STRING), 1, 10), '^'),
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(SUBSTR(CAST(Src.ZenDeskTicketId AS STRING), 1, 10), '^'),
                 Src.LabelNo,
                 Src.ZenDeskTicketId,
                 v_Started, 

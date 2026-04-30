@@ -33,7 +33,7 @@ BEGIN
         SELECT
           COALESCE(
             Sat.LabelNo_HSK,
-            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(Stg.LabelNo, '^')
+            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(Stg.LabelNo, '^')
           ) AS LabelNo_HSK,
           Stg.LabelNo,
           Stg.CountryCode,

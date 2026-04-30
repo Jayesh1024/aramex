@@ -32,7 +32,7 @@ BEGIN
       SELECT DISTINCT
         COALESCE(
           Sat.Product_HSK,
-          `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
+          `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(
             CONCAT(Stg.Country, '^', CAST(Stg.ProductId AS STRING)),
             '^'
           )

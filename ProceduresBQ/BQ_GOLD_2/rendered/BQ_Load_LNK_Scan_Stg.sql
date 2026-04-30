@@ -49,7 +49,7 @@ BEGIN
         FROM 
         (
             SELECT 
-                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(
                     CONCAT(
                         Src.FranchiseeCode, '^',
                         Src.CourierNumber, '^',
@@ -71,8 +71,8 @@ BEGIN
                 SELECT 
                     rf.FranchiseeCode_HSK, 
                     cf.Courier_HSK, 
-                    `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(COALESCE(stg.LabelNo, 'Unknown'), '^') AS LabelNo_HSK, 
-                    `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(CAST(COALESCE(stg.Latitude, 0) AS STRING), '/', CAST(COALESCE(stg.Longitude, 0) AS STRING)), '^') AS Location_HSK,
+                    `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(COALESCE(stg.LabelNo, 'Unknown'), '^') AS LabelNo_HSK, 
+                    `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CONCAT(CAST(COALESCE(stg.Latitude, 0) AS STRING), '/', CAST(COALESCE(stg.Longitude, 0) AS STRING)), '^') AS Location_HSK,
                     stat.ScanStatus_HSK,
                     COALESCE(rf.FranchiseeCode, stg.FranchiseeCode, 'Unk') AS FranchiseeCode,
                     COALESCE(cf.CourierNumber, stg.CourierNo, 'Unk') AS CourierNumber,

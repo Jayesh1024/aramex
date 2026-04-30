@@ -32,7 +32,7 @@ BEGIN
             ValidTo = v_Loaded
         FROM (
             SELECT 
-                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(Stg.LabelNumber, '^') AS LabelNo_HSK,
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(Stg.LabelNumber, '^') AS LabelNo_HSK,
                 Stg.LabelNumber,
                 Stg.CountryCode,
                 IFNULL(cty.CountryName, 'Unknown') AS Country,
@@ -83,7 +83,7 @@ BEGIN
             Loaded, ProcessId, RecordSource, RecordSourceId, ValidFrom, ValidTo, IsCurrent
         )
         SELECT
-            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(Src.LabelNumber, '^'),
+            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(Src.LabelNumber, '^'),
             Src.LabelNumber, Src.CountryCode, Src.Country, Src.LabelPrinted, Src.CustomerID, 
             Src.ClientID, Src.ConsumedByCustomerUserID, Src.LblColour, Src.LblPrice, Src.LblPrice1, 
             Src.Reference, Src.Packaging, Src.Weight, Src.WeightCubic, Src.Length, Src.Width, Src.Height, 

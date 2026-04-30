@@ -33,7 +33,7 @@ BEGIN
             ValidTo = v_Loaded -- Both are now DATETIME
         FROM (
             SELECT 
-                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(Stg.LabelNumber, '^') AS LabelNo_HSK,
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(Stg.LabelNumber, '^') AS LabelNo_HSK,
                 IFNULL(cty.CountryName, 'Unknown') AS Country,
                 Stg.B_CountryCode AS CountryCode,
                 Stg.B_RF AS OriginRF,
@@ -67,7 +67,7 @@ BEGIN
             RecordSource, RecordSourceId, ValidFrom, ValidTo, IsCurrent
         )
         SELECT
-            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(Src.LabelNo, '^'),
+            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(Src.LabelNo, '^'),
             Src.LabelNo,
             Src.Country,
             Src.CountryCode,

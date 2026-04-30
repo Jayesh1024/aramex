@@ -38,7 +38,7 @@ BEGIN
         )
         SELECT
             -- UDF Call (Table naming rule: dbo.GetHashKey -> dbo_GetHashKey)
-            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
+            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(
                 CONCAT(
                     IFNULL(NULLIF(CAST(CountryId AS STRING), ''), '') || v_delim,
                     IFNULL(NULLIF(CAST(CustomerId AS STRING), ''), '') || v_delim,

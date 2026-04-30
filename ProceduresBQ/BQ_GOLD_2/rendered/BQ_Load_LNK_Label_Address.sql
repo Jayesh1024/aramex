@@ -40,7 +40,7 @@ BEGIN
             )
             SELECT 
                 Src.LabelNo,
-                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(Src.LabelNo, '^') AS LabelNo_HSK,
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(Src.LabelNo, '^') AS LabelNo_HSK,
                 Src.Pickup_Address_HSK,
                 Src.Delivery_Address_HSK,
                 CONCAT('[From:', Src.Pickup_RecordSource, ']', '[To:', Src.Delivery_RecordSource, ']') AS RecordSource,

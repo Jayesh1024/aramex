@@ -41,7 +41,7 @@ BEGIN
             )
             VALUES (
                 -- UDF reference converted to Jinja2 path format
-                TO_HEX(`prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(Src.TruckNum, '^')),
+                TO_HEX(`prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(Src.TruckNum, '^')),
                 Src.TruckNum,
                 v_Loaded,
                 p_ProcessID,

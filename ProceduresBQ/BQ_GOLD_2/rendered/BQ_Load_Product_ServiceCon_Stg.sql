@@ -65,8 +65,8 @@ BEGIN
       RecordSourceId
     )
     SELECT
-      `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(Src.Country, '^', CAST(Src.ConId AS STRING), '^', Src.ProductCode, '^', CAST(Src.ServiceItemId AS STRING)), '^') AS Product_ServiceCon_HSK,
-      `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(Src.Country, '^', Src.ProductCode), '^') AS Product_HSK,
+      `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CONCAT(Src.Country, '^', CAST(Src.ConId AS STRING), '^', Src.ProductCode, '^', CAST(Src.ServiceItemId AS STRING)), '^') AS Product_ServiceCon_HSK,
+      `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CONCAT(Src.Country, '^', Src.ProductCode), '^') AS Product_HSK,
       Src.ConId,
       Src.Country,
       Src.ProductCode,

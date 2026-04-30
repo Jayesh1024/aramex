@@ -30,7 +30,7 @@ BEGIN
         MERGE INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LNK_Label_Interbranch_Deprecated` AS Tgt
         USING (
             SELECT 
-                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(
                     CONCAT(
                         Country, '^', 
                         LabelNo, '^', 
@@ -40,7 +40,7 @@ BEGIN
                     ),
                     '^'
                 ) AS Label_InterBranch_HSK,
-                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(Country, '^', LabelNo), '^') AS LabelNo_HSK,
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CONCAT(Country, '^', LabelNo), '^') AS LabelNo_HSK,
                 LabelNo,
                 Country,
                 InvoiceFromRF,

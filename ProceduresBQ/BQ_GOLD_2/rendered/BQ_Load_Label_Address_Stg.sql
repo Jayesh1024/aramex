@@ -50,7 +50,7 @@ BEGIN
             SELECT 
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'MyFastway' AS RecordSource,
-                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),
@@ -115,7 +115,7 @@ BEGIN
             SELECT 
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'PickupRequest' AS RecordSource,
-                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),
@@ -188,7 +188,7 @@ BEGIN
             SELECT 
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'DynamicLabel' AS RecordSource,
-                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),
@@ -261,7 +261,7 @@ BEGIN
             SELECT 
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'FastLabel' AS RecordSource,
-                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),
@@ -324,7 +324,7 @@ BEGIN
             SELECT 
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'FastLabelEnterprise' AS RecordSource,
-                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),
@@ -398,7 +398,7 @@ BEGIN
             SELECT 
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'HDManifests' AS RecordSource,
-                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),
@@ -481,7 +481,7 @@ BEGIN
             SELECT
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'EBAY' AS RecordSource,
-                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),
@@ -554,7 +554,7 @@ BEGIN
             SELECT
                 a.LabelNo, a.FromTo, a.AddressLine1, a.AddressLine2, a.Town, a.State, a.Postcode, 
                 a.CountryCode, c.CountryName, 'ReceiverPays' AS RecordSource,
-                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(
                     CONCAT(
                         IFNULL(CONCAT(NULLIF(a.AddressLine1, ''), v_delim), ''),
                         IFNULL(CONCAT(NULLIF(a.AddressLine2, ''), v_delim), ''),

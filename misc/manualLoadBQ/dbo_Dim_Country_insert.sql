@@ -1,4 +1,4 @@
-INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` (CountryCode, CountryName, CountryDisabled, HideInWebsite, CurrencySymbol, LanguageCode, CurrencyCode, CubicConversion, TimeZone)
+INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` (CountryCode, CountryName, CountryDisabled, HideInWebsite, CurrencySymbol, LanguageCode, CurrencyCode, CubicConversion, TimeZone)
 VALUES
   (1,  'Australia',                  0, 0, '$', 'AU', 'AUD', 250, 'AUS Eastern Standard Time'),
   (4,  'Hong Kong',                  0, 1, '',  '',   '',    1,   ''),

@@ -28,7 +28,7 @@ BEGIN
         USING (
             SELECT DISTINCT 
                 -- Assuming GetHashKey is migrated as a BigQuery UDF within the target project/dataset
-                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(
                     CONCAT(cty.CountryName, '^', IF(IFNULL(si.DisplayText, '') != '', si.DisplayText, si.Description)), '^'
                 ) AS ServiceItem_HSK,
                 cty.CountryName AS Country, 

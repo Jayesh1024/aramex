@@ -25,7 +25,7 @@ BEGIN
         MERGE INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_HUB_ScanStatus` AS Dest
         USING (
             SELECT DISTINCT 
-                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(IFNULL(RTRIM(CountryName), 'Unknown'), '^', StatusCode), '^') as ScanStatus_HSK,
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CONCAT(IFNULL(RTRIM(CountryName), 'Unknown'), '^', StatusCode), '^') as ScanStatus_HSK,
                 IFNULL(RTRIM(CountryName), 'Unknown') AS CountryName, 
                 StatusCode AS ScanStatus 
             FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_ScanStatus_Stg`
