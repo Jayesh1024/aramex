@@ -1,2 +1,1 @@
-1. Add 4 new DAGs
-2. Modify dag for passing parent dag's configs to child dags.
+1. Update GCP_CONN_ID in all the operators to "oceania_target_sa_connection".

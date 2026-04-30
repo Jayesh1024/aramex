@@ -18,18 +18,18 @@ as a direct BQ UPDATE with a correlated COUNT.
 from __future__ import annotations
 
 from datetime import datetime
-import os
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.operators.bash import BashOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_value
 
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
 # SSIS $Package::RecordSource12 is configured via DAG params.RecordSource12.
@@ -56,6 +56,7 @@ with DAG(
 
         op_10 = BigQueryInsertJobOperator(
             task_id="package_staging_2_truncate_label_interbranch_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_Label_Interbranch_Stg`;",
@@ -79,6 +80,7 @@ with DAG(
         # ref_id: Package\Staging 2\Load Label_Interbranch_Stg (Pipeline -> SP)
         op_8 = BigQueryInsertJobOperator(
             task_id="package_staging_2_load_label_interbranch_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -96,6 +98,7 @@ with DAG(
         # ref_id: Package\Staging 2\Set LastValue (InterBranch) — only update if staging has rows.
         op_9 = BigQueryInsertJobOperator(
             task_id="package_staging_2_set_lastvalue_interbranch",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -121,6 +124,7 @@ with DAG(
         # ref_id: Package\Final\Load LNK_Label_InterBranch — Exec [dv].[Load_LNK_Label_InterBranch] ProcessId, RecordSource12
         op_1 = BigQueryInsertJobOperator(
             task_id="package_final_load_lnk_label_interbranch",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -136,6 +140,7 @@ with DAG(
         # ref_id: Package\Final\Load LSAT_Label_InterBranch — Exec [dv].[Load_LSAT_Label_InterBranch] ProcessId, RecordSource12
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_load_lsat_label_interbranch",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -155,6 +160,7 @@ with DAG(
 
         op_5 = BigQueryInsertJobOperator(
             task_id="package_monthly_miscellaneous_truncate_dlbs_rf_batching",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.dbo_DLBSRFBatching`;",
@@ -167,6 +173,7 @@ with DAG(
         # ref_id: Package\Monthly Miscellaneous\Maintain DLBS RFBatching (Pipeline -> SP)
         op_4 = BigQueryInsertJobOperator(
             task_id="package_monthly_miscellaneous_maintain_dlbs_rfbatching",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.sp_load_dbo_DLBSRFBatching`();",

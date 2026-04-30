@@ -14,15 +14,15 @@ argument (no RecordSource), matching the .dtsx param_map. The SSIS
 from __future__ import annotations
 
 from datetime import datetime
-import os
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
 with DAG(
@@ -43,6 +43,7 @@ with DAG(
 
         op_7 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_label_address_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_Label_Address_Stg`;",
@@ -56,6 +57,7 @@ with DAG(
         # SSIS: Exec [Staging].[Load_Label_Address_Stg] ProcessId
         op_6 = BigQueryInsertJobOperator(
             task_id="package_staging_load_sat_label_address_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -77,6 +79,7 @@ with DAG(
         # SSIS: Exec [dv].[Load_HUB_Address] ProcessId
         op_1 = BigQueryInsertJobOperator(
             task_id="package_final_load_hub_address_load_hub_address",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -93,6 +96,7 @@ with DAG(
         # SSIS: Exec [dv].[Load_SAT_Address] ProcessId
         op_3 = BigQueryInsertJobOperator(
             task_id="package_final_load_hub_address_load_sat_address",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -109,6 +113,7 @@ with DAG(
         # SSIS: Exec [dv].[Load_LNK_Label_Address] ProcessId
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_load_hub_address_load_lnk_label_address",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (

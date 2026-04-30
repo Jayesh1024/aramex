@@ -21,9 +21,9 @@ RecordSource4 default `MyFastway` (also hardcoded).
 from __future__ import annotations
 
 from datetime import datetime
-import os
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
@@ -34,9 +34,9 @@ from utils.getValue import (
     get_yesterday_eod_iso,
 )
 
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 _TASK_ID_GET_PROCESS_ID = "tg_package_staging.tg_package_staging_initial.package_staging_initial_get_next_processid"
 _TASK_ID_GET_LASTSCANID = "tg_package_staging.tg_package_staging_staging_2.package_staging_staging_2_get_lastscanid_trackandtrace"
@@ -81,6 +81,7 @@ with DAG(
             # ref_id: Package\Staging\Staging 1\Truncate fl_MF_Interim_Stg
             op_16 = BigQueryInsertJobOperator(
                 task_id="package_staging_staging_1_truncate_fl_mf_interim_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_fl_MF_Interim_Stg`;",
@@ -104,6 +105,7 @@ with DAG(
             # ref_id: Package\Staging\Staging 1\Load fl_MF_Interim_Stg — BQ SP has no args (date window computed inside; see ProceduresBQ BQ_GOLD_1).
             op_15 = BigQueryInsertJobOperator(
                 task_id="package_staging_staging_1_load_fl_mf_interim_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -118,6 +120,7 @@ with DAG(
             # ref_id: Package\Staging\Staging 1\Data Flow Task — pipeline -> inferred SP (loads Staging.fl_ConItem_Stg from tmp.fl_Contitem_Stg)
             op_13 = BigQueryInsertJobOperator(
                 task_id="package_staging_staging_1_data_flow_task",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -137,6 +140,7 @@ with DAG(
             # ref_id: Package\Staging\Staging 2\Truncate Staging tables
             op_21 = BigQueryInsertJobOperator(
                 task_id="package_staging_staging_2_truncate_staging_tables",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_TrackAndTrace_Stg`;",
@@ -161,6 +165,7 @@ with DAG(
             # ref_id: Package\Staging\Staging 2\Load TrackAndTrace_Stg — pipeline -> inferred SP (LastScanID, ISOCountryCodes)
             op_20 = BigQueryInsertJobOperator(
                 task_id="package_staging_staging_2_load_trackandtrace_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -182,6 +187,7 @@ with DAG(
         # ref_id: Package\Staging 3\Truncate fl_conitmsrv_stg
         op_9 = BigQueryInsertJobOperator(
             task_id="package_staging_3_truncate_fl_conitmsrv_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -203,6 +209,7 @@ with DAG(
         # ref_id: Package\Staging 3\Load fl_ConItemSrv_Stg — pipeline -> inferred SP (StartDate, ISOCountryCodes)
         op_8 = BigQueryInsertJobOperator(
             task_id="package_staging_3_load_fl_conitemsrv_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -219,6 +226,7 @@ with DAG(
         # ref_id: Package\Staging 3\Load Product ServiceItem_Stg — [Staging].[Load_Label_Product_ServiceItem_Stg_Interim] ProcessId, RecordSource4
         op_7 = BigQueryInsertJobOperator(
             task_id="package_staging_3_load_product_serviceitem_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -240,6 +248,7 @@ with DAG(
         # ref_id: Package\Load Interim Labels\Load Interim_KPI_Labels_Src_Stg — Exec Mini_FastwayDW.[Staging].[Load_Fact_KPI_Interim_Src_Stg] ProcessId
         op_3 = BigQueryInsertJobOperator(
             task_id="package_load_interim_labels_load_interim_kpi_labels_src_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -255,6 +264,7 @@ with DAG(
         # ref_id: Package\Load Interim Labels\Load Fact_KPI_Daily_Stg — Exec [Staging].[Load_Fact_KPI_Daily_Stg_2] ProcessId
         op_1 = BigQueryInsertJobOperator(
             task_id="package_load_interim_labels_load_fact_kpi_daily_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -270,6 +280,7 @@ with DAG(
         # ref_id: Package\Load Interim Labels\Load Fact_KPI_Interim — Exec [dbo].[Load_Fact_KPI_Interim] ProcessId
         op_2 = BigQueryInsertJobOperator(
             task_id="package_load_interim_labels_load_fact_kpi_interim",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (

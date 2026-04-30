@@ -16,16 +16,16 @@ RecordSource defaults not in metadata.
 """
 from __future__ import annotations
 
-import os
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 import pendulum
 
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
 with DAG(
@@ -44,6 +44,7 @@ with DAG(
         # ref_id: ...\Load Customer Price Overrides — pipeline -> inferred SP
         op_3 = BigQueryInsertJobOperator(
             task_id="package_customer_overrides_staging_load_customer_price_overrides",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"SELECT * FROM `{TARGET_DATASET_ID}.Staging_fl_PriceListCustomerOverride_Stg`",
@@ -59,6 +60,7 @@ with DAG(
         # ref_id: ...\Load SAT_CustomerPriceOverride — dv_Load_SAT_FL_PriceListCustomerOverride(ProcessId, RecordSource)
         op_1 = BigQueryInsertJobOperator(
             task_id="package_customer_overrides_final_load_sat_customerpriceoverride",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -77,6 +79,7 @@ with DAG(
         # ref_id: ...\Truncate Zones
         op_13 = BigQueryInsertJobOperator(
             task_id="package_zones_overrides_staging_truncate_zones",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -92,6 +95,7 @@ with DAG(
         # ref_id: ...\Truncate Zone Overrides
         op_12 = BigQueryInsertJobOperator(
             task_id="package_zones_overrides_staging_truncate_zone_overrides",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -106,6 +110,7 @@ with DAG(
         # ref_id: ...\Load fl_Zones — pipeline -> inferred SP
         op_11 = BigQueryInsertJobOperator(
             task_id="package_zones_overrides_staging_load_fl_zones",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"SELECT * FROM `{TARGET_DATASET_ID}.Staging_fl_Zones_Stg`",
@@ -118,6 +123,7 @@ with DAG(
         # ref_id: ...\Load Zone Satchel Overiides — pipeline -> inferred SP
         op_9 = BigQueryInsertJobOperator(
             task_id="package_zones_overrides_staging_load_zone_satchel_overiides",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"SELECT * FROM `{TARGET_DATASET_ID}.vw_Staging_fl_ServiceZoneSatchelOverride_Stg`",
@@ -130,6 +136,7 @@ with DAG(
         # ref_id: ...\Load Zone Weight Overiides — pipeline -> inferred SP
         op_10 = BigQueryInsertJobOperator(
             task_id="package_zones_overrides_staging_load_zone_weight_overiides",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"SELECT * FROM `{TARGET_DATASET_ID}.vw_Staging_fl_ServiceZoneWeightOverride_Stg`",
@@ -149,6 +156,7 @@ with DAG(
         # ref_id: ...\Load SAT Zones — dv_Load_SAT_FL_Zones(ProcessId, RecordSource)
         op_7 = BigQueryInsertJobOperator(
             task_id="package_zones_overrides_final_load_sat_zones",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -164,6 +172,7 @@ with DAG(
         # ref_id: ...\Load SAT Zone Overrides — dv_Load_SAT_FL_Zone_Overrides(ProcessId, RecordSource)
         op_6 = BigQueryInsertJobOperator(
             task_id="package_zones_overrides_final_load_sat_zone_overrides",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (

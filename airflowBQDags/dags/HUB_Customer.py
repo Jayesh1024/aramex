@@ -14,15 +14,15 @@ Staging loads (no params) -> Final (ProcessId, RecordSource).
 from __future__ import annotations
 
 from datetime import datetime
-import os
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
 with DAG(
@@ -50,6 +50,7 @@ with DAG(
         # ref_id: Package\Staging\Truncate CustomerLinks_Stg
         op_10 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_customerlinks_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_CustomerLinks_Stg`;",
@@ -62,6 +63,7 @@ with DAG(
         # ref_id: Package\Staging\Truncate FMS_Customer_Stg
         op_11 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_fms_customer_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_FMS_Customer_Stg`;",
@@ -75,6 +77,7 @@ with DAG(
         # ref_id: Package\Staging\Truncate IFSCustomers_Stg
         op_12 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_ifscustomers_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_IFSCustomers_Stg`;",
@@ -89,6 +92,7 @@ with DAG(
         # in a single ExecuteSQL task — preserving that grouping here.
         op_13 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_tblcustomer_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -104,6 +108,7 @@ with DAG(
         # ref_id: Package\Staging\Load CustomerLinks_Stg (Pipeline -> SP)
         op_6 = BigQueryInsertJobOperator(
             task_id="package_staging_load_customerlinks_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_CustomerLinks_Stg`();",
@@ -116,6 +121,7 @@ with DAG(
         # ref_id: Package\Staging\Load FMS_Customer_Stg (Pipeline -> SP)
         op_7 = BigQueryInsertJobOperator(
             task_id="package_staging_load_fms_customer_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_FMS_Customer_Stg`();",
@@ -128,6 +134,7 @@ with DAG(
         # ref_id: Package\Staging\Load IFSCustomers_Stg (Pipeline -> SP)
         op_8 = BigQueryInsertJobOperator(
             task_id="package_staging_load_ifscustomers_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_IFSCustomers_Stg`();",
@@ -140,6 +147,7 @@ with DAG(
         # ref_id: Package\Staging\Load tblCustomer_Stg (Pipeline -> SP)
         op_9 = BigQueryInsertJobOperator(
             task_id="package_staging_load_tblcustomer_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_tblCustomer_Stg`();",
@@ -160,6 +168,7 @@ with DAG(
         # ref_id: Package\Final\Load HUB_Customer — Exec [dv].[Load_HUB_Customer] ProcessId, RecordSource
         op_1 = BigQueryInsertJobOperator(
             task_id="package_final_load_hub_customer",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -175,6 +184,7 @@ with DAG(
         # ref_id: Package\Final\Load SAT_Customer — Exec [dv].[Load_SAT_Customer] ProcessId, RecordSource
         op_3 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_customer",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -190,6 +200,7 @@ with DAG(
         # ref_id: Package\Final\Load SAL_Customer — Exec [dv].[Load_SAL_Customer] ProcessId
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_load_sal_customer",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (

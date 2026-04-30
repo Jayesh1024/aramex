@@ -9,15 +9,15 @@ No RecordSource in package metadata — only ProcessId-related parameters.
 """
 from __future__ import annotations
 
-import os
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 import pendulum
 
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
 # --- Project Configuration ---
@@ -36,6 +36,7 @@ with DAG(
     # ref_id: Package\Get Next ProcessID — metadata ExecuteSQLTask (DECLARE + MAX from Staging.LoadLog + CASE NextProcessId)
     op_0 = BigQueryInsertJobOperator(
         task_id="package_get_next_processid",
+        gcp_conn_id="oceania_target_sa_connection",
         configuration={
             "query": {
                 "query": (
@@ -52,6 +53,7 @@ with DAG(
     # ref_id: Package\Load_Fact_Delivery_Performance — metadata: Exec [dbo].[Load_Fact_Delivery_Performance] (ReturnCode + ProcessId)
     op_1 = BigQueryInsertJobOperator(
         task_id="package_load_fact_delivery_performance",
+        gcp_conn_id="oceania_target_sa_connection",
         configuration={
             "query": {
                 "query": f"CALL `{SP_DATASET_ID}.dbo_Load_Fact_Delivery_Performance`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, {{{{ params.Force }}}});",

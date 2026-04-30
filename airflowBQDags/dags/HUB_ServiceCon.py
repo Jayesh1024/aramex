@@ -12,17 +12,17 @@ Notes:
   * SSIS $Package::RecordSource13 is bound to `params.RecordSource13`.
 """
 from __future__ import annotations
-import os
 
 from datetime import datetime
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
 with DAG(
@@ -45,6 +45,7 @@ with DAG(
         # ref_id: Package\Staging\Truncate fl_ConSrv_Stg
         op_10 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_fl_consrv_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_fl_ConSrv_Stg`;",
@@ -57,6 +58,7 @@ with DAG(
         # ref_id: Package\Staging\Load fl_ConSrv_Stg (Pipeline -> SP, no params)
         op_6 = BigQueryInsertJobOperator(
             task_id="package_staging_load_fl_consrv_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_fl_ConSrv_Stg`();",
@@ -69,6 +71,7 @@ with DAG(
         # ref_id: Package\Staging\Truncate Product_ServiceCon_Stg
         op_9 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_product_servicecon_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_Product_ServiceCon_Stg`;",
@@ -81,6 +84,7 @@ with DAG(
         # ref_id: Package\Staging\Load_LSAT_Product_ServiceCon — SSIS Exec [dv].[Load_Product_ServiceCon_Stg] ProcessId, RecordSource13;
         op_7 = BigQueryInsertJobOperator(
             task_id="package_staging_load_lsat_product_servicecon",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -101,6 +105,7 @@ with DAG(
         # ref_id: Package\Final\Truncate LNK_Product_ServiceCon
         op_3 = BigQueryInsertJobOperator(
             task_id="package_final_truncate_lnk_product_servicecon",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.dv_LNK_Product_ServiceCon`;",
@@ -113,6 +118,7 @@ with DAG(
         # ref_id: Package\Final\Load HUB_ServiceCon — Exec [dv].[Load_LNK_Product_ServiceCon] ProcessId, RecordSource13
         op_1 = BigQueryInsertJobOperator(
             task_id="package_final_load_hub_servicecon",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -128,6 +134,7 @@ with DAG(
         # ref_id: Package\Final\Truncate LSAT_Product_ServiceCon
         op_4 = BigQueryInsertJobOperator(
             task_id="package_final_truncate_lsat_product_servicecon",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.dv_LSAT_Product_ServiceCon`;",
@@ -140,6 +147,7 @@ with DAG(
         # ref_id: Package\Final\Load SAT_ServiceCon — SSIS Exec [dv].[Load_LSAT_Product_ServiceCon] ProcessId, RecordSource13;
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_servicecon",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (

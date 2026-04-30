@@ -19,15 +19,15 @@ indexes.
 from __future__ import annotations
 
 from datetime import datetime
-import os
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
 _STAGING_TABLES_TO_TRUNCATE = [
@@ -68,6 +68,7 @@ with DAG(
 
         op_9 = BigQueryInsertJobOperator(
             task_id="package_source4_myfastway_mf_truncate_fl_conitem_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_fl_ConItem_Stg`;",
@@ -80,6 +81,7 @@ with DAG(
         # ref_id: Package\Source4 (MyFastway) _MF\Load fl_ConItem_Stg (Pipeline -> SP)
         op_7 = BigQueryInsertJobOperator(
             task_id="package_source4_myfastway_mf_load_fl_conitem_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -99,6 +101,7 @@ with DAG(
 
         op_5 = BigQueryInsertJobOperator(
             task_id="package_sequence_container_truncate_sat_label_allocation_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": "\n".join(
@@ -114,6 +117,7 @@ with DAG(
         # ref_id: Package\Sequence Container\Load SAT_Label_Allocation_Stg — Exec [Staging].[Load_SAT_Label_Allocation_Stg] ProcessId
         op_3 = BigQueryInsertJobOperator(
             task_id="package_sequence_container_load_sat_label_allocation_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -129,6 +133,7 @@ with DAG(
         # ref_id: Package\Sequence Container\Load SAT_Label_Allocation — Exec [dv].[Load_SAT_Label_Allocation] ProcessId
         op_1 = BigQueryInsertJobOperator(
             task_id="package_sequence_container_load_sat_label_allocation",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -144,6 +149,7 @@ with DAG(
         # ref_id: Package\Sequence Container\Load SAT_Label_Allocation_MF — Exec [dv].[Load_SAT_Label_Allocation_MF] ProcessId, RecordSource4
         op_2 = BigQueryInsertJobOperator(
             task_id="package_sequence_container_load_sat_label_allocation_mf",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -159,6 +165,7 @@ with DAG(
         # ref_id: Package\Sequence Container\Set LastDate (MyFastway) — Staging_Set_LastValue(RecordSource4)
         op_4 = BigQueryInsertJobOperator(
             task_id="package_sequence_container_set_lastdate_myfastway",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (

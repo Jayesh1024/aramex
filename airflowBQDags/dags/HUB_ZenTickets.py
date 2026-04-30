@@ -16,17 +16,17 @@ parallel.
 from __future__ import annotations
 
 from datetime import datetime
-import os
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import allocate_negative_sentinel_processid, get_last_value
 
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
 _TASK_ID_GET_PROCESS_ID = "tg_package_staging.package_staging_get_processid"
@@ -61,6 +61,7 @@ with DAG(
 
         op_8 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_zen_ticket_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_ZEN_Ticket_Stg`;",
@@ -84,6 +85,7 @@ with DAG(
         # ref_id: Package\Staging\Load Zen_Ticket_Stg (Pipeline -> SP, takes LastDate)
         op_7 = BigQueryInsertJobOperator(
             task_id="package_staging_load_zen_ticket_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -106,6 +108,7 @@ with DAG(
         # ref_id: Package\Final\Load HUB_Zen_Tickets — EXEC [dv].[Load_HUB_ZEN_Ticket] ProcessId, RecordSource
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_load_hub_zen_tickets",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -121,6 +124,7 @@ with DAG(
         # ref_id: Package\Final\Load SAT_Zen_Tickets — EXEC [dv].[Load_SAT_ZEN_Ticket] ProcessId, RecordSource
         op_3 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_zen_tickets",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -137,6 +141,7 @@ with DAG(
         #   with MAX(SysLastUpdatedUtc) from Staging.ZEN_Ticket_Stg, WHERE RecordSource = 'ZenLog'.
         op_1 = BigQueryInsertJobOperator(
             task_id="package_final_zenlog",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (

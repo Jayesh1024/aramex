@@ -13,17 +13,17 @@ the TrackAndTrace and SignatureAI pipelines (the BQ layer uses
 from __future__ import annotations
 
 from datetime import datetime
-import os
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import allocate_negative_sentinel_processid, get_last_value
 
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
 _TASK_ID_GET_PROCESS_ID = "tg_package_staging.package_staging_get_processid"
@@ -67,6 +67,7 @@ with DAG(
         # ref_id: Package\Staging\Truncate Staging tables
         op_21 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_staging_tables",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -104,6 +105,7 @@ with DAG(
         # ref_id: Package\Staging\Load TrackAndTrace SignatureAI — pipeline -> inferred SP (LastUpdateDate)
         op_19 = BigQueryInsertJobOperator(
             task_id="package_staging_load_trackandtrace_signatureai",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -119,6 +121,7 @@ with DAG(
         # ref_id: Package\Staging\Load TrackAndTrace_Stg — pipeline -> inferred SP (LastId)
         op_20 = BigQueryInsertJobOperator(
             task_id="package_staging_load_trackandtrace_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -144,6 +147,7 @@ with DAG(
             # ref_id: Package\Final\Load LNK\Truncate Staging Tables
             op_10 = BigQueryInsertJobOperator(
                 task_id="package_final_load_lnk_truncate_staging_tables",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -159,6 +163,7 @@ with DAG(
             # ref_id: Package\Final\Load LNK\Interim Load_Scans_Stg — interimStaging_Interim_Load_Scans_Stg(ProcessId)
             op_5 = BigQueryInsertJobOperator(
                 task_id="package_final_load_lnk_interim_load_scans_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -174,6 +179,7 @@ with DAG(
             # ref_id: Package\Final\Load LNK\Load LNK_Scan_Stg — Staging_Load_LNK_Scan_Stg(ProcessId)
             op_8 = BigQueryInsertJobOperator(
                 task_id="package_final_load_lnk_load_lnk_scan_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -189,6 +195,7 @@ with DAG(
             # ref_id: Package\Final\Load LNK\Load LNK_Scan — dv_Load_LNK_Scan(ProcessId)
             op_6 = BigQueryInsertJobOperator(
                 task_id="package_final_load_lnk_load_lnk_scan",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -204,6 +211,7 @@ with DAG(
             # ref_id: Package\Final\Load LNK\Load LNK_Scan_Signatures — dv_Load_LNK_Scan_Signature(ProcessId)
             op_7 = BigQueryInsertJobOperator(
                 task_id="package_final_load_lnk_load_lnk_scan_signatures",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -219,6 +227,7 @@ with DAG(
             # ref_id: Package\Final\Load LNK\Set Last ID (TrackAndTraceID) — Interim_Set_LastValue(RecordSource3, NULL, NULL, 0)
             op_9 = BigQueryInsertJobOperator(
                 task_id="package_final_load_lnk_set_last_id_trackandtraceid_now_in_interim_fact_scan_kpi",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -240,6 +249,7 @@ with DAG(
             # ref_id: Package\Final\Load SignatureAI\Load LNK_SignatureAI — dv_Load_LNK_Scan_SignatureAI(ProcessId)
             op_12 = BigQueryInsertJobOperator(
                 task_id="package_final_load_signatureai_load_lnk_signatureai",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -255,6 +265,7 @@ with DAG(
             # ref_id: Package\Final\Load SignatureAI\Set Last ID (SignatureAI) — Interim_Set_LastValue(RecordSource1, NULL, NULL, 0)
             op_13 = BigQueryInsertJobOperator(
                 task_id="package_final_load_signatureai_set_last_id_signatureai",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (

@@ -12,12 +12,13 @@ with DAG(
 
     op_1 = BigQueryInsertJobOperator(
         task_id="trigger_load_cf_productivity_au",
+        gcp_conn_id="oceania_target_sa_connection",
         configuration={
             "query": {
                 "query": "CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_Load_CF_Productivity_AU`(-717);",
                 "use_legacy_sql": False,
             }
-        }
+        },
         job_id="bq_gold_transformation_oceania",
     )
     

@@ -29,9 +29,9 @@ is used when LoadControl is not the parent).
 """
 from __future__ import annotations
 
-import os
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.operators.empty import EmptyOperator
 from airflow.operators.python import PythonOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
@@ -41,9 +41,9 @@ import pendulum
 
 from utils.getValue import get_next_process_id
 
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 nz_tz = pendulum.timezone("Pacific/Auckland")
 
@@ -117,6 +117,7 @@ with DAG(
 
     op_18 = BigQueryInsertJobOperator(
         task_id="package_reserve_processid",
+        gcp_conn_id="oceania_target_sa_connection",
         configuration={
             "query": {
                 "query": _reserve_process_sql,
@@ -225,6 +226,7 @@ with DAG(
 
         op_6 = BigQueryInsertJobOperator(
             task_id="package_load_dim_tables_load_dim_label",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -243,6 +245,7 @@ with DAG(
     ) as tg_send_notification_email:
         op_20 = BigQueryInsertJobOperator(
             task_id="package_send_notification_email_get_summary_data",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (

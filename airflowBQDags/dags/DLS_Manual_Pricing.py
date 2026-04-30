@@ -14,18 +14,18 @@ is approximated with params.adhoc_history_last_id and params.ProcessId — adjus
 """
 from __future__ import annotations
 
-import os
 import pendulum
 from airflow import DAG
+from airflow.models import Variable
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_value
 
 # --- Project Configuration ---
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 _TASK_ID_GET_LAST_ID = "tg_package_source2_dynamiclabel_dl.package_source2_dynamiclabel_dl_get_lastid_dynamiclabel"
 
 with DAG(
@@ -51,6 +51,7 @@ with DAG(
         # ref_id: …\Truncate API_RF_AdHocLabel_AllocationHistory_Stg_Weekly
         op_1 = BigQueryInsertJobOperator(
             task_id="package_source2_dynamiclabel_dl_truncate_api_rf_adhoclabel_allocationhistory_stg_weekly",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -76,6 +77,7 @@ with DAG(
         # ref_id: …\Load API_RF_AdHocLabel_AllocationHistory_Stg_Weekly — pipeline → Staging (BQ: SP; ? LastID → param)
         op_3 = BigQueryInsertJobOperator(
             task_id="package_source2_dynamiclabel_dl_load_api_rf_adhoclabel_allocationhistory_stg_weekly",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -91,6 +93,7 @@ with DAG(
         # ref_id: …\Insert Into API_RF_AdHocLabel_AllocationHistory_Stg — metadata TRUNCATE+INSERT script (BQ: SP)
         op_4 = BigQueryInsertJobOperator(
             task_id="package_source2_dynamiclabel_dl_insert_into_api_rf_adhoclabel_allocationhistory_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -106,6 +109,7 @@ with DAG(
         # ref_id: …\Get Next ProcessID — metadata inline DECLARE/SELECT from Staging.LoadLog
         op_5 = BigQueryInsertJobOperator(
             task_id="package_source2_dynamiclabel_dl_get_next_processid",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -121,6 +125,7 @@ with DAG(
         # ref_id: …\Load Lastest Priced Invoices — Exec [dv].[Load_SAT_Label_Allocation_DL] ?,? (ProcessId, RecordSource2)
         op_6 = BigQueryInsertJobOperator(
             task_id="package_source2_dynamiclabel_dl_load_lastest_priced_invoices",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -135,6 +140,7 @@ with DAG(
         # ref_id: …\Update Dim_Label — metadata UPDATE … WHERE ProcessId = ? (BQ: SP)
         op_7 = BigQueryInsertJobOperator(
             task_id="package_source2_dynamiclabel_dl_update_dim_label",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (

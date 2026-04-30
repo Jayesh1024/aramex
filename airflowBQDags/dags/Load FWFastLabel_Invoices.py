@@ -10,17 +10,17 @@ ProcessId is accepted as a DAG param (SSIS does not allocate one here).
 from __future__ import annotations
 
 from datetime import datetime
-import os
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_value
 
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
 _TASK_ID_GET_LAST_HEADER = "tg_package_staging.package_staging_get_last_invoiceheaderdate"
@@ -50,6 +50,7 @@ with DAG(
         # ref_id: Package\Staging\Truncate Staging tables
         op_10 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_staging_tables",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -87,6 +88,7 @@ with DAG(
         # ref_id: Package\Staging\Load fl_InvoiceHeader_Stg — pipeline -> inferred SP (LastHeaderDate)
         op_8 = BigQueryInsertJobOperator(
             task_id="package_staging_load_fl_invoiceheader_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -102,6 +104,7 @@ with DAG(
         # ref_id: Package\Staging\Load fl_InvoicePayment_Stg — pipeline -> inferred SP (LastPaymentDate)
         op_9 = BigQueryInsertJobOperator(
             task_id="package_staging_load_fl_invoicepayment_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -123,6 +126,7 @@ with DAG(
         # ref_id: Package\Final\Load LSAT_FL_InvoiceHeader — [dv].[Load_FL_InvoiceHeader] ProcessId, RecordSource1
         op_1 = BigQueryInsertJobOperator(
             task_id="package_final_load_lsat_fl_invoiceheader",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -138,6 +142,7 @@ with DAG(
         # ref_id: Package\Final\Set Last InvoiceHeaderDate — Staging_Set_LastValue(4 args)
         op_3 = BigQueryInsertJobOperator(
             task_id="package_final_set_last_invoiceheaderdate",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -153,6 +158,7 @@ with DAG(
         # ref_id: Package\Final\Load LSAT_FL_InvoicePayment — [dv].[Load_FL_InvoicePayment] ProcessId, RecordSource2
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_load_lsat_fl_invoicepayment",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -168,6 +174,7 @@ with DAG(
         # ref_id: Package\Final\Set Last InvoicePaymentDate — Staging_Set_LastValue(4 args)
         op_4 = BigQueryInsertJobOperator(
             task_id="package_final_set_last_invoicepaymentdate",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (

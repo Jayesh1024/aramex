@@ -13,9 +13,9 @@ Truncate Stg has no dependency edges in executable_dependencies.json.
 from __future__ import annotations
 
 from datetime import datetime
-import os
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.operators.empty import EmptyOperator
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
@@ -24,9 +24,9 @@ from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_working_load_ilocate_next_id
 
 # --- Project Configuration ---
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 _TASK_ID_GET_NEXT_ID = "tg_package_sequence_container.package_sequence_container_get_next_id"
 
@@ -46,6 +46,7 @@ with DAG(
     # ref_id: Package\Copy Table
     op_0 = BigQueryInsertJobOperator(
         task_id="package_copy_table",
+        gcp_conn_id="oceania_target_sa_connection",
         configuration={
             "query": {
                 "query": (
@@ -61,6 +62,7 @@ with DAG(
     # ref_id: Package\Data Flow Task
     op_1 = BigQueryInsertJobOperator(
         task_id="package_data_flow_task",
+        gcp_conn_id="oceania_target_sa_connection",
         configuration={
             "query": {
                 "query": f"CALL `{SP_DATASET_ID}.sp_load_dv_LNK_InvoiceHead`();",
@@ -73,6 +75,7 @@ with DAG(
     # ref_id: Package\FMS_UndTcktInvoice_Load
     op_2 = BigQueryInsertJobOperator(
         task_id="package_fms_undtcktinvoice_load",
+        gcp_conn_id="oceania_target_sa_connection",
         configuration={
             "query": {
                 "query": (
@@ -88,6 +91,7 @@ with DAG(
     # ref_id: Package\Load FMS_InvoiceHead
     op_3 = BigQueryInsertJobOperator(
         task_id="package_load_fms_invoicehead",
+        gcp_conn_id="oceania_target_sa_connection",
         configuration={
             "query": {
                 "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_FMS_InvoiceHead_Stg_All`();",
@@ -114,6 +118,7 @@ with DAG(
         # ref_id: Package\Sequence Container\Load iLocate
         op_6 = BigQueryInsertJobOperator(
             task_id="package_sequence_container_load_ilocate",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -129,6 +134,7 @@ with DAG(
         # ref_id: Package\Sequence Container\Truncate Stg
         op_7 = BigQueryInsertJobOperator(
             task_id="package_sequence_container_truncate_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.working_Load_iLocate_Stg`;",
@@ -142,6 +148,7 @@ with DAG(
         _end_id = f"{{{{ (ti.xcom_pull(task_ids='{_TASK_ID_GET_NEXT_ID}') | int) + 4000000 }}}}"
         op_8 = BigQueryInsertJobOperator(
             task_id="package_sequence_container_update_lnk_scan",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (

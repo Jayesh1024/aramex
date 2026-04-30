@@ -20,18 +20,18 @@ Notes:
 """
 from __future__ import annotations
 
-import os
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_value, get_max_process_id
 import pendulum
 
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
 _TASK_ID_GET_PROCESS_ID = "tg_package_sequence_container.package_sequence_container_get_processid"
@@ -73,6 +73,7 @@ with DAG(
         # ref_id: Package\Load LA_RuraOnForwards\Truncate Staging Tables
         op_5 = BigQueryInsertJobOperator(
             task_id="package_load_la_ruraonforwards_truncate_staging_tables",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_LA_RuralOnforwards_Stg`;",
@@ -96,6 +97,7 @@ with DAG(
         # ref_id: Package\Load LA_RuraOnForwards\Data Flow Task — pipeline -> inferred SP (LastDate, StartDate, EndDate)
         op_1 = BigQueryInsertJobOperator(
             task_id="package_load_la_ruraonforwards_data_flow_task",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -113,6 +115,7 @@ with DAG(
         # ref_id: Package\Load LA_RuraOnForwards\Execute SQL Task — BQ: dv_Load_LNK_RuralOnforwards(ProcessID)
         op_2 = BigQueryInsertJobOperator(
             task_id="package_load_la_ruraonforwards_execute_sql_task",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -128,6 +131,7 @@ with DAG(
         # ref_id: Package\Load LA_RuraOnForwards\Set LastDate — Staging_Set_LastValue(4 args)
         op_4 = BigQueryInsertJobOperator(
             task_id="package_load_la_ruraonforwards_set_lastdate",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (

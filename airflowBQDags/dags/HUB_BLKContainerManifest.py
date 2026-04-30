@@ -27,17 +27,17 @@ Notes on the non-standard pieces of this package:
 from __future__ import annotations
 
 from datetime import datetime
-import os
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import allocate_negative_sentinel_processid, get_last_value
 
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
 _TASK_ID_GET_PROCESS_ID = "package_get_processid"
@@ -80,6 +80,7 @@ with DAG(
         # SSIS truncates both staging tables in one task.
         op_10 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_blk_manifest_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -95,6 +96,7 @@ with DAG(
         # ref_id: Package\Staging\Load ContainerManifest (Pipeline -> SP, no params)
         op_9 = BigQueryInsertJobOperator(
             task_id="package_staging_load_containermanifest",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_BLK_ContainerManifest_Stg`();",
@@ -119,6 +121,7 @@ with DAG(
         # ref_id: Package\Staging\Load ContainerContents (Pipeline -> SP, takes LastScanDate)
         op_8 = BigQueryInsertJobOperator(
             task_id="package_staging_load_containercontents",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -142,6 +145,7 @@ with DAG(
         # SSIS: EXEC [dv].[Load_HUB_BLKContainerManifestContents] ProcessId, RecordSource
         op_1 = BigQueryInsertJobOperator(
             task_id="package_final_load_hub_blkcontainermanifestlabel",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -157,6 +161,7 @@ with DAG(
         # ref_id: Package\Final\Load SAT_BLKContainerManifest — EXEC [dv].[Load_SAT_BLKContainerManifest] ?,?
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_blkcontainermanifest",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -172,6 +177,7 @@ with DAG(
         # ref_id: Package\Final\Load SAT_BLKContainerManifestContent — EXEC [dv].[Load_SAT_BLKContainerManifestContents] ?,?
         op_3 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_blkcontainermanifestcontent",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -189,6 +195,7 @@ with DAG(
         #        MAX(ScanDate) from Staging.BLK_ContainerManifestContents_Stg.
         op_4 = BigQueryInsertJobOperator(
             task_id="package_final_update_loadcontrol_lastscandate_blk_manifestid",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (

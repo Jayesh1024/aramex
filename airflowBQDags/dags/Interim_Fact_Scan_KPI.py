@@ -14,17 +14,17 @@ Mirrors Fact_Scan_KPI but:
 from __future__ import annotations
 
 from datetime import datetime
-import os
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import allocate_negative_sentinel_processid
 
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
 _TASK_ID_GET_PROCESS_ID = "tg_package_staging.package_staging_get_processid"
@@ -65,6 +65,7 @@ with DAG(
         # ref_id: Package\Staging\Truncate KPI Staging Tables
         op_8 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_kpi_staging_tables",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -80,6 +81,7 @@ with DAG(
         # ref_id: Package\Staging\Load KPI_Labels_Stg — Staging_Load_KPI_Labels_Stg(ProcessId, SinceScanDate, UntilScanDate, UseScanDates)
         op_7 = BigQueryInsertJobOperator(
             task_id="package_staging_load_kpi_labels_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -98,6 +100,7 @@ with DAG(
         # ref_id: Package\Staging\Load Fact_Scan_KPI_Stg — Staging_Load_Fact_Scan_KPI_Stg(ProcessId)
         op_6 = BigQueryInsertJobOperator(
             task_id="package_staging_load_fact_scan_kpi_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -118,6 +121,7 @@ with DAG(
         # ref_id: Package\Final\Load Fact_Scan_KPI — dbo_Load_Fact_Scan_KPI(ProcessId)
         op_1 = BigQueryInsertJobOperator(
             task_id="package_final_load_fact_scan_kpi",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -133,6 +137,7 @@ with DAG(
         # ref_id: Package\Final\Set Last ID (TrackAndTraceID) — interimStaging_Set_LastValue(RecordSource, NULL, NULL, 0)
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_set_last_id_trackandtraceid",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (

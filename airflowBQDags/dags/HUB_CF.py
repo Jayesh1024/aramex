@@ -11,14 +11,14 @@ from datetime import datetime
 from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
 from airflow import DAG
+from airflow.models import Variable
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
-import os
 
 # --- Project Configuration ---
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 with DAG(
     dag_id="ssis_skeleton_hub_cf",
@@ -42,6 +42,7 @@ with DAG(
         # ref_id: Package\Staging\Truncate Courier_Stg — metadata: TRUNCATE TABLE [Staging].[Courier_Stg]
         op_4 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_courier_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_Courier_Stg`",
@@ -54,6 +55,7 @@ with DAG(
         # ref_id: Package\Staging\Load Courier_Stg — destination Staging.Courier_Stg (BQ: SP replaces SSIS pipeline)
         op_3 = BigQueryInsertJobOperator(
             task_id="package_staging_load_courier_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_Courier_Stg`();",
@@ -72,6 +74,7 @@ with DAG(
         # ref_id: Package\Final\Load CF_HUB — Exec [dv].[Load_HUB_CF] ?,?
         op_1 = BigQueryInsertJobOperator(
             task_id="package_final_load_cf_hub",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     # In f-strings, `{{`/`}}` are escapes; quadruple braces so Airflow receives Jinja `{{ ... }}`.
@@ -85,6 +88,7 @@ with DAG(
         # ref_id: Package\Final\Load CF_SAT — Exec [dv].[Load_SAT_CF] ?,?
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_load_cf_sat",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.dv_Load_SAT_CF`({{{{ dag_run.conf.get(\'process_id\',params.process_id) }}}}, '{{{{ params.RecordSource }}}}');",

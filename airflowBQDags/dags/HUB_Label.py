@@ -24,9 +24,9 @@ with pure TaskGroup-level deps would require restructuring the done logic.
 from __future__ import annotations
 
 from datetime import datetime
-import os
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.operators.empty import EmptyOperator
 from airflow.operators.python import PythonOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
@@ -34,9 +34,9 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobO
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_value
 
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
 with DAG(
@@ -84,6 +84,7 @@ with DAG(
 
     op_2 = BigQueryInsertJobOperator(
         task_id="package_final_load_hub_load_hub_label",
+        gcp_conn_id="oceania_target_sa_connection",
         configuration={
             "query": {
                 "query": f"CALL `{SP_DATASET_ID}.dv_Load_HUB_Label`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});",
@@ -97,36 +98,39 @@ with DAG(
         # ref_id: Package\\Final (Load SAT_Allocation)\\Truncate SAT_Label_Allocation_Stg
         op_6 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_allocation_truncate_sat_label_allocation_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_SAT_Label_Allocation_Stg`",
                     "useLegacySql": False,
                 }
-            }
+            },
             job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\\Final (Load SAT_Allocation)\\Load SAT_Label_Allocation_Stg
         op_5 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_allocation_load_sat_label_allocation_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.staging_Load_SAT_Label_Allocation_Stg2`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});",
                     "useLegacySql": False,
                 }
-            }
+            },
             job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\\Final (Load SAT_Allocation)\\Load SAT_Label_Allocation
         op_4 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_allocation_load_sat_label_allocation",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});",
                     "useLegacySql": False,
                 }
-            }
+            },
             job_id="bq_gold_transformation_oceania",
         )
 
@@ -140,6 +144,7 @@ with DAG(
         # SSIS: Exec [dv].[Load_SAT_Label_Distribution] ProcessID, 'LabelMaster'
         op_8 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_distribution_load_sat_label_distribution",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -156,6 +161,7 @@ with DAG(
         # SSIS: Exec [Staging].[Set_LastValue] 'LabelMaster' — BQ: Staging_Set_LastValue(4 args)
         op_9 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_distribution_set_lastdate_labelmaster",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -176,6 +182,7 @@ with DAG(
             # SSIS: Exec [dv].[Load_SAT_Label_Allocation_DL] ProcessID
             op_12 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_1_load_sat_label_allocation_dl",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -192,6 +199,7 @@ with DAG(
             # SSIS: Exec [dv].[Load_SAT_Label_Allocation_EBAY] ProcessID
             op_13 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_1_load_sat_label_allocation_ebay",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -208,6 +216,7 @@ with DAG(
             # SSIS: Exec [dv].[Load_SAT_Label_Allocation_FLE] ProcessID, 'FastLabelEnterprise'
             op_14 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_1_load_sat_label_allocation_fle",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -223,6 +232,7 @@ with DAG(
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 1\\Set LastDate (DynamicLabel)
             op_15 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_1_set_lastdate_dynamiclabel",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -238,6 +248,7 @@ with DAG(
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 1\\Set LastDate (EBAY)
             op_16 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_1_set_lastdate_ebay",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -253,6 +264,7 @@ with DAG(
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 1\\Set LastDate (FastLabelEnterprise)
             op_17 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_1_set_lastdate_fastlabelenterprise",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -271,6 +283,7 @@ with DAG(
             # SSIS: Exec [dv].[Load_SAT_Label_Allocation_IFS] ProcessID, 'HDManifestID'
             op_19 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_2_load_sat_label_allocation_ifs",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -287,6 +300,7 @@ with DAG(
             # SSIS: Exec [dv].[Load_SAT_Label_Allocation_MF] ProcessID, 'MyFastway'
             op_20 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_2_load_sat_label_allocation_mf",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -303,6 +317,7 @@ with DAG(
             # SSIS: Exec [dv].[Load_SAT_Label_PickupRequests] ProcessID
             op_21 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_2_load_sat_label_pickup_requests",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -318,6 +333,7 @@ with DAG(
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 2\\Set LastDate (MyFastway)
             op_22 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_2_set_lastdate_myfastway",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -333,6 +349,7 @@ with DAG(
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 2\\Set LastID (IFS)
             op_23 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_2_set_lastid_ifs",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -351,6 +368,7 @@ with DAG(
             # SSIS: Exec [dv].[Load_SAT_Label_Allocation_FL] ProcessID
             op_25 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_3_load_sat_label_allocation_fl",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -367,6 +385,7 @@ with DAG(
             # SSIS: Exec [dv].[Load_SAT_Label_Allocation_RP] ProcessID, 'ReceiverPays'
             op_26 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_3_load_sat_label_allocation_rp",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -383,6 +402,7 @@ with DAG(
             # SSIS: Exec [dv].[Load_SAT_Label_Allocation_TMD] ProcessID, 'Temando'
             op_27 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_3_load_sat_label_allocation_tmd",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -398,6 +418,7 @@ with DAG(
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Set LastDate (FastLabel)
             op_28 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_3_set_lastdate_fastlabel",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -413,6 +434,7 @@ with DAG(
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Set LastDate (ReceiverPays)
             op_29 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_3_set_lastdate_receiverpays",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -428,6 +450,7 @@ with DAG(
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Set LastDate (Temando)
             op_30 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_3_set_lastdate_temando",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -480,6 +503,7 @@ with DAG(
             # ref_id: Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg
             op_36 = BigQueryInsertJobOperator(
                 task_id="package_staging_source1_labelmaster_load_labelmaster_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -496,12 +520,13 @@ with DAG(
             # ref_id: Package\\Staging\\Source1 (LabelMaster)\\Truncate LabelMaster_Stg
             op_38 = BigQueryInsertJobOperator(
                 task_id="package_staging_source1_labelmaster_truncate_labelmaster_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_LabelMaster_Stg`",
                         "useLegacySql": False,
                     }
-                }
+                },
                 job_id="bq_gold_transformation_oceania",
             )
 
@@ -520,6 +545,7 @@ with DAG(
             # ref_id: Package\\Staging\\Source10 (EBAY) _EBAY\\Load Ebay_labels_Stg
             op_41 = BigQueryInsertJobOperator(
                 task_id="package_staging_source10_ebay_ebay_load_ebay_labels_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -535,6 +561,7 @@ with DAG(
             # ref_id: Package\\Staging\\Source10 (EBAY) _EBAY\\Truncate Ebay_labels_Stg
             op_43 = BigQueryInsertJobOperator(
                 task_id="package_staging_source10_ebay_ebay_truncate_ebay_labels_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -561,6 +588,7 @@ with DAG(
             # ref_id: Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Load fl_ConItemSrv_Stg
             op_46 = BigQueryInsertJobOperator(
                 task_id="package_staging_source11_myfastwaysrv_mf_2_load_fl_conitemsrv_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -576,6 +604,7 @@ with DAG(
             # ref_id: Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Truncate fl_ConItemSrv_Stg
             op_48 = BigQueryInsertJobOperator(
                 task_id="package_staging_source11_myfastwaysrv_mf_2_truncate_fl_conitemsrv_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -591,6 +620,7 @@ with DAG(
             # ref_id: Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (AU)
             op_50 = BigQueryInsertJobOperator(
                 task_id="package_staging_source13_pickuprequests_load_pickup_requests_au",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -605,6 +635,7 @@ with DAG(
             # ref_id: Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (NZ)
             op_51 = BigQueryInsertJobOperator(
                 task_id="package_staging_source13_pickuprequests_load_pickup_requests_nz",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -619,6 +650,7 @@ with DAG(
             # ref_id: Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (SA)
             op_52 = BigQueryInsertJobOperator(
                 task_id="package_staging_source13_pickuprequests_load_pickup_requests_sa",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -633,6 +665,7 @@ with DAG(
             # ref_id: Package\\Staging\\Source13 (PickupRequests)\\Truncate Staging Tables
             op_53 = BigQueryInsertJobOperator(
                 task_id="package_staging_source13_pickuprequests_truncate_staging_tables",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -660,6 +693,7 @@ with DAG(
             # ref_id: Package\\Staging\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg
             op_56 = BigQueryInsertJobOperator(
                 task_id="package_staging_source2_dynamiclabel_dl_load_api_rf_adhoclabel_allocationhistory_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -676,12 +710,13 @@ with DAG(
             # ref_id: Package\\Staging\\Source2 (DynamicLabel) _DL\\Truncate API_RF_AdHocLabel_AllocationHistory_Stg
             op_58 = BigQueryInsertJobOperator(
                 task_id="package_staging_source2_dynamiclabel_dl_truncate_api_rf_adhoclabel_allocationhistory_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_API_RF_AdHocLabel_AllocationHistory_Stg`",
                         "useLegacySql": False,
                     }
-                }
+                },
                 job_id="bq_gold_transformation_oceania",
             )
 
@@ -700,6 +735,7 @@ with DAG(
             # ref_id: Package\\Staging\\Source3 (FastLabel) _FL\\Load tblFastLabel_Consignment_Stg
             op_61 = BigQueryInsertJobOperator(
                 task_id="package_staging_source3_fastlabel_fl_load_tblfastlabel_consignment_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -715,6 +751,7 @@ with DAG(
             # ref_id: Package\\Staging\\Source3 (FastLabel) _FL\\Truncate tblFastLabel_Consignment_Stg
             op_63 = BigQueryInsertJobOperator(
                 task_id="package_staging_source3_fastlabel_fl_truncate_tblfastlabel_consignment_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -741,6 +778,7 @@ with DAG(
             # ref_id: Package\\Staging\\Source4 (MyFastway) _MF\\Load fl_ConItem_Stg
             op_66 = BigQueryInsertJobOperator(
                 task_id="package_staging_source4_myfastway_mf_load_fl_conitem_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -756,6 +794,7 @@ with DAG(
             # ref_id: Package\\Staging\\Source4 (MyFastway) _MF\\Truncate fl_ConItem_Stg
             op_68 = BigQueryInsertJobOperator(
                 task_id="package_staging_source4_myfastway_mf_truncate_fl_conitem_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -782,6 +821,7 @@ with DAG(
             # ref_id: Package\\Staging\\Source5 (HDManifest) _IFS\\Load HDManifests_Stg
             op_71 = BigQueryInsertJobOperator(
                 task_id="package_staging_source5_hdmanifest_ifs_load_hdmanifests_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -797,6 +837,7 @@ with DAG(
             # ref_id: Package\\Staging\\Source5 (HDManifest) _IFS\\Truncate HDManifests_Stg
             op_73 = BigQueryInsertJobOperator(
                 task_id="package_staging_source5_hdmanifest_ifs_truncate_hdmanifests_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -823,6 +864,7 @@ with DAG(
             # ref_id: Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Load ConsignmentItem_Stg
             op_76 = BigQueryInsertJobOperator(
                 task_id="package_staging_source6_fastlabelenterprise_fle_load_consignmentitem_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -838,6 +880,7 @@ with DAG(
             # ref_id: Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Truncate ConsignmentItem_Stg
             op_78 = BigQueryInsertJobOperator(
                 task_id="package_staging_source6_fastlabelenterprise_fle_truncate_consignmentitem_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -864,6 +907,7 @@ with DAG(
             # ref_id: Package\\Staging\\Source7 (Temando) _TMD\\Load API_Temando_RequestLabel_Stg
             op_81 = BigQueryInsertJobOperator(
                 task_id="package_staging_source7_temando_tmd_load_api_temando_requestlabel_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -879,6 +923,7 @@ with DAG(
             # ref_id: Package\\Staging\\Source7 (Temando) _TMD\\Truncate API_Temando_RequestLabel_Stg
             op_83 = BigQueryInsertJobOperator(
                 task_id="package_staging_source7_temando_tmd_truncate_api_temando_requestlabel_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -905,6 +950,7 @@ with DAG(
             # ref_id: Package\\Staging\\Source8 (ReceiverPays) _RP\\Load tblOnlineEnquiry_RP_Stg
             op_86 = BigQueryInsertJobOperator(
                 task_id="package_staging_source8_receiverpays_rp_load_tblonlineenquiry_rp_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (
@@ -920,6 +966,7 @@ with DAG(
             # ref_id: Package\\Staging\\Source8 (ReceiverPays) _RP\\Truncate tblOnlineEnquiry_RP_Stg
             op_88 = BigQueryInsertJobOperator(
                 task_id="package_staging_source8_receiverpays_rp_truncate_tblonlineenquiry_rp_stg",
+                gcp_conn_id="oceania_target_sa_connection",
                 configuration={
                     "query": {
                         "query": (

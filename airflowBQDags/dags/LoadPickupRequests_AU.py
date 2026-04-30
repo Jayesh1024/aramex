@@ -52,18 +52,18 @@ INSERT / UPDATE / SELECT) go to `TARGET_DATASET_ID`.
 from __future__ import annotations
 
 from datetime import datetime
-import os
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.operators.empty import EmptyOperator
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 from utils.getValue import get_last_ct_version, get_next_ct_version_null
 
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 _TASK_ID_GET_LAST_CT = "package_get_last_ct_version"
 _TASK_ID_GET_NEXT_CT = "package_get_next_ct_version"
@@ -129,6 +129,7 @@ with DAG(
         # SSIS: TRUNCATE TABLE [Staging].[PickupRequest_AU_Stg];
         op_truncate_pickuprequests_stg = BigQueryInsertJobOperator(
             task_id="package_pickup_requests_truncate_pickuprequests_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -138,7 +139,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
             job_id="bq_gold_transformation_oceania",
         )
 
@@ -150,6 +151,7 @@ with DAG(
         # respect the (LastVersion, IsReload) signature bound in SSIS.
         op_get_pickuprequests_au = BigQueryInsertJobOperator(
             task_id="package_pickup_requests_get_pickuprequests_au",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -160,7 +162,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
             job_id="bq_gold_transformation_oceania",
         )
 
@@ -171,6 +173,7 @@ with DAG(
         # Fully deterministic from per_component_data in package_metadata.json.
         op_copy_country_staging = BigQueryInsertJobOperator(
             task_id="package_pickup_requests_copy_country_staging_to_pickuprequest_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -222,7 +225,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
             job_id="bq_gold_transformation_oceania",
         )
 
@@ -230,6 +233,7 @@ with DAG(
         # SSIS: exec dv.Load_CT_SAT_Label_PickupRequests_AU ?  (binds @ProcessID)
         op_load_target_table = BigQueryInsertJobOperator(
             task_id="package_pickup_requests_load_target_table",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -239,7 +243,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
             job_id="bq_gold_transformation_oceania",
         )
 
@@ -261,6 +265,7 @@ with DAG(
     # ensures we don't touch any row when the CT version is unavailable.
     op_set_next_ct_version = BigQueryInsertJobOperator(
         task_id="package_set_next_ct_version",
+        gcp_conn_id="oceania_target_sa_connection",
         configuration={
             "query": {
                 "query": (
@@ -272,7 +277,7 @@ with DAG(
                 "useLegacySql": False,
             }
         },
-        gcp_conn_id="google_cloud_default",
+        gcp_conn_id="oceania_target_sa_connection",
         job_id="bq_gold_transformation_oceania",
     )
 

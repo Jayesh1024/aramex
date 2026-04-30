@@ -11,17 +11,16 @@ GCP naming (from SQL Server metadata in outputs/ and Packages/):
 from __future__ import annotations
 
 from datetime import datetime
-import os
-
+from airflow.models import Variable
 from airflow import DAG
 from airflow.utils.task_group import TaskGroup
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from utils.getValue import get_last_value
 
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
 # params.RecordSource2 is the HUB_Invoice.dtsx $Package::RecordSource2 value
@@ -60,6 +59,7 @@ with DAG(
         # ref_id: Package\\Final\\Load HUB_Invoice — SSIS: Exec [dv].[Load_HUB_Invoice] ProcessId, RecordSource
         op_4 = BigQueryInsertJobOperator(
             task_id="package_final_load_hub_invoice",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -69,7 +69,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
             job_id="bq_gold_transformation_oceania",
         )
 
@@ -77,6 +77,7 @@ with DAG(
         # BQ SP: dv_Load_Label_Invoices(p_ProcessID, p_Start_Date STRING, p_End_Date STRING); NULL end → SP uses CURRENT_DATETIME() window (see SP body).
         op_9 = BigQueryInsertJobOperator(
             task_id="package_final_load_label_invoices",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -88,13 +89,14 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
             job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\\Final\\Load_LNK_InvoiceLine — SSIS: Exec [dv].[Load_LNK_InvoiceLine] ProcessId
         op_5 = BigQueryInsertJobOperator(
             task_id="package_final_load_lnk_invoiceline",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -104,13 +106,14 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
             job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\\Final\\Load_LNK_Invoice_Label — SSIS: Exec [dv].[Load_LNK_Invoice_Label] ProcessId
         op_6 = BigQueryInsertJobOperator(
             task_id="package_final_load_lnk_invoice_label",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -120,13 +123,14 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
             job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\\Final\\Load_LSAT_InvoiceHead — SSIS: EXEC dv.Load_LSAT_InvoiceHead ProcessId
         op_7 = BigQueryInsertJobOperator(
             task_id="package_final_load_lsat_invoicehead",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -136,13 +140,14 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
             job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\\Final\\Load_LSAT_InvoiceLine — SSIS: Exec [dv].[Load_LSAT_InvoiceLine] ProcessId
         op_8 = BigQueryInsertJobOperator(
             task_id="package_final_load_lsat_invoiceline",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -152,13 +157,14 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
             job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\\Final\\Set LastDate (FMS_Invoice) — SSIS: Exec [Staging].[Set_LastValue]; BQ: Staging_Set_LastValue(p_RecordSource, p_ColumnName, p_LastValue, p_Force)
         op_10 = BigQueryInsertJobOperator(
             task_id="package_final_set_lastdate_fms_invoice",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -170,7 +176,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default"
+            gcp_conn_id="oceania_target_sa_connection",
             job_id="bq_gold_transformation_oceania",
         )
 
@@ -180,6 +186,7 @@ with DAG(
         # ref_id: Package\\Final UndTcktInvoice\\Load UndTckt Invoice — SSIS: Exec [dbo].[Load_UndTckt_Invoice] ProcessId
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_undtcktinvoice_load_undtckt_invoice",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -188,13 +195,14 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
             job_id="bq_gold_transformation_oceania",
         )
 
         # ref_id: Package\\Final UndTcktInvoice\\Set LastDate (UndTckt Invoice) — SSIS binds $RecordSource2; BQ: Staging_Set_LastValue(4 args)
         op_3 = BigQueryInsertJobOperator(
             task_id="package_final_undtcktinvoice_set_lastdate_undtckt_invoice",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -204,7 +212,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
             job_id="bq_gold_transformation_oceania",
         )
 
@@ -214,6 +222,7 @@ with DAG(
         # ref_id: Package\\Staging\\Truncate Staging tables
         op_20 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_staging_tables",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -225,7 +234,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
             job_id="bq_gold_transformation_oceania",
         )
 
@@ -244,6 +253,7 @@ with DAG(
         # SSIS: OLE DB … → [Staging].[FMS_InvoiceBooks_Stg]; BQ: sp_load_Staging_FMS_InvoiceBooks_Stg
         op_17 = BigQueryInsertJobOperator(
             task_id="package_staging_load_fms_invoicebooks_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -253,7 +263,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
             job_id="bq_gold_transformation_oceania",
         )
 
@@ -261,6 +271,7 @@ with DAG(
         # SSIS: … → [Staging].[FMS_InvoiceHead_Stg]; BQ: sp_load_Staging_FMS_InvoiceHead_Stg
         op_18 = BigQueryInsertJobOperator(
             task_id="package_staging_load_fms_invoicehead_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -270,7 +281,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
             job_id="bq_gold_transformation_oceania",
         )
 
@@ -278,6 +289,7 @@ with DAG(
         # SSIS: … → [Staging].[FMS_InvoiceLines_Stg]; BQ: sp_load_Staging_FMS_InvoiceLines_Stg
         op_19 = BigQueryInsertJobOperator(
             task_id="package_staging_load_fms_invoicelines_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -287,7 +299,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
             job_id="bq_gold_transformation_oceania",
         )
 
@@ -298,6 +310,7 @@ with DAG(
         # ref_id: Package\\Staging UndTcktInvoice\\Truncate Staging tables — SSIS: TRUNCATE [Staging].[FMS_UndTcktInvoice_Stg]
         op_15 = BigQueryInsertJobOperator(
             task_id="package_staging_undtcktinvoice_truncate_staging_tables",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -306,7 +319,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
             job_id="bq_gold_transformation_oceania",
         )
 
@@ -324,6 +337,7 @@ with DAG(
         # ref_id: Package\\Staging UndTcktInvoice\\FMS_UndTcktInvoice_Load — SSIS: … → [Staging].[FMS_UndTcktInvoice_Stg]; BQ: sp_load_Staging_FMS_UndTcktInvoice_Stg
         op_13 = BigQueryInsertJobOperator(
             task_id="package_staging_undtcktinvoice_fms_undtcktinvoice_load",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -333,7 +347,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
             job_id="bq_gold_transformation_oceania",
         )
 

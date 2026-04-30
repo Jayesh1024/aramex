@@ -22,15 +22,15 @@ SPs resolved against `ProceduresBQ/sp_json.json` and `SP.json`:
 from __future__ import annotations
 
 from datetime import datetime
-import os
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
 with DAG(
@@ -56,6 +56,7 @@ with DAG(
         # ref_id: Package\Staging\Truncate KPI Staging Tables
         op_8 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_kpi_staging_tables",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -71,6 +72,7 @@ with DAG(
         # ref_id: Package\Staging\Load KPI_Labels_Src_Stg — Exec [Staging].[Load_Fact_KPI_Src_Stg] ProcessId, StartDateOverRide, EndDateOverRide
         op_7 = BigQueryInsertJobOperator(
             task_id="package_staging_load_kpi_labels_src_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -88,6 +90,7 @@ with DAG(
         # ref_id: Package\Staging\Load Fact_KPI_Daily_Stg — Exec [Staging].[Load_Fact_KPI_Daily_Stg] ProcessId
         op_6 = BigQueryInsertJobOperator(
             task_id="package_staging_load_fact_kpi_daily_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -110,6 +113,7 @@ with DAG(
         # ref_id: Package\Final\Load Fact KPI Labels — Exec [dbo].[Load_Fact_KPI_Daily] ProcessId
         op_1 = BigQueryInsertJobOperator(
             task_id="package_final_load_fact_kpi_labels",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -125,6 +129,7 @@ with DAG(
         # ref_id: Package\Final\Load Fact_KPI_Priority — EXEC [dbo].[Load_Fact_KPI_Priority] ProcessId
         op_3 = BigQueryInsertJobOperator(
             task_id="package_final_load_fact_kpi_priority",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -140,6 +145,7 @@ with DAG(
         # ref_id: Package\Final\Load Fact KPI Performance — Exec [dbo].[Load_Fact_KPI_Performance] ProcessId
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_load_fact_kpi_performance",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (

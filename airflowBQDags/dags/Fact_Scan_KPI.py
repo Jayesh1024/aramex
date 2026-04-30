@@ -10,15 +10,15 @@ No RecordSource in package metadata.
 from __future__ import annotations
 
 from datetime import datetime
-import os
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
 
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-SP_DATASET_ID = os.getenv("SP_DATASET_ID")
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
 # --- Project Configuration ---
@@ -46,6 +46,7 @@ with DAG(
         # ref_id: Package\Staging\Truncate KPI Staging Tables — [Staging].[KPI_Labels_Stg], [Staging].[Fact_Scan_KPI_Stg]
         op_1 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_kpi_staging_tables",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -61,6 +62,7 @@ with DAG(
         # ref_id: Package\Staging\Load KPI_Labels_Stg — Exec [Staging].[Load_KPI_Labels_Stg] (ProcessId, SinceScanDate, UntilScanDate, UseScanDates)
         op_2 = BigQueryInsertJobOperator(
             task_id="package_staging_load_kpi_labels_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -75,6 +77,7 @@ with DAG(
         # ref_id: Package\Staging\Load Fact_Scan_KPI_Stg — Exec [Staging].[Load_Fact_Scan_KPI_Stg]
         op_3 = BigQueryInsertJobOperator(
             task_id="package_staging_load_fact_scan_kpi_stg",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
@@ -94,6 +97,7 @@ with DAG(
         # ref_id: Package\Final\Load Fact_Scan_KPI — Exec [dbo].[Load_Fact_Scan_KPI]
         op_4 = BigQueryInsertJobOperator(
             task_id="package_final_load_fact_scan_kpi",
+            gcp_conn_id="oceania_target_sa_connection",
             configuration={
                 "query": {
                     "query": (
