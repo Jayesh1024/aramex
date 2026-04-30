@@ -89,7 +89,6 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="oceania_target_sa_connection",
             job_id="bq_gold_transformation_oceania",
         )
 
