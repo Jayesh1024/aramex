@@ -68,6 +68,7 @@ with DAG(
         op_21 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_staging_tables",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -106,6 +107,7 @@ with DAG(
         op_19 = BigQueryInsertJobOperator(
             task_id="package_staging_load_trackandtrace_signatureai",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -122,6 +124,7 @@ with DAG(
         op_20 = BigQueryInsertJobOperator(
             task_id="package_staging_load_trackandtrace_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -148,6 +151,7 @@ with DAG(
             op_10 = BigQueryInsertJobOperator(
                 task_id="package_final_load_lnk_truncate_staging_tables",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -164,6 +168,7 @@ with DAG(
             op_5 = BigQueryInsertJobOperator(
                 task_id="package_final_load_lnk_interim_load_scans_stg",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -180,6 +185,7 @@ with DAG(
             op_8 = BigQueryInsertJobOperator(
                 task_id="package_final_load_lnk_load_lnk_scan_stg",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -196,6 +202,7 @@ with DAG(
             op_6 = BigQueryInsertJobOperator(
                 task_id="package_final_load_lnk_load_lnk_scan",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -212,6 +219,7 @@ with DAG(
             op_7 = BigQueryInsertJobOperator(
                 task_id="package_final_load_lnk_load_lnk_scan_signatures",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -228,6 +236,7 @@ with DAG(
             op_9 = BigQueryInsertJobOperator(
                 task_id="package_final_load_lnk_set_last_id_trackandtraceid_now_in_interim_fact_scan_kpi",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -250,6 +259,7 @@ with DAG(
             op_12 = BigQueryInsertJobOperator(
                 task_id="package_final_load_signatureai_load_lnk_signatureai",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -266,6 +276,7 @@ with DAG(
             op_13 = BigQueryInsertJobOperator(
                 task_id="package_final_load_signatureai_set_last_id_signatureai",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (

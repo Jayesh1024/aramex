@@ -51,6 +51,7 @@ with DAG(
         op_10 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_customerlinks_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_CustomerLinks_Stg`;",
@@ -64,6 +65,7 @@ with DAG(
         op_11 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_fms_customer_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_FMS_Customer_Stg`;",
@@ -78,6 +80,7 @@ with DAG(
         op_12 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_ifscustomers_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_IFSCustomers_Stg`;",
@@ -93,6 +96,7 @@ with DAG(
         op_13 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_tblcustomer_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -109,6 +113,7 @@ with DAG(
         op_6 = BigQueryInsertJobOperator(
             task_id="package_staging_load_customerlinks_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_CustomerLinks_Stg`();",
@@ -122,6 +127,7 @@ with DAG(
         op_7 = BigQueryInsertJobOperator(
             task_id="package_staging_load_fms_customer_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_FMS_Customer_Stg`();",
@@ -135,6 +141,7 @@ with DAG(
         op_8 = BigQueryInsertJobOperator(
             task_id="package_staging_load_ifscustomers_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_IFSCustomers_Stg`();",
@@ -148,6 +155,7 @@ with DAG(
         op_9 = BigQueryInsertJobOperator(
             task_id="package_staging_load_tblcustomer_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_tblCustomer_Stg`();",
@@ -169,6 +177,7 @@ with DAG(
         op_1 = BigQueryInsertJobOperator(
             task_id="package_final_load_hub_customer",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -185,6 +194,7 @@ with DAG(
         op_3 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_customer",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -201,6 +211,7 @@ with DAG(
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_load_sal_customer",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (

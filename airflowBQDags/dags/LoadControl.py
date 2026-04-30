@@ -118,6 +118,7 @@ with DAG(
     op_18 = BigQueryInsertJobOperator(
         task_id="package_reserve_processid",
         gcp_conn_id="oceania_target_sa_connection",
+        location="europe-west2",
         configuration={
             "query": {
                 "query": _reserve_process_sql,
@@ -227,6 +228,7 @@ with DAG(
         op_6 = BigQueryInsertJobOperator(
             task_id="package_load_dim_tables_load_dim_label",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -246,6 +248,7 @@ with DAG(
         op_20 = BigQueryInsertJobOperator(
             task_id="package_send_notification_email_get_summary_data",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (

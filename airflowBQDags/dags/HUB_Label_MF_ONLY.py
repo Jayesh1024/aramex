@@ -69,6 +69,7 @@ with DAG(
         op_9 = BigQueryInsertJobOperator(
             task_id="package_source4_myfastway_mf_truncate_fl_conitem_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_fl_ConItem_Stg`;",
@@ -82,6 +83,7 @@ with DAG(
         op_7 = BigQueryInsertJobOperator(
             task_id="package_source4_myfastway_mf_load_fl_conitem_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -102,6 +104,7 @@ with DAG(
         op_5 = BigQueryInsertJobOperator(
             task_id="package_sequence_container_truncate_sat_label_allocation_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": "\n".join(
@@ -118,6 +121,7 @@ with DAG(
         op_3 = BigQueryInsertJobOperator(
             task_id="package_sequence_container_load_sat_label_allocation_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -134,6 +138,7 @@ with DAG(
         op_1 = BigQueryInsertJobOperator(
             task_id="package_sequence_container_load_sat_label_allocation",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -150,6 +155,7 @@ with DAG(
         op_2 = BigQueryInsertJobOperator(
             task_id="package_sequence_container_load_sat_label_allocation_mf",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -166,6 +172,7 @@ with DAG(
         op_4 = BigQueryInsertJobOperator(
             task_id="package_sequence_container_set_lastdate_myfastway",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (

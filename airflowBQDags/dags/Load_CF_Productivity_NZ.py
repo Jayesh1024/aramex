@@ -13,6 +13,7 @@ with DAG(
     op_1 = BigQueryInsertJobOperator(
         task_id="trigger_load_cf_productivity_nz",
         gcp_conn_id="oceania_target_sa_connection",
+        location="europe-west2",
         configuration={
             "query": {
                 "query": "CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_Load_CF_Productivity_NZ`(-1717);",

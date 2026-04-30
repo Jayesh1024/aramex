@@ -85,6 +85,7 @@ with DAG(
     op_2 = BigQueryInsertJobOperator(
         task_id="package_final_load_hub_load_hub_label",
         gcp_conn_id="oceania_target_sa_connection",
+        location="europe-west2",
         configuration={
             "query": {
                 "query": f"CALL `{SP_DATASET_ID}.dv_Load_HUB_Label`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});",
@@ -99,6 +100,7 @@ with DAG(
         op_6 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_allocation_truncate_sat_label_allocation_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_SAT_Label_Allocation_Stg`",
@@ -112,6 +114,7 @@ with DAG(
         op_5 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_allocation_load_sat_label_allocation_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.staging_Load_SAT_Label_Allocation_Stg2`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});",
@@ -125,6 +128,7 @@ with DAG(
         op_4 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_allocation_load_sat_label_allocation",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});",
@@ -145,6 +149,7 @@ with DAG(
         op_8 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_distribution_load_sat_label_distribution",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -162,6 +167,7 @@ with DAG(
         op_9 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_distribution_set_lastdate_labelmaster",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -183,6 +189,7 @@ with DAG(
             op_12 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_1_load_sat_label_allocation_dl",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -200,6 +207,7 @@ with DAG(
             op_13 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_1_load_sat_label_allocation_ebay",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -217,6 +225,7 @@ with DAG(
             op_14 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_1_load_sat_label_allocation_fle",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -233,6 +242,7 @@ with DAG(
             op_15 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_1_set_lastdate_dynamiclabel",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -249,6 +259,7 @@ with DAG(
             op_16 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_1_set_lastdate_ebay",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -265,6 +276,7 @@ with DAG(
             op_17 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_1_set_lastdate_fastlabelenterprise",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -284,6 +296,7 @@ with DAG(
             op_19 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_2_load_sat_label_allocation_ifs",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -301,6 +314,7 @@ with DAG(
             op_20 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_2_load_sat_label_allocation_mf",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -318,6 +332,7 @@ with DAG(
             op_21 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_2_load_sat_label_pickup_requests",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -334,6 +349,7 @@ with DAG(
             op_22 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_2_set_lastdate_myfastway",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -350,6 +366,7 @@ with DAG(
             op_23 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_2_set_lastid_ifs",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -369,6 +386,7 @@ with DAG(
             op_25 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_3_load_sat_label_allocation_fl",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -386,6 +404,7 @@ with DAG(
             op_26 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_3_load_sat_label_allocation_rp",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -403,6 +422,7 @@ with DAG(
             op_27 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_3_load_sat_label_allocation_tmd",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -419,6 +439,7 @@ with DAG(
             op_28 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_3_set_lastdate_fastlabel",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -435,6 +456,7 @@ with DAG(
             op_29 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_3_set_lastdate_receiverpays",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -451,6 +473,7 @@ with DAG(
             op_30 = BigQueryInsertJobOperator(
                 task_id="package_final_load_sat_label_allocation_group_3_set_lastdate_temando",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -504,6 +527,7 @@ with DAG(
             op_36 = BigQueryInsertJobOperator(
                 task_id="package_staging_source1_labelmaster_load_labelmaster_stg",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -521,6 +545,7 @@ with DAG(
             op_38 = BigQueryInsertJobOperator(
                 task_id="package_staging_source1_labelmaster_truncate_labelmaster_stg",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_LabelMaster_Stg`",
@@ -546,6 +571,7 @@ with DAG(
             op_41 = BigQueryInsertJobOperator(
                 task_id="package_staging_source10_ebay_ebay_load_ebay_labels_stg",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -562,6 +588,7 @@ with DAG(
             op_43 = BigQueryInsertJobOperator(
                 task_id="package_staging_source10_ebay_ebay_truncate_ebay_labels_stg",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -589,6 +616,7 @@ with DAG(
             op_46 = BigQueryInsertJobOperator(
                 task_id="package_staging_source11_myfastwaysrv_mf_2_load_fl_conitemsrv_stg",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -605,6 +633,7 @@ with DAG(
             op_48 = BigQueryInsertJobOperator(
                 task_id="package_staging_source11_myfastwaysrv_mf_2_truncate_fl_conitemsrv_stg",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -621,6 +650,7 @@ with DAG(
             op_50 = BigQueryInsertJobOperator(
                 task_id="package_staging_source13_pickuprequests_load_pickup_requests_au",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -636,6 +666,7 @@ with DAG(
             op_51 = BigQueryInsertJobOperator(
                 task_id="package_staging_source13_pickuprequests_load_pickup_requests_nz",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -651,6 +682,7 @@ with DAG(
             op_52 = BigQueryInsertJobOperator(
                 task_id="package_staging_source13_pickuprequests_load_pickup_requests_sa",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -666,6 +698,7 @@ with DAG(
             op_53 = BigQueryInsertJobOperator(
                 task_id="package_staging_source13_pickuprequests_truncate_staging_tables",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -694,6 +727,7 @@ with DAG(
             op_56 = BigQueryInsertJobOperator(
                 task_id="package_staging_source2_dynamiclabel_dl_load_api_rf_adhoclabel_allocationhistory_stg",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -711,6 +745,7 @@ with DAG(
             op_58 = BigQueryInsertJobOperator(
                 task_id="package_staging_source2_dynamiclabel_dl_truncate_api_rf_adhoclabel_allocationhistory_stg",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_API_RF_AdHocLabel_AllocationHistory_Stg`",
@@ -736,6 +771,7 @@ with DAG(
             op_61 = BigQueryInsertJobOperator(
                 task_id="package_staging_source3_fastlabel_fl_load_tblfastlabel_consignment_stg",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -752,6 +788,7 @@ with DAG(
             op_63 = BigQueryInsertJobOperator(
                 task_id="package_staging_source3_fastlabel_fl_truncate_tblfastlabel_consignment_stg",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -779,6 +816,7 @@ with DAG(
             op_66 = BigQueryInsertJobOperator(
                 task_id="package_staging_source4_myfastway_mf_load_fl_conitem_stg",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -795,6 +833,7 @@ with DAG(
             op_68 = BigQueryInsertJobOperator(
                 task_id="package_staging_source4_myfastway_mf_truncate_fl_conitem_stg",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -822,6 +861,7 @@ with DAG(
             op_71 = BigQueryInsertJobOperator(
                 task_id="package_staging_source5_hdmanifest_ifs_load_hdmanifests_stg",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -838,6 +878,7 @@ with DAG(
             op_73 = BigQueryInsertJobOperator(
                 task_id="package_staging_source5_hdmanifest_ifs_truncate_hdmanifests_stg",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -865,6 +906,7 @@ with DAG(
             op_76 = BigQueryInsertJobOperator(
                 task_id="package_staging_source6_fastlabelenterprise_fle_load_consignmentitem_stg",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -881,6 +923,7 @@ with DAG(
             op_78 = BigQueryInsertJobOperator(
                 task_id="package_staging_source6_fastlabelenterprise_fle_truncate_consignmentitem_stg",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -908,6 +951,7 @@ with DAG(
             op_81 = BigQueryInsertJobOperator(
                 task_id="package_staging_source7_temando_tmd_load_api_temando_requestlabel_stg",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -924,6 +968,7 @@ with DAG(
             op_83 = BigQueryInsertJobOperator(
                 task_id="package_staging_source7_temando_tmd_truncate_api_temando_requestlabel_stg",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -951,6 +996,7 @@ with DAG(
             op_86 = BigQueryInsertJobOperator(
                 task_id="package_staging_source8_receiverpays_rp_load_tblonlineenquiry_rp_stg",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (
@@ -967,6 +1013,7 @@ with DAG(
             op_88 = BigQueryInsertJobOperator(
                 task_id="package_staging_source8_receiverpays_rp_truncate_tblonlineenquiry_rp_stg",
                 gcp_conn_id="oceania_target_sa_connection",
+                location="europe-west2",
                 configuration={
                     "query": {
                         "query": (

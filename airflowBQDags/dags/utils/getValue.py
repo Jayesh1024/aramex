@@ -82,7 +82,7 @@ def _normalize_load_control_last_value(value):
 def get_last_value(project_id: str, dataset_id: str, record_source: str):
     """Call Staging_Get_LastValue; record_source must match Staging_LoadControl.RecordSource."""
     escaped = _escape_sql_literal(record_source)
-    hook = BigQueryHook(project_id=project_id, gcp_conn_id="oceania_target_sa_connection")
+    hook = BigQueryHook(project_id=project_id, gcp_conn_id="oceania_target_sa_connection", location="europe-west2")
     query = f"CALL `{project_id}.{dataset_id}.Staging_Get_LastValue`('{escaped}')"
 
     raw = hook.get_pandas_df(sql=query, dialect="standard").iloc[0, 0]
@@ -92,7 +92,7 @@ def get_last_value(project_id: str, dataset_id: str, record_source: str):
 
 def get_next_process_id(project_id: str, dataset_id: str) -> int:
     """IFNULL(MAX(ProcessId),0)+1 from Staging_LoadLog — SSIS LoadControl «Get Next ProcessID»."""
-    hook = BigQueryHook(project_id=project_id, gcp_conn_id="oceania_target_sa_connection")
+    hook = BigQueryHook(project_id=project_id, gcp_conn_id="oceania_target_sa_connection", location="europe-west2")
     query = (
         f"SELECT IFNULL(MAX(ProcessId), 0) + 1 AS NextProcessId "
         f"FROM `{project_id}.{dataset_id}.Staging_LoadLog`"
@@ -110,7 +110,7 @@ def allocate_dashboard_processid(project_id: str, dataset_id: str) -> int:
           FROM [Staging].[LoadLog];
         SELECT IsNull(@ProcessId, 0) - 1 AS NextProcessId;
     """
-    hook = BigQueryHook(project_id=project_id, gcp_conn_id="oceania_target_sa_connection")
+    hook = BigQueryHook(project_id=project_id, gcp_conn_id="oceania_target_sa_connection", location="europe-west2")
     query = (
         "WITH s AS ("
         "  SELECT MIN(ProcessId) AS min_pid "
@@ -131,7 +131,7 @@ def allocate_negative_sentinel_processid(project_id: str, dataset_id: str) -> in
           FROM Staging.LoadLog
          WHERE ProcessID < -99999;
     """
-    hook = BigQueryHook(project_id=project_id, gcp_conn_id="oceania_target_sa_connection")
+    hook = BigQueryHook(project_id=project_id, gcp_conn_id="oceania_target_sa_connection", location="europe-west2")
     query = (
         "SELECT IFNULL(MIN(ProcessID), -99999) - 1 AS ProcessID "
         f"FROM `{project_id}.{dataset_id}.Staging_LoadLog` "
@@ -143,7 +143,7 @@ def allocate_negative_sentinel_processid(project_id: str, dataset_id: str) -> in
 
 def get_max_process_id(project_id: str, dataset_id: str) -> int:
     """LNK_RuralOnFowards «Get ProcessID» — just `MAX(ProcessID)` from Staging_LoadLog."""
-    hook = BigQueryHook(project_id=project_id, gcp_conn_id="oceania_target_sa_connection")
+    hook = BigQueryHook(project_id=project_id, gcp_conn_id="oceania_target_sa_connection", location="europe-west2")
     query = (
         f"SELECT IFNULL(MAX(ProcessID), 0) AS ProcessID "
         f"FROM `{project_id}.{dataset_id}.Staging_LoadLog`"
@@ -164,7 +164,7 @@ def get_max_id(
     executes::
         SELECT LastID = MAX(ID) FROM [Staging].[TrackAndTrace_Stg];
     """
-    hook = BigQueryHook(project_id=project_id, gcp_conn_id="oceania_target_sa_connection")
+    hook = BigQueryHook(project_id=project_id, gcp_conn_id="oceania_target_sa_connection", location="europe-west2")
     query = (
         f"SELECT IFNULL(MAX(`{id_column}`), 0) AS LastId "
         f"FROM `{project_id}.{dataset_id}.{table_name}`"
@@ -189,7 +189,7 @@ def get_last_value_scans(
     The SP SELECTs `(LastId, LastDate, EndDate)` — we pull `LastDate`.
     """
     escaped = _escape_sql_literal(record_source)
-    hook = BigQueryHook(project_id=project_id, gcp_conn_id="oceania_target_sa_connection")
+    hook = BigQueryHook(project_id=project_id, gcp_conn_id="oceania_target_sa_connection", location="europe-west2")
     query = (
         f"CALL `{project_id}.{dataset_id}.Staging_Get_LastValue_Scans`("
         f"'{escaped}', '{calc_method}', NULL, {int(max_days)})"
@@ -200,7 +200,7 @@ def get_last_value_scans(
 
 def get_working_load_ilocate_next_id(project_id: str, dataset_id: str) -> int:
     """`SELECT LastID FROM working.Load_iLocate_NextID` (SSIS Package\\Sequence Container\\Get Next ID)."""
-    hook = BigQueryHook(project_id=project_id, gcp_conn_id="oceania_target_sa_connection")
+    hook = BigQueryHook(project_id=project_id, gcp_conn_id="oceania_target_sa_connection", location="europe-west2")
     q = f"SELECT LastID FROM `{project_id}.{dataset_id}.working_Load_iLocate_NextID`"
     df = hook.get_pandas_df(sql=q, dialect="standard")
     return int(df.iloc[0, 0])

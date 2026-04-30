@@ -41,6 +41,7 @@ with DAG(
         op_4 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_scanstatus_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_ScanStatus_Stg`",
@@ -54,6 +55,7 @@ with DAG(
         op_3 = BigQueryInsertJobOperator(
             task_id="package_staging_load_scanstatus_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_ScanStatus_Stg`();",
@@ -73,6 +75,7 @@ with DAG(
         op_1 = BigQueryInsertJobOperator(
             task_id="package_final_load_hub_scanstatus",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.dv_Load_HUB_ScanStatus`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource }}}}');",
@@ -86,6 +89,7 @@ with DAG(
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_scanstatus",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.dv_Load_SAT_ScanStatus`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource }}}}');",

@@ -81,6 +81,7 @@ with DAG(
         op_10 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_blk_manifest_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -97,6 +98,7 @@ with DAG(
         op_9 = BigQueryInsertJobOperator(
             task_id="package_staging_load_containermanifest",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_BLK_ContainerManifest_Stg`();",
@@ -122,6 +124,7 @@ with DAG(
         op_8 = BigQueryInsertJobOperator(
             task_id="package_staging_load_containercontents",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -146,6 +149,7 @@ with DAG(
         op_1 = BigQueryInsertJobOperator(
             task_id="package_final_load_hub_blkcontainermanifestlabel",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -162,6 +166,7 @@ with DAG(
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_blkcontainermanifest",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -178,6 +183,7 @@ with DAG(
         op_3 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_blkcontainermanifestcontent",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -196,6 +202,7 @@ with DAG(
         op_4 = BigQueryInsertJobOperator(
             task_id="package_final_update_loadcontrol_lastscandate_blk_manifestid",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (

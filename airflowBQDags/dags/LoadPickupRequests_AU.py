@@ -130,6 +130,7 @@ with DAG(
         op_truncate_pickuprequests_stg = BigQueryInsertJobOperator(
             task_id="package_pickup_requests_truncate_pickuprequests_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -140,6 +141,7 @@ with DAG(
                 }
             },
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             job_id="bq_gold_transformation_oceania",
         )
 
@@ -152,6 +154,7 @@ with DAG(
         op_get_pickuprequests_au = BigQueryInsertJobOperator(
             task_id="package_pickup_requests_get_pickuprequests_au",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -163,6 +166,7 @@ with DAG(
                 }
             },
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             job_id="bq_gold_transformation_oceania",
         )
 
@@ -174,6 +178,7 @@ with DAG(
         op_copy_country_staging = BigQueryInsertJobOperator(
             task_id="package_pickup_requests_copy_country_staging_to_pickuprequest_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -226,6 +231,7 @@ with DAG(
                 }
             },
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             job_id="bq_gold_transformation_oceania",
         )
 
@@ -234,6 +240,7 @@ with DAG(
         op_load_target_table = BigQueryInsertJobOperator(
             task_id="package_pickup_requests_load_target_table",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -244,6 +251,7 @@ with DAG(
                 }
             },
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             job_id="bq_gold_transformation_oceania",
         )
 
@@ -266,6 +274,7 @@ with DAG(
     op_set_next_ct_version = BigQueryInsertJobOperator(
         task_id="package_set_next_ct_version",
         gcp_conn_id="oceania_target_sa_connection",
+        location="europe-west2",
         configuration={
             "query": {
                 "query": (
@@ -278,6 +287,7 @@ with DAG(
             }
         },
         gcp_conn_id="oceania_target_sa_connection",
+        location="europe-west2",
         job_id="bq_gold_transformation_oceania",
     )
 

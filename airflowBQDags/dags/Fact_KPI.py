@@ -57,6 +57,7 @@ with DAG(
         op_8 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_kpi_staging_tables",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -73,6 +74,7 @@ with DAG(
         op_7 = BigQueryInsertJobOperator(
             task_id="package_staging_load_kpi_labels_src_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -91,6 +93,7 @@ with DAG(
         op_6 = BigQueryInsertJobOperator(
             task_id="package_staging_load_fact_kpi_daily_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -114,6 +117,7 @@ with DAG(
         op_1 = BigQueryInsertJobOperator(
             task_id="package_final_load_fact_kpi_labels",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -130,6 +134,7 @@ with DAG(
         op_3 = BigQueryInsertJobOperator(
             task_id="package_final_load_fact_kpi_priority",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -146,6 +151,7 @@ with DAG(
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_load_fact_kpi_performance",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (

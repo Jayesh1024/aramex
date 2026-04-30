@@ -62,6 +62,7 @@ with DAG(
         op_8 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_zen_ticket_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_ZEN_Ticket_Stg`;",
@@ -86,6 +87,7 @@ with DAG(
         op_7 = BigQueryInsertJobOperator(
             task_id="package_staging_load_zen_ticket_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -109,6 +111,7 @@ with DAG(
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_load_hub_zen_tickets",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -125,6 +128,7 @@ with DAG(
         op_3 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_zen_tickets",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -142,6 +146,7 @@ with DAG(
         op_1 = BigQueryInsertJobOperator(
             task_id="package_final_zenlog",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (

@@ -48,6 +48,7 @@ with DAG(
         op_4 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_label_product_serviceitem_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_Label_Product_ServiceItem_Stg`",
@@ -61,6 +62,7 @@ with DAG(
         op_3 = BigQueryInsertJobOperator(
             task_id="package_staging_load_label_product_serviceitem_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -81,6 +83,7 @@ with DAG(
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_load_lnk_label_product_serviceitem",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -96,6 +99,7 @@ with DAG(
         op_1 = BigQueryInsertJobOperator(
             task_id="package_final_load_lsat_label_product_serviceitem",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (

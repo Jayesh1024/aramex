@@ -57,6 +57,7 @@ with DAG(
         op_10 = BigQueryInsertJobOperator(
             task_id="package_staging_2_truncate_label_interbranch_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_Label_Interbranch_Stg`;",
@@ -81,6 +82,7 @@ with DAG(
         op_8 = BigQueryInsertJobOperator(
             task_id="package_staging_2_load_label_interbranch_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -99,6 +101,7 @@ with DAG(
         op_9 = BigQueryInsertJobOperator(
             task_id="package_staging_2_set_lastvalue_interbranch",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -125,6 +128,7 @@ with DAG(
         op_1 = BigQueryInsertJobOperator(
             task_id="package_final_load_lnk_label_interbranch",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -141,6 +145,7 @@ with DAG(
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_load_lsat_label_interbranch",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -161,6 +166,7 @@ with DAG(
         op_5 = BigQueryInsertJobOperator(
             task_id="package_monthly_miscellaneous_truncate_dlbs_rf_batching",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.dbo_DLBSRFBatching`;",
@@ -174,6 +180,7 @@ with DAG(
         op_4 = BigQueryInsertJobOperator(
             task_id="package_monthly_miscellaneous_maintain_dlbs_rfbatching",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.sp_load_dbo_DLBSRFBatching`();",

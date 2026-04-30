@@ -47,6 +47,7 @@ with DAG(
     op_0 = BigQueryInsertJobOperator(
         task_id="package_copy_table",
         gcp_conn_id="oceania_target_sa_connection",
+        location="europe-west2",
         configuration={
             "query": {
                 "query": (
@@ -63,6 +64,7 @@ with DAG(
     op_1 = BigQueryInsertJobOperator(
         task_id="package_data_flow_task",
         gcp_conn_id="oceania_target_sa_connection",
+        location="europe-west2",
         configuration={
             "query": {
                 "query": f"CALL `{SP_DATASET_ID}.sp_load_dv_LNK_InvoiceHead`();",
@@ -76,6 +78,7 @@ with DAG(
     op_2 = BigQueryInsertJobOperator(
         task_id="package_fms_undtcktinvoice_load",
         gcp_conn_id="oceania_target_sa_connection",
+        location="europe-west2",
         configuration={
             "query": {
                 "query": (
@@ -92,6 +95,7 @@ with DAG(
     op_3 = BigQueryInsertJobOperator(
         task_id="package_load_fms_invoicehead",
         gcp_conn_id="oceania_target_sa_connection",
+        location="europe-west2",
         configuration={
             "query": {
                 "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_FMS_InvoiceHead_Stg_All`();",
@@ -119,6 +123,7 @@ with DAG(
         op_6 = BigQueryInsertJobOperator(
             task_id="package_sequence_container_load_ilocate",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -135,6 +140,7 @@ with DAG(
         op_7 = BigQueryInsertJobOperator(
             task_id="package_sequence_container_truncate_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.working_Load_iLocate_Stg`;",
@@ -149,6 +155,7 @@ with DAG(
         op_8 = BigQueryInsertJobOperator(
             task_id="package_sequence_container_update_lnk_scan",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (

@@ -51,6 +51,7 @@ with DAG(
         op_10 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_staging_tables",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -89,6 +90,7 @@ with DAG(
         op_8 = BigQueryInsertJobOperator(
             task_id="package_staging_load_fl_invoiceheader_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -105,6 +107,7 @@ with DAG(
         op_9 = BigQueryInsertJobOperator(
             task_id="package_staging_load_fl_invoicepayment_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -127,6 +130,7 @@ with DAG(
         op_1 = BigQueryInsertJobOperator(
             task_id="package_final_load_lsat_fl_invoiceheader",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -143,6 +147,7 @@ with DAG(
         op_3 = BigQueryInsertJobOperator(
             task_id="package_final_set_last_invoiceheaderdate",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -159,6 +164,7 @@ with DAG(
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_load_lsat_fl_invoicepayment",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -175,6 +181,7 @@ with DAG(
         op_4 = BigQueryInsertJobOperator(
             task_id="package_final_set_last_invoicepaymentdate",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (

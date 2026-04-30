@@ -30,6 +30,7 @@ with DAG(
     op_0 = BigQueryInsertJobOperator(
         task_id="package_execute_sql_task",
         gcp_conn_id="oceania_target_sa_connection",
+        location="europe-west2",
         configuration={
             "query": {
                 "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_tblCustomer_Stg`;",
@@ -43,6 +44,7 @@ with DAG(
     op_1 = BigQueryInsertJobOperator(
         task_id="package_load_tblcustomer_stg",
         gcp_conn_id="oceania_target_sa_connection",
+        location="europe-west2",
         configuration={
             "query": {
                 "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_tblCustomer_Stg`();",

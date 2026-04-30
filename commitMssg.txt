@@ -1,1 +1,1 @@
-1. Update GCP_CONN_ID in all the operators to "oceania_target_sa_connection".
+1. Update location in all the operators to "europe-west2".

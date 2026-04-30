@@ -48,6 +48,7 @@ with DAG(
         op_14 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_prroduct_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_Product_Stg`;",
@@ -61,6 +62,7 @@ with DAG(
         op_13 = BigQueryInsertJobOperator(
             task_id="package_staging_load_product_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_Product_Stg`();",
@@ -78,6 +80,7 @@ with DAG(
         op_9 = BigQueryInsertJobOperator(
             task_id="package_staging_2_truncate_stk_rfprroduct_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_STK_RFProducts_Stg`;",
@@ -91,6 +94,7 @@ with DAG(
         op_8 = BigQueryInsertJobOperator(
             task_id="package_staging_2_load_stk_rfprroduct_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_STK_RFProducts_Stg`();",
@@ -108,6 +112,7 @@ with DAG(
         op_12 = BigQueryInsertJobOperator(
             task_id="package_staging_3_truncate_fms_customercommisionoverride",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_CustomerCommissionOverride_Stg`;",
@@ -121,6 +126,7 @@ with DAG(
         op_11 = BigQueryInsertJobOperator(
             task_id="package_staging_3_load_fms_customercommisionoverride",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_CustomerCommissionOverride_Stg`();",
@@ -139,6 +145,7 @@ with DAG(
         op_4 = BigQueryInsertJobOperator(
             task_id="package_final_load_hub_product",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -155,6 +162,7 @@ with DAG(
         op_5 = BigQueryInsertJobOperator(
             task_id="package_final_load_sat_product",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -174,6 +182,7 @@ with DAG(
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_2_load_sat_customercommisionoverride",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -190,6 +199,7 @@ with DAG(
         op_3 = BigQueryInsertJobOperator(
             task_id="package_final_2_load_sat_stk_rfproduct",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (

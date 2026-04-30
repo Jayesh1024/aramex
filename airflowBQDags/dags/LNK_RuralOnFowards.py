@@ -74,6 +74,7 @@ with DAG(
         op_5 = BigQueryInsertJobOperator(
             task_id="package_load_la_ruraonforwards_truncate_staging_tables",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_LA_RuralOnforwards_Stg`;",
@@ -98,6 +99,7 @@ with DAG(
         op_1 = BigQueryInsertJobOperator(
             task_id="package_load_la_ruraonforwards_data_flow_task",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -116,6 +118,7 @@ with DAG(
         op_2 = BigQueryInsertJobOperator(
             task_id="package_load_la_ruraonforwards_execute_sql_task",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -132,6 +135,7 @@ with DAG(
         op_4 = BigQueryInsertJobOperator(
             task_id="package_load_la_ruraonforwards_set_lastdate",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (

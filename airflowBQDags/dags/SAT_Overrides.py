@@ -45,6 +45,7 @@ with DAG(
         op_3 = BigQueryInsertJobOperator(
             task_id="package_customer_overrides_staging_load_customer_price_overrides",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"SELECT * FROM `{TARGET_DATASET_ID}.Staging_fl_PriceListCustomerOverride_Stg`",
@@ -61,6 +62,7 @@ with DAG(
         op_1 = BigQueryInsertJobOperator(
             task_id="package_customer_overrides_final_load_sat_customerpriceoverride",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -80,6 +82,7 @@ with DAG(
         op_13 = BigQueryInsertJobOperator(
             task_id="package_zones_overrides_staging_truncate_zones",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -96,6 +99,7 @@ with DAG(
         op_12 = BigQueryInsertJobOperator(
             task_id="package_zones_overrides_staging_truncate_zone_overrides",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -111,6 +115,7 @@ with DAG(
         op_11 = BigQueryInsertJobOperator(
             task_id="package_zones_overrides_staging_load_fl_zones",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"SELECT * FROM `{TARGET_DATASET_ID}.Staging_fl_Zones_Stg`",
@@ -124,6 +129,7 @@ with DAG(
         op_9 = BigQueryInsertJobOperator(
             task_id="package_zones_overrides_staging_load_zone_satchel_overiides",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"SELECT * FROM `{TARGET_DATASET_ID}.vw_Staging_fl_ServiceZoneSatchelOverride_Stg`",
@@ -137,6 +143,7 @@ with DAG(
         op_10 = BigQueryInsertJobOperator(
             task_id="package_zones_overrides_staging_load_zone_weight_overiides",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"SELECT * FROM `{TARGET_DATASET_ID}.vw_Staging_fl_ServiceZoneWeightOverride_Stg`",
@@ -157,6 +164,7 @@ with DAG(
         op_7 = BigQueryInsertJobOperator(
             task_id="package_zones_overrides_final_load_sat_zones",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -173,6 +181,7 @@ with DAG(
         op_6 = BigQueryInsertJobOperator(
             task_id="package_zones_overrides_final_load_sat_zone_overrides",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (

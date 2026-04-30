@@ -52,6 +52,7 @@ with DAG(
         op_1 = BigQueryInsertJobOperator(
             task_id="package_source2_dynamiclabel_dl_truncate_api_rf_adhoclabel_allocationhistory_stg_weekly",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -78,6 +79,7 @@ with DAG(
         op_3 = BigQueryInsertJobOperator(
             task_id="package_source2_dynamiclabel_dl_load_api_rf_adhoclabel_allocationhistory_stg_weekly",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -94,6 +96,7 @@ with DAG(
         op_4 = BigQueryInsertJobOperator(
             task_id="package_source2_dynamiclabel_dl_insert_into_api_rf_adhoclabel_allocationhistory_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -110,6 +113,7 @@ with DAG(
         op_5 = BigQueryInsertJobOperator(
             task_id="package_source2_dynamiclabel_dl_get_next_processid",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -126,6 +130,7 @@ with DAG(
         op_6 = BigQueryInsertJobOperator(
             task_id="package_source2_dynamiclabel_dl_load_lastest_priced_invoices",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -141,6 +146,7 @@ with DAG(
         op_7 = BigQueryInsertJobOperator(
             task_id="package_source2_dynamiclabel_dl_update_dim_label",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (

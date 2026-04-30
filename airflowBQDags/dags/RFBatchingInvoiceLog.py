@@ -39,6 +39,7 @@ with DAG(
         op_4 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_rfbatchinginvoicelog_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -55,6 +56,7 @@ with DAG(
         op_3 = BigQueryInsertJobOperator(
             task_id="package_staging_load_rfbatchinginvoice_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_RFBatchingInvoiceLog_Stg`();",
@@ -73,6 +75,7 @@ with DAG(
         op_1 = BigQueryInsertJobOperator(
             task_id="package_final_load_lnk_rfbatchinginvoicelog",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"SELECT * FROM `{TARGET_DATASET_ID}.dv_LNK_RFBatchingInvoiceLog`;",

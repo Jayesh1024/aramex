@@ -60,6 +60,7 @@ with DAG(
         op_4 = BigQueryInsertJobOperator(
             task_id="package_final_load_hub_invoice",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -77,6 +78,7 @@ with DAG(
         op_9 = BigQueryInsertJobOperator(
             task_id="package_final_load_label_invoices",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -95,6 +97,7 @@ with DAG(
         op_5 = BigQueryInsertJobOperator(
             task_id="package_final_load_lnk_invoiceline",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -111,6 +114,7 @@ with DAG(
         op_6 = BigQueryInsertJobOperator(
             task_id="package_final_load_lnk_invoice_label",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -127,6 +131,7 @@ with DAG(
         op_7 = BigQueryInsertJobOperator(
             task_id="package_final_load_lsat_invoicehead",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -143,6 +148,7 @@ with DAG(
         op_8 = BigQueryInsertJobOperator(
             task_id="package_final_load_lsat_invoiceline",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -159,6 +165,7 @@ with DAG(
         op_10 = BigQueryInsertJobOperator(
             task_id="package_final_set_lastdate_fms_invoice",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -180,6 +187,7 @@ with DAG(
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_undtcktinvoice_load_undtckt_invoice",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -195,6 +203,7 @@ with DAG(
         op_3 = BigQueryInsertJobOperator(
             task_id="package_final_undtcktinvoice_set_lastdate_undtckt_invoice",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -214,6 +223,7 @@ with DAG(
         op_20 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_staging_tables",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -244,6 +254,7 @@ with DAG(
         op_17 = BigQueryInsertJobOperator(
             task_id="package_staging_load_fms_invoicebooks_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -261,6 +272,7 @@ with DAG(
         op_18 = BigQueryInsertJobOperator(
             task_id="package_staging_load_fms_invoicehead_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -278,6 +290,7 @@ with DAG(
         op_19 = BigQueryInsertJobOperator(
             task_id="package_staging_load_fms_invoicelines_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -298,6 +311,7 @@ with DAG(
         op_15 = BigQueryInsertJobOperator(
             task_id="package_staging_undtcktinvoice_truncate_staging_tables",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (
@@ -324,6 +338,7 @@ with DAG(
         op_13 = BigQueryInsertJobOperator(
             task_id="package_staging_undtcktinvoice_fms_undtcktinvoice_load",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": (

@@ -37,6 +37,7 @@ with DAG(
     op_0 = BigQueryInsertJobOperator(
         task_id="package_get_next_processid",
         gcp_conn_id="oceania_target_sa_connection",
+        location="europe-west2",
         configuration={
             "query": {
                 "query": (
@@ -54,6 +55,7 @@ with DAG(
     op_1 = BigQueryInsertJobOperator(
         task_id="package_load_fact_delivery_performance",
         gcp_conn_id="oceania_target_sa_connection",
+        location="europe-west2",
         configuration={
             "query": {
                 "query": f"CALL `{SP_DATASET_ID}.dbo_Load_Fact_Delivery_Performance`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, {{{{ params.Force }}}});",

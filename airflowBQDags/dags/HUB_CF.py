@@ -43,6 +43,7 @@ with DAG(
         op_4 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_courier_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_Courier_Stg`",
@@ -56,6 +57,7 @@ with DAG(
         op_3 = BigQueryInsertJobOperator(
             task_id="package_staging_load_courier_stg",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_Courier_Stg`();",
@@ -75,6 +77,7 @@ with DAG(
         op_1 = BigQueryInsertJobOperator(
             task_id="package_final_load_cf_hub",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     # In f-strings, `{{`/`}}` are escapes; quadruple braces so Airflow receives Jinja `{{ ... }}`.
@@ -89,6 +92,7 @@ with DAG(
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_load_cf_sat",
             gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
             configuration={
                 "query": {
                     "query": f"CALL `{SP_DATASET_ID}.dv_Load_SAT_CF`({{{{ dag_run.conf.get(\'process_id\',params.process_id) }}}}, '{{{{ params.RecordSource }}}}');",
