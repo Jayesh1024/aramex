@@ -86,7 +86,7 @@ BEGIN
         RecordSourceId, ValidFrom, ValidTo, IsCurrent
       )
       SELECT
-        `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(TRIM(Stg.Label), '^') AS LabelNo_HSK,
+        `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(TRIM(Stg.Label), '^') AS LabelNo_HSK,
         Stg.Label, Stg.ConId, Stg.ConItemId, Stg.LineNo, Stg.CountryId,
         IFNULL(cty.CountryName, 'Unknown'),
         Stg.CreatedOn, Stg.CustomerId, Stg.FromRf, Stg.FromCf, Stg.ToRf, Stg.ToCf,

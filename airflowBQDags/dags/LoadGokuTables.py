@@ -24,7 +24,7 @@ with DAG(
         "Disable_ClickAndCollect": 0,
         "Disable_PayZone": 0,
         "IsReload": 0,
-        "ProcessID": -7,
+        "process_id": -7,
     },
 ) as dag:
 

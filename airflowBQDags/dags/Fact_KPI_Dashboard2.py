@@ -56,7 +56,7 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "fact_kpi_dashboard2"],
     params={
-        "ProcessId": -745,
+        "process_id": -745,
         "RecordSource11": 'MyFastwaySrv',
         "RecordSource3": 'TrackAndTrace',
         "RecordSource4": 'MyFastway',

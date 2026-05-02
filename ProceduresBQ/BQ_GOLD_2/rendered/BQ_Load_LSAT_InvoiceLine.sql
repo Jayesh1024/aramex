@@ -112,12 +112,12 @@ BEGIN
         h.LineType
       FROM (
         SELECT 
-          `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(CAST(InvoiceNumber AS STRING), '^', FranchiseeCode, '^', CourierNumber, '^', CustomerKey, '^', ProductCode, '^', Country), '^') AS InvoiceLine_HSK,
-          `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(CAST(InvoiceNumber AS STRING), '^', FranchiseeCode), '^') AS Invoice_HSK,
-          `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(FranchiseeCode, '^') AS FranchiseeCode_HSK,
-          `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(FranchiseeCode, '^', CourierNumber), '^') AS Courier_HSK,
-          `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CustomerKey, '^') AS Customer_HSK,
-          `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(Country, '^', ProductCode), '^') AS Product_HSK,
+          `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CONCAT(CAST(InvoiceNumber AS STRING), '^', FranchiseeCode, '^', CourierNumber, '^', CustomerKey, '^', ProductCode, '^', Country), '^') AS InvoiceLine_HSK,
+          `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CONCAT(CAST(InvoiceNumber AS STRING), '^', FranchiseeCode), '^') AS Invoice_HSK,
+          `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(FranchiseeCode, '^') AS FranchiseeCode_HSK,
+          `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CONCAT(FranchiseeCode, '^', CourierNumber), '^') AS Courier_HSK,
+          `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CustomerKey, '^') AS Customer_HSK,
+          `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CONCAT(Country, '^', ProductCode), '^') AS Product_HSK,
           InvoiceNumber,
           FranchiseeCode,
           CourierNumber,

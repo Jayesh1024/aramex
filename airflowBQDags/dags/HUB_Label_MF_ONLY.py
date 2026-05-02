@@ -53,7 +53,7 @@ with DAG(
         "BatchDays": -1,
         "DisableFinal": 0,
         "DisableStage": 0,
-        "ProcessId": -4,
+        "process_id": -4,
         "RecordSource4": "MyFastway",
         "StartDate": "1900-01-01 00:00:00",
         # Staging_Set_LastValue: use None so Jinja renders SQL NULL; override from trigger UI when needed.
@@ -126,7 +126,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.staging_Load_SAT_Label_Allocation_Stg2`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -143,7 +143,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -160,7 +160,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_MF`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource4 }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource4 }}}}');"
                     ),
                     "useLegacySql": False,
                 }

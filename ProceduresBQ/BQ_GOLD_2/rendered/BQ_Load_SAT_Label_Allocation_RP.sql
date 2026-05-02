@@ -42,11 +42,11 @@ BEGIN
       )
       SELECT 
         -- Standardized to BYTES (Removed UPPER(TO_HEX))
-        `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(TRIM(Stg.label_number), '^') AS LabelNo_HSK,
+        `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(TRIM(Stg.label_number), '^') AS LabelNo_HSK,
         Stg.*,
         CASE WHEN T.LabelNo_HSK IS NULL THEN 'I' ELSE 'U' END AS ActionType
       FROM Stg
-      LEFT JOIN Current_Sat T ON T.LabelNo_HSK = `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(TRIM(Stg.label_number), '^')
+      LEFT JOIN Current_Sat T ON T.LabelNo_HSK = `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(TRIM(Stg.label_number), '^')
       WHERE T.LabelNo_HSK IS NULL -- New Business Key
          OR (
            -- Change Detection Logic

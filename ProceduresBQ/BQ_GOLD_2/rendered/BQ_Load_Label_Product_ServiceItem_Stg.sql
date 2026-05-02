@@ -71,10 +71,10 @@ BEGIN
     )
     SELECT
       -- Data Vault hash keys
-      (`prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(Src.Country, '^', Src.LabelNo, '^', Src.ProductCode, '^', Src.ServiceItem), '^')) AS Label_Product_ServiceItem_HSK,
-      (`prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(Src.Country, '^', Src.LabelNo), '^'))                                            AS LabelNo_HSK,
-      (`prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(Src.Country, '^', Src.ProductCode), '^'))                                        AS Product_HSK,
-      (`prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(Src.Country, '^', Src.ServiceItem), '^'))                                        AS ServiceItem_HSK,
+      (`prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CONCAT(Src.Country, '^', Src.LabelNo, '^', Src.ProductCode, '^', Src.ServiceItem), '^')) AS Label_Product_ServiceItem_HSK,
+      (`prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CONCAT(Src.Country, '^', Src.LabelNo), '^'))                                            AS LabelNo_HSK,
+      (`prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CONCAT(Src.Country, '^', Src.ProductCode), '^'))                                        AS Product_HSK,
+      (`prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CONCAT(Src.Country, '^', Src.ServiceItem), '^'))                                        AS ServiceItem_HSK,
       Src.LabelNo,
       Src.ConId,
       Src.ConItemId,

@@ -37,7 +37,7 @@ with DAG(
     params={
         "DisableFinal": 0,
         "DisableStaging": 0,
-        "ProcessId": -7,
+        "process_id": -7,
         "RecordSource": 'Fastway',
     },
 ) as dag:
@@ -150,7 +150,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_HUB_Product`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -167,7 +167,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Product`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
                 }

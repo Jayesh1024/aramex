@@ -28,7 +28,7 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "fact_delivery_performance"],
     params={
-        "ProcessId": 0,
+        "process_id": 0,
         "Force":1,
     },
 ) as dag:
@@ -41,7 +41,7 @@ with DAG(
         configuration={
             "query": {
                 "query": (
-                    f"SELECT CASE WHEN {{{{ dag_run.conf.get('process_id', params.ProcessId) }}}} > 0 THEN {{{{ dag_run.conf.get('process_id', params.ProcessId) }}}} "
+                    f"SELECT CASE WHEN {{{{ dag_run.conf.get('process_id', params.process_id) }}}} > 0 THEN {{{{ dag_run.conf.get('process_id', params.process_id) }}}} "
                     f"ELSE COALESCE((SELECT MAX(ProcessId) FROM `{TARGET_DATASET_ID}.Staging_LoadLog`), 0) + 1 "
                     f"END AS NextProcessId"
                 ),
@@ -58,7 +58,7 @@ with DAG(
         location="europe-west2",
         configuration={
             "query": {
-                "query": f"CALL `{SP_DATASET_ID}.dbo_Load_Fact_Delivery_Performance`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, {{{{ params.Force }}}});",
+                "query": f"CALL `{SP_DATASET_ID}.dbo_Load_Fact_Delivery_Performance`({{{{ dag_run.conf.get('process_id', params.process_id) }}}}, {{{{ params.Force }}}});",
                 "useLegacySql": False,
             }
         },

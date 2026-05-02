@@ -22,7 +22,7 @@ BEGIN
     USING (
       SELECT DISTINCT
         -- Using 'Unknown' for Country as confirmed missing from staging
-        `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT('Unknown', '^', TRIM(CAST(InvoiceNumber AS STRING))), '^') AS Invoice_HSK,
+        `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CONCAT('Unknown', '^', TRIM(CAST(InvoiceNumber AS STRING))), '^') AS Invoice_HSK,
         'Unknown' AS Country,
         InvoiceNumber,
         -- Mapping Required fields from Staging schema

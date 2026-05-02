@@ -15,7 +15,7 @@ Notes:
   * SSIS `EXEC [dv].[Load_LNK_RuralOnforwards]` had no visible parameters in
     metadata; BigQuery `dv_Load_LNK_RuralOnforwards` requires `ProcessID INT64`
     (see ProceduresBQ). DAG passes the same ProcessID as `Get ProcessID`
-    (MAX from LoadLog via XCom), with `params.ProcessID` as Jinja fallback.
+    (MAX from LoadLog via XCom), with `params.process_id` as Jinja fallback.
   * RecordSource14 default not available in metadata.
 """
 from __future__ import annotations
@@ -46,7 +46,7 @@ with DAG(
     params={
         "EndDate": '1/1/1900',
         "NumberOfDays": 14,
-        "ProcessID": -121,
+        "process_id": -121,
         "RecordSource14": 'LA_RuralOnforwards',
         "StartDate": '1/1/1900',
     },
@@ -123,7 +123,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_LNK_RuralOnforwards`("
-                        f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_PROCESS_ID}') or params.ProcessID }}}});"
+                        f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_PROCESS_ID}') or params.process_id }}}});"
                     ),
                     "useLegacySql": False,
                 }

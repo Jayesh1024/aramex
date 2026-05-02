@@ -23,7 +23,7 @@ BEGIN
     USING (
       SELECT DISTINCT
         -- Hashing: Country + '^' + ProductId via dbo_GetHashKey (BYTES)
-        `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(TRIM(Country), '^', CAST(ProductId AS STRING)), '^') AS Product_HSK,
+        `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CONCAT(TRIM(Country), '^', CAST(ProductId AS STRING)), '^') AS Product_HSK,
         TRIM(Country) AS Country,
         ProductId,
         TRIM(Code) AS ProductCode,

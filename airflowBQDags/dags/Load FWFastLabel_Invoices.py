@@ -35,7 +35,7 @@ with DAG(
     params={
         "DisableFinal": 0,
         "DisableStaging": 0,
-        "ProcessId": 0,
+        "process_id": 0,
         "RecordSource1": 'fl_InvoiceHeader',
         "RecordSource2": 'fl_InvoicePayment',
     },
@@ -135,7 +135,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_FL_InvoiceHeader`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource1 }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -169,7 +169,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_FL_InvoicePayment`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource2 }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource2 }}}}');"
                     ),
                     "useLegacySql": False,
                 }

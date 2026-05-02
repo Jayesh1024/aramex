@@ -84,7 +84,7 @@ with DAG(
         "IsReload": 0,
         # SSIS $Package::ProcessID default. Preserved from the .dtsx metadata.
         # When triggered from LoadControl, override via dag_run.conf.
-        "ProcessID": -61,
+        "process_id": -61,
         # SSIS $Package::RecordSource — TargetName key in Staging_LoadControl_ChangeTracking.
         "RecordSource": "PickupRequests_AU",
     },
@@ -245,7 +245,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_CT_SAT_Label_PickupRequests_AU`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessID) }}}});"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}});"
                     ),
                     "useLegacySql": False,
                 }

@@ -34,7 +34,7 @@ with DAG(
     params={
         "DisableFinal": 0,
         "DisableStaging": 0,
-        "ProcessId": 0,
+        "process_id": 0,
         "RecordSource13": 'MFConSrv',
     },
 ) as dag:
@@ -93,7 +93,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_Product_ServiceCon_Stg`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource13 }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource13 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -129,7 +129,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_LNK_Product_ServiceCon`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource13 }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource13 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -160,7 +160,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_LSAT_Product_ServiceCon`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource13 }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource13 }}}}');"
                     ),
                     "useLegacySql": False,
                 }

@@ -1,1 +1,1 @@
-1. Update location in all the operators to "europe-west2".
+1. Standardize "ProcessId" parameter name to "process_id" in all the DAGs.

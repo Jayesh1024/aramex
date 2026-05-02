@@ -34,7 +34,7 @@ with DAG(
     params={
         "DisableFinal": 0,
         "DisableStaging": 0,
-        "ProcessId": 0,
+        "process_id": 0,
     },
 ) as dag:
 
@@ -64,7 +64,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.Staging_Load_Label_Address_Stg`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -87,7 +87,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_HUB_Address`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -105,7 +105,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Address`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -123,7 +123,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_LNK_Label_Address`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}});"
                     ),
                     "useLegacySql": False,
                 }

@@ -43,7 +43,7 @@ with DAG(
         "DisableFinal": 0,
         "DisableStaging": 0,
         "EndDateOverRide": None,
-        "ProcessId": 2574,
+        "process_id": 2574,
         "StartDateOverRide": None,
         "start_date_override": "1900-01-01",
         "end_date_override": "1900-01-01",
@@ -79,7 +79,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.Staging_Load_Fact_KPI_Src_Stg`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, "
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, "
                         f"'{{{{ params.StartDateOverRide }}}}', "
                         f"'{{{{ params.EndDateOverRide }}}}');"
                     ),
@@ -98,7 +98,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.Staging_Load_Fact_KPI_Daily_Stg`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, "
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, "
                         f"'{{{{ params.StartDateOverRide }}}}', "
                         f"'{{{{ params.EndDateOverRide }}}}');"
                     ),
@@ -122,7 +122,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dbo_Load_Fact_KPI_Daily`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -139,7 +139,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dbo_Load_Fact_KPI_Priority`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -156,7 +156,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dbo_Load_Fact_KPI_Performance`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}});"
                     ),
                     "useLegacySql": False,
                 }

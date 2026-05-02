@@ -39,7 +39,7 @@ with DAG(
         "DisableStaging": 0,
         "DisableUndTcktFinal": 0,
         "DisableUndTcktStaging": 0,
-        "ProcessId": -453,
+        "process_id": -453,
         "RecordSource": 'FMS_Invoice',
         "RecordSource2": 'FMSUndTcktInvoice',
         "RecordSourceFMS_InvoiceBooks": 'FMS_InvoiceBooks',
@@ -65,7 +65,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_HUB_Invoice`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -83,7 +83,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_Label_Invoices`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, "
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, "
                         f"'{{{{ ti.xcom_pull(task_ids='{_TASK_IDS_LASTDATE_FMS_INVOICE}') }}}}', "
                         "{{'NULL'}});"
                     ),
@@ -102,7 +102,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_LNK_InvoiceLine`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSourceFMS_InvoiceLines }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSourceFMS_InvoiceLines }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -119,7 +119,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_LNK_Invoice_Label`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSourceFMS_InvoiceBooks }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSourceFMS_InvoiceBooks }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -136,7 +136,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_LSAT_InvoiceHead`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSourceFMS_InvoiceHead }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSourceFMS_InvoiceHead }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -153,7 +153,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_LSAT_InvoiceLine`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSourceFMS_InvoiceLines }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSourceFMS_InvoiceLines }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -191,7 +191,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{SP_DATASET_ID}.dbo_Load_UndTckt_Invoice`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});"
+                        f"CALL `{SP_DATASET_ID}.dbo_Load_UndTckt_Invoice`({{{{ dag_run.conf.get('process_id', params.process_id) }}}});"
                     ),
                     "useLegacySql": False,
                 }

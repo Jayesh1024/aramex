@@ -29,7 +29,7 @@ with DAG(
     params={
         "DisableFinal": 0,
         "DisableStaging": 0,
-        "ProcessId": 8,
+        "process_id": 8,
         "RecordSource": 'Fastway',
     },
 ) as dag:

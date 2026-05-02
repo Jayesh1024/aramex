@@ -28,7 +28,7 @@ with DAG(
     params={
         "DisableFinal": 0,
         "DisableStaging": 0,
-        "ProcessId": 18,
+        "process_id": 18,
         "RecordSource": 'Fastway',
     },
 ) as dag:
@@ -78,7 +78,7 @@ with DAG(
             location="europe-west2",
             configuration={
                 "query": {
-                    "query": f"CALL `{SP_DATASET_ID}.dv_Load_HUB_ScanStatus`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource }}}}');",
+                    "query": f"CALL `{SP_DATASET_ID}.dv_Load_HUB_ScanStatus`({{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource }}}}');",
                     "useLegacySql": False,
                 }
             },
@@ -92,7 +92,7 @@ with DAG(
             location="europe-west2",
             configuration={
                 "query": {
-                    "query": f"CALL `{SP_DATASET_ID}.dv_Load_SAT_ScanStatus`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource }}}}');",
+                    "query": f"CALL `{SP_DATASET_ID}.dv_Load_SAT_ScanStatus`({{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource }}}}');",
                     "useLegacySql": False,
                 }
             },

@@ -54,7 +54,7 @@ with DAG(
     params={
         "DatabaseName": "FastwayGlobal_24",
         "IsReload": 0,
-        "ProcessID": -69,
+        "process_id": -69,
         "RecordSource": "PickupRequests_SA",
     },
 ) as dag:
@@ -205,7 +205,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_CT_SAT_Label_PickupRequests_SA`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessID) }}}});"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}});"
                     ),
                     "useLegacySql": False,
                 }

@@ -39,10 +39,10 @@ BEGIN
         )
         SELECT 
             -- Hashing via dbo_GetHashKey (BYTES columns)
-            `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(IFNULL(SUBSTR(Src.LabelNumber, 1, 12), ''), '^', IFNULL(CAST(Src.CountryCode AS STRING), ''), '^'), '^') AS PickupRequest_HSK,
-            `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(IFNULL(Src.LabelNumber, ''), '^') AS LabelNo_HSK,
-            `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(IFNULL(Src.PickupFranchiseeCode, ''), '^') AS FranchiseeCode_HSK,
-            `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(IFNULL(Src.PickupFranchiseeCode, ''), '^', IFNULL(Src.PickupCourierNumber, '')), '^') AS Courier_HSK,
+            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CONCAT(IFNULL(SUBSTR(Src.LabelNumber, 1, 12), ''), '^', IFNULL(CAST(Src.CountryCode AS STRING), ''), '^'), '^') AS PickupRequest_HSK,
+            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(IFNULL(Src.LabelNumber, ''), '^') AS LabelNo_HSK,
+            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(IFNULL(Src.PickupFranchiseeCode, ''), '^') AS FranchiseeCode_HSK,
+            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CONCAT(IFNULL(Src.PickupFranchiseeCode, ''), '^', IFNULL(Src.PickupCourierNumber, '')), '^') AS Courier_HSK,
             
             Src.CreateDateUtc, Src.ShouldPrintLabel, Src.PickupFranchiseeCode, Src.PickupCourierNumber,
             Src.LabelNumber, C.CountryName, Src.CollectionDate, Src.CollectionCycle, 

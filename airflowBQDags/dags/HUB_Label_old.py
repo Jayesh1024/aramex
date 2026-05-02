@@ -29,7 +29,7 @@ with DAG(
         "DisableLoad_LabelMaster": 0,
         "DisableLoad_tblFastLabel_Consignment": 0,
         "DisableStaging": 0,
-        "ProcessId": 185,
+        "process_id": 185,
         "RecordSource1": 'LabelMaster',
         "RecordSource2": 'DynamicLabel',
         "RecordSource3": 'FastLabel',

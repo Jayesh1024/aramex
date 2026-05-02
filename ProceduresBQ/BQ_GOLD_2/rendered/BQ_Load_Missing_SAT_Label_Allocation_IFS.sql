@@ -54,7 +54,7 @@ BEGIN
       UniqueParcelIdentifier
     )
     SELECT
-      (`prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CAST(Stg.LabelNo AS STRING), '^')) AS Label_HSK,
+      (`prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CAST(Stg.LabelNo AS STRING), '^')) AS Label_HSK,
       Stg.LabelNo,
       Stg.CountryCode,
       cty.CountryName,

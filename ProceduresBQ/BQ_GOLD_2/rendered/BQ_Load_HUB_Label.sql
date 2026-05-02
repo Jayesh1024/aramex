@@ -46,7 +46,7 @@ BEGIN
         GROUP BY LabelNo
       )
       SELECT 
-        `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(TRIM(LabelNo), '^') AS LabelNo_HSK,
+        `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(TRIM(LabelNo), '^') AS LabelNo_HSK,
         LabelNo,
         v_Loaded AS Loaded,
         p_ProcessID AS ProcessID,

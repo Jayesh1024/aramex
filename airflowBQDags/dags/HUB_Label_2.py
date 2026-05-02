@@ -46,7 +46,7 @@ with DAG(
     params={
         "DisableFinal": 0,
         "DisableInterBranch": 0,
-        "ProcessId": 1,
+        "process_id": 1,
         "RecordSource12": "InterBranchNZ"
     },
 ) as dag:
@@ -133,7 +133,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_LNK_Label_InterBranch`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ dag_run.conf.get(\'RecordSource12\',params.RecordSource12) }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ dag_run.conf.get(\'RecordSource12\',params.RecordSource12) }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -150,7 +150,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_LSAT_Label_InterBranch`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ dag_run.conf.get(\'RecordSource12\',params.RecordSource12) }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ dag_run.conf.get(\'RecordSource12\',params.RecordSource12) }}}}');"
                     ),
                     "useLegacySql": False,
                 }

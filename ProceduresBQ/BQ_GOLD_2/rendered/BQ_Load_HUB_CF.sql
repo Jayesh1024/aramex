@@ -22,7 +22,7 @@ BEGIN
     USING (
       SELECT DISTINCT
         -- Hashing: RFCode + '^' + CourierNumber via dbo_GetHashKey
-        `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(IFNULL(RFCode, ''), '^', IFNULL(CourierNumber, '')), '^') AS Courier_HSK,
+        `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CONCAT(IFNULL(RFCode, ''), '^', IFNULL(CourierNumber, '')), '^') AS Courier_HSK,
         RFCode,
         CourierNumber,
         v_Loaded AS Loaded,

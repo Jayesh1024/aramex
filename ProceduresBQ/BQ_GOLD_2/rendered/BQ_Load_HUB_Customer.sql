@@ -22,7 +22,7 @@ BEGIN
     USING (
       SELECT DISTINCT
         -- Generate hash key via dbo_GetHashKey (matches SQL Server normalization)
-        `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(TRIM(CAST(CustomerKey AS STRING)), '^') AS CustomerKey_HSK,
+        `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(TRIM(CAST(CustomerKey AS STRING)), '^') AS CustomerKey_HSK,
         CustomerKey,
         v_Loaded AS Loaded,
         p_ProcessID AS ProcessID,

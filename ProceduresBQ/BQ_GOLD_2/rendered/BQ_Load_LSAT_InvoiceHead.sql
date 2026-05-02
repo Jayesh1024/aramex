@@ -61,8 +61,8 @@ BEGIN
     )
     WITH InvoiceHeadStg AS (
       SELECT
-        `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(CAST(InvoiceNumber AS STRING), '^', RFCode), '^') AS Invoice_HSK,
-        `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(RFCode, '^') AS FranchiseeCode_HSK,
+        `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CONCAT(CAST(InvoiceNumber AS STRING), '^', RFCode), '^') AS Invoice_HSK,
+        `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(RFCode, '^') AS FranchiseeCode_HSK,
         RFCode AS FranchiseeCode,
         InvoiceNumber,
         EnteredDate,

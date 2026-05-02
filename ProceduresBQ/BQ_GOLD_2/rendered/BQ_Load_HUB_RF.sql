@@ -22,7 +22,7 @@ BEGIN
     USING (
       SELECT DISTINCT
         -- Hashing: FranchiseeCode via dbo_GetHashKey (BYTES)
-        `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(TRIM(FranchiseeCode), '^') AS FranchiseeCode_HSK,
+        `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(TRIM(FranchiseeCode), '^') AS FranchiseeCode_HSK,
         TRIM(FranchiseeCode) AS FranchiseeCode,
         v_Loaded AS Loaded,
         p_ProcessID AS ProcessID,

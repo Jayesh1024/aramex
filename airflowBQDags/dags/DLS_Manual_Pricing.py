@@ -9,7 +9,7 @@ params.RecordSource2 (see Get LastId, Load Lastest Priced Invoices).
 
 Insert Into … (large TRUNCATE/INSERT in metadata) and Update Dim_Label (UPDATE script) map to BigQuery procedures.
 Get Next ProcessID uses an inline SELECT (ExecuteSQLTask query, not EXEC). SSIS variable chaining for LastID / NextProcessId
-is approximated with params.adhoc_history_last_id and params.ProcessId — adjust or add XCom if you need exact SSIS binding.
+is approximated with params.adhoc_history_last_id and params.process_id — adjust or add XCom if you need exact SSIS binding.
 `ChangedSince` is the second arg to `dbo_Load_Dim_Label` (DATETIME); override per trigger if needed.
 """
 from __future__ import annotations
@@ -36,7 +36,7 @@ with DAG(
     tags=["ssis", "skeleton", "dls_manual_pricing"],
     params={
         "Disable_DynamicLabel": 0,
-        "ProcessId": 3000,
+        "process_id": 3000,
         "RecordSource2": 'DynamicLabel',
         "ReturnCode2": 0,
         "adhoc_history_last_id": 0,
@@ -134,7 +134,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_DL`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource2 }}}}');"
+                        f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_DL`({{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource2 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -151,7 +151,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dbo_Load_Dim_Label`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, "
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, "
                         f"DATETIME('{{{{ params.ChangedSince }}}}') "
                         f");"
                     ),

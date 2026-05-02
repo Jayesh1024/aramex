@@ -21,7 +21,7 @@ BEGIN
     USING (
       SELECT DISTINCT
         -- Hashing: CONVERT(varchar(10), ContainerManifestId) + RTRIM(LabelNo)
-        `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(CONCAT(CAST(ContainerManifestId AS STRING), TRIM(LabelNo)), '^') AS ContainerManifestContents_HSK,
+        `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CONCAT(CAST(ContainerManifestId AS STRING), TRIM(LabelNo)), '^') AS ContainerManifestContents_HSK,
         ContainerManifestId,
         TRIM(LabelNo) AS LabelNo,
         v_Started AS Loaded,

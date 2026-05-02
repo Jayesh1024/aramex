@@ -63,7 +63,7 @@ with DAG(
         "MyFastwayAltLargeWinDoW": 1,
         "MyFastwayWinSizeDays": 7,
         "Parameter": 0,
-        "ProcessId": -207,
+        "process_id": -207,
         "RecordSource1": 'LabelMaster',
         "RecordSource10": 'EBAY',
         "RecordSource11": 'MyFastwaySrv',
@@ -88,7 +88,7 @@ with DAG(
         location="europe-west2",
         configuration={
             "query": {
-                "query": f"CALL `{SP_DATASET_ID}.dv_Load_HUB_Label`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});",
+                "query": f"CALL `{SP_DATASET_ID}.dv_Load_HUB_Label`({{{{ dag_run.conf.get('process_id', params.process_id) }}}});",
                 "useLegacySql": False,
             }
         },
@@ -117,7 +117,7 @@ with DAG(
             location="europe-west2",
             configuration={
                 "query": {
-                    "query": f"CALL `{SP_DATASET_ID}.staging_Load_SAT_Label_Allocation_Stg2`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});",
+                    "query": f"CALL `{SP_DATASET_ID}.staging_Load_SAT_Label_Allocation_Stg2`({{{{ dag_run.conf.get('process_id', params.process_id) }}}});",
                     "useLegacySql": False,
                 }
             },
@@ -131,7 +131,7 @@ with DAG(
             location="europe-west2",
             configuration={
                 "query": {
-                    "query": f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});",
+                    "query": f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation`({{{{ dag_run.conf.get('process_id', params.process_id) }}}});",
                     "useLegacySql": False,
                 }
             },
@@ -154,7 +154,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Distribution`"
-                        f"({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource1 }}}}');"
+                        f"({{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -194,7 +194,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_DL`"
-                            f"({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource2 }}}}');"
+                            f"({{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource2 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -212,7 +212,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_EBAY`"
-                            f"({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource10 }}}}');"
+                            f"({{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource10 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -230,7 +230,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_FLE`"
-                            f"({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource6 }}}}');"
+                            f"({{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource6 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -301,7 +301,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_IFS`"
-                            f"({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource5 }}}}');"
+                            f"({{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource5 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -319,7 +319,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_MF`"
-                            f"({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource4 }}}}');"
+                            f"({{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource4 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -337,7 +337,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_PickupRequests`"
-                            f"({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});"
+                            f"({{{{ dag_run.conf.get('process_id', params.process_id) }}}});"
                         ),
                         "useLegacySql": False,
                     }
@@ -391,7 +391,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_FL`"
-                            f"({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource3 }}}}');"
+                            f"({{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource3 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -409,7 +409,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_RP`"
-                            f"({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource8 }}}}');"
+                            f"({{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource8 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -427,7 +427,7 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_TMD`"
-                            f"({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource7 }}}}');"
+                            f"({{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource7 }}}}');"
                         ),
                         "useLegacySql": False,
                     }
@@ -493,7 +493,7 @@ with DAG(
         wait_for_completion=True,
         poke_interval=30,
         reset_dag_run=True,
-        conf={"process_id": "{{ dag_run.conf.get('process_id', params.ProcessId) }}"},
+        conf={"process_id": "{{ dag_run.conf.get('process_id', params.process_id) }}"},
     )
 
     # ref_id: Package\\LNK_Label_Product_ServiceItem — SSIS Microsoft.ExecutePackageTask (LNK_Label_Product_ServiceItem.dtsx)
@@ -503,7 +503,7 @@ with DAG(
         wait_for_completion=True,
         poke_interval=30,
         reset_dag_run=True,
-        conf={"process_id": "{{ dag_run.conf.get('process_id', params.ProcessId) }}"},
+        conf={"process_id": "{{ dag_run.conf.get('process_id', params.process_id) }}"},
     )
 
     with TaskGroup(group_id="tg_package_staging"):

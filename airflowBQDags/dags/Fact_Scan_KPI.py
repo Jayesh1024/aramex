@@ -31,7 +31,7 @@ with DAG(
     params={
         "DisableFinal": 0,
         "DisableStaging": 0,
-        "ProcessId": 706,
+        "process_id": 706,
         # BigQuery DATETIME parsing expects 24h datetime text (not AM/PM time-only values).
         "SinceScanDate": "1900-01-01 00:00:00",
         "UntilScanDate": "1900-01-01 00:00:00",
@@ -68,7 +68,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{SP_DATASET_ID}.Staging_Load_KPI_Labels_Stg`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.SinceScanDate }}}}', '{{{{ params.UntilScanDate }}}}', {{{{ params.UseScanDates }}}});"
+                        f"CALL `{SP_DATASET_ID}.Staging_Load_KPI_Labels_Stg`({{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.SinceScanDate }}}}', '{{{{ params.UntilScanDate }}}}', {{{{ params.UseScanDates }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -84,7 +84,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{SP_DATASET_ID}.Staging_Load_Fact_Scan_KPI_Stg`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});"
+                        f"CALL `{SP_DATASET_ID}.Staging_Load_Fact_Scan_KPI_Stg`({{{{ dag_run.conf.get('process_id', params.process_id) }}}});"
                     ),
                     "useLegacySql": False,
                 }
@@ -105,7 +105,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{SP_DATASET_ID}.dbo_Load_Fact_Scan_KPI`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});"
+                        f"CALL `{SP_DATASET_ID}.dbo_Load_Fact_Scan_KPI`({{{{ dag_run.conf.get('process_id', params.process_id) }}}});"
                     ),
                     "useLegacySql": False,
                 }

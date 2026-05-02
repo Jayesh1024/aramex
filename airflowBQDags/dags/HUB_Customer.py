@@ -36,7 +36,7 @@ with DAG(
         "DisableLoadFMSCustomer": 0,
         "DisableLoadtblCustomer": 0,
         "DisableStaging": 0,
-        "ProcessId": -13,
+        "process_id": -13,
         "RecordSource1": 'FMS_Customer',
         "RecordSource2": 'tblCustomer',
         "RecordSource_dv_Load_SAL_Customer": 'CustomerLinks'
@@ -182,7 +182,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_HUB_Customer`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource1 }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -199,7 +199,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Customer`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, '{{{{ params.RecordSource1 }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource1 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -216,7 +216,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_SAL_Customer`("
-                        f"{{{{ dag_run.conf.get('process_id', params.ProcessId) }}}}, "
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, "
                         f"'{{{{ params.RecordSource_dv_Load_SAL_Customer }}}}');"
 
                     ),
