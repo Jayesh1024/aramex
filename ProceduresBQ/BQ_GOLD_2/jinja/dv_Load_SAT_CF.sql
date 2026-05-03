@@ -13,8 +13,8 @@
 --              error when staging has duplicate RFCode/CourierNumber combinations.
 -- ==========================================================================================
 CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_SAT_CF`(
-    IN ProcessID    INT64,
-    IN RecordSource STRING
+    IN p_ProcessID    INT64,
+    IN p_RecordSource STRING
 )
 BEGIN
 
@@ -171,8 +171,8 @@ BEGIN
             TRIM(Stg.ParcelConnectCFTerritory)          AS ParcelConnectCFTerritory,
             Stg.Inactive,
             CURRENT_DATETIME()                          AS Loaded,
-            ProcessID,
-            RecordSource,
+            p_ProcessID AS ProcessID,
+            p_RecordSource AS RecordSource,
             DefaultValidFrom                            AS ValidFrom,
             DefaultValidTo                              AS ValidTo,
             1                                           AS IsCurrent
