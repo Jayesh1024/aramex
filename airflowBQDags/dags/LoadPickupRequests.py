@@ -11,11 +11,11 @@ Flow (per country TaskGroup):
   * Watermark — `get_last_value` → `CALL <GCP_PROJECT_ID>.<SP_DATASET_ID>.Staging_Get_LastValue` (procedure
     in SP dataset; reads `Staging_LoadControl` in target). Override env via `config/template_config.env`.
   * Truncate `Staging_PickupRequest_<CC>_Stg`.
-  * `CALL Staging_load_PickupRequest_<CC>_Stg(p_IngestionTime)` — silver → country stg; cutoff is **DATETIME**
-    (`CreateDateUtc` > cutoff). See `BQ_GOLD_2/jinja/Staging_load_PickupRequest_*_Stg.sql`.
+  * `CALL Staging_load_PickupRequest_<CC>_Stg(p_ingestion_time)` — silver → country stg; cutoff is **DATETIME**
+    (`ingestion_time` > cutoff). See `BQ_GOLD_2/jinja/Staging_load_PickupRequest_*_Stg.sql`.
   * Copy new IDs into `Staging_PickupRequest_Stg` (SSIS «Copy Country Staging to PickupRequest_Stg»).
   * `CALL dv_Load_CT_SAT_Label_PickupRequests_<CC>(ProcessID)`.
-  * `CALL Staging_Set_LastValue(RecordSource, 'CreateDateUtc', MAX(CreateDateUtc) from country stg, FALSE)`
+  * `CALL Staging_Set_LastValue(RecordSource, 'ingestion_time', MAX(ingestion_time) from country stg, FALSE)`
     so `Staging_LoadControl.LastValue` advances after a successful run (requires LoadControl rows).
 
 Coexists with `dv_Load_SAT_Label_PickupRequests` (full refresh from shared stg) — different routines.
@@ -78,7 +78,7 @@ def _copy_country_to_shared_sql(country_suffix: str) -> str:
     stg = _bq_qual(TARGET_DATASET_ID, f"Staging_PickupRequest_{country_suffix}_Stg")
     return (
         f"INSERT INTO {_bq_qual(TARGET_DATASET_ID, 'Staging_PickupRequest_Stg')} ("
-        "ID, CreateDateUtc, ShouldPrintLabel, PickupFranchiseeCode, "
+        "ID, CreateDateUtc, ingestion_time, ShouldPrintLabel, PickupFranchiseeCode, "
         "PickupCourierNumber, LabelNumber, CollectionDate, CollectionCycle, "
         "PickupAddress1, PickupAddress2, PickupSuburb, PickupPostcode, "
         "PickupName, PickupPhone, PickupEmail, DeliveryAddress1, "
@@ -96,7 +96,7 @@ def _copy_country_to_shared_sql(country_suffix: str) -> str:
         "PickupSubDepotFranchiseeCode, CubicWeight, PickupCompany, "
         "DeliveryCompany, IsPriority"
         ") "
-        "SELECT Src.Id, Src.CreateDateUtc, Src.ShouldPrintLabel, "
+        "SELECT Src.Id, Src.CreateDateUtc, Src.ingestion_time, Src.ShouldPrintLabel, "
         "Src.PickupFranchiseeCode, Src.PickupCourierNumber, Src.LabelNumber, "
         "Src.CollectionDate, Src.CollectionCycle, Src.PickupAddress1, "
         "Src.PickupAddress2, Src.PickupSuburb, Src.PickupPostcode, "
@@ -210,15 +210,15 @@ with DAG(
                     "query": {
                         "query": (
                             "BEGIN\n"
-                            "  DECLARE max_create STRING;\n"
-                            "  SET max_create = (\n"
-                            "    SELECT CAST(MAX(CreateDateUtc) AS STRING)\n"
+                            "  DECLARE max_ingestion STRING;\n"
+                            "  SET max_ingestion = (\n"
+                            "    SELECT CAST(MAX(ingestion_time) AS STRING)\n"
                             f"    FROM {_bq_qual(TARGET_DATASET_ID, f'Staging_PickupRequest_{sfx}_Stg')}\n"
                             "  );\n"
                             f"  CALL {_bq_qual(SP_DATASET_ID, 'Staging_Set_LastValue')}(\n"
                             f"    '{rs}',\n"
-                            "    'CreateDateUtc',\n"
-                            "    max_create,\n"
+                            "    'ingestion_time',\n"
+                            "    max_ingestion,\n"
                             "    FALSE\n"
                             "  );\n"
                             "END;"

@@ -1,27 +1,29 @@
 -- ==========================================================================================
 -- Routine:     Staging_load_PickupRequest_NZ_Stg
--- Description: Same as AU variant; silver source `FastwayGlobal_6_PickupDashboard_PickupRequest`.
+-- Description: Same as AU variant; silver source `FastwayGlobal_6_PickupDashboard_PickupRequest`;
+--              incremental filter on `ingestion_time` via `p_ingestion_time` / watermark.
 -- History:
 --  [BQ]  2026-05-04  LoadPickupRequests migration.
 -- ==========================================================================================
 CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_load_PickupRequest_NZ_Stg`(
-  IN p_IngestionTime STRING
+  IN p_ingestion_time STRING
 )
 BEGIN
   DECLARE cutoff DATETIME;
   SET cutoff = (
     SELECT CASE
-      WHEN p_IngestionTime IS NULL
-        OR TRIM(p_IngestionTime) = ''
-        OR LOWER(TRIM(p_IngestionTime)) = 'none'
+      WHEN p_ingestion_time IS NULL
+        OR TRIM(p_ingestion_time) = ''
+        OR LOWER(TRIM(p_ingestion_time)) = 'none'
       THEN DATETIME_SUB(CURRENT_DATETIME(), INTERVAL 60 DAY)
-      ELSE SAFE_CAST(p_IngestionTime AS DATETIME)
+      ELSE SAFE_CAST(p_ingestion_time AS DATETIME)
     END
   );
 
   INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_PickupRequest_NZ_Stg` (
     Id,
     CreateDateUtc,
+    ingestion_time,
     ShouldPrintLabel,
     PickupFranchiseeCode,
     PickupCourierNumber,
@@ -85,6 +87,7 @@ BEGIN
   SELECT
     Src.Id,
     Src.CreateDateUtc,
+    Src.ingestion_time,
     CAST(Src.ShouldPrintLabel AS INT64) AS ShouldPrintLabel,
     Src.PickupFranchiseeCode,
     Src.PickupCourierNumber,
@@ -145,5 +148,5 @@ BEGIN
     CAST(Src.IsPriority AS INT64) AS IsPriority,
     CAST(0 AS INT64) AS SYS_CHANGE_VERSION
   FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_goku_silver.FastwayGlobal_6_PickupDashboard_PickupRequest` AS Src
-  WHERE SAFE_CAST(Src.CreateDateUtc AS DATETIME) > cutoff;
+  WHERE SAFE_CAST(Src.ingestion_time AS DATETIME) > cutoff;
 END;

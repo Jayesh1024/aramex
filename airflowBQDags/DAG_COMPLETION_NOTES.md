@@ -100,8 +100,8 @@ INSERT, SELECT) I use `TARGET_DATASET_ID`; `CALL` always goes to
 `LoadPickupRequests_AU` / `NZ` / `SA` are implemented as a **single** DAG
 `dags/LoadPickupRequests.py` (`dag_id=ssis_skeleton_loadpickuprequests`) with
 parallel TaskGroups `tg_au`, `tg_nz`, `tg_sa`. Watermarking uses
-`get_last_value` + `Staging_load_PickupRequest_*_Stg` (silver → country stg by
-`CreateDateUtc`). BigQuery procedure sources: `ProceduresBQ/BQ_GOLD_2/jinja/`
+`get_last_value` + `Staging_load_PickupRequest_*_Stg` (silver → country stg;
+incremental filter and `Staging_LoadControl` watermark on `ingestion_time`). BigQuery procedure sources: `ProceduresBQ/BQ_GOLD_2/jinja/`
 and `rendered/` (`dv_Load_CT_SAT_Label_PickupRequests_*`,
 `Staging_load_PickupRequest_*_Stg`). Per-country SSIS packages remain under
 `Packages/LoadPickupRequests_*.dtsx` with metadata under `outputs/`.
