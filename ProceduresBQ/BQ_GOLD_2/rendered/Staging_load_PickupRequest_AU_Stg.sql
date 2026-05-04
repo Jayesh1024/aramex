@@ -88,7 +88,7 @@ BEGIN
   SELECT
     Src.Id,
     Src.CreateDateUtc,
-    Src.ingestion_time,
+    CAST(Src.ingestion_time AS DATETIME) AS ingestion_time,
     CAST(Src.ShouldPrintLabel AS INT64) AS ShouldPrintLabel,
     Src.PickupFranchiseeCode,
     Src.PickupCourierNumber,
