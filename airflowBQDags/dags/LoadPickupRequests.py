@@ -163,7 +163,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
-                gcp_conn_id="google_cloud_default",
+                gcp_conn_id="oceania_target_sa_connection",
             )
 
             xcom_jinja = f"{{{{ ti.xcom_pull(task_ids='{tid_get_last}', default='') }}}}"
@@ -177,7 +177,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
-                gcp_conn_id="google_cloud_default",
+                gcp_conn_id="oceania_target_sa_connection",
             )
 
             op_copy = BigQueryInsertJobOperator(
@@ -188,7 +188,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
-                gcp_conn_id="google_cloud_default",
+                gcp_conn_id="oceania_target_sa_connection",
             )
 
             op_dv = BigQueryInsertJobOperator(
@@ -201,7 +201,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
-                gcp_conn_id="google_cloud_default",
+                gcp_conn_id="oceania_target_sa_connection",
             )
 
             op_set_last_value = BigQueryInsertJobOperator(
@@ -226,7 +226,7 @@ with DAG(
                         "useLegacySql": False,
                     }
                 },
-                gcp_conn_id="google_cloud_default",
+                gcp_conn_id="oceania_target_sa_connection",
             )
 
             op_get_last >> op_truncate >> op_staging_load

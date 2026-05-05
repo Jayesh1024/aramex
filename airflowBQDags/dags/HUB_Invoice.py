@@ -69,7 +69,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
         )
 
         # ref_id: Package\\Final\\Load_Label_Invoices — SSIS: EXEC dv.Load_Label_Invoices ?, ? (ProcessId, User::LastDate).
@@ -87,7 +87,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
         )
 
         # ref_id: Package\\Final\\Load_LNK_InvoiceLine — SSIS: Exec [dv].[Load_LNK_InvoiceLine] ProcessId
@@ -102,7 +102,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
         )
 
         # ref_id: Package\\Final\\Load_LNK_Invoice_Label — SSIS: Exec [dv].[Load_LNK_Invoice_Label] ProcessId
@@ -117,7 +117,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
         )
 
         # ref_id: Package\\Final\\Load_LSAT_InvoiceHead — SSIS: EXEC dv.Load_LSAT_InvoiceHead ProcessId
@@ -132,7 +132,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
         )
 
         # ref_id: Package\\Final\\Load_LSAT_InvoiceLine — SSIS: Exec [dv].[Load_LSAT_InvoiceLine] ProcessId
@@ -147,7 +147,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
         )
 
         # ref_id: Package\\Final\\Set LastDate (FMS_Invoice) — SSIS: Exec [Staging].[Set_LastValue]; BQ: Staging_Set_LastValue(p_RecordSource, p_ColumnName, p_LastValue, p_Force)
@@ -164,7 +164,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default"
+            gcp_conn_id="oceania_target_sa_connection"
         )
 
     with TaskGroup(group_id="tg_package_final_undtcktinvoice") as tg_final_undtckt:
@@ -181,7 +181,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
         )
 
         # ref_id: Package\\Final UndTcktInvoice\\Set LastDate (UndTckt Invoice) — SSIS binds $RecordSource2; BQ: Staging_Set_LastValue(4 args)
@@ -196,7 +196,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection"nection"nection",
         )
 
     with TaskGroup(group_id="tg_package_staging") as tg_staging:
@@ -216,7 +216,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection"nection",
         )
 
         # ref_id: Package\\Staging\\Get LastDate (FMS_Invoice)
@@ -243,7 +243,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection"nection",
         )
 
         # ref_id: Package\\Staging\\Load FMS_InvoiceHead_Stg
@@ -259,7 +259,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection"nection",
         )
 
         # ref_id: Package\\Staging\\Load FMS_InvoiceLines_Stg
@@ -275,7 +275,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection"nection"nection",
         )
 
 
@@ -293,7 +293,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection"nection",
         )
 
         # ref_id: Package\\Staging UndTcktInvoice\\Get LastDate (UndTckt Invoice) — SSIS $RecordSource2 → params.RecordSource2
@@ -319,7 +319,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="oceania_target_sa_connection",
         )
 
     # --- precedence (upstream >> downstream) ---
