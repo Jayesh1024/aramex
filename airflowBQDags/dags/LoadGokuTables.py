@@ -21,12 +21,12 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from utils.getValue import get_last_value
 
-PROJECT_ID = os.getenv("PROJECT_ID")
+GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
 SP_DATASET_ID = os.getenv("SP_DATASET_ID")
 TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID")
 
 # Airflow Google Cloud connection for BigQueryInsertJobOperator tasks.
-_GCP_CONN_ID = "google_cloud_default"
+_GCP_CONN_ID = "oceania_target_sa_connection"
 
 # task_ids referenced by ti.xcom_pull in BigQuery CALL text below.
 _TASK_ID_GET_LAST_PAYZONE_AGENTS = "load_goku_get_last_value_payzone_agents"
@@ -48,11 +48,11 @@ _xcom_last_fwfastlabel_clickandcollect = (
 # Staging_Set_LastValue `p_LastValue`: MAX(ingestion_time) from gold_1 staging (`TARGET_DATASET_ID`).
 _max_ingestion_time_staging_payzone_agents = (
     f"(SELECT CAST(MAX(ingestion_time) AS STRING) "
-    f"FROM `{TARGET_DATASET_ID}.Staging_payzone_agents_stg`)"
+    f"FROM `{TARGET_DATASET_ID}.Staging_payzone_agents_Stg`)"
 )
 _max_ingestion_time_staging_payzone_regions = (
     f"(SELECT CAST(MAX(ingestion_time) AS STRING) "
-    f"FROM `{TARGET_DATASET_ID}.Staging_payzone_regions_stg`)"
+    f"FROM `{TARGET_DATASET_ID}.Staging_payzone_regions_Stg`)"
 )
 _max_ingestion_time_staging_fwfastlabel_clickandcollect = (
     f"(SELECT CAST(MAX(ingestion_time) AS STRING) "
@@ -82,8 +82,8 @@ with DAG(
         configuration={
             "query": {
                 "query": (
-                    f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_payzone_agents_stg`;\n"
-                    f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_payzone_regions_stg`;\n"
+                    f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_payzone_agents_Stg`;\n"
+                    f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_payzone_regions_Stg`;\n"
                     f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_FWFastlabel_ClickAndCollect_Stg`;"
                 ),
                 "useLegacySql": False,
@@ -127,11 +127,11 @@ with DAG(
     )
 
     op_5 = BigQueryInsertJobOperator(
-        task_id="load_goku_call_sp_load_staging_payzone_agents_stg",
+        task_id="load_goku_call_sp_load_Staging_payzone_agents_Stg",
         configuration={
             "query": {
                 "query": (
-                    f"CALL `{SP_DATASET_ID}.sp_load_Staging_payzone_agents_stg`("
+                    f"CALL `{SP_DATASET_ID}.sp_load_Staging_payzone_agents_Stg`("
                     f"SAFE_CAST('{_xcom_last_payzone_agents}' AS DATETIME));"
                 ),
                 "useLegacySql": False,
@@ -142,11 +142,11 @@ with DAG(
     )
 
     op_6 = BigQueryInsertJobOperator(
-        task_id="load_goku_call_sp_load_staging_payzone_regions_stg",
+        task_id="load_goku_call_sp_load_Staging_payzone_regions_Stg",
         configuration={
             "query": {
                 "query": (
-                    f"CALL `{SP_DATASET_ID}.sp_load_Staging_payzone_regions_stg`("
+                    f"CALL `{SP_DATASET_ID}.sp_load_Staging_payzone_regions_Stg`("
                     f"SAFE_CAST('{_xcom_last_payzone_regions}' AS DATETIME));"
                 ),
                 "useLegacySql": False,

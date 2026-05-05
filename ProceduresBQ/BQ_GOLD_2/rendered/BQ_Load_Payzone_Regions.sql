@@ -20,7 +20,7 @@ BEGIN
         SELECT
           s.*,
           ROW_NUMBER() OVER (PARTITION BY s.id ORDER BY s.id) AS dedupe_rn
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_payzone_regions_stg` AS s
+        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_payzone_regions_Stg` AS s
       )
       WHERE dedupe_rn = 1
     ) AS Src
@@ -33,8 +33,7 @@ BEGIN
         region_address = Src.region_address,
         region_company_email = Src.region_company_email,
         secondary_franchisee_codes = Src.secondary_franchisee_codes,
-        CountryId = Src.CountryId,
-        SYS_CHANGE_VERSION = Src.SYS_CHANGE_VERSION
+        CountryId = Src.CountryId
     WHEN NOT MATCHED THEN
       INSERT (
         id,
@@ -44,8 +43,7 @@ BEGIN
         region_address,
         region_company_email,
         secondary_franchisee_codes,
-        CountryId,
-        SYS_CHANGE_VERSION
+        CountryId
       )
       VALUES (
         Src.id,
@@ -55,8 +53,7 @@ BEGIN
         Src.region_address,
         Src.region_company_email,
         Src.secondary_franchisee_codes,
-        Src.CountryId,
-        Src.SYS_CHANGE_VERSION
+        Src.CountryId
       );
 
     SET v_AffectedRows = @@row_count;

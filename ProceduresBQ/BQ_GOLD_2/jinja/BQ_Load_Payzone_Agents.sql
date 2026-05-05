@@ -21,7 +21,7 @@ BEGIN
         SELECT
           s.*,
           ROW_NUMBER() OVER (PARTITION BY s.Id ORDER BY s.Id) AS dedupe_rn
-        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_payzone_agents_stg` AS s
+        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_payzone_agents_Stg` AS s
       )
       WHERE dedupe_rn = 1
     ) AS Src
@@ -56,8 +56,7 @@ BEGIN
         AllowFwClickAndCollect = Src.AllowFwClickAndCollect,
         MaxWeightDead = Src.MaxWeightDead,
         DimensionCombinedMax = Src.DimensionCombinedMax,
-        store_state = Src.store_state,
-        SYS_CHANGE_VERSION = Src.SYS_CHANGE_VERSION
+        store_state = Src.store_state
     WHEN NOT MATCHED THEN
       INSERT (
         Id,
@@ -89,8 +88,7 @@ BEGIN
         AllowFwClickAndCollect,
         MaxWeightDead,
         DimensionCombinedMax,
-        store_state,
-        SYS_CHANGE_VERSION
+        store_state
       )
       VALUES (
         Src.Id,
@@ -122,8 +120,7 @@ BEGIN
         Src.AllowFwClickAndCollect,
         Src.MaxWeightDead,
         Src.DimensionCombinedMax,
-        Src.store_state,
-        Src.SYS_CHANGE_VERSION
+        Src.store_state
       );
 
     SET v_AffectedRows = @@row_count;

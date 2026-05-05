@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.sp_load_Staging_payzone_regions_stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.sp_load_Staging_payzone_regions_Stg`(
   p_LastValue DATETIME
 )
 BEGIN
@@ -6,7 +6,7 @@ BEGIN
     RAISE USING MESSAGE = 'p_LastValue is required (populate from get_last_value in Airflow)';
   END IF;
 
-  INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_payzone_regions_stg`
+  INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_payzone_regions_Stg`
   SELECT Src.id
           ,Src.franchisee_code
           ,Src.region_company_name

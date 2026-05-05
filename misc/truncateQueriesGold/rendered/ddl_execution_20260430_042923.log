@@ -94,12 +94,12 @@
 2026-04-30 04:29:37  INFO      [SUCCESS] Staging_fl_ServiceItem_Stg.sql
 2026-04-30 04:29:38  INFO      [SUCCESS] Staging_fl_ServiceZoneSatchelOverride_Stg.sql
 2026-04-30 04:29:38  INFO      [SUCCESS] Staging_fl_ServiceZoneWeightOverride_Stg.sql
-2026-04-30 04:29:38  INFO      [SUCCESS] Staging_payzone_agents_stg.sql
+2026-04-30 04:29:38  INFO      [SUCCESS] Staging_payzone_agents_Stg.sql
 2026-04-30 04:29:38  INFO      [SUCCESS] Staging_tblCustomer_Stg.sql
 2026-04-30 04:29:38  INFO      [SUCCESS] Staging_tblOnlineEnquiry_RP_Stg.sql
 2026-04-30 04:29:38  INFO      [SUCCESS] Staging_tblTasman_Consignment_Stg.sql
 2026-04-30 04:29:38  INFO      [SUCCESS] Staging_tsections_Stg.sql
-2026-04-30 04:29:38  INFO      [SUCCESS] Staging_payzone_regions_stg.sql
+2026-04-30 04:29:38  INFO      [SUCCESS] Staging_payzone_regions_Stg.sql
 2026-04-30 04:29:38  INFO      [SUCCESS] dbo_AMS.sql
 2026-04-30 04:29:38  INFO      [SUCCESS] dbo_AmazonInternationalSLA.sql
 2026-04-30 04:29:38  INFO      [SUCCESS] Staging_tblFastLabel_Consignment_Stg.sql
