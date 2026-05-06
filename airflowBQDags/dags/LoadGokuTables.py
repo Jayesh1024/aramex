@@ -97,7 +97,7 @@ with DAG(
         task_id=_TASK_ID_GET_LAST_PAYZONE_AGENTS,
         python_callable=get_last_value,
         op_kwargs={
-            "project_id": PROJECT_ID,
+            "project_id": GCP_PROJECT_ID,
             "dataset_id": SP_DATASET_ID,
             "record_source": "{{ params.RecordSourcePayzoneAgents }}",
             "gcp_conn_id": _GCP_CONN_ID,
@@ -108,7 +108,7 @@ with DAG(
         task_id=_TASK_ID_GET_LAST_PAYZONE_REGIONS,
         python_callable=get_last_value,
         op_kwargs={
-            "project_id": PROJECT_ID,
+            "project_id": GCP_PROJECT_ID,
             "dataset_id": SP_DATASET_ID,
             "record_source": "{{ params.RecordSourcePayzoneRegions }}",
             "gcp_conn_id": _GCP_CONN_ID,
@@ -119,7 +119,7 @@ with DAG(
         task_id=_TASK_ID_GET_LAST_FWFASTLABEL_CLICKANDCOLLECT,
         python_callable=get_last_value,
         op_kwargs={
-            "project_id": PROJECT_ID,
+            "project_id": GCP_PROJECT_ID,
             "dataset_id": SP_DATASET_ID,
             "record_source": "{{ params.RecordSourceClickAndCollect }}",
             "gcp_conn_id": _GCP_CONN_ID,
