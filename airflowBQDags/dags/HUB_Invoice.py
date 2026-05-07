@@ -170,7 +170,7 @@ with DAG(
                     "useLegacySql": False,
                 }
             },
-            gcp_conn_id="google_cloud_default"
+            gcp_conn_id="google_cloud_default",
             job_id="bq_gold_transformation_oceania",
         )
 

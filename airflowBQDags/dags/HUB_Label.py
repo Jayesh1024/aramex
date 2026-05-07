@@ -102,7 +102,7 @@ with DAG(
                     "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_SAT_Label_Allocation_Stg`",
                     "useLegacySql": False,
                 }
-            }
+            },
             job_id="bq_gold_transformation_oceania",
         )
 
@@ -114,7 +114,7 @@ with DAG(
                     "query": f"CALL `{SP_DATASET_ID}.staging_Load_SAT_Label_Allocation_Stg2`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});",
                     "useLegacySql": False,
                 }
-            }
+            },
             job_id="bq_gold_transformation_oceania",
         )
 
@@ -126,7 +126,7 @@ with DAG(
                     "query": f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation`({{{{ dag_run.conf.get('process_id', params.ProcessId) }}}});",
                     "useLegacySql": False,
                 }
-            }
+            },
             job_id="bq_gold_transformation_oceania",
         )
 
@@ -501,7 +501,7 @@ with DAG(
                         "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_LabelMaster_Stg`",
                         "useLegacySql": False,
                     }
-                }
+                },
                 job_id="bq_gold_transformation_oceania",
             )
 
@@ -681,7 +681,7 @@ with DAG(
                         "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_API_RF_AdHocLabel_AllocationHistory_Stg`",
                         "useLegacySql": False,
                     }
-                }
+                },
                 job_id="bq_gold_transformation_oceania",
             )
 

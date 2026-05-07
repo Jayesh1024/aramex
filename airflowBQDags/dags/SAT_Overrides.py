@@ -41,6 +41,18 @@ with DAG(
 ) as dag:
 
     with TaskGroup(group_id="tg_package_customer_overrides_staging") as tg_cust_stg:
+        # ref_id: ...\Truncate Customer Overrides Staging
+        op_2 = BigQueryInsertJobOperator(
+            task_id="package_customer_overrides_staging_truncate_customer_overrides",
+            configuration={
+                "query": {
+                    "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.dv_SAT_FL_PriceListCustomerOverride`;",
+                    "useLegacySql": False,
+                }
+            },
+            job_id="bq_gold_transformation_oceania",
+        )
+
         # ref_id: ...\Load Customer Price Overrides — pipeline -> inferred SP
         op_3 = BigQueryInsertJobOperator(
             task_id="package_customer_overrides_staging_load_customer_price_overrides",
@@ -52,6 +64,8 @@ with DAG(
             },
             job_id="bq_gold_transformation_oceania",
         )
+
+        op_2 >> op_3
 
     with TaskGroup(group_id="tg_package_customer_overrides_final") as tg_cust_final:
         # STOCK:SEQUENCE — ref_id: Package\Customer Overrides - Final
