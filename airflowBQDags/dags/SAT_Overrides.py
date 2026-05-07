@@ -41,6 +41,23 @@ with DAG(
 ) as dag:
 
     with TaskGroup(group_id="tg_package_customer_overrides_staging") as tg_cust_stg:
+
+        op_14 = BigQueryInsertJobOperator(
+            task_id="package_customer_overrides_staging_truncate_customer_overrides",
+            gcp_conn_id="oceania_target_sa_connection",
+            location="europe-west2",
+            configuration={
+                "query": {
+                    "query": f'''
+                        TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_fl_PriceListCustomerOverride_Stg`;
+                        TRUNCATE TABLE `{TARGET_DATASET_ID}.dv_SAT_FL_PriceListCustomerOverride`;
+                    '''
+                }
+            },
+            job_id="bq_gold_transformation_oceania",
+        )
+
+
         # ref_id: ...\Load Customer Price Overrides — pipeline -> inferred SP
         op_3 = BigQueryInsertJobOperator(
             task_id="package_customer_overrides_staging_load_customer_price_overrides",
@@ -55,9 +72,10 @@ with DAG(
             job_id="bq_gold_transformation_oceania",
         )
 
+        op_14 >> op_3
+
     with TaskGroup(group_id="tg_package_customer_overrides_final") as tg_cust_final:
         # STOCK:SEQUENCE — ref_id: Package\Customer Overrides - Final
-
         # ref_id: ...\Load SAT_CustomerPriceOverride — dv_Load_SAT_FL_PriceListCustomerOverride(ProcessId, RecordSource)
         op_1 = BigQueryInsertJobOperator(
             task_id="package_customer_overrides_final_load_sat_customerpriceoverride",
@@ -125,37 +143,7 @@ with DAG(
             job_id="bq_gold_transformation_oceania",
         )
 
-        # ref_id: ...\Load Zone Satchel Overiides — pipeline -> inferred SP
-        op_9 = BigQueryInsertJobOperator(
-            task_id="package_zones_overrides_staging_load_zone_satchel_overiides",
-            gcp_conn_id="oceania_target_sa_connection",
-            location="europe-west2",
-            configuration={
-                "query": {
-                    "query": f"SELECT * FROM `{TARGET_DATASET_ID}.vw_Staging_fl_ServiceZoneSatchelOverride_Stg`",
-                    "useLegacySql": False,
-                }
-            },
-            job_id="bq_gold_transformation_oceania",
-        )
-
-        # ref_id: ...\Load Zone Weight Overiides — pipeline -> inferred SP
-        op_10 = BigQueryInsertJobOperator(
-            task_id="package_zones_overrides_staging_load_zone_weight_overiides",
-            gcp_conn_id="oceania_target_sa_connection",
-            location="europe-west2",
-            configuration={
-                "query": {
-                    "query": f"SELECT * FROM `{TARGET_DATASET_ID}.vw_Staging_fl_ServiceZoneWeightOverride_Stg`",
-                    "useLegacySql": False,
-                }
-            },
-            job_id="bq_gold_transformation_oceania",
-        )
-
         op_13 >> op_11
-        op_12 >> op_9
-        op_12 >> op_10
 
     with TaskGroup(group_id="tg_package_zones_overrides_final") as tg_zones_final:
         # STOCK:SEQUENCE — ref_id: Package\Zones Overrides - Final

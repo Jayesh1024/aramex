@@ -58,7 +58,7 @@ BEGIN
             UpdatedBy,
             v_Loaded,
             p_RecordSource
-        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_fl_ServiceZoneSatchelOverride_Stg`
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.vw_Staging_fl_ServiceZoneSatchelOverride_Stg`
         
         UNION DISTINCT
         
@@ -88,7 +88,7 @@ BEGIN
             UpdatedBy,
             v_Loaded,
             p_RecordSource
-        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_fl_ServiceZoneWeightOverride_Stg`;	 
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.vw_Staging_fl_ServiceZoneWeightOverride_Stg`;	 
         
         SET v_Inserted = @@row_count;
 

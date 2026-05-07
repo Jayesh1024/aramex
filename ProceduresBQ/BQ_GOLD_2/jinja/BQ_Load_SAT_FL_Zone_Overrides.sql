@@ -58,7 +58,7 @@ BEGIN
             UpdatedBy,
             v_Loaded,
             p_RecordSource
-        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_fl_ServiceZoneSatchelOverride_Stg`
+        FROM `{{ project_id }}.{{ target_dataset_id }}.vw_Staging_fl_ServiceZoneSatchelOverride_Stg`
         
         UNION DISTINCT
         
@@ -88,7 +88,7 @@ BEGIN
             UpdatedBy,
             v_Loaded,
             p_RecordSource
-        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_fl_ServiceZoneWeightOverride_Stg`;	 
+        FROM `{{ project_id }}.{{ target_dataset_id }}.vw_Staging_fl_ServiceZoneWeightOverride_Stg`;	 
         
         SET v_Inserted = @@row_count;
 

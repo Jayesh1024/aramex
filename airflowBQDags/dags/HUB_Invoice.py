@@ -170,8 +170,8 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.Staging_Set_LastValue`('{{{{ params.RecordSource }}}}', "
-                        "'NULL', "
-                        "'NULL', "
+                        "NULL, "
+                        "NULL, "
                         "FALSE);"
                     ),
                     "useLegacySql": False,

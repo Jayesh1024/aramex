@@ -44,11 +44,11 @@ with DAG(
     catchup=False,
     tags=["ssis", "skeleton", "lnk_ruralonfowards"],
     params={
-        "EndDate": '1/1/1900',
+        "EndDate": '1900-01-01',
         "NumberOfDays": 14,
         "process_id": -121,
         "RecordSource14": 'LA_RuralOnforwards',
-        "StartDate": '1/1/1900',
+        "StartDate": '1900-01-01',
     },
 ) as dag:
 

@@ -1,1 +1,1 @@
-1. Change ProcessID to p_ProcessID and RecordSource to p_RecordSource in the procedure dv_Load_SAT_CF.
+1. Change the date format for LNK_RuralOnFowards.py to follow the format YYYY-MM-DD.
