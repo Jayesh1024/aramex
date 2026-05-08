@@ -1,1 +1,1 @@
-1. Change the date format for LNK_RuralOnFowards.py to follow the format YYYY-MM-DD.
+1. Add materialised view in directory ProceduresBQ/BQ_GOLD_2/materializedViews.
