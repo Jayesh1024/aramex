@@ -11,9 +11,10 @@ labels / prods / invdet` driven by a `@RecordSource` that switches between
 'InterBranchAU' and 'InterBranchNZ' to filter `CountryCode`. Wrapped as
 `sp_load_Staging_Label_Interbranch_Stg(last_batch_id INT64, record_source STRING)`.
 
-`Set LastValue (InterBranch)` is an SSIS ExecuteSQL that updates
-Staging.LoadControl conditioned on the staging table having rows — translated
-as a direct BQ UPDATE with a correlated COUNT.
+`Set LastValue (InterBranch)` in SSIS `Package\\Final` runs after
+`Load LSAT_Label_InterBranch`; it updates `Staging.LoadControl` when the
+staging table has rows (same logic as the dtsx Execute SQL), translated here
+as a BQ UPDATE with a correlated COUNT.
 """
 from __future__ import annotations
 

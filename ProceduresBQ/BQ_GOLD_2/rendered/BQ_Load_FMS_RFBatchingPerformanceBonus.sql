@@ -32,7 +32,7 @@ BEGIN
   -- FIX: Changed SELECT INTO to SET variable = (SELECT ...)
   -- -----------------------------------------------------------------------
   SET v_DateBOM = (
-    SELECT CAST(LastValue AS DATE)
+    SELECT DATE(SAFE_CAST(LastValue AS DATETIME))
     FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LoadControl`
     WHERE RecordSource = 'Fact_KPI_DPFM_Export'
     LIMIT 1

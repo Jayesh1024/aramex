@@ -27,7 +27,7 @@ Explicitly **not touched** this pass:
 | `DB_Copy_Table` | Jayesh asked to SKIP. |
 | `HUB_Label` | In WIP by Jayesh. |
 | `LoadControl` | In WIP by Sreekar. |
-| `LoadPickupRequests_AU` / `NZ` / `SA` | Not on the source sheet; no SSIS stub or `.dtsx` package exists — only an outputs folder. Treating these as discovery items, see §5. |
+| `LoadPickupRequests_*` | **Done** — consolidated `LoadPickupRequests.py` (`ssis_skeleton_loadpickuprequests`) with three country TaskGroups; `.dtsx` under `Packages/`. See §5. |
 | Everything else | Already `Done`. |
 
 ## 2. Reference patterns adopted
@@ -97,20 +97,14 @@ INSERT, SELECT) I use `TARGET_DATASET_ID`; `CALL` always goes to
 
 ## 5. New / discovery DAGs
 
-`LoadPickupRequests_AU`, `LoadPickupRequests_NZ`, `LoadPickupRequests_SA` have
-outputs folders under `airflowBQDags/outputs/` but no corresponding `.py`
-stub in `airflowBQDags/dags/` and no `.dtsx` in `airflowBQDags/Packages/`.
-They are flagged in the tracker as *"New folder under airflowBQDags/outputs
-(not on Sheet1)"*. I have **not** written code for these because:
-
-1. They were never in the first-iteration skeleton pass, so the precedence
-   graph is unvalidated.
-2. The source `.dtsx` package is missing — the only information is whatever
-   lives under `airflowBQDags/outputs/LoadPickupRequests_*/`. Without the
-   SSIS package I cannot verify parameter directions or variable bindings.
-
-**Action needed from the team** — confirm whether these three DAGs are in
-scope, and if so, upload / regenerate the SSIS package metadata.
+`LoadPickupRequests_AU` / `NZ` / `SA` are implemented as a **single** DAG
+`dags/LoadPickupRequests.py` (`dag_id=ssis_skeleton_loadpickuprequests`) with
+parallel TaskGroups `tg_au`, `tg_nz`, `tg_sa`. Watermarking uses
+`get_last_value` + `Staging_load_PickupRequest_*_Stg` (silver → country stg;
+incremental filter and `Staging_LoadControl` watermark on `ingestion_time`). BigQuery procedure sources: `ProceduresBQ/BQ_GOLD_2/jinja/`
+and `rendered/` (`dv_Load_CT_SAT_Label_PickupRequests_*`,
+`Staging_load_PickupRequest_*_Stg`). Per-country SSIS packages remain under
+`Packages/LoadPickupRequests_*.dtsx` with metadata under `outputs/`.
 
 ## 6. Ambiguity log — items I deliberately did NOT code
 
@@ -510,12 +504,10 @@ _(populated as each DAG is completed — see the tail of this document.)_
   any internal wiring, so children never ran. Fixed.
 
 ### LoadPickupRequests_AU / NZ / SA
-- **NOT COMPLETED.** No `.dtsx`, no `airflowBQDags/dags/*.py` skeleton,
-  no `airflowBQDags/outputs/<name>/package_metadata.json` — only a CSV
-  source/target mapping under
-  `airflowBQDags/outputs/dataflow_source_target_mapping_results/`.
-- See §5 above; needs metadata regeneration before any code can be
-  written.
+- **Completed** as `LoadPickupRequests.py` — one DAG, three branches; SSIS
+  `.dtsx` packages present; BQ SP DDL in `ProceduresBQ/BQ_GOLD_2/`.
+- `Staging_LoadControl.LastValue` is read for the watermark but **not**
+  auto-updated by the DAG (manual step until prod automation).
 
 ## 7. SQL Server DB-maintenance / index-maintenance cleanup
 
