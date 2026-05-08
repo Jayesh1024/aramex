@@ -32,7 +32,7 @@ BEGIN
   -- FIX: Changed SELECT INTO to SET variable = (SELECT ...)
   -- -----------------------------------------------------------------------
   SET v_DateBOM = (
-    SELECT CAST(LastValue AS DATE)
+    SELECT DATE(SAFE_CAST(LastValue AS DATETIME))
     FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_LoadControl`
     WHERE RecordSource = 'Fact_KPI_DPFM_Export'
     LIMIT 1
