@@ -3,9 +3,16 @@ Completed DAG for SSIS package: Fact_KPI
 Migration: SSIS -> BigQuery
 
 Staging flow: Truncate -> Load KPI_Labels_Src_Stg -> Load Fact_KPI_Daily_Stg.
-Final flow  : Load Fact KPI Labels -> Load Fact_KPI_Priority -> Load Fact KPI Performance.
+Final flow  : Load Fact KPI Labels -> Set LastDate (LoadControl) -> Load Fact_KPI_Priority
+              -> Load Fact KPI Performance.
 
 The SSIS "Defrag Indexes" task has been dropped — BigQuery has no indexes.
+
+The SSIS **Set LastDate** task (UPDATE `Staging.LoadControl` for `Fact_KPI_Scan` to end-of-yesterday)
+was missing from the first Airflow skeleton: only the three `CALL` steps were transcribed from the SP
+list, not the inline Execute SQL. `Staging_Load_Fact_KPI_Src_Stg` already advances the same watermark
+during staging; this final step replicates SSIS order and re-asserts the bookmark after
+`dbo_Load_Fact_KPI_Daily` completes (same end-of-prior-day semantics as the BQ staging default).
 
 SPs resolved against `ProceduresBQ/sp_json.json` and `SP.json`:
   * Staging_Load_Fact_KPI_Src_Stg(p_ProcessID INT64, p_StartDateOverRide STRING, p_EndDateOverRide STRING)
@@ -118,6 +125,25 @@ with DAG(
             },
         )
 
+        # ref_id: Package\Final\Set LastDate — SSIS: UPDATE [Staging].[LoadControl] LastValue = EOD yesterday
+        #   WHERE RecordSource = 'Fact_KPI_Scan' (HUB_Invoice pattern: BQ Staging_Set_LastValue).
+        op_set_lastdate = BigQueryInsertJobOperator(
+            task_id="package_final_set_lastdate_fact_kpi_scan",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{SP_DATASET_ID}.Staging_Set_LastValue`("
+                        f"'Fact_KPI_Scan', "
+                        f"'ScanDateTime', "
+                        f"CAST(DATETIME_SUB(DATETIME_TRUNC(CURRENT_DATETIME(), DAY), "
+                        f"INTERVAL 1 MILLISECOND) AS STRING), "
+                        f"FALSE);"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
+
         # ref_id: Package\Final\Load Fact_KPI_Priority — EXEC [dbo].[Load_Fact_KPI_Priority] ProcessId
         op_3 = BigQueryInsertJobOperator(
             task_id="package_final_load_fact_kpi_priority",
@@ -146,6 +172,6 @@ with DAG(
             },
         )
 
-        op_1 >> op_3 >> op_2
+        op_1 >> op_set_lastdate >> op_3 >> op_2
 
     tg_staging >> tg_final

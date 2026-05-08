@@ -77,15 +77,29 @@ with DAG(
         # STOCK:SEQUENCE — ref_id: Package\Staging
 
         # ref_id: Package\Staging\Truncate BLK_Manifest_Stg
-        # SSIS truncates both staging tables in one task.
+        # SSIS truncates five staging tables in one task.
         op_10 = BigQueryInsertJobOperator(
             task_id="package_staging_truncate_blk_manifest_stg",
             configuration={
                 "query": {
                     "query": (
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_BLK_Container_Stg`;\n"
                         f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_BLK_ContainerManifest_Stg`;\n"
-                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_BLK_ContainerManifestContents_Stg`;"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_BLK_ContainerManifestContents_Stg`;\n"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_BLK_TransitManifest_Stg`;\n"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_BLK_TransitManifestContents_Stg`;"
                     ),
+                    "useLegacySql": False,
+                }
+            },
+        )
+
+        # ref_id: Package\Staging\Load Container (Pipeline -> SP, no params)
+        op_6 = BigQueryInsertJobOperator(
+            task_id="package_staging_load_container",
+            configuration={
+                "query": {
+                    "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_BLK_Container_Stg`();",
                     "useLegacySql": False,
                 }
             },
@@ -110,7 +124,7 @@ with DAG(
             op_kwargs={
                 "project_id": GCP_PROJECT_ID,
                 "dataset_id": SP_DATASET_ID,
-                "record_source": "{{ params.RecordSource1 }}",
+                "record_source": "{{ params.RecordSource2 }}",
             },
         )
 
@@ -128,22 +142,44 @@ with DAG(
             },
         )
 
-        op_10 >> op_9 >> op_7 >> op_8
+        # ref_id: Package\Staging\Load BLK_TransitManifest (Pipeline -> SP, no params)
+        op_11 = BigQueryInsertJobOperator(
+            task_id="package_staging_load_blk_transitmanifest",
+            configuration={
+                "query": {
+                    "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_BLK_TransitManifest_Stg`();",
+                    "useLegacySql": False,
+                }
+            },
+        )
+
+        # ref_id: Package\Staging\Load TransitContents (Pipeline -> SP, no params)
+        op_12 = BigQueryInsertJobOperator(
+            task_id="package_staging_load_transitcontents",
+            configuration={
+                "query": {
+                    "query": f"CALL `{SP_DATASET_ID}.sp_load_Staging_BLK_TransitManifestContents_Stg`();",
+                    "useLegacySql": False,
+                }
+            },
+        )
+
+        op_10 >> op_6 >> op_9 >> op_11 >> op_7
+        op_7 >> [op_8, op_12]
 
     with TaskGroup(group_id="tg_package_final") as tg_final:
         # STOCK:SEQUENCE — ref_id: Package\Final
 
         _xcom_processid = f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_PROCESS_ID}') }}}}"
 
-        # ref_id: Package\Final\Load HUB_BLKContainerManifestLabel
-        # SSIS: EXEC [dv].[Load_HUB_BLKContainerManifestContents] ProcessId, RecordSource
+        # ref_id: Package\Final\Load SAT_BLKContainer — EXEC [dv].[Load_SAT_BLKContainer] ?,?
         op_1 = BigQueryInsertJobOperator(
-            task_id="package_final_load_hub_blkcontainermanifestlabel",
+            task_id="package_final_load_sat_blkcontainer",
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{SP_DATASET_ID}.dv_Load_HUB_BLKContainerManifestContents`("
-                        f"{_xcom_processid}, '{{{{ params.RecordSource1 }}}}');"
+                        f"CALL `{SP_DATASET_ID}.dv_Load_SAT_BLKContainer`("
+                        f"{_xcom_processid}, '{{{{ params.RecordSource3 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -171,7 +207,35 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_SAT_BLKContainerManifestContents`("
-                        f"{_xcom_processid}, '{{{{ params.RecordSource1 }}}}');"
+                        f"{_xcom_processid}, '{{{{ params.RecordSource2 }}}}');"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
+
+        # ref_id: Package\Final\Load SAT_BLKTransitManifest — EXEC [dv].[Load_SAT_BLKTransitManifest] ?,?
+        op_13 = BigQueryInsertJobOperator(
+            task_id="package_final_load_sat_blktransitmanifest",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{SP_DATASET_ID}.dv_Load_SAT_BLKTransitManifest`("
+                        f"{_xcom_processid}, '{{{{ params.RecordSource4 }}}}');"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
+
+        # ref_id: Package\Final\Load SAT_BLKTransitManifestContents — EXEC [dv].[Load_SAT_BLKTransitManifestContents] ?,?
+        op_14 = BigQueryInsertJobOperator(
+            task_id="package_final_load_sat_blktransitmanifestcontents",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{SP_DATASET_ID}.dv_Load_SAT_BLKTransitManifestContents`("
+                        f"{_xcom_processid}, '{{{{ params.RecordSource5 }}}}');"
                     ),
                     "useLegacySql": False,
                 }
@@ -190,8 +254,9 @@ with DAG(
                         "SET lc.LastValue = CAST(("
                         "SELECT CAST(MAX(ScanDate) AS STRING) "
                         f"FROM `{TARGET_DATASET_ID}.Staging_BLK_ContainerManifestContents_Stg`"
+                        " WHERE CAST(ScanDate AS TIMESTAMP) < CURRENT_TIMESTAMP()"
                         ") AS STRING) "
-                        "WHERE lc.RecordSource = '{{ params.RecordSource1 }}';"
+                        "WHERE lc.RecordSource = '{{ params.RecordSource2 }}';"
                     ),
                     "useLegacySql": False,
                 }
@@ -199,6 +264,7 @@ with DAG(
         )
 
         op_2 >> op_3
-        [op_1, op_3] >> op_4
+        op_13 >> op_14
+        [op_1, op_3, op_14] >> op_4
 
     op_5 >> tg_staging >> tg_final

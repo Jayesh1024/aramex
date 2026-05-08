@@ -11,9 +11,10 @@ labels / prods / invdet` driven by a `@RecordSource` that switches between
 'InterBranchAU' and 'InterBranchNZ' to filter `CountryCode`. Wrapped as
 `sp_load_Staging_Label_Interbranch_Stg(last_batch_id INT64, record_source STRING)`.
 
-`Set LastValue (InterBranch)` is an SSIS ExecuteSQL that updates
-Staging.LoadControl conditioned on the staging table having rows — translated
-as a direct BQ UPDATE with a correlated COUNT.
+`Set LastValue (InterBranch)` in SSIS `Package\\Final` runs after
+`Load LSAT_Label_InterBranch`; it updates `Staging.LoadControl` when the
+staging table has rows (same logic as the dtsx Execute SQL), translated here
+as a BQ UPDATE with a correlated COUNT.
 """
 from __future__ import annotations
 
@@ -89,9 +90,28 @@ with DAG(
             },
         )
 
-        # ref_id: Package\Staging 2\Set LastValue (InterBranch) — only update if staging has rows.
-        op_9 = BigQueryInsertJobOperator(
-            task_id="package_staging_2_set_lastvalue_interbranch",
+        op_10 >> op_7 >> op_8
+
+    with TaskGroup(group_id="tg_package_final") as tg_final:
+        # STOCK:SEQUENCE — ref_id: Package\Final
+
+        # ref_id: Package\Final\Load LSAT_Label_InterBranch — Exec [dv].[Load_LSAT_Label_InterBranch] ProcessId, RecordSource12
+        op_load_lsat = BigQueryInsertJobOperator(
+            task_id="package_final_load_lsat_label_interbranch",
+            configuration={
+                "query": {
+                    "query": (
+                        f"CALL `{SP_DATASET_ID}.dv_Load_LSAT_Label_InterBranch`("
+                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource12 }}}}');"
+                    ),
+                    "useLegacySql": False,
+                }
+            },
+        )
+
+        # ref_id: Package\Final\Set LastValue (InterBranch) — only update if staging has rows.
+        op_set_lastvalue = BigQueryInsertJobOperator(
+            task_id="package_final_set_lastvalue_interbranch",
             configuration={
                 "query": {
                     "query": (
@@ -108,40 +128,7 @@ with DAG(
             },
         )
 
-        op_10 >> op_7 >> op_8 >> op_9
-
-    with TaskGroup(group_id="tg_package_final") as tg_final:
-        # STOCK:SEQUENCE — ref_id: Package\Final
-
-        # ref_id: Package\Final\Load LNK_Label_InterBranch — Exec [dv].[Load_LNK_Label_InterBranch] ProcessId, RecordSource12
-        op_1 = BigQueryInsertJobOperator(
-            task_id="package_final_load_lnk_label_interbranch",
-            configuration={
-                "query": {
-                    "query": (
-                        f"CALL `{SP_DATASET_ID}.dv_Load_LNK_Label_InterBranch`("
-                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource12 }}}}');"
-                    ),
-                    "useLegacySql": False,
-                }
-            },
-        )
-
-        # ref_id: Package\Final\Load LSAT_Label_InterBranch — Exec [dv].[Load_LSAT_Label_InterBranch] ProcessId, RecordSource12
-        op_2 = BigQueryInsertJobOperator(
-            task_id="package_final_load_lsat_label_interbranch",
-            configuration={
-                "query": {
-                    "query": (
-                        f"CALL `{SP_DATASET_ID}.dv_Load_LSAT_Label_InterBranch`("
-                        f"{{{{ params.ProcessId }}}}, '{{{{ params.RecordSource12 }}}}');"
-                    ),
-                    "useLegacySql": False,
-                }
-            },
-        )
-
-        op_1 >> op_2
+        op_load_lsat >> op_set_lastvalue
 
     with TaskGroup(group_id="tg_package_monthly_miscellaneous") as tg_monthly:
         # STOCK:SEQUENCE — ref_id: Package\Monthly Miscellaneous (independent)
