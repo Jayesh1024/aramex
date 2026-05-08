@@ -55,8 +55,7 @@ BEGIN
         CreatedOn = Src.CreatedOn,
         CreatedBy = Src.CreatedBy,
         Processed = Src.Processed,
-        ProcessedOn = Src.ProcessedOn,
-        SYS_CHANGE_VERSION = Src.SYS_CHANGE_VERSION
+        ProcessedOn = Src.ProcessedOn
     WHEN NOT MATCHED THEN
       INSERT (
         Id,
@@ -85,8 +84,7 @@ BEGIN
         CreatedOn,
         CreatedBy,
         Processed,
-        ProcessedOn,
-        SYS_CHANGE_VERSION
+        ProcessedOn
       )
       VALUES (
         Src.Id,
@@ -115,8 +113,7 @@ BEGIN
         Src.CreatedOn,
         Src.CreatedBy,
         Src.Processed,
-        Src.ProcessedOn,
-        Src.SYS_CHANGE_VERSION
+        Src.ProcessedOn
       );
 
     SET v_AffectedRows = @@row_count;
