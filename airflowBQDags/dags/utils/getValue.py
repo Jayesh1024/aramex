@@ -79,11 +79,30 @@ def _normalize_load_control_last_value(value):
         ts = ts.tz_convert("UTC").tz_localize(None)
     return ts.strftime("%Y-%m-%d %H:%M:%S")
 
-def get_last_value(project_id: str, dataset_id: str, record_source: str):
-    """Call Staging_Get_LastValue; record_source must match Staging_LoadControl.RecordSource."""
+def get_last_value(
+    project_id: str | None,
+    dataset_id: str,
+    record_source: str,
+    gcp_conn_id: str = "google_cloud_default",
+):
+    """Call ``Staging_Get_LastValue``; ``record_source`` must match ``Staging_LoadControl.RecordSource``.
+
+    If ``project_id`` is None (e.g. ``GCP_PROJECT_ID`` not set in the worker), the project id is taken
+    from the Airflow Google connection (``project`` in extras / hook default), matching BigQuery operators
+    that use the same ``gcp_conn_id``.
+    """
+    if not dataset_id:
+        raise ValueError("get_last_value requires dataset_id (e.g. SP_DATASET_ID).")
     escaped = _escape_sql_literal(record_source)
-    hook = BigQueryHook(project_id=project_id, gcp_conn_id="oceania_target_sa_connection", location="europe-west2")
-    query = f"CALL `{project_id}.{dataset_id}.Staging_Get_LastValue`('{escaped}')"
+
+    hook = BigQueryHook(gcp_conn_id=gcp_conn_id, project_id=project_id)
+    eff_project = project_id or hook.project_id
+    if not eff_project:
+        raise ValueError(
+            "get_last_value: project_id is unset and the connection did not expose a default project; "
+            "set GCP_PROJECT_ID or configure the `project` field on the Google Cloud connection."
+        )
+    query = f"CALL `{eff_project}.{dataset_id}.Staging_Get_LastValue`('{escaped}')"
 
     raw = hook.get_pandas_df(sql=query, dialect="standard").iloc[0, 0]
     return _normalize_load_control_last_value(raw)

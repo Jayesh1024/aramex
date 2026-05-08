@@ -1,1 +1,1 @@
-TRUNCATE TABLE `{{ project_id }}.{{ dataset_id }}.Staging_payzone_regions_stg`;
+TRUNCATE TABLE `{{ project_id }}.{{ dataset_id }}.Staging_payzone_regions_Stg`;
