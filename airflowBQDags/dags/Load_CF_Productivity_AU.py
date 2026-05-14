@@ -7,7 +7,7 @@ with DAG(
     start_date=pendulum.datetime(2026, 4, 1, tz="Pacific/Auckland"),
     schedule_interval="0 7 * * *",
     catchup=False,
-    tags=["load", "cf", "productivity", "au"],
+    tags=["load", "cf", "productivity", "au", "ssis"],
 ) as dag:
 
     op_1 = BigQueryInsertJobOperator(

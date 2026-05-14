@@ -7,7 +7,7 @@ with DAG(
     start_date=pendulum.datetime(2026, 4, 1, tz="Pacific/Auckland"),
     schedule_interval="*/15 * * * *",
     catchup=False,
-    tags=["interim", "scans"],
+    tags=["interim", "scans", "ssis"],
 ) as dag:
 
     op_1 = TriggerDagRunOperator(
