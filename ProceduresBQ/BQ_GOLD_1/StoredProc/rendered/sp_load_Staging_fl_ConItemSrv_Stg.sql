@@ -1,10 +1,10 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.sp_load_Staging_fl_ConItemSrv_Stg`(
-  startDate DATETIME
-)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.sp_load_Staging_fl_ConItemSrv_Stg`()
 BEGIN
   DECLARE startDate2 DATETIME;
   DECLARE v_ConId INT64;
 
+  SET startDate2 = DATE_SUB(CURRENT_DATETIME(), INTERVAL 30 DAY);
+  
   SET v_ConId = (
     SELECT ConId
     FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.FWFastlabel_dbo_fl_Con`
@@ -13,7 +13,7 @@ BEGIN
     LIMIT 1
   );
 
-  SET startDate2 = DATE_SUB(CURRENT_DATETIME(), INTERVAL 30 DAY);
+  
 
   INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_fl_ConItemSrv_Stg`
   SELECT ci.Label

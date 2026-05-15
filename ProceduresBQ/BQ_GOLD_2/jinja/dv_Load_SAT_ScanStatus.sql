@@ -1,31 +1,3 @@
--- ==========================================================================================
--- Routine:     dv_Load_SAT_ScanStatus
--- Description: Loads attributes into SAT_ScanStatus
---              BigQuery compatible version of Load_SAT_ScanStatus
---              Note: MERGE with OUTPUT $action not supported in BQ.
---                    Replaced with:
---                      1. MERGE to expire changed current rows (IsCurrent=0, ValidTo=Loaded)
---                      2. INSERT new rows (IsCurrent=1)
---                    Audit table format preserved exactly.
---                    PIVOT replaced with conditional aggregation against SAT_Product
---                      (matches original which queries SAT_Product, not SAT_ScanStatus).
---                    dbo.GetHashKey replaced with MD5(...) (BYTES).
--- Example:     CALL dv.dv_Load_SAT_ScanStatus(190, 'Fastway')
--- History:
---  15/10/2018  P. Waldron      Routine Written
---  29/07/2021  B. Woods        Added column Active
---  [BQ Port]   Converted from SQL Server to BigQuery
---  [BQ Fix]    Cast ALL columns to STRING in USING subquery to resolve
---              IFNULL(T1,T1) type mismatch in WHEN MATCHED clause.
---  [BQ Fix]    TO_HEX(MD5(...)) → MD5(...) for ScanStatus_HSK (target column is BYTES).
---  [BQ Fix]    Loaded variable → CURRENT_DATETIME() in INSERT SELECT to avoid NULL.
---  [BQ Fix]    ProcessID, RecordSource → CAST(...) to force variable resolution.
---  [BQ Fix]    DefaultValidFrom/To → inlined DATETIME literals to avoid NULL.
---  [BQ Fix]    SELECT DISTINCT replaced with ROW_NUMBER() dedup subquery
---              (DISTINCT cannot deduplicate BYTES columns in BigQuery).
---  [BQ Fix]    SaveLog → Staging_SaveLog with additional -1 argument.
---  [BQ Fix]    StatusCode cast to STRING in JOIN and MD5 hash.
--- ==========================================================================================
 CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_SAT_ScanStatus`(
     IN ProcessID    INT64,
     IN RecordSource STRING
@@ -219,7 +191,7 @@ BEGIN
             SELECT
                 IFNULL(
                     Sat.ScanStatus_HSK,
-                    MD5(IF(Stg.CountryName IS NULL, 'Unknown', TRIM(Stg.CountryName)) || '^' || CAST(Stg.StatusCode AS STRING))
+                    `{{ project_id }}.{{ sp_dataset_id }}.dbo_GetHashKey`(IF(Stg.CountryName IS NULL, 'Unknown', TRIM(Stg.CountryName)) || '^' || CAST(Stg.StatusCode AS STRING), "^")
                 )                               AS hsk,
                 IF(Stg.CountryName IS NULL, 'Unknown', TRIM(Stg.CountryName)) AS CountryName,
                 Stg.StatusCode,
@@ -252,23 +224,22 @@ BEGIN
                 Stg.Delayed,
                 Stg.ReadyToCollect,
                 ROW_NUMBER() OVER (
-                    PARTITION BY IFNULL(
-                        Sat.ScanStatus_HSK,
-                        MD5(IF(Stg.CountryName IS NULL, 'Unknown', TRIM(Stg.CountryName)) || '^' || CAST(Stg.StatusCode AS STRING))
-                    )
+                    PARTITION BY Stg.StatusCode_HSK
                     ORDER BY Stg.StatusCode
                 ) AS rn
-            FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_ScanStatus_Stg` Stg
+            FROM (
+              SELECT
+                *,
+                `{{ project_id }}.{{ sp_dataset_id }}.dbo_GetHashKey`(IF(scanStatus.CountryName IS NULL, 'Unknown', TRIM(scanStatus.CountryName)) || '^' || CAST(scanStatus.StatusCode AS STRING), "^") AS StatusCode_HSK
+              FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_ScanStatus_Stg` scanStatus
+            ) Stg
             LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_ScanStatus` Sat
                 ON  Sat.CountryName = Stg.CountryName
                 AND Sat.ScanStatus  = CAST(Stg.StatusCode AS STRING)
             WHERE NOT EXISTS (
                 SELECT 1
                 FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_ScanStatus` AS Tgt
-                WHERE Tgt.ScanStatus_HSK = IFNULL(
-                        Sat.ScanStatus_HSK,
-                        MD5(IF(Stg.CountryName IS NULL, 'Unknown', TRIM(Stg.CountryName)) || '^' || CAST(Stg.StatusCode AS STRING))
-                    )
+                WHERE Tgt.ScanStatus_HSK = Stg.StatusCode_HSK
                   AND Tgt.IsCurrent = 1
             )
         )
@@ -310,4 +281,4 @@ BEGIN
         -1
     );
 
-END;
+END

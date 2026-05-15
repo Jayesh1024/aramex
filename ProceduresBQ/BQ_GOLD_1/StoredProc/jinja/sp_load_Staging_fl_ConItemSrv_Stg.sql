@@ -1,10 +1,10 @@
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.sp_load_Staging_fl_ConItemSrv_Stg`(
-  startDate DATETIME
-)
+CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.sp_load_Staging_fl_ConItemSrv_Stg`()
 BEGIN
   DECLARE startDate2 DATETIME;
   DECLARE v_ConId INT64;
 
+  SET startDate2 = DATE_SUB(CURRENT_DATETIME(), INTERVAL 30 DAY);
+  
   SET v_ConId = (
     SELECT ConId
     FROM `{{ project_id }}.{{ source_dataset_id }}.FWFastlabel_dbo_fl_Con`
@@ -13,7 +13,6 @@ BEGIN
     LIMIT 1
   );
 
-  SET startDate2 = DATE_SUB(CURRENT_DATETIME(), INTERVAL 30 DAY);
 
   INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.Staging_fl_ConItemSrv_Stg`
   SELECT ci.Label
