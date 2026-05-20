@@ -1,20 +1,9 @@
-{#-- ==========================================================================================
-Routine:		Staging_Load_Fact_Scan_KPI_Stg
-Description: Recalc scan KPI stats for Labels that have just arrived
-History:
-	11/04/2019  P. Waldron		Routine Written
-	01/07/2019  P. Waldron		Add First/Last Scan elements
-    20/11/2019  P. Waldron		Change Inner Join on dbo.KPILabels to Left Join
-    14/02/2020  P. Waldron      Refactor for new KPI Groups
-    29/04/2020  P. Waldron      Use ScanTypeOrder for FirstPscan and FirstDscan calcs
-========================================================================================== --#}
-
-CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.Staging_Load_Fact_Scan_KPI_Stg`(
+CREATE OR REPLACE PROCEDURE `{{project_id}}.{{sp_dataset_id}}.Staging_Load_Fact_Scan_KPI_Stg`(
     IN p_ProcessID INT64
 )
 BEGIN
     -- System and Logging Variables
-    DECLARE v_Component STRING DEFAULT '{{ project_id }}.{{ target_dataset_id }}.Staging_Load_Fact_Scan_KPI_Stg';
+    DECLARE v_Component STRING DEFAULT 'Staging_Load_Fact_Scan_KPI_Stg';
     
     -- OPTION 2: Use DATETIME and CURRENT_DATETIME()
     DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
@@ -25,21 +14,10 @@ BEGIN
 
     -- Control Variables
     DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
-    DECLARE v_LastID INT64;
     DECLARE v_MinScanDate DATETIME DEFAULT DATETIME_SUB(CURRENT_DATETIME(), INTERVAL 1 YEAR);
 
-    -- FIX: COALESCE type safety. Ensure ID is cast to INT64 to match the default 0
-    SET v_LastID = (
-        SELECT COALESCE(MAX(CAST(ID AS INT64)), 0) 
-        FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_KPI_Labels_Stg`
-    );
-
-    IF v_LastID = 0 THEN
-        RETURN;
-    END IF;
-
     BEGIN
-        INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.Staging_Fact_Scan_KPI_Stg` (
+        INSERT INTO `{{project_id}}.{{target_dataset_id}}.Staging_Fact_Scan_KPI_Stg` (
             LabelNo, FirstScanDate, FirstScanRF, FirstScanCF, FirstScanType, FirstScanStatus,
             LastScanDate, LastScanRF, LastScanCF, LastScanType, LastScanStatus,
             FirstPscanDate, FirstPscanRF, FirstPscanCF, FirstPScanStatus, 
@@ -72,20 +50,20 @@ BEGIN
             ) + IF(EXTRACT(DAYOFWEEK FROM FirstStopDate) = 1, 1, 0) AS StopDays,
             
             -- StopHoliday
-            (SELECT COUNT(*) FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIExcludedDates` xd 
+            (SELECT COUNT(*) FROM `{{project_id}}.{{target_dataset_id}}.dbo_KPIExcludedDates` xd 
              WHERE xd.Franchise = FirstStopRF AND xd.Date BETWEEN DATE(FirstReceivedDate) AND DATE(FirstStopDate)) AS StopHoliday,
             
             -- KPI
-            (SELECT MAX(m.Days) FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIMatrix` m 
+            (SELECT MAX(m.Days) FROM `{{project_id}}.{{target_dataset_id}}.dbo_KPIMatrix` m 
              WHERE m.PickupFranchise = FirstReceivedRF AND m.DeliveryFranchise = FirstStopRF) AS KPI,
              
             -- SingleCycle (Note: Cast to String for Coalesce Safety)
-            (SELECT COUNT(DISTINCT sc.CFCode) FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_SingleCycleCF` sc 
+            (SELECT COUNT(DISTINCT sc.CFCode) FROM `{{project_id}}.{{target_dataset_id}}.dbo_SingleCycleCF` sc 
              WHERE sc.RFCode = COALESCE(CAST(FirstStopRF AS STRING), CAST(FirstDeliveryRF AS STRING)) 
                AND sc.CFCode = COALESCE(CAST(FirstStopCF AS STRING), CAST(FirstDeliveryCF AS STRING))) AS SingleCycle,
              
             -- SubDepot
-            (SELECT COUNT(DISTINCT sd.SubDepotCode) FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_SubDepot` sd 
+            (SELECT COUNT(DISTINCT sd.SubDepotCode) FROM `{{project_id}}.{{target_dataset_id}}.dbo_SubDepot` sd 
              WHERE sd.DeedRF = COALESCE(CAST(FirstStopRF AS STRING), CAST(FirstDeliveryRF AS STRING)) 
                AND sd.CF = COALESCE(CAST(FirstStopCF AS STRING), CAST(FirstDeliveryCF AS STRING))) AS SubDepot,
              
@@ -96,11 +74,11 @@ BEGIN
             ) + IF(EXTRACT(DAYOFWEEK FROM FirstDeliveryDate) = 1, 1, 0) AS DeliveryDays,
             
             -- DeliveryHoliday
-            (SELECT COUNT(*) FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIExcludedDates` xd 
+            (SELECT COUNT(*) FROM `{{project_id}}.{{target_dataset_id}}.dbo_KPIExcludedDates` xd 
              WHERE xd.Franchise = FirstDeliveryRF AND xd.Date BETWEEN DATE(FirstReceivedDate) AND DATE(FirstDeliveryDate)) AS DeliveryHoliday,
              
             -- SLA
-            (SELECT MAX(m.Days) FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_KPICustomerMatrix` m 
+            (SELECT MAX(CAST(m.Days AS INT64)) FROM `{{project_id}}.{{target_dataset_id}}.dbo_KPICustomerMatrix` m 
              WHERE m.`Pickup RF` = FirstReceivedRF 
                AND m.`Delivery RF` = FirstDeliveryRF 
                AND DATE(FirstDeliveryDate) BETWEEN m.ValidFrom AND m.ValidTo 
@@ -111,26 +89,27 @@ BEGIN
         FROM 
         (
             SELECT 
-                LabelNo, MIN(FirstScanDate), MIN(FirstScanRF), MIN(FirstScanCF), MIN(FirstScanType), MIN(FirstScanStatus), 
-                MIN(LastScanDate), MIN(LastScanRF), MIN(LastScanCF), MIN(LastScanType), MIN(LastScanStatus), 
-                MIN(FirstPScanDate), MIN(FirstPScanRF), MIN(FirstPScanCF), MIN(FirstPScanStatus),
-                MIN(FirstDScanDate), MIN(FirstDScanRF), MIN(FirstDScanCF), MIN(FirstDScanStatus),
-                MIN(FirstReceivedDate), MIN(FirstReceivedRF), MIN(FirstReceivedCF), MIN(FirstReceivedScanType), MIN(FirstReceivedScanStatus),
-                MIN(LastReceivedDate), MIN(LastReceivedRF), MIN(LastReceivedCF), MIN(LastReceivedScanType), MIN(LastReceivedScanStatus),
-                MIN(FirstSortedDate), MIN(FirstSortedRF), MIN(FirstSortedCF), MIN(FirstSortedScanType), MIN(FirstSortedScanStatus),
-                MIN(LastSortedDate), MIN(LastSortedRF), MIN(LastSortedCF), MIN(LastSortedScanType), MIN(LastSortedScanStatus),
-                MIN(FirstDepartedDate), MIN(FirstDepartedRF), MIN(FirstDepartedCF), MIN(FirstDepartedScanType), MIN(FirstDepartedScanStatus),
-                MIN(LastDepartedDate), MIN(LastDepartedRF), MIN(LastDepartedCF), MIN(LastDepartedScanType), MIN(LastDepartedScanStatus),
-                MIN(FirstArrivedDate), MIN(FirstArrivedRF), MIN(FirstArrivedCF), MIN(FirstArrivedScanType), MIN(FirstArrivedScanStatus),
-                MIN(LastArrivedDate), MIN(LastArrivedRF), MIN(LastArrivedCF), MIN(LastArrivedScanType), MIN(LastArrivedScanStatus),
-                MIN(FirstOutDate), MIN(FirstOutRF), MIN(FirstOutCF), MIN(FirstOutScanType), MIN(FirstOutScanStatus),
-                MIN(LastOutDate), MIN(LastOutRF), MIN(LastOutCF), MIN(LastOutScanType), MIN(LastOutScanStatus),
-                MIN(FirstStopDate), MIN(FirstStopRF), MIN(FirstStopCF), MIN(FirstStopScanType), MIN(FirstStopScanStatus),
-                MIN(LastStopDate), MIN(LastStopRF), MIN(LastStopCF), MIN(LastStopScanType), MIN(LastStopScanStatus),
-                MIN(FirstDeliveryDate), MIN(FirstDeliveryRF), MIN(FirstDeliveryCF), MIN(FirstDeliveryScanType), MIN(FirstDeliveryScanStatus),
-                MIN(LastDeliveryDate), MIN(LastDeliveryRF), MIN(LastDeliveryCF), MIN(LastDeliveryScanType), MIN(LastDeliveryScanStatus),
-                MIN(FirstImpactedDate), MIN(FirstImpactedRF), MIN(FirstImpactedCF), MIN(FirstImpactedScanType), MIN(FirstImpactedScanStatus),
-                MIN(FirstFutileDate), MIN(FirstFutileRF), MIN(FirstFutileCF), MIN(FirstFutileScanType), MIN(FirstFutileScanStatus)
+                LabelNo, 
+                MIN(FirstScanDate) AS FirstScanDate, MIN(FirstScanRF) AS FirstScanRF, MIN(FirstScanCF) AS FirstScanCF, MIN(FirstScanType) AS FirstScanType, MIN(FirstScanStatus) AS FirstScanStatus, 
+                MIN(LastScanDate) AS LastScanDate, MIN(LastScanRF) AS LastScanRF, MIN(LastScanCF) AS LastScanCF, MIN(LastScanType) AS LastScanType, MIN(LastScanStatus) AS LastScanStatus, 
+                MIN(FirstPScanDate) AS FirstPScanDate, MIN(FirstPScanRF) AS FirstPScanRF, MIN(FirstPScanCF) AS FirstPScanCF, MIN(FirstPScanStatus) AS FirstPScanStatus,
+                MIN(FirstDScanDate) AS FirstDScanDate, MIN(FirstDScanRF) AS FirstDScanRF, MIN(FirstDScanCF) AS FirstDScanCF, MIN(FirstDScanStatus) AS FirstDScanStatus,
+                MIN(FirstReceivedDate) AS FirstReceivedDate, MIN(FirstReceivedRF) AS FirstReceivedRF, MIN(FirstReceivedCF) AS FirstReceivedCF, MIN(FirstReceivedScanType) AS FirstReceivedScanType, MIN(FirstReceivedScanStatus) AS FirstReceivedScanStatus,
+                MIN(LastReceivedDate) AS LastReceivedDate, MIN(LastReceivedRF) AS LastReceivedRF, MIN(LastReceivedCF) AS LastReceivedCF, MIN(LastReceivedScanType) AS LastReceivedScanType, MIN(LastReceivedScanStatus) AS LastReceivedScanStatus,
+                MIN(FirstSortedDate) AS FirstSortedDate, MIN(FirstSortedRF) AS FirstSortedRF, MIN(FirstSortedCF) AS FirstSortedCF, MIN(FirstSortedScanType) AS FirstSortedScanType, MIN(FirstSortedScanStatus) AS FirstSortedScanStatus,
+                MIN(LastSortedDate) AS LastSortedDate, MIN(LastSortedRF) AS LastSortedRF, MIN(LastSortedCF) AS LastSortedCF, MIN(LastSortedScanType) AS LastSortedScanType, MIN(LastSortedScanStatus) AS LastSortedScanStatus,
+                MIN(FirstDepartedDate) AS FirstDepartedDate, MIN(FirstDepartedRF) AS FirstDepartedRF, MIN(FirstDepartedCF) AS FirstDepartedCF, MIN(FirstDepartedScanType) AS FirstDepartedScanType, MIN(FirstDepartedScanStatus) AS FirstDepartedScanStatus,
+                MIN(LastDepartedDate) AS LastDepartedDate, MIN(LastDepartedRF) AS LastDepartedRF, MIN(LastDepartedCF) AS LastDepartedCF, MIN(LastDepartedScanType) AS LastDepartedScanType, MIN(LastDepartedScanStatus) AS LastDepartedScanStatus,
+                MIN(FirstArrivedDate) AS FirstArrivedDate, MIN(FirstArrivedRF) AS FirstArrivedRF, MIN(FirstArrivedCF) AS FirstArrivedCF, MIN(FirstArrivedScanType) AS FirstArrivedScanType, MIN(FirstArrivedScanStatus) AS FirstArrivedScanStatus,
+                MIN(LastArrivedDate) AS LastArrivedDate, MIN(LastArrivedRF) AS LastArrivedRF, MIN(LastArrivedCF) AS LastArrivedCF, MIN(LastArrivedScanType) AS LastArrivedScanType, MIN(LastArrivedScanStatus) AS LastArrivedScanStatus,
+                MIN(FirstOutDate) AS FirstOutDate, MIN(FirstOutRF) AS FirstOutRF, MIN(FirstOutCF) AS FirstOutCF, MIN(FirstOutScanType) AS FirstOutScanType, MIN(FirstOutScanStatus) AS FirstOutScanStatus,
+                MIN(LastOutDate) AS LastOutDate, MIN(LastOutRF) AS LastOutRF, MIN(LastOutCF) AS LastOutCF, MIN(LastOutScanType) AS LastOutScanType, MIN(LastOutScanStatus) AS LastOutScanStatus,
+                MIN(FirstStopDate) AS FirstStopDate, MIN(FirstStopRF) AS FirstStopRF, MIN(FirstStopCF) AS FirstStopCF, MIN(FirstStopScanType) AS FirstStopScanType, MIN(FirstStopScanStatus) AS FirstStopScanStatus,
+                MIN(LastStopDate) AS LastStopDate, MIN(LastStopRF) AS LastStopRF, MIN(LastStopCF) AS LastStopCF, MIN(LastStopScanType) AS LastStopScanType, MIN(LastStopScanStatus) AS LastStopScanStatus,
+                MIN(FirstDeliveryDate) AS FirstDeliveryDate, MIN(FirstDeliveryRF) AS FirstDeliveryRF, MIN(FirstDeliveryCF) AS FirstDeliveryCF, MIN(FirstDeliveryScanType) AS FirstDeliveryScanType, MIN(FirstDeliveryScanStatus) AS FirstDeliveryScanStatus,
+                MIN(LastDeliveryDate) AS LastDeliveryDate, MIN(LastDeliveryRF) AS LastDeliveryRF, MIN(LastDeliveryCF) AS LastDeliveryCF, MIN(LastDeliveryScanType) AS LastDeliveryScanType, MIN(LastDeliveryScanStatus) AS LastDeliveryScanStatus,
+                MIN(FirstImpactedDate) AS FirstImpactedDate, MIN(FirstImpactedRF) AS FirstImpactedRF, MIN(FirstImpactedCF) AS FirstImpactedCF, MIN(FirstImpactedScanType) AS FirstImpactedScanType, MIN(FirstImpactedScanStatus) AS FirstImpactedScanStatus,
+                MIN(FirstFutileDate) AS FirstFutileDate, MIN(FirstFutileRF) AS FirstFutileRF, MIN(FirstFutileCF) AS FirstFutileCF, MIN(FirstFutileScanType) AS FirstFutileScanType, MIN(FirstFutileScanStatus) AS FirstFutileScanStatus
             FROM 
             (
                 SELECT  
@@ -243,12 +222,12 @@ BEGIN
                         ROW_NUMBER() OVER(PARTITION BY scan.LabelNo, k.KPIGroup ORDER BY scan.ScanDate DESC) AS KPIGroupReverse,
                         ROW_NUMBER() OVER(PARTITION BY scan.LabelNo, scan.ScanType ORDER BY scan.ScanDate) AS ScanTypeOrder,
                         scan.CountryName, scan.FranchiseeCode, scan.CourierNumber, scan.ScanType, scan.ScanStatus
-                    FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LNK_Scan_By_LabelNo` AS scan 
-                    JOIN `{{ project_id }}.{{ target_dataset_id }}.Staging_KPI_Labels_Stg` batch 
+                    FROM `{{project_id}}.{{target_dataset_id}}.dv_LNK_Scan_By_LabelNo` AS scan 
+                    JOIN `{{project_id}}.{{target_dataset_id}}.Staging_KPI_Labels_Stg` batch 
                         ON batch.LabelNo = scan.LabelNo
-                    LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPICodes` AS k 
+                    LEFT JOIN `{{project_id}}.{{target_dataset_id}}.dbo_KPICodes` AS k 
                         ON scan.ScanStatus = k.ScanStatus 
-                    LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Country` AS dc 
+                    LEFT JOIN `{{project_id}}.{{target_dataset_id}}.dbo_Dim_Country` AS dc 
                         ON dc.CountryCode = k.CountryCode AND scan.CountryName = dc.CountryName
                     WHERE scan.ScanDate >= v_MinScanDate
                 ) sc
@@ -265,7 +244,7 @@ BEGIN
 
     -- OPTION 2: Logging logic
     SET v_Ended = CURRENT_DATETIME();
-    CALL `{{ project_id }}.{{ sp_dataset_id }}.Staging_SaveLog`(
+    CALL `{{project_id}}.{{sp_dataset_id}}.Staging_SaveLog`(
         v_Component,
         p_ProcessID,
         v_Started,

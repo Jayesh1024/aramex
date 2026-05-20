@@ -14,18 +14,7 @@ BEGIN
 
     -- Control Variables
     DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
-    DECLARE v_LastID INT64;
     DECLARE v_MinScanDate DATETIME DEFAULT DATETIME_SUB(CURRENT_DATETIME(), INTERVAL 1 YEAR);
-
-    -- FIX: COALESCE type safety. Ensure ID is cast to INT64 to match the default 0
-    SET v_LastID = (
-        SELECT COALESCE(MAX(CAST(ID AS INT64)), 0) 
-        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_KPI_Labels_Stg`
-    );
-
-    IF v_LastID = 0 THEN
-        RETURN;
-    END IF;
 
     BEGIN
         INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_KPI_Stg` (
@@ -89,7 +78,7 @@ BEGIN
              WHERE xd.Franchise = FirstDeliveryRF AND xd.Date BETWEEN DATE(FirstReceivedDate) AND DATE(FirstDeliveryDate)) AS DeliveryHoliday,
              
             -- SLA
-            (SELECT MAX(m.Days) FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPICustomerMatrix` m 
+            (SELECT MAX(CAST(m.Days AS INT64)) FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPICustomerMatrix` m 
              WHERE m.`Pickup RF` = FirstReceivedRF 
                AND m.`Delivery RF` = FirstDeliveryRF 
                AND DATE(FirstDeliveryDate) BETWEEN m.ValidFrom AND m.ValidTo 
@@ -100,26 +89,27 @@ BEGIN
         FROM 
         (
             SELECT 
-                LabelNo, MIN(FirstScanDate), MIN(FirstScanRF), MIN(FirstScanCF), MIN(FirstScanType), MIN(FirstScanStatus), 
-                MIN(LastScanDate), MIN(LastScanRF), MIN(LastScanCF), MIN(LastScanType), MIN(LastScanStatus), 
-                MIN(FirstPScanDate), MIN(FirstPScanRF), MIN(FirstPScanCF), MIN(FirstPScanStatus),
-                MIN(FirstDScanDate), MIN(FirstDScanRF), MIN(FirstDScanCF), MIN(FirstDScanStatus),
-                MIN(FirstReceivedDate), MIN(FirstReceivedRF), MIN(FirstReceivedCF), MIN(FirstReceivedScanType), MIN(FirstReceivedScanStatus),
-                MIN(LastReceivedDate), MIN(LastReceivedRF), MIN(LastReceivedCF), MIN(LastReceivedScanType), MIN(LastReceivedScanStatus),
-                MIN(FirstSortedDate), MIN(FirstSortedRF), MIN(FirstSortedCF), MIN(FirstSortedScanType), MIN(FirstSortedScanStatus),
-                MIN(LastSortedDate), MIN(LastSortedRF), MIN(LastSortedCF), MIN(LastSortedScanType), MIN(LastSortedScanStatus),
-                MIN(FirstDepartedDate), MIN(FirstDepartedRF), MIN(FirstDepartedCF), MIN(FirstDepartedScanType), MIN(FirstDepartedScanStatus),
-                MIN(LastDepartedDate), MIN(LastDepartedRF), MIN(LastDepartedCF), MIN(LastDepartedScanType), MIN(LastDepartedScanStatus),
-                MIN(FirstArrivedDate), MIN(FirstArrivedRF), MIN(FirstArrivedCF), MIN(FirstArrivedScanType), MIN(FirstArrivedScanStatus),
-                MIN(LastArrivedDate), MIN(LastArrivedRF), MIN(LastArrivedCF), MIN(LastArrivedScanType), MIN(LastArrivedScanStatus),
-                MIN(FirstOutDate), MIN(FirstOutRF), MIN(FirstOutCF), MIN(FirstOutScanType), MIN(FirstOutScanStatus),
-                MIN(LastOutDate), MIN(LastOutRF), MIN(LastOutCF), MIN(LastOutScanType), MIN(LastOutScanStatus),
-                MIN(FirstStopDate), MIN(FirstStopRF), MIN(FirstStopCF), MIN(FirstStopScanType), MIN(FirstStopScanStatus),
-                MIN(LastStopDate), MIN(LastStopRF), MIN(LastStopCF), MIN(LastStopScanType), MIN(LastStopScanStatus),
-                MIN(FirstDeliveryDate), MIN(FirstDeliveryRF), MIN(FirstDeliveryCF), MIN(FirstDeliveryScanType), MIN(FirstDeliveryScanStatus),
-                MIN(LastDeliveryDate), MIN(LastDeliveryRF), MIN(LastDeliveryCF), MIN(LastDeliveryScanType), MIN(LastDeliveryScanStatus),
-                MIN(FirstImpactedDate), MIN(FirstImpactedRF), MIN(FirstImpactedCF), MIN(FirstImpactedScanType), MIN(FirstImpactedScanStatus),
-                MIN(FirstFutileDate), MIN(FirstFutileRF), MIN(FirstFutileCF), MIN(FirstFutileScanType), MIN(FirstFutileScanStatus)
+                LabelNo, 
+                MIN(FirstScanDate) AS FirstScanDate, MIN(FirstScanRF) AS FirstScanRF, MIN(FirstScanCF) AS FirstScanCF, MIN(FirstScanType) AS FirstScanType, MIN(FirstScanStatus) AS FirstScanStatus, 
+                MIN(LastScanDate) AS LastScanDate, MIN(LastScanRF) AS LastScanRF, MIN(LastScanCF) AS LastScanCF, MIN(LastScanType) AS LastScanType, MIN(LastScanStatus) AS LastScanStatus, 
+                MIN(FirstPScanDate) AS FirstPScanDate, MIN(FirstPScanRF) AS FirstPScanRF, MIN(FirstPScanCF) AS FirstPScanCF, MIN(FirstPScanStatus) AS FirstPScanStatus,
+                MIN(FirstDScanDate) AS FirstDScanDate, MIN(FirstDScanRF) AS FirstDScanRF, MIN(FirstDScanCF) AS FirstDScanCF, MIN(FirstDScanStatus) AS FirstDScanStatus,
+                MIN(FirstReceivedDate) AS FirstReceivedDate, MIN(FirstReceivedRF) AS FirstReceivedRF, MIN(FirstReceivedCF) AS FirstReceivedCF, MIN(FirstReceivedScanType) AS FirstReceivedScanType, MIN(FirstReceivedScanStatus) AS FirstReceivedScanStatus,
+                MIN(LastReceivedDate) AS LastReceivedDate, MIN(LastReceivedRF) AS LastReceivedRF, MIN(LastReceivedCF) AS LastReceivedCF, MIN(LastReceivedScanType) AS LastReceivedScanType, MIN(LastReceivedScanStatus) AS LastReceivedScanStatus,
+                MIN(FirstSortedDate) AS FirstSortedDate, MIN(FirstSortedRF) AS FirstSortedRF, MIN(FirstSortedCF) AS FirstSortedCF, MIN(FirstSortedScanType) AS FirstSortedScanType, MIN(FirstSortedScanStatus) AS FirstSortedScanStatus,
+                MIN(LastSortedDate) AS LastSortedDate, MIN(LastSortedRF) AS LastSortedRF, MIN(LastSortedCF) AS LastSortedCF, MIN(LastSortedScanType) AS LastSortedScanType, MIN(LastSortedScanStatus) AS LastSortedScanStatus,
+                MIN(FirstDepartedDate) AS FirstDepartedDate, MIN(FirstDepartedRF) AS FirstDepartedRF, MIN(FirstDepartedCF) AS FirstDepartedCF, MIN(FirstDepartedScanType) AS FirstDepartedScanType, MIN(FirstDepartedScanStatus) AS FirstDepartedScanStatus,
+                MIN(LastDepartedDate) AS LastDepartedDate, MIN(LastDepartedRF) AS LastDepartedRF, MIN(LastDepartedCF) AS LastDepartedCF, MIN(LastDepartedScanType) AS LastDepartedScanType, MIN(LastDepartedScanStatus) AS LastDepartedScanStatus,
+                MIN(FirstArrivedDate) AS FirstArrivedDate, MIN(FirstArrivedRF) AS FirstArrivedRF, MIN(FirstArrivedCF) AS FirstArrivedCF, MIN(FirstArrivedScanType) AS FirstArrivedScanType, MIN(FirstArrivedScanStatus) AS FirstArrivedScanStatus,
+                MIN(LastArrivedDate) AS LastArrivedDate, MIN(LastArrivedRF) AS LastArrivedRF, MIN(LastArrivedCF) AS LastArrivedCF, MIN(LastArrivedScanType) AS LastArrivedScanType, MIN(LastArrivedScanStatus) AS LastArrivedScanStatus,
+                MIN(FirstOutDate) AS FirstOutDate, MIN(FirstOutRF) AS FirstOutRF, MIN(FirstOutCF) AS FirstOutCF, MIN(FirstOutScanType) AS FirstOutScanType, MIN(FirstOutScanStatus) AS FirstOutScanStatus,
+                MIN(LastOutDate) AS LastOutDate, MIN(LastOutRF) AS LastOutRF, MIN(LastOutCF) AS LastOutCF, MIN(LastOutScanType) AS LastOutScanType, MIN(LastOutScanStatus) AS LastOutScanStatus,
+                MIN(FirstStopDate) AS FirstStopDate, MIN(FirstStopRF) AS FirstStopRF, MIN(FirstStopCF) AS FirstStopCF, MIN(FirstStopScanType) AS FirstStopScanType, MIN(FirstStopScanStatus) AS FirstStopScanStatus,
+                MIN(LastStopDate) AS LastStopDate, MIN(LastStopRF) AS LastStopRF, MIN(LastStopCF) AS LastStopCF, MIN(LastStopScanType) AS LastStopScanType, MIN(LastStopScanStatus) AS LastStopScanStatus,
+                MIN(FirstDeliveryDate) AS FirstDeliveryDate, MIN(FirstDeliveryRF) AS FirstDeliveryRF, MIN(FirstDeliveryCF) AS FirstDeliveryCF, MIN(FirstDeliveryScanType) AS FirstDeliveryScanType, MIN(FirstDeliveryScanStatus) AS FirstDeliveryScanStatus,
+                MIN(LastDeliveryDate) AS LastDeliveryDate, MIN(LastDeliveryRF) AS LastDeliveryRF, MIN(LastDeliveryCF) AS LastDeliveryCF, MIN(LastDeliveryScanType) AS LastDeliveryScanType, MIN(LastDeliveryScanStatus) AS LastDeliveryScanStatus,
+                MIN(FirstImpactedDate) AS FirstImpactedDate, MIN(FirstImpactedRF) AS FirstImpactedRF, MIN(FirstImpactedCF) AS FirstImpactedCF, MIN(FirstImpactedScanType) AS FirstImpactedScanType, MIN(FirstImpactedScanStatus) AS FirstImpactedScanStatus,
+                MIN(FirstFutileDate) AS FirstFutileDate, MIN(FirstFutileRF) AS FirstFutileRF, MIN(FirstFutileCF) AS FirstFutileCF, MIN(FirstFutileScanType) AS FirstFutileScanType, MIN(FirstFutileScanStatus) AS FirstFutileScanStatus
             FROM 
             (
                 SELECT  
