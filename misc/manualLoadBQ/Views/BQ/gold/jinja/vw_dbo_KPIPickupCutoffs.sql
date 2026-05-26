@@ -6,4 +6,4 @@ SELECT
   RFCode,
   CutoffTime
 FROM
-  `{{ project_id }}.{{ silver_dataset_id }}.KRILLIN_dbo_KPIPickupCutoffs`;
+  `{{ project_id }}.{{ silver_dataset_id }}.Fastway_dbo_KPIPickupCutoffs`;

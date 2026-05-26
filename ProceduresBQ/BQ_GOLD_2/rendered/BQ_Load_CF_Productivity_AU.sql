@@ -151,7 +151,7 @@ BEGIN
       -- 5. Average time between stops
       INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_CF_Productivity_Stg_AU`
       (WorkDate, CountryCode, RF, CF, AvergeTimeBetweenStopsMinutes)
-      SELECT day_rec.day_date, v_CountryCode, FranchiseeCode, CourierNumber, AVG(DATETIME_DIFF(NextScanTime, ScanDateTime, MINUTE))
+      SELECT day_rec.day_date, v_CountryCode, FranchiseeCode, CourierNumber, CAST(AVG(DATETIME_DIFF(NextScanTime, ScanDateTime, MINUTE)) AS INT64)
       FROM (
         SELECT FranchiseeCode, CourierNumber, ScanDateTime,
           LEAD(ScanDateTime) OVER (PARTITION BY s.FranchiseeCode, s.CourierNumber ORDER BY s.ScanDateTime) AS NextScanTime
@@ -214,7 +214,7 @@ BEGIN
       BreakStartTime_AM, BreakStartTime_PM, BreakStartTime_TW, BreakFinishTime_AM, BreakFinishTime_PM, BreakFinishTime_TW
     )
     SELECT
-      WorkDate, CountryCode, RF, CF, CAST(NULL AS STRING), CAST(NULL AS STRING),
+      WorkDate, CountryCode, RF, CF, CAST(NULL AS INT64), CAST(NULL AS STRING),
       MIN(DeliveriesForDay), MIN(PickupsForDday), MIN(ActiveCustomers), (IFNULL(MIN(DeliveriesForDay),0) + IFNULL(MIN(PickupsForDday),0)), MIN(FirstScanTime),
       MIN(ArrivalTime_AM), MIN(ArrivalTime_PM), MIN(ArrivalTime_TW), MIN(DepartureTime_AM), MIN(DepartureTime_PM), MIN(DepartureTime_TW),
       MIN(FirstDeliveryTime), MIN(FirstPickupTime), MIN(LastPickupTime), MIN(LastDeliveryTime),

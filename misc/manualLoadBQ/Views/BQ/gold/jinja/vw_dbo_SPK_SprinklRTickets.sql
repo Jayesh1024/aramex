@@ -4,4 +4,4 @@ CREATE OR REPLACE VIEW `{{ project_id }}.{{ gold_dataset_id }}.vw_dbo_SPK_Sprink
 SELECT
   *
 FROM
-  `{{ project_id }}.{{ silver_dataset_id }}.KRILLIN_dbo_SPK_SprinklRTickets`;
+  `{{ project_id }}.{{ silver_dataset_id }}.Fastwaydbo_SPK_SprinklRTickets`;
