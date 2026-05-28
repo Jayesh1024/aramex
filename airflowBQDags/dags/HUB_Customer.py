@@ -30,7 +30,7 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
-    tags=["ssis", "skeleton", "hub_customer"],
+    tags=["ssis", "skeleton", "hub_customer", "RecordSource_FMS_Customer", "RecordSource_tblCustomer", "RecordSource_CustomerLinks"],
     params={
         "DisableFinal": 0,
         "DisableLoadFMSCustomer": 0,

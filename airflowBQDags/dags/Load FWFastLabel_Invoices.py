@@ -31,7 +31,7 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
-    tags=["ssis", "skeleton", "load fwfastlabel_invoices"],
+    tags=["ssis", "skeleton", "load fwfastlabel_invoices", "RecordSource_fl_InvoiceHeader", "RecordSource_fl_InvoicePayment"],
     params={
         "DisableFinal": 0,
         "DisableStaging": 0,

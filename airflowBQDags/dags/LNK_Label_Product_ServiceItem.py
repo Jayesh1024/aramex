@@ -31,7 +31,7 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
-    tags=["ssis", "skeleton", "lnk_label_product_serviceitem"],
+    tags=["ssis", "skeleton", "lnk_label_product_serviceitem", "RecordSource_MyFastway"],
     params={
         "DisableFinal": 0,
         "DisableStaging": 0,

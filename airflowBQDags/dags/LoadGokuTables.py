@@ -63,7 +63,7 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
-    tags=["ssis", "skeleton", "loadgokutables"],
+    tags=["ssis", "skeleton", "loadgokutables", "RecordSource_Payzone_Agents", "RecordSource_Payzone_Regions", "RecordSource_FWFastlabel_ClickAndCollect"],
     params={
         "Disable_ClickAndCollect": 0,
         "Disable_PayZone": 0,

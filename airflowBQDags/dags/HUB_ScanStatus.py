@@ -23,7 +23,7 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
-    tags=["ssis", "skeleton", "hub_scanstatus"],
+    tags=["ssis", "skeleton", "hub_scanstatus", "RecordSource_Fastway"],
     # Jinja placeholders defined here
     params={
         "DisableFinal": 0,

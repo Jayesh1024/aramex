@@ -49,7 +49,7 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
-    tags=["ssis", "skeleton", "hub_blkcontainermanifest"],
+    tags=["ssis", "skeleton", "hub_blkcontainermanifest", "RecordSource_BLK_ManifestContents", "RecordSource_BLK_Container", "RecordSource_BLK_TransitManifest", "RecordSource_BLK_TransitContents"],
     params={
         "DisableFinal": 0,
         "DisableStage": 0,

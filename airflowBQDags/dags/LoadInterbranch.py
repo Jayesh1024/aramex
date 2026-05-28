@@ -12,7 +12,7 @@ with DAG(
     start_date=pendulum.datetime(2026, 4, 1, tz="Pacific/Auckland"),
     schedule_interval="0 12 1 * *",
     catchup=False,
-    tags=["load", "interbranch", "ssis"],
+    tags=["load", "interbranch", "ssis", "RecordSource_InterBranchNZ", "RecordSource_InterBranchAU"],
 ) as dag:
     
     op_1 = TriggerDagRunOperator(

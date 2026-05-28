@@ -38,7 +38,7 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
-    tags=["ssis", "skeleton", "hub_zentickets"],
+    tags=["ssis", "skeleton", "hub_zentickets", "RecordSource_ZenLog"],
     params={
         "DisableFinal": 0,
         "DisableStage": 0,

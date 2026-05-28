@@ -33,7 +33,7 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
-    tags=["ssis", "skeleton", "hub_invoice"],
+    tags=["ssis", "skeleton", "hub_invoice", "RecordSource_FMS_Invoice", "RecordSource_FMSUndTcktInvoice", "RecordSource_FMS_InvoiceBooks", "RecordSource_FMS_InvoiceHead", "RecordSource_FMS_InvoiceLines"],
     params={
         "DisableFinal": 0,
         "DisableStaging": 0,

@@ -1,1 +1,5 @@
-1. Add materialised view in directory ProceduresBQ/BQ_GOLD_2/materializedViews.
+- Add record source to tags of the dags
+- Add/Remove tasks from dags so it match SSIS Packages
+- Add Historical Stored Procedures
+- Add DDL for tables that will be partitioned for reporting consumption
+- Add INSERT queries for reference tables provided by client

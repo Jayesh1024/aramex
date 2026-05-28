@@ -45,7 +45,7 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
-    tags=["ssis", "skeleton", "fact_kpi"],
+    tags=["ssis", "skeleton", "fact_kpi", "RecordSource_Fact_KPI_Scan"],
     params={
         "DisableFinal": 0,
         "DisableStaging": 0,

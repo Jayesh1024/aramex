@@ -15,7 +15,21 @@ BEGIN
     SET v_CountryCode = 6;
   END IF;
 
-  INSERT INTO `{{project_id}}.{{target_dataset_id}}.Staging_Label_Interbranch_Stg`
+  INSERT INTO `{{project_id}}.{{target_dataset_id}}.Staging_Label_Interbranch_Stg` (
+    CountryCode,
+    Country,
+    LabelNo,
+    InvoiceFromRF,
+    InvoiceToRF,
+    BatchID,
+    Category,
+    InvoiceDate,
+    InvoiceNumber,
+    ProductID,
+    DeliveryDate,
+    DeliveryTime,
+    Price
+  )
   SELECT v_CountryCode,
   CASE v_CountryCode WHEN 1 THEN 'Australia' WHEN 6 THEN 'New Zealand' END AS Country,
   d.LabelNo,
@@ -39,7 +53,7 @@ BEGIN
 
   WHERE b.CountryCode = v_CountryCode  and d.PickupDelivery = 'D'
   AND b.BatchID = LastBatchID
-  AND b.released = 1 
+  AND b.released = TRUE
   ;
 
-END;
+END

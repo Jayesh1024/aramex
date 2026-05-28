@@ -48,7 +48,7 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
-    tags=["ssis", "skeleton", "hub_label_mf_only"],
+    tags=["ssis", "skeleton", "hub_label_mf_only", "RecordSource_MyFastway"],
     params={
         "BatchDays": -1,
         "DisableFinal": 0,

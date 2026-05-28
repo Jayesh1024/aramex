@@ -43,7 +43,7 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
-    tags=["ssis", "skeleton", "hub_label_2"],
+    tags=["ssis", "skeleton", "hub_label_2", "RecordSource_InterBranchNZ"],
     params={
         "DisableFinal": 0,
         "DisableInterBranch": 0,
@@ -98,6 +98,12 @@ with DAG(
         )
         
 
+        
+
+        op_10 >> op_7 >> op_8
+    with TaskGroup(group_id="tg_package_final") as tg_final:
+        # STOCK:SEQUENCE — ref_id: Package\Final
+
         # ref_id: Package\Staging 2\Set LastValue (InterBranch) — only update if staging has rows.
         op_9 = BigQueryInsertJobOperator(
             task_id="package_staging_2_set_lastvalue_interbranch",
@@ -119,28 +125,7 @@ with DAG(
             },
             job_id="bq_gold_transformation_oceania",
         )
-
-        op_10 >> op_7 >> op_8 >> op_9
-
-    with TaskGroup(group_id="tg_package_final") as tg_final:
-        # STOCK:SEQUENCE — ref_id: Package\Final
-
-        # ref_id: Package\Final\Load LNK_Label_InterBranch — Exec [dv].[Load_LNK_Label_InterBranch] ProcessId, RecordSource12
-        op_1 = BigQueryInsertJobOperator(
-            task_id="package_final_load_lnk_label_interbranch",
-            gcp_conn_id="oceania_target_sa_connection",
-            location="europe-west2",
-            configuration={
-                "query": {
-                    "query": (
-                        f"CALL `{SP_DATASET_ID}.dv_Load_LNK_Label_InterBranch`("
-                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ dag_run.conf.get(\'RecordSource12\',params.RecordSource12) }}}}');"
-                    ),
-                    "useLegacySql": False,
-                }
-            },
-            job_id="bq_gold_transformation_oceania",
-        )
+        
 
         # ref_id: Package\Final\Load LSAT_Label_InterBranch — Exec [dv].[Load_LSAT_Label_InterBranch] ProcessId, RecordSource12
         op_2 = BigQueryInsertJobOperator(
@@ -159,7 +144,7 @@ with DAG(
             job_id="bq_gold_transformation_oceania",
         )
 
-        op_1 >> op_2
+        op_2 >> op_9
 
     with TaskGroup(group_id="tg_package_monthly_miscellaneous") as tg_monthly:
         # STOCK:SEQUENCE — ref_id: Package\Monthly Miscellaneous (independent)

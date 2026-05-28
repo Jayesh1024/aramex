@@ -23,7 +23,7 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
-    tags=["ssis", "skeleton", "hub_serviceitem"],
+    tags=["ssis", "skeleton", "hub_serviceitem", "RecordSource_Fastway"],
     params={
         "DisableFinal": 0,
         "DisableStaging": 0,

@@ -44,7 +44,7 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
-    tags=["ssis", "skeleton", "hub_label"],
+    tags=["ssis", "skeleton", "hub_label", "RecordSource_LabelMaster", "RecordSource_EBAY", "RecordSource_MyFastwaySrv", "RecordSource_InterBranchAU", "RecordSource_PickupRequest", "RecordSource_DynamicLabel", "RecordSource_FastLabel", "RecordSource_MyFastway", "RecordSource_HDManifestID", "RecordSource_FastLabelEnterprise", "RecordSource_Temando", "RecordSource_ReceiverPays", "RecordSource_Tasman"],
     params={
         "DisableFinal": 0,
         "DisableInterBranch": -1,
@@ -67,7 +67,6 @@ with DAG(
         "RecordSource1": 'LabelMaster',
         "RecordSource10": 'EBAY',
         "RecordSource11": 'MyFastwaySrv',
-        "RecordSource12": 'InterBranchAU',
         "RecordSource13": 'PickupRequest',
         "RecordSource2": 'DynamicLabel',
         "RecordSource3": 'FastLabel',
@@ -75,8 +74,7 @@ with DAG(
         "RecordSource5": 'HDManifestID',
         "RecordSource6": 'FastLabelEnterprise',
         "RecordSource7": 'Temando',
-        "RecordSource8": 'ReceiverPays',
-        "RecordSource9": 'Tasman',
+        "RecordSource8": 'ReceiverPays'
     },
 ) as dag:
 
@@ -327,23 +325,6 @@ with DAG(
                 job_id="bq_gold_transformation_oceania",
             )
 
-            # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 2\\Load SAT_Label_Pickup_Requests
-            # SSIS: Exec [dv].[Load_SAT_Label_PickupRequests] ProcessID
-            op_21 = BigQueryInsertJobOperator(
-                task_id="package_final_load_sat_label_allocation_group_2_load_sat_label_pickup_requests",
-                gcp_conn_id="oceania_target_sa_connection",
-                location="europe-west2",
-                configuration={
-                    "query": {
-                        "query": (
-                            f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_PickupRequests`"
-                            f"({{{{ dag_run.conf.get('process_id', params.process_id) }}}});"
-                        ),
-                        "useLegacySql": False,
-                    }
-                },
-                job_id="bq_gold_transformation_oceania",
-            )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 2\\Set LastDate (MyFastway)
             op_22 = BigQueryInsertJobOperator(
@@ -496,6 +477,18 @@ with DAG(
         conf={"process_id": "{{ dag_run.conf.get('process_id', params.process_id) }}"},
     )
 
+    truncate_pickuprequest_stg = BigQueryInsertJobOperator(
+        task_id="truncate_pickuprequest_stg",
+        gcp_conn_id="oceania_target_sa_connection",
+        location="europe-west2",
+        configuration={
+            "query": {
+                "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_PickupRequest_Stg`",
+            }
+        },
+        job_id="bq_gold_transformation_oceania"
+    )
+
     # ref_id: Package\\LNK_Label_Product_ServiceItem — SSIS Microsoft.ExecutePackageTask (LNK_Label_Product_ServiceItem.dtsx)
     op_32 = TriggerDagRunOperator(
         task_id="package_lnk_label_product_serviceitem",
@@ -601,16 +594,6 @@ with DAG(
             )
 
         with TaskGroup(group_id="tg_package_staging_source11_myfastwaysrv_mf_2"):
-            # ref_id: Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Get LastDate (MyFastway)
-            op_45 = PythonOperator(
-                task_id="package_staging_source11_myfastwaysrv_mf_2_get_lastdate_myfastway",
-                python_callable=get_last_value,
-                op_kwargs={
-                    "project_id": GCP_PROJECT_ID,
-                    "dataset_id": SP_DATASET_ID,
-                    "record_source": "{{ params.RecordSource11 }}",
-                },
-            )
 
             # ref_id: Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Load fl_ConItemSrv_Stg
             op_46 = BigQueryInsertJobOperator(
@@ -621,7 +604,6 @@ with DAG(
                     "query": {
                         "query": (
                             f"CALL `{SP_DATASET_ID}.sp_load_Staging_fl_ConItemSrv_Stg` "
-                            f"(SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_45.task_id}') }}}}' AS DATETIME))"
                         ),
                         "useLegacySql": False,
                     }
@@ -645,70 +627,7 @@ with DAG(
                 job_id="bq_gold_transformation_oceania",
             )
 
-        with TaskGroup(group_id="tg_package_staging_source13_pickuprequests"):
-            # ref_id: Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (AU)
-            op_50 = BigQueryInsertJobOperator(
-                task_id="package_staging_source13_pickuprequests_load_pickup_requests_au",
-                gcp_conn_id="oceania_target_sa_connection",
-                location="europe-west2",
-                configuration={
-                    "query": {
-                        "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_PickupRequest_Stg` ()"
-                        ),
-                        "useLegacySql": False,
-                    }
-                },
-                job_id="bq_gold_transformation_oceania",
-            )
-
-            # ref_id: Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (NZ)
-            op_51 = BigQueryInsertJobOperator(
-                task_id="package_staging_source13_pickuprequests_load_pickup_requests_nz",
-                gcp_conn_id="oceania_target_sa_connection",
-                location="europe-west2",
-                configuration={
-                    "query": {
-                        "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_PickupRequest_Stg__2` ()"
-                        ),
-                        "useLegacySql": False,
-                    }
-                },
-                job_id="bq_gold_transformation_oceania",
-            )
-
-            # ref_id: Package\\Staging\\Source13 (PickupRequests)\\Load Pickup Requests (SA)
-            op_52 = BigQueryInsertJobOperator(
-                task_id="package_staging_source13_pickuprequests_load_pickup_requests_sa",
-                gcp_conn_id="oceania_target_sa_connection",
-                location="europe-west2",
-                configuration={
-                    "query": {
-                        "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_PickupRequest_Stg__3` ()"
-                        ),
-                        "useLegacySql": False,
-                    }
-                },
-                job_id="bq_gold_transformation_oceania",
-            )
-
-            # ref_id: Package\\Staging\\Source13 (PickupRequests)\\Truncate Staging Tables
-            op_53 = BigQueryInsertJobOperator(
-                task_id="package_staging_source13_pickuprequests_truncate_staging_tables",
-                gcp_conn_id="oceania_target_sa_connection",
-                location="europe-west2",
-                configuration={
-                    "query": {
-                        "query": (
-                            f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_PickupRequest_Stg`"
-                        ),
-                        "useLegacySql": False,
-                    }
-                },
-                job_id="bq_gold_transformation_oceania",
-            )
+        
 
         with TaskGroup(group_id="tg_package_staging_source2_dynamiclabel_dl"):
 
@@ -935,50 +854,7 @@ with DAG(
                 job_id="bq_gold_transformation_oceania",
             )
 
-        with TaskGroup(group_id="tg_package_staging_source7_temando_tmd"):
-            # ref_id: Package\\Staging\\Source7 (Temando) _TMD\\Get LastId (Temando)
-            op_80 = PythonOperator(
-                task_id="package_staging_source7_temando_tmd_get_lastid_temando",
-                python_callable=get_last_value,
-                op_kwargs={
-                    "project_id": GCP_PROJECT_ID,
-                    "dataset_id": SP_DATASET_ID,
-                    "record_source": "{{ params.RecordSource7 }}",
-                },
-            )
-
-            # ref_id: Package\\Staging\\Source7 (Temando) _TMD\\Load API_Temando_RequestLabel_Stg
-            op_81 = BigQueryInsertJobOperator(
-                task_id="package_staging_source7_temando_tmd_load_api_temando_requestlabel_stg",
-                gcp_conn_id="oceania_target_sa_connection",
-                location="europe-west2",
-                configuration={
-                    "query": {
-                        "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_API_Temando_RequestLabel_Stg` "
-                            f"({{{{ ti.xcom_pull(task_ids='{op_80.task_id}') }}}})"
-                        ),
-                        "useLegacySql": False,
-                    }
-                },
-                job_id="bq_gold_transformation_oceania",
-            )
-
-            # ref_id: Package\\Staging\\Source7 (Temando) _TMD\\Truncate API_Temando_RequestLabel_Stg
-            op_83 = BigQueryInsertJobOperator(
-                task_id="package_staging_source7_temando_tmd_truncate_api_temando_requestlabel_stg",
-                gcp_conn_id="oceania_target_sa_connection",
-                location="europe-west2",
-                configuration={
-                    "query": {
-                        "query": (
-                            f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_API_Temando_RequestLabel_Stg`"
-                        ),
-                        "useLegacySql": False,
-                    }
-                },
-                job_id="bq_gold_transformation_oceania",
-            )
+        
 
         with TaskGroup(group_id="tg_package_staging_source8_receiverpays_rp"):
             # ref_id: Package\\Staging\\Source8 (ReceiverPays) _RP\\Get LastID  (ReceiverPays)
@@ -1031,13 +907,11 @@ with DAG(
         op_36,
         op_41,
         op_46,
-        op_52,
         op_56,
         op_61,
         op_66,
         op_71,
         op_76,
-        op_81,
         op_86,
     )
     for _stg_last in _staging_branch_last_tasks:
@@ -1045,6 +919,7 @@ with DAG(
     op_33 >> op_2
     op_33 >> op_6
     op_33 >> op_31
+    op_31 >> truncate_pickuprequest_stg
     op_33 >> op_32
 
     op_5 >> op_4
@@ -1072,11 +947,7 @@ with DAG(
     op_35 >> op_36
     op_43 >> op_40
     op_40 >> op_41
-    op_48 >> op_45
-    op_45 >> op_46
-    op_53 >> op_50
-    op_50 >> op_51
-    op_51 >> op_52
+    op_48 >> op_46
     op_58 >> op_55
     op_55 >> op_56
     op_63 >> op_60
@@ -1087,7 +958,7 @@ with DAG(
     op_70 >> op_71
     op_78 >> op_75
     op_75 >> op_76
-    op_83 >> op_80
-    op_80 >> op_81
     op_88 >> op_85
     op_85 >> op_86
+
+

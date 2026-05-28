@@ -30,7 +30,7 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
-    tags=["ssis", "skeleton", "hub_servicecon"],
+    tags=["ssis", "skeleton", "hub_servicecon", "RecordSource_MFConSrv"],
     params={
         "DisableFinal": 0,
         "DisableStaging": 0,
@@ -106,19 +106,6 @@ with DAG(
     with TaskGroup(group_id="tg_package_final") as tg_final:
         # STOCK:SEQUENCE — ref_id: Package\Final
 
-        # ref_id: Package\Final\Truncate LNK_Product_ServiceCon
-        op_3 = BigQueryInsertJobOperator(
-            task_id="package_final_truncate_lnk_product_servicecon",
-            gcp_conn_id="oceania_target_sa_connection",
-            location="europe-west2",
-            configuration={
-                "query": {
-                    "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.dv_LNK_Product_ServiceCon`;",
-                    "useLegacySql": False,
-                }
-            },
-            job_id="bq_gold_transformation_oceania",
-        )
 
         # ref_id: Package\Final\Load HUB_ServiceCon — Exec [dv].[Load_LNK_Product_ServiceCon] ProcessId, RecordSource13
         op_1 = BigQueryInsertJobOperator(
@@ -137,19 +124,6 @@ with DAG(
             job_id="bq_gold_transformation_oceania",
         )
 
-        # ref_id: Package\Final\Truncate LSAT_Product_ServiceCon
-        op_4 = BigQueryInsertJobOperator(
-            task_id="package_final_truncate_lsat_product_servicecon",
-            gcp_conn_id="oceania_target_sa_connection",
-            location="europe-west2",
-            configuration={
-                "query": {
-                    "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.dv_LSAT_Product_ServiceCon`;",
-                    "useLegacySql": False,
-                }
-            },
-            job_id="bq_gold_transformation_oceania",
-        )
 
         # ref_id: Package\Final\Load SAT_ServiceCon — SSIS Exec [dv].[Load_LSAT_Product_ServiceCon] ProcessId, RecordSource13;
         op_2 = BigQueryInsertJobOperator(
@@ -168,6 +142,6 @@ with DAG(
             job_id="bq_gold_transformation_oceania",
         )
 
-        op_3 >> op_1 >> op_4 >> op_2
+        op_1 >> op_2
 
     tg_staging >> tg_final

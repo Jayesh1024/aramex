@@ -129,7 +129,7 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
-    tags=["ssis", "skeleton", "loadpickuprequests"],
+    tags=["ssis", "skeleton", "loadpickuprequests", "RecordSource_PickupRequests_AU", "RecordSource_PickupRequests_NZ", "RecordSource_PickupRequests_SA"],
 ) as dag:
 
     for spec in _COUNTRY_BRANCHES:

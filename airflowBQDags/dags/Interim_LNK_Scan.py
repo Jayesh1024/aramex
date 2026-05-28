@@ -36,7 +36,7 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
-    tags=["ssis", "skeleton", "interim_lnk_scan"],
+    tags=["ssis", "skeleton", "interim_lnk_scan", "RecordSource_TrackAndTraceData_SignatureAI", "RecordSource_TTSignatureAI", "RecordSource_TrackAndTraceID"],
     params={
         "DisableFinal": 0,
         "DisableStaging": 0,

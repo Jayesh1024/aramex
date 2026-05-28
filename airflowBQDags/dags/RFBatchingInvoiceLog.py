@@ -25,7 +25,7 @@ with DAG(
     start_date=pendulum.datetime(2026, 4, 1, tz="Pacific/Auckland"),
     schedule_interval='0 6 2 * *',
     catchup=False,
-    tags=["ssis", "skeleton", "rfbatchinginvoicelog"],
+    tags=["ssis", "skeleton", "rfbatchinginvoicelog", "RecordSource_BatchingInvoiceLog"],
     params={
         "RecordSource": 'BatchingInvoiceLog',
     },

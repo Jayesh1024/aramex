@@ -33,7 +33,7 @@ with DAG(
     start_date=pendulum.datetime(2026, 4, 1, tz="Pacific/Auckland"),
     schedule_interval="0 8 * * 0",
     catchup=False,
-    tags=["ssis", "skeleton", "dls_manual_pricing"],
+    tags=["ssis", "skeleton", "dls_manual_pricing", "RecordSource_DynamicLabel"],
     params={
         "Disable_DynamicLabel": 0,
         "process_id": 3000,

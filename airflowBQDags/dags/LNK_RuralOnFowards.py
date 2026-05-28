@@ -42,7 +42,7 @@ with DAG(
     start_date=pendulum.datetime(2026, 4, 1, tz="Pacific/Auckland"),
     schedule_interval="30 0 * * *",
     catchup=False,
-    tags=["ssis", "skeleton", "lnk_ruralonfowards"],
+    tags=["ssis", "skeleton", "lnk_ruralonfowards", "RecordSource_LA_RuralOnforwards"],
     params={
         "EndDate": '1900-01-01',
         "NumberOfDays": 14,

@@ -1,0 +1,26 @@
+INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country`
+    (CountryCode, CountryName, CountryDisabled, HideInWebsite, CurrencySymbol, LanguageCode, CurrencyCode, CubicConversion, TimeZone)
+VALUES
+    (1, 'Australia', 0, 0, '$', 'AU', 'AUD', 250, 'AUS Eastern Standard Time                         '),
+    (4, 'Hong Kong', 0, 1, ' ', '  ', '   ', 1, '                                                  '),
+    (5, 'Malaysia', 0, 1, ' ', '  ', '   ', 1, '                                                  '),
+    (6, 'New Zealand', 0, 0, '$', 'NZ', 'NZD', 200, 'New Zealand Standard Time                         '),
+    (7, 'Singapore', 0, 1, ' ', '  ', '   ', 1, '                                                  '),
+    (8, 'Great Britain', 0, 1, ' ', '  ', '   ', 1, '                                                  '),
+    (11, 'Ireland', 0, 0, '€', 'IE', 'EUR', 1, 'GMT Standard Time                                 '),
+    (12, 'Germany', 0, 1, ' ', '  ', '   ', 1, '                                                  '),
+    (13, 'Global IT', 0, 1, ' ', '  ', '   ', 1, '                                                  '),
+    (14, 'Morocco', 0, 1, ' ', '  ', '   ', 1, '                                                  '),
+    (15, 'Spain', 0, 1, ' ', '  ', '   ', 1, '                                                  '),
+    (16, 'Global', 0, 1, ' ', '  ', '   ', 1, '                                                  '),
+    (17, 'Fastway Post', 0, 1, ' ', '  ', '   ', 1, '                                                  '),
+    (18, 'Canada', 0, 1, ' ', '  ', '   ', 1, '                                                  '),
+    (19, 'Northern Ireland', 0, 1, ' ', '  ', '   ', 1, '                                                  '),
+    (20, 'Netherlands', 0, 1, ' ', '  ', '   ', 1, '                                                  '),
+    (21, 'Belgium', 0, 1, ' ', '  ', '   ', 1, '                                                  '),
+    (22, 'Luxembourg', 0, 1, ' ', '  ', '   ', 1, '                                                  '),
+    (23, 'Belgium(Flemish Website)', 0, 1, ' ', '  ', '   ', 1, '                                                  '),
+    (24, 'South Africa', 0, 0, 'R', 'ZA', '   ', 1, 'South Africa Standard Time                        '),
+    (50, 'Test Country', 0, 1, '$', '  ', '   ', 1, '                                                  '),
+    (51, 'Test Country NZ Copies(2)', 0, 1, '$', '  ', '   ', 1, '                                                  '),
+    (52, 'Test Country NZ Copies(3)', 0, 1, '$', '  ', '   ', 1, '                                                  ');
