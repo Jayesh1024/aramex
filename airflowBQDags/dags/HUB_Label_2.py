@@ -43,7 +43,7 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
-    tags=["ssis", "skeleton", "hub_label_2"],
+    tags=["ssis", "skeleton", "hub_label_2", "RecordSource_InterBranchNZ"],
     params={
         "DisableFinal": 0,
         "DisableInterBranch": 0,
@@ -53,7 +53,7 @@ with DAG(
 ) as dag:
 
     with TaskGroup(group_id="tg_package_staging_2") as tg_staging_2:
-        # STOCK:SEQUENCE — ref_id: Package\Staging 2
+        # STOCK:SEQUENCE â€” ref_id: Package\Staging 2
 
         op_10 = BigQueryInsertJobOperator(
             task_id="package_staging_2_truncate_label_interbranch_stg",
@@ -68,7 +68,7 @@ with DAG(
             job_id="bq_gold_transformation_oceania",
         )
 
-        # ref_id: Package\Staging 2\Get LastId (InterBranch) — Staging_Get_LastValue(RecordSource12)
+        # ref_id: Package\Staging 2\Get LastId (InterBranch) â€” Staging_Get_LastValue(RecordSource12)
         op_7 = PythonOperator(
             task_id="package_staging_2_get_lastid_interbranch",
             python_callable=get_last_value,
@@ -98,7 +98,13 @@ with DAG(
         )
         
 
-        # ref_id: Package\Staging 2\Set LastValue (InterBranch) — only update if staging has rows.
+        
+
+        op_10 >> op_7 >> op_8
+    with TaskGroup(group_id="tg_package_final") as tg_final:
+        # STOCK:SEQUENCE â€” ref_id: Package\Final
+
+        # ref_id: Package\Staging 2\Set LastValue (InterBranch) â€” only update if staging has rows.
         op_9 = BigQueryInsertJobOperator(
             task_id="package_staging_2_set_lastvalue_interbranch",
             gcp_conn_id="oceania_target_sa_connection",
@@ -119,30 +125,9 @@ with DAG(
             },
             job_id="bq_gold_transformation_oceania",
         )
+        
 
-        op_10 >> op_7 >> op_8 >> op_9
-
-    with TaskGroup(group_id="tg_package_final") as tg_final:
-        # STOCK:SEQUENCE — ref_id: Package\Final
-
-        # ref_id: Package\Final\Load LNK_Label_InterBranch — Exec [dv].[Load_LNK_Label_InterBranch] ProcessId, RecordSource12
-        op_1 = BigQueryInsertJobOperator(
-            task_id="package_final_load_lnk_label_interbranch",
-            gcp_conn_id="oceania_target_sa_connection",
-            location="europe-west2",
-            configuration={
-                "query": {
-                    "query": (
-                        f"CALL `{SP_DATASET_ID}.dv_Load_LNK_Label_InterBranch`("
-                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ dag_run.conf.get(\'RecordSource12\',params.RecordSource12) }}}}');"
-                    ),
-                    "useLegacySql": False,
-                }
-            },
-            job_id="bq_gold_transformation_oceania",
-        )
-
-        # ref_id: Package\Final\Load LSAT_Label_InterBranch — Exec [dv].[Load_LSAT_Label_InterBranch] ProcessId, RecordSource12
+        # ref_id: Package\Final\Load LSAT_Label_InterBranch â€” Exec [dv].[Load_LSAT_Label_InterBranch] ProcessId, RecordSource12
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_load_lsat_label_interbranch",
             gcp_conn_id="oceania_target_sa_connection",
@@ -159,10 +144,10 @@ with DAG(
             job_id="bq_gold_transformation_oceania",
         )
 
-        op_1 >> op_2
+        op_2 >> op_9
 
     with TaskGroup(group_id="tg_package_monthly_miscellaneous") as tg_monthly:
-        # STOCK:SEQUENCE — ref_id: Package\Monthly Miscellaneous (independent)
+        # STOCK:SEQUENCE â€” ref_id: Package\Monthly Miscellaneous (independent)
 
         op_5 = BigQueryInsertJobOperator(
             task_id="package_monthly_miscellaneous_truncate_dlbs_rf_batching",
