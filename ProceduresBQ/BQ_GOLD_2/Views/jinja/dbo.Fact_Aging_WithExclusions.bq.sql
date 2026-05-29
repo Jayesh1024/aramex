@@ -14,9 +14,9 @@ FROM            (SELECT   FirstScanDate, k.LabelNo, fk.ServiceType, fk.SLA, k.La
                                                         (SELECT        COUNT(1) AS Expr1
                                                           FROM            `{{ project_id }}.{{ dataset_id }}.dv_LNK_Scan_By_LabelNo`
                                                           WHERE        (LabelNo = k.LabelNo) AND (ScanStatus IN ('BBD', 'BB1', 'BB2', 'BB3'))) AS ToBlu
-                          FROM            `{{ project_id }}.{{ dataset_id }}.dbo_Fact_Scan_KPI` AS k INNER JOIN
+                          FROM            `{{ project_id }}.{{ dataset_id }}.dbo_Fact_Scan_KPI_partitioned` AS k INNER JOIN
                                                     `{{ project_id }}.{{ dataset_id }}.dbo_Dim_RF` AS r ON k.FirstReceivedRF = r.FranchiseeCode LEFT OUTER JOIN
-                                                    `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Label` AS l ON k.LabelNo = l.LabelNo AND r.CountryCode = l.CountryCode LEFT OUTER JOIN
+                                                    `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Label_partitioned` AS l ON k.LabelNo = l.LabelNo AND r.CountryCode = l.CountryCode LEFT OUTER JOIN
                                                     `{{ project_id }}.{{ dataset_id }}.dbo_TSS_PostCodeMaster` AS p ON l.DeliveryPostcode = RTRIM(p.PostCode) AND UPPER(LTRIM(l.DeliveryTown)) = RTRIM(p.Suburb) AND p.CountryCode = l.CountryCode AND 
                                                     p.DeedRF <> '' LEFT OUTER JOIN
                                                     `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Label_Address` AS a ON k.LabelNo = a.LabelNo LEFT OUTER JOIN

@@ -24,5 +24,5 @@ CREATE OR REPLACE VIEW `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_
     ) AS DueDate_Plus3
 
 	FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_KPI` kpi
-	JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` mf ON kpi.LabelNo = mf.LabelNo AND kpi.CountryCode = mf.CountryCode
+	JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF_partitioned` mf ON kpi.LabelNo = mf.LabelNo AND kpi.CountryCode = mf.CountryCode
 	AND mf.IsCurrent = 1

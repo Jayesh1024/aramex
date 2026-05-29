@@ -3,4 +3,4 @@
 -- Align the underlying table schemas before enabling the UNION.
 CREATE OR REPLACE VIEW `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Label_All`
 AS
-SELECT * FROM `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Label`
+SELECT * FROM `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Label_partitioned`

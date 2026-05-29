@@ -78,7 +78,7 @@ BEGIN
           f.ActualAttemptedDate, f.KPIDepartureDate, f.KPIArrivalDate, f.DueDate,
           COALESCE(f.KPIAttemptedDate, f.KPIAttemptedDateAdjust) AS EstimatedDeliveryDate
         FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_KPI` AS f
-        INNER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` AS m ON f.LabelNo = m.LabelNo
+        INNER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF_partitioned` AS m ON f.LabelNo = m.LabelNo
         WHERE f.CountryCode = 1
           AND f.ActualAttemptedDate > v_StartDate
           AND f.ActualAttemptedDate <= v_EndDate

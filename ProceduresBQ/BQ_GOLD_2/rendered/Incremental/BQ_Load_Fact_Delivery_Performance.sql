@@ -67,9 +67,9 @@ BEGIN
           CASE WHEN k.KPI + 1 + k.StopHoliday - k.StopDays >= 0 THEN 1 ELSE 0 END AS KPI1,
           CASE WHEN k.KPI + 2 + k.StopHoliday - k.StopDays >= 0 THEN 1 ELSE 0 END AS KPI2,
           CASE WHEN k.SLA + k.DeliveryHoliday - k.DeliveryDays >= 0 THEN 1 ELSE 0 END AS SLA
-        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan_KPI` AS k
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan_KPI_partitioned` AS k
         INNER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_RF` AS r ON k.FirstStopRF = r.FranchiseeCode
-        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` AS l ON k.LabelNo = l.LabelNo AND r.CountryCode = l.CountryCode
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label_partitioned` AS l ON k.LabelNo = l.LabelNo AND r.CountryCode = l.CountryCode
         LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIBulkCustomer` AS c ON l.OESCustomerID = c.OESCustomerID AND l.CountryCode = c.CountryCode
         LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIBulkLocalCustomer` AS lc ON l.FMSCustomerID = lc.FMSCustomerId AND l.CountryCode = lc.CountryCode            
       ) AS d

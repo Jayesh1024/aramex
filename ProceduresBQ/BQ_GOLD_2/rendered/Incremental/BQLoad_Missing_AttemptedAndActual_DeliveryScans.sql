@@ -100,7 +100,7 @@ BEGIN
       MF.Zone,
       MF.CustomerId
     FROM temp_AttemptedDeliveryScans R
-    INNER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` MF
+    INNER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF_partitioned` MF
       ON  MF.CountryCode   = 1
       AND MF.LabelNo       = R.LabelNo
       AND MF.IsCurrent     = 1
@@ -180,7 +180,7 @@ BEGIN
       MF.Zone,
       MF.CustomerId
     FROM temp_ActualDeliveryScans R
-    INNER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` MF
+    INNER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF_partitioned` MF
       ON  MF.CountryCode   = 1
       AND MF.LabelNo       = R.LabelNo
       AND MF.IsCurrent     = 1

@@ -77,7 +77,7 @@ BEGIN
         FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation` a
         WHERE a.Loaded >= IFNULL(ChangedSince, DefaultDate) AND a.isCurrent = 1
     ) sat
-    LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label` AS tgt
+    LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label_partitioned` AS tgt
         ON tgt.LabelNo = sat.LabelNo
     LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_LNK_Label_Address` lnk
         ON lnk.LabelNo_HSK = sat.LabelNo_HSK;
@@ -120,7 +120,7 @@ BEGIN
     SET Started = CURRENT_DATETIME();
 
     BEGIN
-        MERGE `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label` AS Tgt
+        MERGE `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label_partitioned` AS Tgt
         USING (
             WITH CombinedSats AS (
                 SELECT
@@ -261,8 +261,8 @@ BEGIN
         );
 
         -- Record counts for log
-        SET Inserted = (SELECT COUNT(*) FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label` WHERE Created = Loaded);
-        SET Updated  = (SELECT COUNT(*) FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label` WHERE Updated = Loaded AND Created <> Loaded);
+        SET Inserted = (SELECT COUNT(*) FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label_partitioned` WHERE Created = Loaded);
+        SET Updated  = (SELECT COUNT(*) FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label_partitioned` WHERE Updated = Loaded AND Created <> Loaded);
 
     EXCEPTION WHEN ERROR THEN
         SET Result       = 'Failed';

@@ -1,1 +1,1 @@
-TRUNCATE TABLE `{{ project_id }}.{{ dataset_id }}.dbo_CF_Productivity_NZ`;
+TRUNCATE TABLE `{{ project_id }}.{{ dataset_id }}.dbo_CF_Productivity_NZ_partitioned`;

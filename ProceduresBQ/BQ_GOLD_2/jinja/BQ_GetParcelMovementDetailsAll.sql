@@ -71,7 +71,7 @@ BEGIN
     l.ItemPrice               AS SalePrice,
     l.CustomerId              AS FMSCustomerID,
     CAST(NULL AS STRING)      AS OESCustomerID
-  FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` l
+  FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned` l
   INNER JOIN DLBSHeader h
     ON l.DLBSBatchId   = h.DLBSBatchId
    AND l.DLBSInvoiceNo = h.DeliveryRFInvoiceNo
@@ -102,7 +102,7 @@ BEGIN
     l.ItemPrice               AS SalePrice,
     l.CustomerId              AS FMSCustomerID,
     CAST(NULL AS STRING)      AS OESCustomerID
-  FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` l
+  FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned` l
   INNER JOIN PLBSHeader h
     ON l.PLBSBatchId   = h.PLBSBatchId
    AND l.PLBSInvoiceNo = h.PickupRFInvoiceNo
@@ -137,7 +137,7 @@ BEGIN
   INNER JOIN DLBSHeader h
     ON l.DLBSBatchId   = h.DLBSBatchId
    AND l.DLBSInvoiceNo = h.DeliveryRFInvoiceNo
-  LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` m
+  LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned` m
     ON l.LabelNo    = m.LabelNo
    AND m.IsCurrent  = 1
   WHERE l.CountryCode = p_CountryCode
@@ -171,7 +171,7 @@ BEGIN
   INNER JOIN PLBSHeader h
     ON l.PLBSBatchId   = h.PLBSBatchId
    AND l.PLBSInvoiceNo = h.PickupRFInvoiceNo
-  LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` m
+  LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned` m
     ON l.LabelNo   = m.LabelNo
    AND m.IsCurrent = 1
   WHERE l.CountryCode = p_CountryCode
@@ -208,12 +208,12 @@ BEGIN
   INNER JOIN DLBSBatching b
     ON i.CountryCode = b.CountryCode
    AND i.BatchId     = b.BatchId
-  LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label` l
+  LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label_partitioned` l
     ON i.LabelNo     = l.LabelNo
    AND l.CountryCode = CAST(i.CountryCode AS INT64)
   WHERE i.LabelNo NOT IN (
     SELECT LabelNo
-    FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF`
+    FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned`
     WHERE CountryCode = p_CountryCode
       AND IsCurrent = 1
       AND (DLBSBatchId > 0 OR PLBSBatchId > 0)

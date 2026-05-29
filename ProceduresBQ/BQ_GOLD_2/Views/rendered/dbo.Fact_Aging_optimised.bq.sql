@@ -24,9 +24,9 @@ FROM
 		(SELECT COUNT(1) FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan`
             WHERE LabelNo = k.LabelNo AND ScanStatus IN ('BBD', 'BB1', 'BB2', 'BB3') AND ScanDateTime >= DATE_ADD(CURRENT_DATETIME(), INTERVAL -6 MONTH)
 		) AS ToBlu
-	FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan_KPI` AS k 
+	FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan_KPI_partitioned` AS k 
 		INNER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_RF` AS r ON k.FirstReceivedRF = r.FranchiseeCode 
-		LEFT OUTER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` AS l ON k.LabelNo = l.LabelNo AND r.CountryCode = l.CountryCode 
+		LEFT OUTER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label_partitioned` AS l ON k.LabelNo = l.LabelNo AND r.CountryCode = l.CountryCode 
 		LEFT OUTER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_TSS_PostCodeMaster` AS p ON l.DeliveryPostcode = RTRIM(p.PostCode) AND UPPER(LTRIM(l.DeliveryTown)) = RTRIM(p.Suburb) AND p.CountryCode = l.CountryCode AND p.DeedRF <> '' 
 		LEFT OUTER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label_Address` AS a ON k.LabelNo = a.LabelNo 
 		LEFT OUTER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_KPI` AS fk ON k.LabelNo = fk.LabelNo AND fk.Category IN ('Interbranch', 'Local')

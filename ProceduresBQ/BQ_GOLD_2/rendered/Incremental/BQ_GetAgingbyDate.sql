@@ -18,10 +18,10 @@ BEGIN
              END) AS DestRF,
             p.CFDeliveryString AS DestCF,
             m.Days AS MatrixDays
-        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan_KPI` AS k
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan_KPI_partitioned` AS k
         INNER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_RF` AS r 
             ON k.FirstReceivedRF = r.FranchiseeCode 
-        LEFT OUTER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` AS l 
+        LEFT OUTER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label_partitioned` AS l 
             ON k.LabelNo = l.LabelNo AND r.CountryCode = l.CountryCode 
         LEFT OUTER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_TSS_PostCodeMaster` AS p 
             ON l.DeliveryPostcode = RTRIM(p.PostCode) 

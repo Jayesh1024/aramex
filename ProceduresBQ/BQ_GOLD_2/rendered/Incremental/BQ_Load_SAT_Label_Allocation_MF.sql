@@ -36,7 +36,7 @@ BEGIN
         SELECT DISTINCT * FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_fl_ConItem_Stg`
       ),
       Current_Sat AS (
-        SELECT * FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` WHERE IsCurrent = 1
+        SELECT * FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF_partitioned` WHERE IsCurrent = 1
       )
       SELECT 
         S.Label AS LabelNo,
@@ -54,7 +54,7 @@ BEGIN
          );
 
       -- 2. Update existing records (Expire old version)
-      UPDATE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` Target
+      UPDATE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF_partitioned` Target
       SET IsCurrent = 0,
           ValidTo = v_Loaded
       FROM temp_SAT_MF_Labels_Toload Source
@@ -66,7 +66,7 @@ BEGIN
       SET v_Updated_Count = @@row_count;
 
       -- 3. Insert new records
-      INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` (
+      INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF_partitioned` (
         LabelNo_HSK, LabelNo, ConId, ConItemId, LineNo, CountryCode, Country,
         CreatedOn, CustomerId, FromRf, FromCf, ToRf, ToCf, FMSInvoiceNo,
         FMSInvoiceDate, Reference, Quantity, ProductId, WeightDead, WeightCubic,

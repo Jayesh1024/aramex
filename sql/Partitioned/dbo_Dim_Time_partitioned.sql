@@ -1,4 +1,4 @@
-CREATE OR REPLACE TABLE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Time_partitioned`
+CREATE OR REPLACE TABLE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Time`
 (
   Date_Key INT64 NOT NULL,
   Calendar_Date DATETIME NOT NULL,

@@ -78,7 +78,7 @@ BEGIN
           f.ActualAttemptedDate, f.KPIDepartureDate, f.KPIArrivalDate, f.DueDate,
           COALESCE(f.KPIAttemptedDate, f.KPIAttemptedDateAdjust) AS EstimatedDeliveryDate
         FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_KPI` AS f
-        INNER JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` AS m ON f.LabelNo = m.LabelNo
+        INNER JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned` AS m ON f.LabelNo = m.LabelNo
         WHERE f.CountryCode = 1
           AND f.ActualAttemptedDate > v_StartDate
           AND f.ActualAttemptedDate <= v_EndDate

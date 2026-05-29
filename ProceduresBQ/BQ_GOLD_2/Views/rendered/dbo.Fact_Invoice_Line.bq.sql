@@ -6,4 +6,4 @@ SELECT h.Country, h.InvoiceNumber, h.FranchiseeCode, h.CourierNumber, s.Customer
               WHERE lab.Invoice_HSK = l.Invoice_HSK AND s.ProductCode IN (LEFT(lab.LabelNo, 2), LEFT(lab.LabelNo, 1))) AS Prefix
 FROM   `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_HUB_Invoice` AS h INNER JOIN
              `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LNK_InvoiceLine` AS l ON h.InvoiceNumber = l.InvoiceNumber AND h.FranchiseeCode = l.FranchiseeCode INNER JOIN
-             `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceLine` AS s ON l.InvoiceLine_HSK = s.InvoiceLine_HSK
+             `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceLine_partitioned` AS s ON l.InvoiceLine_HSK = s.InvoiceLine_HSK

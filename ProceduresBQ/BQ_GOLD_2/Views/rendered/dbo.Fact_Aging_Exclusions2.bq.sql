@@ -102,7 +102,7 @@ FROM
          
 
  FROM   `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Aging_Indexed` k LEFT OUTER JOIN
-        `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` AS l ON l.CreateDate > DATE_ADD(CURRENT_DATETIME(), INTERVAL -6 MONTH) AND k.LabelNo = l.LabelNo AND k.CountryCode = l.CountryCode LEFT OUTER JOIN
+        `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label_partitioned` AS l ON l.CreateDate > DATE_ADD(CURRENT_DATETIME(), INTERVAL -6 MONTH) AND k.LabelNo = l.LabelNo AND k.CountryCode = l.CountryCode LEFT OUTER JOIN
         `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_TSS_PostCodeMaster` AS p ON l.DeliveryPostcode = RTRIM(p.PostCode) AND UPPER(LTRIM(l.DeliveryTown)) = RTRIM(p.Suburb) AND p.CountryCode = l.CountryCode AND 
         p.DeedRF <> '' LEFT OUTER JOIN
         `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LNK_Label_Address` AS A2 ON k.LabelNo = a2.LabelNo LEFT OUTER JOIN

@@ -172,7 +172,7 @@ BEGIN
         CAST(K.ActualDepartureDate AS DATE)                                AS dep_date,
         CAST(K.ActualArrivalDate AS DATE)                                  AS arr_date
       FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_KPI_Daily` K
-      LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` MF
+      LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned` MF
         ON  MF.LabelNo     = K.LabelNo
         AND MF.IsCurrent   = 1
         AND MF.CountryCode = K.CountryCode

@@ -28,7 +28,7 @@ AS
 			DeliveryTown, DeliveryPostcode, l.OESCustomerID, l.FMSCustomerID, l.Electronic_CustomerID, l.Electronic_CustomerType, 
 			CFDeliveryString, l.CountryCode, l.ParcelWeight, DeliveryAddress, 
 			fk.DueDate AS MFWDueDate
-        FROM `{{ project_id }}.{{ dataset_id }}.dbo_Fact_Scan_KPI` AS k 
+        FROM `{{ project_id }}.{{ dataset_id }}.dbo_Fact_Scan_KPI_partitioned` AS k 
 	    INNER JOIN `{{ project_id }}.{{ dataset_id }}.dbo_Dim_RF` AS r ON k.FirstReceivedRF = r.FranchiseeCode 
 		LEFT OUTER JOIN `{{ project_id }}.{{ dataset_id }}.dbo_Fact_KPI` AS fk ON k.LabelNo = fk.LabelNo AND fk.Category IN ('Interbranch', 'Local')
 		LEFT OUTER JOIN (
@@ -37,7 +37,7 @@ AS
 				ParcelWeight, DeliveryAddress, DeedRF, FastLabel_DestinationRF, DelTown, DelPostcode, l.CountryCode,
 				 COALESCE (UPPER(LTRIM(l.DeliveryTown)), a.DelTown) AS DeliveryTown, COALESCE (l.DeliveryPostcode, a.DelPostcode) AS DeliveryPostcode,
 				 (CASE WHEN l.DeliveryCF IS NOT NULL AND LTRIM(l.DeliveryCF) <> '' THEN l.DeliveryCF ELSE p.CFDeliveryString END) AS CFDeliveryString
-			from `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Label` AS l  
+			from `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Label_partitioned` AS l  
 			left outer join `{{ project_id }}.{{ dataset_id }}.dbo_TSS_PostCodeMaster` AS p ON l.DeliveryPostcode = RTRIM(p.PostCode) AND UPPER(LTRIM(l.DeliveryTown)) = RTRIM(p.Suburb) AND p.CountryCode = l.CountryCode AND p.DeedRF <> '' 
 			left outer join `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Label_Address` AS a ON l.LabelNo = a.LabelNo 
 			

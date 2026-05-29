@@ -12,7 +12,7 @@ BEGIN
   /*
   ** Routine: Load_LSAT_InvoiceHead
   ** Description: Loads FMS Invoice Head into into dv.LSAT_InvoiceHead
-  ** Description: Loads FMS Invoice Head into into dv_LSAT_InvoiceHead
+  ** Description: Loads FMS Invoice Head into into dv_LSAT_InvoiceHead_partitioned
   */
 
   DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
@@ -26,7 +26,7 @@ BEGIN
   DECLARE v_Updated INT64 DEFAULT 0;
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceHead` (
+    INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceHead_partitioned` (
       Invoice_HSK,
       FranchiseeCode_HSK,
       FranchiseeCode,
@@ -126,7 +126,7 @@ BEGIN
     FROM InvoiceHeadStg AS Src
     WHERE NOT EXISTS (
       SELECT 1 
-      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceHead` AS Tgt 
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceHead_partitioned` AS Tgt 
       WHERE Tgt.FranchiseeCode = Src.FranchiseeCode 
         AND Tgt.InvoiceNumber = Src.InvoiceNumber
     );

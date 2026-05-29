@@ -30,10 +30,10 @@ BEGIN
                 ELSE '' 
              END) AS DestRF,
             p.CFDeliveryString AS DestCF
-        FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_Scan_KPI` AS k
+        FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_Scan_KPI_partitioned` AS k
         INNER JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_RF` AS r 
             ON k.FirstReceivedRF = r.FranchiseeCode 
-        LEFT OUTER JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label` AS l 
+        LEFT OUTER JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label_partitioned` AS l 
             ON k.LabelNo = l.LabelNo AND r.CountryCode = l.CountryCode 
         LEFT OUTER JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_TSS_PostCodeMaster` AS p 
             ON l.DeliveryPostcode = RTRIM(p.PostCode) 

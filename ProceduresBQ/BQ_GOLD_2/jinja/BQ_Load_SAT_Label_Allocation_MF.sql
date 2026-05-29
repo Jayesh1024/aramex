@@ -36,7 +36,7 @@ BEGIN
         SELECT DISTINCT * FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_fl_ConItem_Stg`
       ),
       Current_Sat AS (
-        SELECT * FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` WHERE IsCurrent = 1
+        SELECT * FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned` WHERE IsCurrent = 1
       )
       SELECT 
         S.Label AS LabelNo,
@@ -54,7 +54,7 @@ BEGIN
          );
 
       -- 2. Update existing records (Expire old version)
-      UPDATE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` Target
+      UPDATE `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned` Target
       SET IsCurrent = 0,
           ValidTo = v_Loaded
       FROM temp_SAT_MF_Labels_Toload Source
@@ -66,7 +66,7 @@ BEGIN
       SET v_Updated_Count = @@row_count;
 
       -- 3. Insert new records
-      INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` (
+      INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned` (
         LabelNo_HSK, LabelNo, ConId, ConItemId, LineNo, CountryCode, Country,
         CreatedOn, CustomerId, FromRf, FromCf, ToRf, ToCf, FMSInvoiceNo,
         FMSInvoiceDate, Reference, Quantity, ProductId, WeightDead, WeightCubic,

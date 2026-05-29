@@ -10,7 +10,7 @@ CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_Label_
 BEGIN
   /*
   ** Routine: Load_Label_Invoices
-  ** Description: Attempts to find and Load any missing Invoice-Label relationships in dbo_Dim_label
+  ** Description: Attempts to find and Load any missing Invoice-Label relationships in dbo_Dim_Label_partitioned
   */
 
   DECLARE v_StartDate DATETIME;
@@ -41,7 +41,7 @@ BEGIN
         SELECT 
           LabelNo, 
           CountryCode
-        FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label`
+        FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label_partitioned`
         WHERE (FMSInvoiceID IS NULL OR FMSInvoiceID = 0 OR FMSRfID IS NULL)
           AND CreateDate >= v_StartDate AND CreateDate < v_NextDate
           AND CountryCode IN (1, 6, 24)
@@ -80,7 +80,7 @@ BEGIN
       WHERE Typ = 'TGT';
 
       -- Update the Dimension table based on discovered mappings for the current date iteration
-      UPDATE `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label` AS dim
+      UPDATE `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label_partitioned` AS dim
       SET 
         FMSInvoiceID = src.InvoiceNumber, 
         FMSRfID = src.FranchiseeCode

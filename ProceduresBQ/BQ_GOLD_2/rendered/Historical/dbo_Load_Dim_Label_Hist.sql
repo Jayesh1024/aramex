@@ -56,7 +56,7 @@ BEGIN
         FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation` a
         WHERE a.isCurrent = 1
     ) sat
-    LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` AS tgt
+    LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label_partitioned` AS tgt
         ON tgt.LabelNo = sat.LabelNo
     LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LNK_Label_Address` lnk
         ON lnk.LabelNo_HSK = sat.LabelNo_HSK;
@@ -99,7 +99,7 @@ BEGIN
     SET Started = CURRENT_DATETIME();
 
     BEGIN
-        MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` AS Tgt
+        MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label_partitioned` AS Tgt
         USING (
             WITH CombinedSats AS (
                 SELECT
@@ -240,8 +240,8 @@ BEGIN
         );
 
         -- Record counts for log
-        SET Inserted = (SELECT COUNT(*) FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` WHERE Created = Loaded);
-        SET Updated  = (SELECT COUNT(*) FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` WHERE Updated = Loaded AND Created <> Loaded);
+        SET Inserted = (SELECT COUNT(*) FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label_partitioned` WHERE Created = Loaded);
+        SET Updated  = (SELECT COUNT(*) FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label_partitioned` WHERE Updated = Loaded AND Created <> Loaded);
 
     EXCEPTION WHEN ERROR THEN
         SET Result       = 'Failed';

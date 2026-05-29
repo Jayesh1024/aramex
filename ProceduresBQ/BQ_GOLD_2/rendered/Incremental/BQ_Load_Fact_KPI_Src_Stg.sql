@@ -74,7 +74,7 @@ BEGIN
             MF.Zone,
             MF.CustomerId
         FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan_Recent` R 
-        JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` MF 
+        JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF_partitioned` MF 
             ON MF.CountryCode = 1 
             AND MF.LabelNo = R.LabelNo 
             AND MF.IsCurrent = 1 
@@ -137,7 +137,7 @@ BEGIN
             MF.Zone,
             MF.CustomerId
         FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LNK_Scan` R 
-        JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` MF 
+        JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF_partitioned` MF 
             ON MF.CountryCode = 1 
             AND MF.LabelNo = R.LabelNo 
             AND MF.IsCurrent = 1 

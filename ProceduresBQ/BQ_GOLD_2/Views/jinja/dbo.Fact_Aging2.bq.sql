@@ -14,11 +14,11 @@ FROM            (SELECT        s.LabelNo, s.LastScanDate, s.LastScanRF, s.LastSc
                           FROM            (SELECT        k.LabelNo, k.LastScanDate, k.LastScanRF, k.LastScanCF, k.LastScanType, k.LastScanStatus, k.FirstReceivedDate AS PickupDate, k.FirstReceivedRF AS PickupRF, k.FirstReceivedCF AS PickupCF, 
                                                                               k.FirstDepartedDate, k.FirstDepartedRF, k.LastDepartedDate, k.LastDepartedRF, k.FirstArrivedRF, k.LastArrivedRF, k.FirstOutDate AS OutDate, k.FirstOutRF AS OutRF, k.FirstOutCF AS OutCF, 
                                                                               k.LastSortedScanStatus, k.FirstOutRF, r.CountryCode
-                                                    FROM            `{{ project_id }}.{{ dataset_id }}.dbo_Fact_Scan_KPI` AS k INNER JOIN
+                                                    FROM            `{{ project_id }}.{{ dataset_id }}.dbo_Fact_Scan_KPI_partitioned` AS k INNER JOIN
                                                                               `{{ project_id }}.{{ dataset_id }}.dbo_Dim_RF` AS r ON k.FirstReceivedRF = r.FranchiseeCode
                                                     WHERE        (k.FirstReceivedDate >= DATE_ADD(CAST(CURRENT_DATETIME() AS DATE), INTERVAL - 1 MONTH)) AND (k.FirstStopDate IS NULL) AND ((CASE WHEN r.CountryCode = 1 AND LEFT(k.LabelNo, 2) 
                                                                               <> '5A' THEN 1 WHEN r.CountryCode = 6 AND LEFT(k.LabelNo, 1) <> '9' THEN 1 WHEN r.CountryCode = 24 THEN 1 ELSE 0 END) = 1)) AS s LEFT OUTER JOIN
-                                                    `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Label` AS l ON s.LabelNo = l.LabelNo AND s.CountryCode = l.CountryCode LEFT OUTER JOIN
+                                                    `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Label_partitioned` AS l ON s.LabelNo = l.LabelNo AND s.CountryCode = l.CountryCode LEFT OUTER JOIN
                                                     `{{ project_id }}.{{ dataset_id }}.dbo_TSS_PostCodeMaster` AS p ON l.DeliveryPostcode = RTRIM(p.PostCode) AND UPPER(LTRIM(l.DeliveryTown)) = RTRIM(p.Suburb) AND p.CountryCode IN (1, 6, 24) LEFT OUTER JOIN
                                                     `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Label_Address` AS a ON s.LabelNo = a.LabelNo) AS a_1 LEFT OUTER JOIN
                          `{{ project_id }}.{{ dataset_id }}.dbo_KPIMatrix` AS m ON a_1.PickupRF = m.PickupFranchise AND a_1.DestRF = m.DeliveryFranchise

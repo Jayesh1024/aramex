@@ -100,7 +100,7 @@ BEGIN
       MF.Zone,
       MF.CustomerId
     FROM temp_AttemptedDeliveryScans R
-    INNER JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` MF
+    INNER JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned` MF
       ON  MF.CountryCode   = 1
       AND MF.LabelNo       = R.LabelNo
       AND MF.IsCurrent     = 1
@@ -180,7 +180,7 @@ BEGIN
       MF.Zone,
       MF.CustomerId
     FROM temp_ActualDeliveryScans R
-    INNER JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` MF
+    INNER JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned` MF
       ON  MF.CountryCode   = 1
       AND MF.LabelNo       = R.LabelNo
       AND MF.IsCurrent     = 1

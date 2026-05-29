@@ -47,7 +47,7 @@ BEGIN
             MF.Zone,
             MF.CustomerId
         FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LNK_Scan` R 
-        JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` MF 
+        JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned` MF 
             ON MF.CountryCode = 1 
             AND MF.LabelNo = R.LabelNo 
             AND MF.IsCurrent = 1 

@@ -7,5 +7,5 @@ SELECT        lab.LabelNo, lab.InvoiceNumber, lab.FranchiseeCode, i.Country, i.C
 						 p.FMSDeliveryPrice, p.FMSPickupPrice
 FROM            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LNK_Invoice_Label` AS lab LEFT OUTER JOIN
                          `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LNK_InvoiceLine` AS i ON i.Invoice_HSK = lab.Invoice_HSK AND i.FranchiseeCode_HSK = lab.FranchiseeCode_HSK AND i.ProductCode IN (LEFT(lab.LabelNo, 2), LEFT(lab.LabelNo, 1)) LEFT OUTER JOIN
-                         `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceLine` AS s ON i.InvoiceLine_HSK = s.InvoiceLine_HSK LEFT OUTER JOIN
+                         `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceLine_partitioned` AS s ON i.InvoiceLine_HSK = s.InvoiceLine_HSK LEFT OUTER JOIN
                          `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Product` AS p ON p.ProductCode = i.ProductCode AND p.Country = i.Country

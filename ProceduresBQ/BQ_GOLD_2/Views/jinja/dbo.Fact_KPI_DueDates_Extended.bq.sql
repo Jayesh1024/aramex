@@ -24,5 +24,5 @@ CREATE OR REPLACE VIEW `{{ project_id }}.{{ dataset_id }}.dbo_Fact_KPI_DueDates_
     ) AS DueDate_Plus3
 
 	FROM `{{ project_id }}.{{ dataset_id }}.dbo_Fact_KPI` kpi
-	JOIN `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Allocation_MF` mf ON kpi.LabelNo = mf.LabelNo AND kpi.CountryCode = mf.CountryCode
+	JOIN `{{ project_id }}.{{ dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned` mf ON kpi.LabelNo = mf.LabelNo AND kpi.CountryCode = mf.CountryCode
 	AND mf.IsCurrent = 1

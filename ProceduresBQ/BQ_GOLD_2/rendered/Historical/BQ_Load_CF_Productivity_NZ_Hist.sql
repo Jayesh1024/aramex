@@ -181,7 +181,7 @@ BEGIN
     FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2_NZ` s
     LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIExcludedLabels` ex
       ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix AND ex.CountryName = s.CountryName
-    LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` l
+    LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label_partitioned` l
       ON s.LabelNo = l.LabelNo AND s.CountryName = l.Country
     WHERE s.CountryName = v_CountryName AND s.ScanType = 'P' AND ex.LabelPrefix IS NULL
     GROUP BY s.ScanDate, s.FranchiseeCode, s.CourierNumber;
@@ -189,7 +189,7 @@ BEGIN
     -- -----------------------------------------------------------------------
     -- Final load: aggregate Staging into CF_Productivity_NZ
     -- -----------------------------------------------------------------------
-    INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_CF_Productivity_NZ`
+    INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_CF_Productivity_NZ_partitioned`
     (
       WorkDate, CountryCode, RF, CF, DeliveriesForDay, PickupsForDday, ActiveCustomers, FirstScanTime,
       ArrivalTime_AM, ArrivalTime_PM, ArrivalTime_TW, DepartureTime_AM, DepartureTime_PM, DepartureTime_TW,

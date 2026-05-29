@@ -4,13 +4,13 @@
 -- Example:		Exec [dv].[Load_LSAT_InvoiceLine2] 453 
 -- History:
 --	27/12/2019  P. Waldron		Routine Written
---	24/03/2019  P. Waldron		Add EnteredDate to dv_LSAT_InvoiceLine
+--	24/03/2019  P. Waldron		Add EnteredDate to dv_LSAT_InvoiceLine_partitioned
 -- ==========================================================================================
 CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_LSAT_InvoiceLine`(IN p_ProcessID INT64, IN p_RecordSource STRING)
 BEGIN
   /*
   ** Routine: Load_LSAT_InvoiceLine
-  ** Description: Loads Invoice Lines into into dv_LSAT_InvoiceLine
+  ** Description: Loads Invoice Lines into into dv_LSAT_InvoiceLine_partitioned
   */
 
   DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
@@ -24,7 +24,7 @@ BEGIN
   DECLARE v_Updated INT64 DEFAULT 0;
   BEGIN
     -- Only INSERT is present in the source logic, so using INSERT ... SELECT per CORE RULES.
-    INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceLine` (
+    INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceLine_partitioned` (
       InvoiceLine_HSK, 
       Invoice_HSK,
       FranchiseeCode_HSK,
@@ -137,7 +137,7 @@ BEGIN
           LineType
         FROM RawData
       ) AS h
-      LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceLine` AS Tgt
+      LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceLine_partitioned` AS Tgt
         ON Tgt.InvoiceLine_HSK = h.InvoiceLine_HSK
       WHERE Tgt.InvoiceLine_HSK IS NULL
     )

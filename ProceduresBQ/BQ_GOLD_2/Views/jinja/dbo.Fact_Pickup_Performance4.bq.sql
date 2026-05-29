@@ -15,8 +15,8 @@ SELECT
     SUM(CASE WHEN FirstStopDate IS NULL THEN 1 ELSE 0 END) AS NumofUndelivered,
     SUM(l.ParcelWeight) AS ParcelWeight
     
-FROM   `{{ project_id }}.{{ dataset_id }}.dbo_Fact_Scan_KPI` AS k
-LEFT OUTER JOIN `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Label` AS l ON k.LabelNo = l.LabelNo
+FROM   `{{ project_id }}.{{ dataset_id }}.dbo_Fact_Scan_KPI_partitioned` AS k
+LEFT OUTER JOIN `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Label_partitioned` AS l ON k.LabelNo = l.LabelNo
 INNER JOIN `{{ project_id }}.{{ dataset_id }}.dbo_Dim_RF` AS r ON COALESCE (k.FirstReceivedRF, l.Distribution_FranchiseeCode) = r.FranchiseeCode
 LEFT OUTER JOIN `{{ project_id }}.{{ dataset_id }}.dbo_KPIBulkCustomer` AS c ON l.OESCustomerID = c.OESCustomerID AND l.CountryCode = c.CountryCode 
 LEFT OUTER JOIN `{{ project_id }}.{{ dataset_id }}.dbo_KPIBulkLocalCustomer` AS lc ON l.FMSCustomerID = lc.FMSCustomerId AND l.CountryCode = lc.CountryCode

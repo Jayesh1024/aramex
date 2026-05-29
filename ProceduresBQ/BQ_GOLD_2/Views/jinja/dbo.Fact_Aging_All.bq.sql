@@ -11,9 +11,9 @@ FROM            (SELECT        k.LabelNo, k.LastScanDate, k.LastScanRF, k.LastSc
                                                         (SELECT        COUNT(1) AS Expr1
                                                           FROM            `{{ project_id }}.{{ dataset_id }}.dbo_Fact_Scan`
                                                           WHERE        (LabelNo = k.LabelNo) AND (ScanStatus IN ('BBD', 'BB1', 'BB2', 'BB3'))) AS ToBlu
-                          FROM            `{{ project_id }}.{{ dataset_id }}.dbo_Fact_Scan_KPI` AS k INNER JOIN
+                          FROM            `{{ project_id }}.{{ dataset_id }}.dbo_Fact_Scan_KPI_partitioned` AS k INNER JOIN
                                                     `{{ project_id }}.{{ dataset_id }}.dbo_Dim_RF` AS r ON k.FirstReceivedRF = r.FranchiseeCode LEFT OUTER JOIN
-                                                    `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Label` AS l ON k.LabelNo = l.LabelNo LEFT OUTER JOIN
+                                                    `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Label_partitioned` AS l ON k.LabelNo = l.LabelNo LEFT OUTER JOIN
                                                     `{{ project_id }}.{{ dataset_id }}.dbo_TSS_PostCodeMaster` AS p ON l.DeliveryPostcode = RTRIM(p.PostCode) AND UPPER(LTRIM(l.DeliveryTown)) = RTRIM(p.Suburb) AND p.CountryCode IN (1, 6) LEFT OUTER JOIN
                                                     `{{ project_id }}.{{ dataset_id }}.dbo_Dim_Label_Address` AS a ON k.LabelNo = a.LabelNo
                           WHERE        (k.FirstStopDate IS NULL) AND (r.CountryCode = 1) AND (LEFT(k.LabelNo, 2) <> '5A') OR

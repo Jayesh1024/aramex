@@ -208,7 +208,7 @@ BEGIN
   INNER JOIN DLBSBatching b
     ON i.CountryCode = b.CountryCode
    AND i.BatchId     = b.BatchId
-  LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` l
+  LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label_partitioned` l
     ON i.LabelNo     = l.LabelNo
    AND l.CountryCode = CAST(i.CountryCode AS INT64)
   WHERE i.LabelNo NOT IN (

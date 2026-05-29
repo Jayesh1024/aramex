@@ -63,7 +63,7 @@ BEGIN
     CAST(l.ItemPrice AS FLOAT64)    AS SalePrice,
     CAST(l.CustomerId AS STRING)    AS FMSCustomerID,
     CAST(NULL AS STRING)            AS OESCustomerID
-  FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` l
+  FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned` l
   INNER JOIN DLBSHeader h
     ON SAFE_CAST(l.DLBSBatchId AS INT64)   = h.DLBSBatchId
    AND CAST(l.DLBSInvoiceNo AS STRING)    = h.DeliveryRFInvoiceNo
@@ -94,7 +94,7 @@ BEGIN
     CAST(l.ItemPrice AS FLOAT64),
     CAST(l.CustomerId AS STRING),
     CAST(NULL AS STRING)
-  FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` l
+  FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned` l
   INNER JOIN PLBSHeader h
     ON SAFE_CAST(l.PLBSBatchId AS INT64)   = h.PLBSBatchId
    AND CAST(l.PLBSInvoiceNo AS STRING)    = h.PickupRFInvoiceNo
@@ -125,7 +125,7 @@ BEGIN
   INNER JOIN DLBSHeader h
     ON SAFE_CAST(l.DLBSBatchId AS INT64)   = h.DLBSBatchId
    AND CAST(l.DLBSInvoiceNo AS STRING)    = h.DeliveryRFInvoiceNo
-  LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` m
+  LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned` m
     ON l.LabelNo   = m.LabelNo
    AND m.IsCurrent = 1
   WHERE SAFE_CAST(l.CountryCode AS INT64) = p_CountryCode
@@ -155,7 +155,7 @@ BEGIN
   INNER JOIN PLBSHeader h
     ON SAFE_CAST(l.PLBSBatchId AS INT64)   = h.PLBSBatchId
    AND CAST(l.PLBSInvoiceNo AS STRING)    = h.PickupRFInvoiceNo
-  LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` m
+  LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned` m
     ON l.LabelNo   = m.LabelNo
    AND m.IsCurrent = 1
   WHERE SAFE_CAST(l.CountryCode AS INT64) = p_CountryCode
@@ -192,12 +192,12 @@ BEGIN
   INNER JOIN DLBSBatching b
     ON SAFE_CAST(i.CountryCode AS INT64) = b.CountryCode
    AND SAFE_CAST(i.BatchId AS INT64)     = b.BatchId
-  LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label` l
+  LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label_partitioned` l
     ON i.LabelNo                    = l.LabelNo
    AND SAFE_CAST(i.CountryCode AS INT64) = SAFE_CAST(l.CountryCode AS INT64)
   WHERE i.LabelNo NOT IN (
     SELECT LabelNo
-    FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF`
+    FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned`
     WHERE SAFE_CAST(CountryCode AS INT64) = p_CountryCode
       AND IsCurrent = 1
       AND (SAFE_CAST(DLBSBatchId AS INT64) > 0 OR SAFE_CAST(PLBSBatchId AS INT64) > 0)

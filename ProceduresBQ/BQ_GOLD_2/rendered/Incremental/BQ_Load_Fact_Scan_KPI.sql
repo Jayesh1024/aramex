@@ -53,7 +53,7 @@ BEGIN
       ELSE NULL
     END AS InsertId
   FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_KPI_Stg` AS Stg
-  LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan_KPI` AS Tgt
+  LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan_KPI_partitioned_partitioned` AS Tgt
     ON Tgt.LabelNo = Stg.LabelNo;
 
   -- Early exit if nothing to process
@@ -91,7 +91,7 @@ BEGIN
 
   BEGIN
 
-    MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan_KPI` AS Tgt
+    MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan_KPI_partitioned` AS Tgt
     USING (
       SELECT Src.*
       FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_KPI_Stg` Src
@@ -322,7 +322,7 @@ BEGIN
 
     SET v_Updated = (
       SELECT COUNT(*)
-      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan_KPI`
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan_KPI_partitioned`
       WHERE ProcessId = p_ProcessId
         AND Updated   = v_Loaded
     );
@@ -359,7 +359,7 @@ BEGIN
 
   BEGIN
 
-    INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan_KPI`
+    INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan_KPI_partitioned`
     (
       LabelNo,
       FirstScanDate, FirstScanRF, FirstScanCF, FirstScanType, FirstScanStatus,
@@ -421,7 +421,7 @@ BEGIN
 
     SET v_Inserted = (
       SELECT COUNT(*)
-      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan_KPI`
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan_KPI_partitioned`
       WHERE ProcessId = p_ProcessId
         AND Created   = v_Loaded
     );

@@ -192,7 +192,7 @@ BEGIN
   INNER JOIN DLBSBatching b
     ON SAFE_CAST(i.CountryCode AS INT64) = b.CountryCode
    AND SAFE_CAST(i.BatchId AS INT64)     = b.BatchId
-  LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` l
+  LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label_partitioned` l
     ON i.LabelNo                    = l.LabelNo
    AND SAFE_CAST(i.CountryCode AS INT64) = SAFE_CAST(l.CountryCode AS INT64)
   WHERE i.LabelNo NOT IN (

@@ -66,7 +66,7 @@ BEGIN
       l.CustomerId                                                              AS FMSCustomerID,
       CAST(NULL AS STRING)                                                      AS OESCustomerID,
       'MFW DLBS'                                                                AS Type
-    FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` l
+    FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned` l
     INNER JOIN DLBSHeader h
       ON  l.DLBSBatchId   = h.DLBSBatchId
       AND l.DLBSInvoiceNo = h.DeliveryRFInvoiceNo
@@ -87,7 +87,7 @@ BEGIN
       l.CustomerId                        AS FMSCustomerID,
       CAST(NULL AS STRING)                AS OESCustomerID,
       'MFW PLBS'                          AS Type
-    FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` l
+    FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned` l
     INNER JOIN PLBSHeader h
       ON  l.PLBSBatchId   = h.PLBSBatchId
       AND l.PLBSInvoiceNo = h.PickupRFInvoiceNo
@@ -110,7 +110,7 @@ BEGIN
       CAST(NULL AS STRING)                                                      AS OESCustomerID,
       'MFW DLBS'                                                                AS Type
     FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_Label_Product_ServiceItem` l
-    INNER JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` m
+    INNER JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned` m
       ON  l.LabelNo   = m.LabelNo
       AND m.IsCurrent = 1
     INNER JOIN DLBSHeader h
@@ -134,7 +134,7 @@ BEGIN
       CAST(NULL AS STRING)                AS OESCustomerID,
       'MFW PLBS'                          AS Type
     FROM `{{ project_id }}.{{ target_dataset_id }}.dv_LSAT_Label_Product_ServiceItem` l
-    INNER JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` m
+    INNER JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned` m
       ON  l.LabelNo   = m.LabelNo
       AND m.IsCurrent = 1
     INNER JOIN PLBSHeader h
@@ -167,12 +167,12 @@ BEGIN
     INNER JOIN DLBSBatching b
       ON  CAST(i.CountryCode AS INT64) = b.CountryCode
       AND i.BatchId     = b.BatchId
-    LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label` l
+    LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Label_partitioned` l
       ON  i.LabelNo     = l.LabelNo
       AND l.CountryCode = i.CountryCode
     WHERE i.LabelNo NOT IN (
       SELECT LabelNo
-      FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF`
+      FROM `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF_partitioned`
       WHERE CountryCode = p_CountryCode
         AND IsCurrent   = 1
         AND (DLBSBatchId > 0 OR PLBSBatchId > 0)
