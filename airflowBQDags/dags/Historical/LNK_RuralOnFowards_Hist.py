@@ -128,6 +128,6 @@ with DAG(
             job_id="bq_gold_transformation_oceania",
         )
 
-        op_5 >> op_3 >> op_1 >> op_2 >> op_4
+        op_5 >> op_1 >> op_2 >> op_4
 
     tg_seq >> tg_load

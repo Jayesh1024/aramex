@@ -232,7 +232,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{SP_DATASET_ID}.dbo_Load_Dim_Label`("
+                        f"CALL `{SP_DATASET_ID}.dbo_Load_Dim_Label_Hist`("
                         f"{_GET_PROCESSID_XCOM}, "
                         f"SAFE_CAST('{{{{ data_interval_start }}}}' AS DATETIME));"
                     ),
