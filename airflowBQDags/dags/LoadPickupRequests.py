@@ -13,7 +13,8 @@ Flow (per country TaskGroup):
   * Truncate `Staging_PickupRequest_<CC>_Stg`.
   * `CALL Staging_load_PickupRequest_<CC>_Stg(p_ingestion_time)` — silver → country stg; cutoff is **DATETIME**
     (`ingestion_time` > cutoff). See `BQ_GOLD_2/jinja/Staging_load_PickupRequest_*_Stg.sql`.
-  * Copy new IDs into `Staging_PickupRequest_Stg` (SSIS «Copy Country Staging to PickupRequest_Stg»).
+  * `CALL Staging_Copy_PickupRequest_Country_To_Stg(country_suffix)` — copy new IDs into
+    `Staging_PickupRequest_Stg` (SSIS «Copy Country Staging to PickupRequest_Stg»).
   * `CALL dv_Load_CT_SAT_Label_PickupRequests_<CC>(ProcessID)`.
   * `CALL Staging_Set_LastValue(RecordSource, 'ingestion_time', MAX(ingestion_time) from country stg, FALSE)`
     so `Staging_LoadControl.LastValue` advances after a successful run (requires LoadControl rows).
@@ -74,54 +75,7 @@ _COUNTRY_BRANCHES: tuple[dict[str, Any], ...] = (
 )
 
 
-def _copy_country_to_shared_sql(country_suffix: str) -> str:
-    stg = _bq_qual(TARGET_DATASET_ID, f"Staging_PickupRequest_{country_suffix}_Stg")
-    return (
-        f"INSERT INTO {_bq_qual(TARGET_DATASET_ID, 'Staging_PickupRequest_Stg')} ("
-        "ID, CreateDateUtc, ingestion_time, ShouldPrintLabel, PickupFranchiseeCode, "
-        "PickupCourierNumber, LabelNumber, CollectionDate, CollectionCycle, "
-        "PickupAddress1, PickupAddress2, PickupSuburb, PickupPostcode, "
-        "PickupName, PickupPhone, PickupEmail, DeliveryAddress1, "
-        "DeliveryAddress2, DeliverySuburb, DeliveryPostcode, DeliveryName, "
-        "DeliveryPhone, DeliveryEmail, IsMessageSent, Weight, Width, Height, "
-        "Length, RequestingCustomerName, CountryCode, IsPrinted, IsComplete, "
-        "ConsolidationGroupId, CourierMessageResult, ConsolidationDateUtc, "
-        "PickupSpecialInstructions, DeliverySpecialInstructions, HhcMessageId, "
-        "HasCourierRejected, IsRegularCollection, RequestingCustomerOesId, "
-        "IsCancelled, CancellationReason, CancellationTitle, FutileScanDate, "
-        "NotReadyScanDate, PickupScanDate, MessageSentDateUtc, "
-        "CourierMessageResultText, RejectionReason, RejectionDate, "
-        "InternalStatus, DidNotAssignCourierDuringCreation, IsReturnService, "
-        "IsParcelConnectPickupLocation, SecondaryLabelNumber, "
-        "PickupSubDepotFranchiseeCode, CubicWeight, PickupCompany, "
-        "DeliveryCompany, IsPriority"
-        ") "
-        "SELECT Src.Id, Src.CreateDateUtc, Src.ingestion_time, Src.ShouldPrintLabel, "
-        "Src.PickupFranchiseeCode, Src.PickupCourierNumber, Src.LabelNumber, "
-        "Src.CollectionDate, Src.CollectionCycle, Src.PickupAddress1, "
-        "Src.PickupAddress2, Src.PickupSuburb, Src.PickupPostcode, "
-        "Src.PickupName, Src.PickupPhone, Src.PickupEmail, Src.DeliveryAddress1, "
-        "Src.DeliveryAddress2, Src.DeliverySuburb, Src.DeliveryPostcode, "
-        "Src.DeliveryName, Src.DeliveryPhone, Src.DeliveryEmail, "
-        "Src.IsMessageSent, Src.Weight, Src.Width, Src.Height, Src.Length, "
-        "Src.RequestingCustomerName, Src.CountryCode, Src.IsPrinted, "
-        "Src.IsComplete, Src.ConsolidationGroupId, Src.CourierMessageResult, "
-        "Src.ConsolidationDateUtc, Src.PickupSpecialInstructions, "
-        "Src.DeliverySpecialInstructions, Src.HhcMessageId, "
-        "Src.HasCourierRejected, Src.IsRegularCollection, "
-        "Src.RequestingCustomerOesId, Src.IsCancelled, Src.CancellationReason, "
-        "Src.CancellationTitle, Src.FutileScanDate, Src.NotReadyScanDate, "
-        "Src.PickupScanDate, Src.MessageSentDateUtc, "
-        "Src.CourierMessageResultText, Src.RejectionReason, Src.RejectionDate, "
-        "Src.InternalStatus, Src.DidNotAssignCourierDuringCreation, "
-        "Src.IsReturnService, Src.IsParcelConnectPickupLocation, "
-        "Src.SecondaryLabelNumber, Src.PickupSubDepotFranchiseeCode, "
-        "Src.CubicWeight, Src.PickupCompany, Src.DeliveryCompany, Src.IsPriority "
-        f"FROM {stg} AS Src "
-        f"LEFT JOIN {_bq_qual(TARGET_DATASET_ID, 'Staging_PickupRequest_Stg')} AS Tgt "
-        "ON Tgt.ID = Src.Id "
-        "WHERE Tgt.ID IS NULL;"
-    )
+_COPY_COUNTRY_TO_SHARED_SP = "Staging_Copy_PickupRequest_Country_To_Stg"
 
 
 with DAG(
@@ -184,7 +138,10 @@ with DAG(
                 task_id="copy_country_to_shared_stg",
                 configuration={
                     "query": {
-                        "query": _copy_country_to_shared_sql(sfx),
+                        "query": (
+                            f"CALL {_bq_qual(SP_DATASET_ID, _COPY_COUNTRY_TO_SHARED_SP)}"
+                            f"('{sfx}');"
+                        ),
                         "useLegacySql": False,
                     }
                 },

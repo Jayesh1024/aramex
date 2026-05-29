@@ -4,4 +4,4 @@ CREATE OR REPLACE VIEW `{{ project_id }}.{{ gold_dataset_id }}.vw_dbo_DLS_Invoic
 SELECT
   *
 FROM
-  `{{ project_id }}.{{ silver_dataset_id }}.KRILLIN_dbo_DLS_InvoiceRFHeader`;
+  `{{ project_id }}.{{ silver_dataset_id }}.Fastway_dbo_DLS_InvoiceRFHeader`;

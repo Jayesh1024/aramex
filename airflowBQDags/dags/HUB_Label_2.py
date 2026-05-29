@@ -53,7 +53,7 @@ with DAG(
 ) as dag:
 
     with TaskGroup(group_id="tg_package_staging_2") as tg_staging_2:
-        # STOCK:SEQUENCE — ref_id: Package\Staging 2
+        # STOCK:SEQUENCE â€” ref_id: Package\Staging 2
 
         op_10 = BigQueryInsertJobOperator(
             task_id="package_staging_2_truncate_label_interbranch_stg",
@@ -68,7 +68,7 @@ with DAG(
             job_id="bq_gold_transformation_oceania",
         )
 
-        # ref_id: Package\Staging 2\Get LastId (InterBranch) — Staging_Get_LastValue(RecordSource12)
+        # ref_id: Package\Staging 2\Get LastId (InterBranch) â€” Staging_Get_LastValue(RecordSource12)
         op_7 = PythonOperator(
             task_id="package_staging_2_get_lastid_interbranch",
             python_callable=get_last_value,
@@ -147,7 +147,7 @@ with DAG(
         op_2 >> op_9
 
     with TaskGroup(group_id="tg_package_monthly_miscellaneous") as tg_monthly:
-        # STOCK:SEQUENCE — ref_id: Package\Monthly Miscellaneous (independent)
+        # STOCK:SEQUENCE â€” ref_id: Package\Monthly Miscellaneous (independent)
 
         op_5 = BigQueryInsertJobOperator(
             task_id="package_monthly_miscellaneous_truncate_dlbs_rf_batching",

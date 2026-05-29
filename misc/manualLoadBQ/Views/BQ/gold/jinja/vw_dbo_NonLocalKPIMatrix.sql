@@ -9,6 +9,6 @@ SELECT
   EconomyDays,
   PriorityDays
 FROM
-  `{{ project_id }}.{{ silver_dataset_id }}.KRILLIN_dbo_NonLocalKPIMatrix`
+  `{{ project_id }}.{{ silver_dataset_id }}.Fastway_dbo_NonLocalKPIMatrix`
 WHERE
   IFNULL(Prefix, '') = '';
