@@ -3,9 +3,9 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobO
 import pendulum
 
 with DAG(
-    dag_id="load_cf_productivity_au",
+    dag_id="load_cf_productivity_au_Hist",
     start_date=pendulum.datetime(2026, 4, 1, tz="Pacific/Auckland"),
-    schedule_interval="0 7 * * *",
+    schedule=None,
     catchup=False,
     tags=["load", "cf", "productivity", "au", "Historical"],
 ) as dag:

@@ -34,7 +34,7 @@ TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 # Package loads either 'InterBranchAU' or 'InterBranchNZ' per run.
 
 with DAG(
-    dag_id="ssis_skeleton_hub_label_2",
+    dag_id="ssis_skeleton_hub_label_2_Hist",
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,

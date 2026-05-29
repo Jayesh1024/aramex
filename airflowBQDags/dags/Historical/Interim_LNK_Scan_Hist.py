@@ -32,7 +32,7 @@ _TASK_ID_GET_LAST_TT = "tg_package_staging.package_staging_get_last_id_trackandt
 
 
 with DAG(
-    dag_id="ssis_skeleton_interim_lnk_scan",
+    dag_id="ssis_skeleton_interim_lnk_scan_Hist",
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,

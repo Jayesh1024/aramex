@@ -31,7 +31,7 @@ _TASK_ID_GET_PROCESS_ID = "tg_package_staging.package_staging_get_processid"
 
 
 with DAG(
-    dag_id="ssis_skeleton_interim_fact_scan_kpi",
+    dag_id="ssis_skeleton_interim_fact_scan_kpi_Hist",
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,

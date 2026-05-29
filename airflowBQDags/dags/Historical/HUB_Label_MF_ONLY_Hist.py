@@ -44,7 +44,7 @@ _STAGING_TABLES_TO_TRUNCATE = [
 ]
 
 with DAG(
-    dag_id="ssis_skeleton_hub_label_mf_only_hist",
+    dag_id="ssis_skeleton_hub_label_mf_only_Hist",
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,

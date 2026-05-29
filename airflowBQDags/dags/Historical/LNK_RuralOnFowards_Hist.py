@@ -38,9 +38,9 @@ _TASK_ID_GET_PROCESS_ID = "tg_package_sequence_container.package_sequence_contai
 _TASK_ID_GET_LASTDATE = "tg_package_load_la_ruraonforwards.package_load_la_ruraonforwards_get_lastdate_la_ruralonforwards"
 
 with DAG(
-    dag_id="ssis_skeleton_lnk_ruralonfowards_hist",
+    dag_id="ssis_skeleton_lnk_ruralonfowards_Hist",
     start_date=pendulum.datetime(2026, 4, 1, tz="Pacific/Auckland"),
-    schedule_interval="30 0 * * *",
+    schedule=None,
     catchup=False,
     tags=["ssis", "skeleton", "lnk_ruralonfowards_hist", "Historical"],
     params={

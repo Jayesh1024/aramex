@@ -38,7 +38,7 @@ _max_ingestion_time_staging_fwfastlabel_clickandcollect = (
 )
 
 with DAG(
-    dag_id="ssis_skeleton_loadgokutables",
+    dag_id="ssis_skeleton_loadgokutables_Hist",
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,

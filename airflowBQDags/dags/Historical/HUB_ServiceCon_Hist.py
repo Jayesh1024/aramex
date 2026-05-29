@@ -27,7 +27,7 @@ TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
 with DAG(
-    dag_id="ssis_skeleton_hub_servicecon_hist",
+    dag_id="ssis_skeleton_hub_servicecon_Hist",
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
