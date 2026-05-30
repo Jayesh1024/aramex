@@ -1,4 +1,4 @@
-CREATE OR REPLACE TABLE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_FMS_UndTcktInvoice_partitioned`
+CREATE OR REPLACE TABLE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_FMS_UndTcktInvoice`
 (
   UnderTickId INT64 NOT NULL,
   CountryId INT64 NOT NULL,

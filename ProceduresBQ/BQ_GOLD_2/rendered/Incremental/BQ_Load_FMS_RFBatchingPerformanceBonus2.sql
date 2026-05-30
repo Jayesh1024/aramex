@@ -91,7 +91,7 @@ BEGIN
         Category,
         v_DateBOM                                                               AS DateBOM,
         CAST(ROUND(SUM(OnTimeDelivery) * 100.0 / SUM(NumofLabels), 0) AS INT64) AS PerformancePercentage
-      FROM `sprj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Delivery_Performance`
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Delivery_Performance`
       WHERE Category    = 'Interbranch'
         AND DeliveryDate BETWEEN v_StartDate AND v_EndDate
       GROUP BY CountryCode, PickupRF, DeliveryRF, Category

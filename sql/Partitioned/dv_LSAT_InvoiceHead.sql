@@ -1,4 +1,4 @@
-CREATE OR REPLACE TABLE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceHead_partitioned`
+CREATE OR REPLACE TABLE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceHead`
 (
   Invoice_HSK BYTES NOT NULL,
   FranchiseeCode_HSK BYTES NOT NULL,

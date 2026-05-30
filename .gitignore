@@ -7,3 +7,4 @@ __pycache__
 excel_sheets_to_sts_manifest_workbook.py
 TODO.txt
 commitMssg.txt
+*.log

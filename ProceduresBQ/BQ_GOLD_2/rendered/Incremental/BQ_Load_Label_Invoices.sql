@@ -10,7 +10,7 @@ CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedu
 BEGIN
   /*
   ** Routine: Load_Label_Invoices
-  ** Description: Attempts to find and Load any missing Invoice-Label relationships in dbo_Dim_label
+  ** Description: Attempts to find and Load any missing Invoice-Label relationships in dbo_Dim_Label
   */
 
   DECLARE v_StartDate DATETIME;

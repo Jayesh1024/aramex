@@ -91,7 +91,7 @@ BEGIN
         Category,
         v_DateBOM                                                               AS DateBOM,
         CAST(ROUND(SUM(OnTimeDelivery) * 100.0 / SUM(NumofLabels), 0) AS INT64) AS PerformancePercentage
-      FROM `s{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_KPI_Delivery_Performance`
+      FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_KPI_Delivery_Performance`
       WHERE Category    = 'Interbranch'
         AND DeliveryDate BETWEEN v_StartDate AND v_EndDate
       GROUP BY CountryCode, PickupRF, DeliveryRF, Category

@@ -10,7 +10,7 @@ import pendulum
 with DAG(
     dag_id="load_interbranch_hist",
     start_date=pendulum.datetime(2026, 4, 1, tz="Pacific/Auckland"),
-    schedule_interval="0 12 1 * *",
+    schedule_interval=None,
     catchup=False,
     tags=["load", "interbranch_hist", "ssis", "RecordSource_InterBranchNZ", "RecordSource_InterBranchAU", "Historical"],
 ) as dag:

@@ -1,10 +1,3 @@
-{#-- ==========================================================================================
-Routine:     dbo_Load_UndTckt_Invoice
-Description: Loads any under ticketed invoices into dbo_FMS_UndTcktInvoice
-History:
-  01/07/2025  B. Woods        Routine Written
-========================================================================================== --#}
-
 CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dbo_Load_UndTckt_Invoice`(
     IN p_ProcessID INT64
 )

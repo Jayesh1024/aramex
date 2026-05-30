@@ -171,8 +171,10 @@ BEGIN
         CAST(COALESCE(K.KPILEA, 0) + COALESCE(K.KPIDelivery, 0) AS INT64) AS lea_del_offset,
         CAST(K.ActualDepartureDate AS DATE)                                AS dep_date,
         CAST(K.ActualArrivalDate AS DATE)                                  AS arr_date
+        
       FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_KPI_Daily` K
       LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dv_SAT_Label_Allocation_MF` MF
+
         ON  MF.LabelNo     = K.LabelNo
         AND MF.IsCurrent   = 1
         AND MF.CountryCode = K.CountryCode
