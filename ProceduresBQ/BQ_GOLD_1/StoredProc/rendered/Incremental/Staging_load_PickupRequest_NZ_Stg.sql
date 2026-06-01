@@ -1,10 +1,3 @@
--- ==========================================================================================
--- Routine:     Staging_load_PickupRequest_NZ_Stg
--- Description: Same as AU variant; silver source `FastwayGlobal_6_PickupDashboard_PickupRequest`;
---              incremental filter on `ingestion_time` via `p_ingestion_time` / watermark.
--- History:
---  [BQ]  2026-05-04  LoadPickupRequests migration.
--- ==========================================================================================
 CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_load_PickupRequest_NZ_Stg`(
   IN p_ingestion_time STRING
 )

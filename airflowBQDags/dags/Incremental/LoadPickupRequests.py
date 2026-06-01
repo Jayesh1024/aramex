@@ -1,34 +1,8 @@
-"""
-Consolidated DAG for SSIS packages LoadPickupRequests_AU / _NZ / _SA (BigQuery).
-
-Replaces three separate DAG files with one schedule and three parallel country branches.
-
-Source metadata per country:
-  * `airflowBQDags/Packages/LoadPickupRequests_<CC>.dtsx`
-  * `airflowBQDags/outputs/LoadPickupRequests_<CC>/`
-
-Flow (per country TaskGroup):
-  * Watermark — `get_last_value` → `CALL <GCP_PROJECT_ID>.<SP_DATASET_ID>.Staging_Get_LastValue` (procedure
-    in SP dataset; reads `Staging_LoadControl` in target). Override env via `config/template_config.env`.
-  * Truncate `Staging_PickupRequest_<CC>_Stg`.
-  * `CALL Staging_load_PickupRequest_<CC>_Stg(p_ingestion_time)` — silver → country stg; cutoff is **DATETIME**
-    (`ingestion_time` > cutoff). See `BQ_GOLD_2/jinja/Staging_load_PickupRequest_*_Stg.sql`.
-  * `CALL Staging_Copy_PickupRequest_Country_To_Stg(country_suffix)` — copy new IDs into
-    `Staging_PickupRequest_Stg` (SSIS «Copy Country Staging to PickupRequest_Stg»).
-  * `CALL dv_Load_CT_SAT_Label_PickupRequests_<CC>(ProcessID)`.
-  * `CALL Staging_Set_LastValue(RecordSource, 'ingestion_time', MAX(ingestion_time) from country stg, FALSE)`
-    so `Staging_LoadControl.LastValue` advances after a successful run (requires LoadControl rows).
-
-Coexists with `dv_Load_SAT_Label_PickupRequests` (full refresh from shared stg) — different routines.
-
-All BigQuery SQL uses three-part names: `` `project_id.dataset_id.object` `` via `_bq_qual`.
-"""
 from __future__ import annotations
 
 from datetime import datetime
-import os
 from typing import Any
-
+from airflow.models import Variable
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
@@ -36,10 +10,9 @@ from airflow.utils.task_group import TaskGroup
 
 from utils.getValue import get_last_value
 
-# Defaults align with `airflowBQDags/config/template_config.env` when env is unset.
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID") or "prj-drgfly-dev-sp-01"
-SP_DATASET_ID = os.getenv("SP_DATASET_ID") or "bq_ds_dev_euw2_store_procedure"
-TARGET_DATASET_ID = os.getenv("TARGET_DATASET_ID") or "bq_ds_dev_euw2_oceania_cube_gold_1"
+GCP_PROJECT_ID = Variable.get("PROJECT_ID")
+SP_DATASET_ID = Variable.get("SP_DATASET_ID")
+TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
 def _bq_qual(dataset_id: str, object_name: str) -> str:
@@ -54,7 +27,7 @@ _COUNTRY_BRANCHES: tuple[dict[str, Any], ...] = (
         "process_id": -61,
         "table_suffix": "AU",
         "load_sp": "Staging_load_PickupRequest_AU_Stg",
-        "dv_sp": "dv_Load_CT_SAT_Label_PickupRequests_AU",
+        "dv_sp": "dv_Load_SAT_Label_PickupRequests_AU",
     },
     {
         "group_id": "tg_nz",
@@ -62,7 +35,7 @@ _COUNTRY_BRANCHES: tuple[dict[str, Any], ...] = (
         "process_id": -66,
         "table_suffix": "NZ",
         "load_sp": "Staging_load_PickupRequest_NZ_Stg",
-        "dv_sp": "dv_Load_CT_SAT_Label_PickupRequests_NZ",
+        "dv_sp": "dv_Load_SAT_Label_PickupRequests_NZ",
     },
     {
         "group_id": "tg_sa",
@@ -70,7 +43,7 @@ _COUNTRY_BRANCHES: tuple[dict[str, Any], ...] = (
         "process_id": -69,
         "table_suffix": "SA",
         "load_sp": "Staging_load_PickupRequest_SA_Stg",
-        "dv_sp": "dv_Load_CT_SAT_Label_PickupRequests_SA",
+        "dv_sp": "dv_Load_SAT_Label_PickupRequests_SA",
     },
 )
 

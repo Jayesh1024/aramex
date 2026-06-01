@@ -1,18 +1,9 @@
--- ==========================================================================================
--- Routine:     dv_Load_CT_SAT_Label_PickupRequests_NZ
--- Description: BQ port of [dv].[Load_CT_SAT_Label_PickupRequests_NZ] — incremental INSERT (new LabelNo only; staging deduped by LabelNumber)
---              from `Staging_PickupRequest_NZ_Stg` into `dv_SAT_Label_PickupRequest` (CountryCode = 6).
---              Purges rows older than 60 days for this country. Logs via `Staging_SaveLog`.
--- History:
---  24/11/2025  B. Woods        SQL Server original
---  [BQ]  2026-05-04          BigQuery INSERT + SaveLog
--- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_CT_SAT_Label_PickupRequests_NZ`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_Label_PickupRequests_NZ_Hist`(
   IN p_ProcessID INT64
 )
 BEGIN
   DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
-  DECLARE v_Component STRING DEFAULT 'prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_Load_CT_SAT_Label_PickupRequests_NZ';
+  DECLARE v_Component STRING DEFAULT 'prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_Load_SAT_Label_PickupRequests_NZ_Hist';
   DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
   DECLARE v_Ended DATETIME;
   DECLARE v_Result STRING DEFAULT 'Success';
@@ -20,10 +11,6 @@ BEGIN
   DECLARE v_Inserted INT64 DEFAULT 0;
 
   BEGIN
-    DELETE FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_PickupRequest`
-    WHERE SAFE_CAST(CreateDateUtc AS TIMESTAMP) < TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY))
-      AND CountryCode = 6;
-
     INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_PickupRequest` (
         PickupRequest_HSK,
         LabelNo_HSK,
