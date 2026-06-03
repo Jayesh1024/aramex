@@ -67,19 +67,8 @@ with DAG(
         load_sp = spec["load_sp"]
         dv_sp = spec["dv_sp"]
         proc_id = spec["process_id"]
-        tid_get_last = f"{gid}.get_last_value"
 
         with TaskGroup(group_id=gid):
-            op_get_last = PythonOperator(
-                task_id="get_last_value",
-                python_callable=get_last_value,
-                op_kwargs={
-                    "project_id": GCP_PROJECT_ID,
-                    "dataset_id": SP_DATASET_ID,
-                    "record_source": rs,
-                },
-            )
-
             op_truncate = BigQueryInsertJobOperator(
                 task_id="truncate_country_stg",
                 configuration={
@@ -122,7 +111,7 @@ with DAG(
             )
 
             op_dv = BigQueryInsertJobOperator(
-                task_id="dv_load_ct_sat_label_pickuprequests",
+                task_id="dv_load_sat_label_pickuprequests",
                 configuration={
                     "query": {
                         "query": (

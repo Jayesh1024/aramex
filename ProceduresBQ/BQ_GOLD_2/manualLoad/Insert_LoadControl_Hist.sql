@@ -38,4 +38,7 @@ VALUES
   ('Allocation_MF_LabelsToProcess', 'dbo.fl_conItem_Stg', 'ID', 'MF Labels', '-1', 'dbo.SAT_Labels_Allocation_MF', NULL),
   ('FactScanKPI', 'dv.LNK_Scan', 'TrackAndTraceID', 'Load Fact_Scan_KPI by TrackAndTrace ID', '-1', 'FactScanKPI', NULL),
   ('CF_Productivity_NZ', 'dv.LNK_Scan', 'ID', 'CF_Productivity Load for NZ', '1800-01-01 00:00:00', 'CF_Productivity_Stg_NZ', NULL),
-  ('CF_Productivity', 'dv.LNK_Scan', 'ID', 'CF_Productivity Load', '1800-01-01 00:00:00', 'CF_Productivity_Stg', NULL);
+  ('CF_Productivity', 'dv.LNK_Scan', 'ID', 'CF_Productivity Load', '1800-01-01 00:00:00', 'CF_Productivity_Stg', NULL),
+  ('PickupRequests_AU', 'FastwayGlobal_1.PickupDashboard.PickupRequest', 'ingestion_time', 'PickupRequests Load for AU', '1800-01-01 00:00:00', 'dv_SAT_Label_PickupRequest', NULL),
+  ('PickupRequests_NZ', 'FastwayGlobal_6.PickupDashboard.PickupRequest', 'ingestion_time', 'PickupRequests Load for NZ', '1800-01-01 00:00:00', 'dv_SAT_Label_PickupRequest', NULL),
+  ('PickupRequests_SA', 'FastwayGlobal_24.PickupDashboard.PickupRequest', 'ingestion_time', 'PickupRequests Load for SA', '1800-01-01 00:00:00', 'dv_SAT_Label_PickupRequest', NULL);
