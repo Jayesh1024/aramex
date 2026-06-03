@@ -905,13 +905,11 @@ with DAG(
         op_36,
         op_41,
         op_46,
-        op_52,
         op_56,
         op_61,
         op_66,
         op_71,
         op_76,
-        op_81,
         op_86,
     )
     for _stg_last in _staging_branch_last_tasks:
