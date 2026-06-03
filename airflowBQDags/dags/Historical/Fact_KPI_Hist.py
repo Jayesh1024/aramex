@@ -86,9 +86,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.Staging_Load_Fact_KPI_Src_Stg_Hist`("
-                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, "
-                        f"'{{{{ params.StartDateOverRide }}}}', "
-                        f"'{{{{ params.EndDateOverRide }}}}');"
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}); "
                     ),
                     "useLegacySql": False,
                 }

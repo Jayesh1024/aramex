@@ -1,11 +1,11 @@
 """
 DAG for SSIS package: HUB_Invoice (GCP / BigQuery).
 Staging + Final + UndTcktInvoice: BigQueryInsertJobOperator CALLs where implemented.
-Sequence containers (STOCK:SEQUENCE) → TaskGroup.
+Sequence containers (STOCK:SEQUENCE) â†’ TaskGroup.
 
 GCP naming (from SQL Server metadata in outputs/ and Packages/):
   SSIS uses schemas such as dv, dbo, Staging (e.g. [dv].[Load_HUB_Invoice], [Staging].[Set_LastValue]).
-  In BigQuery, replace only the dot: schema.object → schema_object, preserving casing from the source
+  In BigQuery, replace only the dot: schema.object â†’ schema_object, preserving casing from the source
   (e.g. dv_Load_HUB_Invoice, Staging_Set_LastValue, Staging_FMS_InvoiceHead_Stg). Same for routines (SPs).
 """
 from __future__ import annotations
@@ -37,18 +37,18 @@ with DAG(
         "RecordSourceFMS_InvoiceBooks": 'FMS_InvoiceBooks',
         "RecordSourceFMS_InvoiceHead": 'FMS_InvoiceHead',
         "RecordSourceFMS_InvoiceLines": 'FMS_InvoiceLines',
-        # dv_Load_Label_Invoices(p_ProcessID, p_Start_Date STRING, p_End_Date STRING); SSIS only passed LastDate — use this if XCom is empty/NULL.
+        # dv_Load_Label_Invoices(p_ProcessID, p_Start_Date STRING, p_End_Date STRING); SSIS only passed LastDate â€” use this if XCom is empty/NULL.
         "LabelInvoicesDefaultStartDate": '2000-01-01 00:00:00',
-        # dv_Load_Label_Invoices(p_ProcessID, p_Start_Date STRING, p_End_Date STRING); SSIS only passed LastDate — use this if XCom is empty/NULL.
+        # dv_Load_Label_Invoices(p_ProcessID, p_Start_Date STRING, p_End_Date STRING); SSIS only passed LastDate â€” use this if XCom is empty/NULL.
         "LabelInvoicesDefaultStartDate": '2000-01-01 00:00:00',
     },
 ) as dag:
 
     # --- control flow (nested TaskGroup per sequence container) ---
     with TaskGroup(group_id="tg_package_final") as tg_final:
-        # STOCK:SEQUENCE — ref_id: Package\\Final (no package_final empty; staging loads >> first task)
+        # STOCK:SEQUENCE â€” ref_id: Package\\Final (no package_final empty; staging loads >> first task)
 
-        # ref_id: Package\\Final\\Load HUB_Invoice — SSIS: Exec [dv].[Load_HUB_Invoice] ProcessId, RecordSource
+        # ref_id: Package\\Final\\Load HUB_Invoice â€” SSIS: Exec [dv].[Load_HUB_Invoice] ProcessId, RecordSource
         op_4 = BigQueryInsertJobOperator(
             task_id="package_final_load_hub_invoice",
             gcp_conn_id="oceania_target_sa_connection",
@@ -65,8 +65,8 @@ with DAG(
             job_id="bq_gold_transformation_oceania",
         )
 
-        # ref_id: Package\\Final\\Load_Label_Invoices — SSIS: EXEC dv.Load_Label_Invoices ?, ? (ProcessId, User::LastDate).
-        # BQ SP: dv_Load_Label_Invoices(p_ProcessID, p_Start_Date STRING, p_End_Date STRING); NULL end → SP uses CURRENT_DATETIME() window (see SP body).
+        # ref_id: Package\\Final\\Load_Label_Invoices â€” SSIS: EXEC dv.Load_Label_Invoices ?, ? (ProcessId, User::LastDate).
+        # BQ SP: dv_Load_Label_Invoices(p_ProcessID, p_Start_Date STRING, p_End_Date STRING); NULL end â†’ SP uses CURRENT_DATETIME() window (see SP body).
         op_9 = BigQueryInsertJobOperator(
             task_id="package_final_load_label_invoices",
             gcp_conn_id="oceania_target_sa_connection",
@@ -75,9 +75,13 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_Label_Invoices_Hist`("
+<<<<<<< HEAD
                         f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, "
                         f"'{{{{ params.LabelInvoicesDefaultStartDate }}}}', "
                         "{{'NULL'}});"
+=======
+                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}});"
+>>>>>>> origin/dev_composer_manas
                     ),
                     "useLegacySql": False,
                 }
@@ -85,7 +89,7 @@ with DAG(
             job_id="bq_gold_transformation_oceania",
         )
 
-        # ref_id: Package\\Final\\Load_LNK_InvoiceLine — SSIS: Exec [dv].[Load_LNK_InvoiceLine] ProcessId
+        # ref_id: Package\\Final\\Load_LNK_InvoiceLine â€” SSIS: Exec [dv].[Load_LNK_InvoiceLine] ProcessId
         op_5 = BigQueryInsertJobOperator(
             task_id="package_final_load_lnk_invoiceline",
             gcp_conn_id="oceania_target_sa_connection",
@@ -102,7 +106,7 @@ with DAG(
             job_id="bq_gold_transformation_oceania",
         )
 
-        # ref_id: Package\\Final\\Load_LNK_Invoice_Label — SSIS: Exec [dv].[Load_LNK_Invoice_Label] ProcessId
+        # ref_id: Package\\Final\\Load_LNK_Invoice_Label â€” SSIS: Exec [dv].[Load_LNK_Invoice_Label] ProcessId
         op_6 = BigQueryInsertJobOperator(
             task_id="package_final_load_lnk_invoice_label",
             gcp_conn_id="oceania_target_sa_connection",
@@ -119,7 +123,7 @@ with DAG(
             job_id="bq_gold_transformation_oceania",
         )
 
-        # ref_id: Package\\Final\\Load_LSAT_InvoiceHead — SSIS: EXEC dv.Load_LSAT_InvoiceHead ProcessId
+        # ref_id: Package\\Final\\Load_LSAT_InvoiceHead â€” SSIS: EXEC dv.Load_LSAT_InvoiceHead ProcessId
         op_7 = BigQueryInsertJobOperator(
             task_id="package_final_load_lsat_invoicehead",
             gcp_conn_id="oceania_target_sa_connection",
@@ -136,7 +140,7 @@ with DAG(
             job_id="bq_gold_transformation_oceania",
         )
 
-        # ref_id: Package\\Final\\Load_LSAT_InvoiceLine — SSIS: Exec [dv].[Load_LSAT_InvoiceLine] ProcessId
+        # ref_id: Package\\Final\\Load_LSAT_InvoiceLine â€” SSIS: Exec [dv].[Load_LSAT_InvoiceLine] ProcessId
         op_8 = BigQueryInsertJobOperator(
             task_id="package_final_load_lsat_invoiceline",
             gcp_conn_id="oceania_target_sa_connection",
@@ -153,7 +157,7 @@ with DAG(
             job_id="bq_gold_transformation_oceania",
         )
 
-        # ref_id: Package\\Final\\Set LastDate (FMS_Invoice) — SSIS: Exec [Staging].[Set_LastValue]; BQ: Staging_Set_LastValue(p_RecordSource, p_ColumnName, p_LastValue, p_Force)
+        # ref_id: Package\\Final\\Set LastDate (FMS_Invoice) â€” SSIS: Exec [Staging].[Set_LastValue]; BQ: Staging_Set_LastValue(p_RecordSource, p_ColumnName, p_LastValue, p_Force)
         op_10 = BigQueryInsertJobOperator(
             task_id="package_final_set_lastdate_fms_invoice",
             gcp_conn_id="oceania_target_sa_connection",
@@ -173,9 +177,9 @@ with DAG(
         )
 
     with TaskGroup(group_id="tg_package_final_undtcktinvoice") as tg_final_undtckt:
-        # STOCK:SEQUENCE — ref_id: Package\\Final UndTcktInvoice (no package_final_undtcktinvoice empty; staging load >> first task)
+        # STOCK:SEQUENCE â€” ref_id: Package\\Final UndTcktInvoice (no package_final_undtcktinvoice empty; staging load >> first task)
 
-        # ref_id: Package\\Final UndTcktInvoice\\Load UndTckt Invoice — SSIS: Exec [dbo].[Load_UndTckt_Invoice] ProcessId
+        # ref_id: Package\\Final UndTcktInvoice\\Load UndTckt Invoice â€” SSIS: Exec [dbo].[Load_UndTckt_Invoice] ProcessId
         op_2 = BigQueryInsertJobOperator(
             task_id="package_final_undtcktinvoice_load_undtckt_invoice",
             gcp_conn_id="oceania_target_sa_connection",
@@ -191,7 +195,7 @@ with DAG(
             job_id="bq_gold_transformation_oceania",
         )
 
-        # ref_id: Package\\Final UndTcktInvoice\\Set LastDate (UndTckt Invoice) — SSIS binds $RecordSource2; BQ: Staging_Set_LastValue(4 args)
+        # ref_id: Package\\Final UndTcktInvoice\\Set LastDate (UndTckt Invoice) â€” SSIS binds $RecordSource2; BQ: Staging_Set_LastValue(4 args)
         op_3 = BigQueryInsertJobOperator(
             task_id="package_final_undtcktinvoice_set_lastdate_undtckt_invoice",
             gcp_conn_id="oceania_target_sa_connection",
@@ -209,7 +213,7 @@ with DAG(
         )
 
     with TaskGroup(group_id="tg_package_staging") as tg_staging:
-        # STOCK:SEQUENCE — ref_id: Package\\Staging (no package_staging empty; parallel loads >> package_final_load_hub_invoice)
+        # STOCK:SEQUENCE â€” ref_id: Package\\Staging (no package_staging empty; parallel loads >> package_final_load_hub_invoice)
 
         # ref_id: Package\\Staging\\Truncate Staging tables
         op_20 = BigQueryInsertJobOperator(
@@ -231,7 +235,7 @@ with DAG(
         )
 
         # ref_id: Package\\Staging\\Load FMS_InvoiceBooks_Stg
-        # SSIS: OLE DB … → [Staging].[FMS_InvoiceBooks_Stg]; BQ: sp_load_Staging_FMS_InvoiceBooks_Stg_Hist
+        # SSIS: OLE DB â€¦ â†’ [Staging].[FMS_InvoiceBooks_Stg]; BQ: sp_load_Staging_FMS_InvoiceBooks_Stg_Hist
         op_17 = BigQueryInsertJobOperator(
             task_id="package_staging_load_fms_invoicebooks_stg",
             gcp_conn_id="oceania_target_sa_connection",
@@ -248,7 +252,7 @@ with DAG(
         )
 
         # ref_id: Package\\Staging\\Load FMS_InvoiceHead_Stg
-        # SSIS: … → [Staging].[FMS_InvoiceHead_Stg]; BQ: sp_load_Staging_FMS_InvoiceHead_Stg_Hist
+        # SSIS: â€¦ â†’ [Staging].[FMS_InvoiceHead_Stg]; BQ: sp_load_Staging_FMS_InvoiceHead_Stg_Hist
         op_18 = BigQueryInsertJobOperator(
             task_id="package_staging_load_fms_invoicehead_stg",
             gcp_conn_id="oceania_target_sa_connection",
@@ -265,7 +269,7 @@ with DAG(
         )
 
         # ref_id: Package\\Staging\\Load FMS_InvoiceLines_Stg
-        # SSIS: … → [Staging].[FMS_InvoiceLines_Stg]; BQ: sp_load_Staging_FMS_InvoiceLines_Stg_Hist
+        # SSIS: â€¦ â†’ [Staging].[FMS_InvoiceLines_Stg]; BQ: sp_load_Staging_FMS_InvoiceLines_Stg_Hist
         op_19 = BigQueryInsertJobOperator(
             task_id="package_staging_load_fms_invoicelines_stg",
             gcp_conn_id="oceania_target_sa_connection",
@@ -283,9 +287,9 @@ with DAG(
 
 
     with TaskGroup(group_id="tg_package_staging_undtcktinvoice") as tg_staging_undtckt:
-        # STOCK:SEQUENCE — ref_id: Package\\Staging UndTcktInvoice (no package_staging_undtcktinvoice empty)
+        # STOCK:SEQUENCE â€” ref_id: Package\\Staging UndTcktInvoice (no package_staging_undtcktinvoice empty)
 
-        # ref_id: Package\\Staging UndTcktInvoice\\Truncate Staging tables — SSIS: TRUNCATE [Staging].[FMS_UndTcktInvoice_Stg]
+        # ref_id: Package\\Staging UndTcktInvoice\\Truncate Staging tables â€” SSIS: TRUNCATE [Staging].[FMS_UndTcktInvoice_Stg]
         op_15 = BigQueryInsertJobOperator(
             task_id="package_staging_undtcktinvoice_truncate_staging_tables",
             gcp_conn_id="oceania_target_sa_connection",
@@ -301,7 +305,7 @@ with DAG(
             job_id="bq_gold_transformation_oceania",
         )
 
-        # ref_id: Package\\Staging UndTcktInvoice\\FMS_UndTcktInvoice_Load — SSIS: … → [Staging].[FMS_UndTcktInvoice_Stg]; BQ: sp_load_Staging_FMS_UndTcktInvoice_Stg_Hist
+        # ref_id: Package\\Staging UndTcktInvoice\\FMS_UndTcktInvoice_Load â€” SSIS: â€¦ â†’ [Staging].[FMS_UndTcktInvoice_Stg]; BQ: sp_load_Staging_FMS_UndTcktInvoice_Stg_Hist
         op_13 = BigQueryInsertJobOperator(
             task_id="package_staging_undtcktinvoice_fms_undtcktinvoice_load",
             gcp_conn_id="oceania_target_sa_connection",

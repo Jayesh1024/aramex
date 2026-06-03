@@ -8,23 +8,23 @@ corresponding `ssis_skeleton_*` child DAG. The two inline `Microsoft.ExecuteSQLT
 steps (Get Next ProcessID, Reserve ProcessID) become a PythonOperator + a
 BigQueryInsertJobOperator calling `Staging_SaveLog`. The final
 `Microsoft.ScriptTask` (Send Email) has no BigQuery/Airflow equivalent and is
-left as an `EmptyOperator` placeholder — same blocker as
+left as an `EmptyOperator` placeholder â€” same blocker as
 `Export_KPI_Performance` (see DAG_COMPLETION_NOTES.md).
 
 The SSIS `Database Maintenance` sequence container (Rebuild/Defrag indexes,
-Release Space) has been dropped entirely — BigQuery is a columnar, storage-
+Release Space) has been dropped entirely â€” BigQuery is a columnar, storage-
 decoupled engine with no indexes to maintain and no files to shrink, so those
 tasks have no equivalent and there is no child DAG to trigger for them.
 
 GCP naming: SSIS schemas dv, dbo, Staging map to BigQuery identifiers by
-replacing the dot (e.g. [Staging].[LoadLog] → `Staging_LoadLog`,
-[dbo].[Load_Dim_Label] → `dbo_Load_Dim_Label`).
+replacing the dot (e.g. [Staging].[LoadLog] â†’ `Staging_LoadLog`,
+[dbo].[Load_Dim_Label] â†’ `dbo_Load_Dim_Label`).
 
 Child-DAG parameter propagation: the `process_id` allocated by Get Next
 ProcessID is broadcast to every triggered child DAG via `conf={"process_id": ...}`.
 Child DAGs currently expose `process_id` only through `DAG(params=...)`; they
 will need a small follow-up change to read from `dag_run.conf.get("process_id")`
-when it is set (flagged in DAG_COMPLETION_NOTES.md — the existing default of 1
+when it is set (flagged in DAG_COMPLETION_NOTES.md â€” the existing default of 1
 is used when LoadControl is not the parent).
 """
 from __future__ import annotations
@@ -233,8 +233,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dbo_Load_Dim_Label_Hist`("
-                        f"{_GET_PROCESSID_XCOM}, "
-                        f"SAFE_CAST('{{{{ data_interval_start }}}}' AS DATETIME));"
+                        f"{_GET_PROCESSID_XCOM});"
                     ),
                     "useLegacySql": False,
                 }

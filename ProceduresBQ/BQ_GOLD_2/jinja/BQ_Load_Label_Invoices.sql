@@ -10,7 +10,11 @@ CREATE OR REPLACE PROCEDURE `{{ project_id }}.{{ sp_dataset_id }}.dv_Load_Label_
 BEGIN
   /*
   ** Routine: Load_Label_Invoices
+<<<<<<< HEAD
   ** Description: Attempts to find and Load any missing Invoice-Label relationships in dbo_Dim_Label
+=======
+  ** Description: Attempts to find and Load any missing Invoice-Label relationships in dbo_Dim_Label
+>>>>>>> origin/dev_composer_manas
   */
 
   DECLARE v_StartDate DATETIME;
