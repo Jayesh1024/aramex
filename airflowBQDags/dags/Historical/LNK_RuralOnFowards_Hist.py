@@ -45,6 +45,7 @@ with DAG(
     tags=["ssis", "skeleton", "lnk_ruralonfowards_hist", "Historical"],
     params={
         "process_id": -121,
+        "RecordSource14": 'LA_RuralOnforwards',
     },
 ) as dag:
 

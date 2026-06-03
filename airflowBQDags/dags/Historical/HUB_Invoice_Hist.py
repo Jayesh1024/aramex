@@ -75,13 +75,7 @@ with DAG(
                 "query": {
                     "query": (
                         f"CALL `{SP_DATASET_ID}.dv_Load_Label_Invoices_Hist`("
-<<<<<<< HEAD
-                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}}, "
-                        f"'{{{{ params.LabelInvoicesDefaultStartDate }}}}', "
-                        "{{'NULL'}});"
-=======
                         f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}});"
->>>>>>> origin/dev_composer_manas
                     ),
                     "useLegacySql": False,
                 }
