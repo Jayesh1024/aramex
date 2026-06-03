@@ -100,8 +100,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_tblCustomer_Stg`;\n"
-                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.dv_SAT_Customer_OES`;"
+                        f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_tblCustomer_Stg`;"
                     ),
                     "useLegacySql": False,
                 }

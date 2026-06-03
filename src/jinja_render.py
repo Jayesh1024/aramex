@@ -8,6 +8,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("jinja_dir_path", default="BQ_GOLD_RAW_STAGING/jinja",type=str)
 parser.add_argument("output_dir_path", default="BQ_GOLD_RAW_STAGING/rendered", type=str)
 parser.add_argument("config_file_path", default="config/template_config.env", type=str)
+parser.add_argument("op_mode", type=str, choices=["source_to_cube", "cube_to_cube", 'single_target'])
 
 args = parser.parse_args()
 dotenv.load_dotenv(args.config_file_path)
@@ -34,7 +35,7 @@ def render_gold_1_sps():
             sql = template.render(project_id=os.getenv("project_id"), sp_dataset_id=os.getenv("sp_dataset_id"), target_dataset_id=os.getenv("target_dataset_id"), source_dataset_id=serverToBQPath[server])
             with open(f"{args.output_dir_path}/{file}", "w") as f:
                 f.write(sql)
-        except KeyError as e:
+        except Exception as e:
             print(f"Error deploying {file}: {e}")
 
 
@@ -62,6 +63,12 @@ def render_gold_views():
             with open(f"{args.output_dir_path}/{path}", "w") as f:
                 f.write(sql)
 
-# render_gold_1_sps()
-# render_gold_2_sps()
-render_gold_views()
+if args.op_mode == "source_to_cube":
+    render_gold_1_sps()
+elif args.op_mode == "cube_to_cube":
+    render_gold_2_sps()
+elif args.op_mode == "single_target":
+    render_gold_views()
+else:
+    print(f"Invalid operation mode: {args.op_mode}")
+

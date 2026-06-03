@@ -1,0 +1,8 @@
+-- Miscellaneous.dtsx / Maintain KPIExcludedDates
+-- SSIS: KRILLIN dbo.KPIExcludedDates -> CUBE.FastwayDW dbo.KPIExcludedDates
+-- BQ view name: vw_dbo_KPIExcludedDates (schema dbo -> dbo_ prefix per project convention)
+CREATE OR REPLACE VIEW `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.vw_dbo_KPIExcludedDates` AS
+SELECT
+  *
+FROM
+  `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.Fastway_dbo_KPIExcludedDates`;

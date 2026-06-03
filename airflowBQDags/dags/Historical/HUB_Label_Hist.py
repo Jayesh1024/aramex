@@ -620,8 +620,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_fl_ConItemSrv_Stg_Hist` "
-                            f"(SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_45.task_id}') }}}}' AS DATETIME))"
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_fl_ConItemSrv_Stg_Hist`() "
                         ),
                         "useLegacySql": False,
                     }
@@ -820,8 +819,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_fl_ConItem_Stg_Hist` "
-                            f"(SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_65.task_id}') }}}}' AS DATETIME))"
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_fl_ConItem_Stg_Hist`()"
                         ),
                         "useLegacySql": False,
                     }
