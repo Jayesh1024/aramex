@@ -54,15 +54,15 @@ BEGIN
             (SELECT MAX(m.Days) FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIMatrix` m 
              WHERE m.PickupFranchise = FirstReceivedRF AND m.DeliveryFranchise = FirstStopRF) AS KPI,
              
-            -- SingleCycle (Note: Cast to String for Coalesce Safety)
+            -- SingleCycle (Note: SAFE_CAST to String for Coalesce Safety)
             (SELECT COUNT(DISTINCT sc.CFCode) FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_SingleCycleCF` sc 
-             WHERE sc.RFCode = COALESCE(CAST(FirstStopRF AS STRING), CAST(FirstDeliveryRF AS STRING)) 
-               AND sc.CFCode = COALESCE(CAST(FirstStopCF AS STRING), CAST(FirstDeliveryCF AS STRING))) AS SingleCycle,
+             WHERE sc.RFCode = COALESCE(SAFE_CAST(FirstStopRF AS STRING), SAFE_CAST(FirstDeliveryRF AS STRING)) 
+               AND sc.CFCode = COALESCE(SAFE_CAST(FirstStopCF AS STRING), SAFE_CAST(FirstDeliveryCF AS STRING))) AS SingleCycle,
              
             -- SubDepot
             (SELECT COUNT(DISTINCT sd.SubDepotCode) FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_SubDepot` sd 
-             WHERE sd.DeedRF = COALESCE(CAST(FirstStopRF AS STRING), CAST(FirstDeliveryRF AS STRING)) 
-               AND sd.CF = COALESCE(CAST(FirstStopCF AS STRING), CAST(FirstDeliveryCF AS STRING))) AS SubDepot,
+             WHERE sd.DeedRF = COALESCE(SAFE_CAST(FirstStopRF AS STRING), SAFE_CAST(FirstDeliveryRF AS STRING)) 
+               AND sd.CF = COALESCE(SAFE_CAST(FirstStopCF AS STRING), SAFE_CAST(FirstDeliveryCF AS STRING))) AS SubDepot,
              
             -- DeliveryDays
             (DATE_DIFF(DATE(FirstDeliveryDate), DATE(FirstReceivedDate), DAY) 
@@ -75,7 +75,7 @@ BEGIN
              WHERE xd.Franchise = FirstDeliveryRF AND xd.Date BETWEEN DATE(FirstReceivedDate) AND DATE(FirstDeliveryDate)) AS DeliveryHoliday,
              
             -- SLA
-            (SELECT MAX(CAST(m.Days AS INT64)) FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPICustomerMatrix` m 
+            (SELECT MAX(SAFE_CAST(m.Days AS INT64)) FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPICustomerMatrix` m 
              WHERE m.`Pickup RF` = FirstReceivedRF 
                AND m.`Delivery RF` = FirstDeliveryRF 
                AND DATE(FirstDeliveryDate) BETWEEN m.ValidFrom AND m.ValidTo 

@@ -1,6 +1,6 @@
 -- LoadGokuTables.dtsx / Payzone_regions
 -- SSIS: OnlineEnquiries_NEW.dbo.payzone_regions -> CUBE.FastwayDW dbo.Payzone_Regions
-CREATE OR REPLACE VIEW `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.vw_dbo_Payzone_Regions` AS
+CREATE OR REPLACE VIEW `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Payzone_Regions` AS
 SELECT
   id,
   franchisee_code,

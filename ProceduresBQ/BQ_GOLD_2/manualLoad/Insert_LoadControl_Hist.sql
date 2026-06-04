@@ -41,4 +41,5 @@ VALUES
   ('CF_Productivity', 'dv.LNK_Scan', 'ID', 'CF_Productivity Load', '1800-01-01 00:00:00', 'CF_Productivity_Stg', NULL),
   ('PickupRequests_AU', 'FastwayGlobal_1.PickupDashboard.PickupRequest', 'ingestion_time', 'PickupRequests Load for AU', '1800-01-01 00:00:00', 'dv_SAT_Label_PickupRequest', NULL),
   ('PickupRequests_NZ', 'FastwayGlobal_6.PickupDashboard.PickupRequest', 'ingestion_time', 'PickupRequests Load for NZ', '1800-01-01 00:00:00', 'dv_SAT_Label_PickupRequest', NULL),
-  ('PickupRequests_SA', 'FastwayGlobal_24.PickupDashboard.PickupRequest', 'ingestion_time', 'PickupRequests Load for SA', '1800-01-01 00:00:00', 'dv_SAT_Label_PickupRequest', NULL);
+  ('PickupRequests_SA', 'FastwayGlobal_24.PickupDashboard.PickupRequest', 'ingestion_time', 'PickupRequests Load for SA', '1800-01-01 00:00:00', 'dv_SAT_Label_PickupRequest', NULL),
+  ('FWFastlabel_ClickAndCollect', 'FWFastlabel.dbo.FWFastlabel_ClickAndCollect', 'ingestion_time', 'ClickAndCollect Load for FWFastlabel', '1800-01-01 00:00:00', 'dbo_FWFastlabel_ClickAndCollect', NULL);

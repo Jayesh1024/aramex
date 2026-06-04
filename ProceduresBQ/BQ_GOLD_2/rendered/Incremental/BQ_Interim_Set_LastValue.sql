@@ -65,7 +65,7 @@ BEGIN
     SELECT CASE
       WHEN p_RecordSource = 'TrackAndTraceData_SignatureAI'
         THEN 'InterimStaging_TrackAndTraceData_SignatureAI_Stg'
-      ELSE CONCAT('Staging_', REGEXP_EXTRACT(DatasetName, r'[^.]+$'), '_Stg')
+      ELSE CONCAT('InterimStaging_', REGEXP_EXTRACT(DatasetName, r'[^.]+$'), '_Stg')
     END
     FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LoadControl`
     WHERE RecordSource = p_RecordSource
