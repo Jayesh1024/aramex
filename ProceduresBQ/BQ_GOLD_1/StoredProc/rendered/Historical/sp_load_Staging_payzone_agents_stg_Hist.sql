@@ -1,7 +1,7 @@
 CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.sp_load_Staging_payzone_agents_Stg_Hist`(
 )
 BEGIN
-  INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_payzone_agents_Stg`
+  INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_payzone_agents_Stg`
   SELECT Src.id
           ,Src.region_id
           ,Src.courier_no
@@ -33,7 +33,7 @@ BEGIN
           ,Src.DimensionCombinedMax
           ,Src.store_state
           ,CAST(Src.ingestion_time AS DATETIME) AS ingestion_time
-      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_payzone_agents` AS Src
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_payzone_agents` AS Src
      WHERE Src.ingestion_time IS NOT NULL;
 
 END

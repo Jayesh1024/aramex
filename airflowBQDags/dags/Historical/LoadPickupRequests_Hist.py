@@ -148,7 +148,7 @@ with DAG(
                 gcp_conn_id="oceania_target_sa_connection",
             )
 
-            op_get_last >> op_truncate >> op_staging_load
+            op_truncate >> op_staging_load
             op_staging_load >> op_copy
             op_staging_load >> op_dv
             op_copy >> op_set_last_value

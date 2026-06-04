@@ -137,7 +137,7 @@ BEGIN
           LineType
         FROM RawData
       ) AS h
-      LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceLine` AS Tgt
+      LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_InvoiceLine` AS Tgt
         ON Tgt.InvoiceLine_HSK = h.InvoiceLine_HSK
       WHERE Tgt.InvoiceLine_HSK IS NULL
     )

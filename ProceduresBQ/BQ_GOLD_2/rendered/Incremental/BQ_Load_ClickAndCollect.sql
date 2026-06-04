@@ -3,11 +3,11 @@
 -- Description: MERGE staging → dbo_FWFastlabel_ClickAndCollect (BigQuery-native scripting).
 -- ==========================================================================================
 
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dbo_Load_ClickAndCollect`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_Load_ClickAndCollect`(
   IN p_ProcessID INT64
 )
 BEGIN
-  DECLARE v_Component STRING DEFAULT 'prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Load_ClickAndCollect';
+  DECLARE v_Component STRING DEFAULT 'prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Load_ClickAndCollect';
   DECLARE v_Step STRING DEFAULT 'MERGE';
   DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
   DECLARE v_Ended DATETIME;
@@ -16,14 +16,14 @@ BEGIN
   DECLARE v_AffectedRows INT64 DEFAULT 0;
 
   BEGIN
-    MERGE INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_FWFastlabel_ClickAndCollect` AS Tgt
+    MERGE INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_FWFastlabel_ClickAndCollect` AS Tgt
     USING (
       SELECT * EXCEPT (dedupe_rn)
       FROM (
         SELECT
           s.*,
           ROW_NUMBER() OVER (PARTITION BY s.Id ORDER BY s.Id) AS dedupe_rn
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_FWFastlabel_ClickAndCollect_Stg` AS s
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_FWFastlabel_ClickAndCollect_Stg` AS s
       )
       WHERE dedupe_rn = 1
     ) AS Src
@@ -125,7 +125,7 @@ BEGIN
 
   SET v_Ended = CURRENT_DATETIME();
 
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     v_Component,
     p_ProcessID,
     v_Started,

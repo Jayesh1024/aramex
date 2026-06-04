@@ -6,7 +6,7 @@
 -- History:
 --  [BQ]  2026-05-04  Consolidated LoadPickupRequests migration (replaces CT + IsReload in DAG).
 -- ==========================================================================================
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_load_PickupRequest_AU_Stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_load_PickupRequest_AU_Stg`(
   IN p_ingestion_time STRING
 )
 BEGIN
@@ -21,7 +21,7 @@ BEGIN
     END
   );
 
-  INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_PickupRequest_AU_Stg` (
+  INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_PickupRequest_AU_Stg` (
     Id,
     CreateDateUtc,
     ingestion_time,
@@ -148,6 +148,6 @@ BEGIN
     Src.DeliveryCompany,
     CAST(Src.IsPriority AS INT64) AS IsPriority,
     CAST(0 AS INT64) AS SYS_CHANGE_VERSION
-  FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_goku_silver.FastwayGlobal_1_PickupDashboard_PickupRequest` AS Src
+  FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_goku_silver.FastwayGlobal_1_PickupDashboard_PickupRequest` AS Src
   WHERE SAFE_CAST(Src.ingestion_time AS DATETIME) > cutoff;
 END;

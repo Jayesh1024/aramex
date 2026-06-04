@@ -232,25 +232,9 @@ with DAG(
                 job_id="bq_gold_transformation_oceania",
             )
 
-            # ref_id: Package\Final\Load LNK\Set Last ID (TrackAndTraceID) — Interim_Set_LastValue(RecordSource3, NULL, NULL, 0)
-            op_9 = BigQueryInsertJobOperator(
-                task_id="package_final_load_lnk_set_last_id_trackandtraceid_now_in_interim_fact_scan_kpi",
-                gcp_conn_id="oceania_target_sa_connection",
-                location="europe-west2",
-                configuration={
-                    "query": {
-                        "query": (
-                            f"CALL `{SP_DATASET_ID}.interimStaging_Set_LastValue`("
-                            f"'{{{{ params.RecordSource3 }}}}', NULL, NULL, FALSE);"
-                        ),
-                        "useLegacySql": False,
-                    }
-                },
-                job_id="bq_gold_transformation_oceania",
-            )
 
             op_10 >> op_5 >> op_8 >> op_6
-            op_6 >> op_7 >> op_9
+            op_6 >> op_7
 
         with TaskGroup(group_id="tg_package_final_load_signatureai") as tg_sigai:
             # STOCK:SEQUENCE — ref_id: Package\Final\Load SignatureAI

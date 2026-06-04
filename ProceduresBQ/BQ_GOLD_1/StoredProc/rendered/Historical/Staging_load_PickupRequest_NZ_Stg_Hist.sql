@@ -1,6 +1,6 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_load_PickupRequest_NZ_Stg_Hist`()
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_load_PickupRequest_NZ_Stg_Hist`()
 BEGIN
-  INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_PickupRequest_NZ_Stg` (
+  INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_PickupRequest_NZ_Stg` (
     Id,
     CreateDateUtc,
     ingestion_time,
@@ -127,5 +127,5 @@ BEGIN
     Src.DeliveryCompany,
     CAST(Src.IsPriority AS INT64) AS IsPriority,
     CAST(0 AS INT64) AS SYS_CHANGE_VERSION
-  FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_goku_silver.FastwayGlobal_6_PickupDashboard_PickupRequest` AS Src;
+  FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_goku_silver.FastwayGlobal_6_PickupDashboard_PickupRequest` AS Src;
 END;

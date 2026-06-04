@@ -26,7 +26,6 @@ BEGIN
     INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_PickupRequest_Stg` (
       ID,
       CreateDateUtc,
-      ingestion_time,
       ShouldPrintLabel,
       PickupFranchiseeCode,
       PickupCourierNumber,
@@ -89,7 +88,6 @@ BEGIN
     SELECT
       Src.Id,
       Src.CreateDateUtc,
-      Src.ingestion_time,
       Src.ShouldPrintLabel,
       Src.PickupFranchiseeCode,
       Src.PickupCourierNumber,

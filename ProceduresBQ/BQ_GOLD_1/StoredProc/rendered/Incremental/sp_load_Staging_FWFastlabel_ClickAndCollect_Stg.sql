@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.sp_load_Staging_FWFastlabel_ClickAndCollect_Stg`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.sp_load_Staging_FWFastlabel_ClickAndCollect_Stg`(
   p_LastValue DATETIME
 )
 BEGIN
@@ -6,7 +6,7 @@ BEGIN
     RAISE USING MESSAGE = 'p_LastValue is required (populate from get_last_value in Airflow)';
   END IF;
 
-  INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_FWFastlabel_ClickAndCollect_Stg`
+  INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_FWFastlabel_ClickAndCollect_Stg`
   SELECT CNC.Id
           ,CNC.Label
           ,CNC.ToContactName
@@ -35,7 +35,7 @@ BEGIN
           ,CAST(CNC.Processed AS INT64) AS Processed
           ,CNC.ProcessedOn
           ,CAST(CNC.ingestion_time AS DATETIME) AS ingestion_time
-      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_FWFastlabel_ClickAndCollect` AS CNC
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_goku_silver.OnlineEnquiries_NEW_dbo_FWFastlabel_ClickAndCollect` AS CNC
      WHERE CNC.ingestion_time IS NOT NULL
        AND CAST(CNC.ingestion_time AS DATETIME) > p_LastValue;
 

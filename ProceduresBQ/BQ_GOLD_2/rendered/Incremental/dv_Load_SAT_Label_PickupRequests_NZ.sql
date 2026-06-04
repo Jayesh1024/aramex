@@ -1,9 +1,9 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.dv_Load_SAT_Label_PickupRequests_NZ`(
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_SAT_Label_PickupRequests_NZ`(
   IN p_ProcessID INT64
 )
 BEGIN
   DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
-  DECLARE v_Component STRING DEFAULT 'prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_Load_SAT_Label_PickupRequests_NZ';
+  DECLARE v_Component STRING DEFAULT 'prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_Load_SAT_Label_PickupRequests_NZ';
   DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
   DECLARE v_Ended DATETIME;
   DECLARE v_Result STRING DEFAULT 'Success';
@@ -11,11 +11,11 @@ BEGIN
   DECLARE v_Inserted INT64 DEFAULT 0;
 
   BEGIN
-    DELETE FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_PickupRequest`
+    DELETE FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_PickupRequest`
     WHERE SAFE_CAST(CreateDateUtc AS TIMESTAMP) < TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY))
       AND CountryCode = 6;
 
-    INSERT INTO `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_PickupRequest` (
+    INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_PickupRequest` (
         PickupRequest_HSK,
         LabelNo_HSK,
         FranchiseeCode_HSK,
@@ -197,18 +197,18 @@ BEGIN
           Src.IsPriority,
           Src.SYS_CHANGE_VERSION,
           C.CountryName AS CountryName,
-          `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
+          `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(
             CONCAT(IFNULL(SUBSTR(Src.LabelNumber, 1, 12), ''), '^', IFNULL(CAST(Src.CountryCode AS STRING), ''), '^'),
             '^'
           ) AS PickupRequest_HSK,
-          `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(IFNULL(Src.LabelNumber, ''), '^') AS LabelNo_HSK,
-          `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(IFNULL(Src.PickupFranchiseeCode, ''), '^') AS FranchiseeCode_HSK,
-          `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_GetHashKey`(
+          `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(IFNULL(Src.LabelNumber, ''), '^') AS LabelNo_HSK,
+          `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(IFNULL(Src.PickupFranchiseeCode, ''), '^') AS FranchiseeCode_HSK,
+          `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(
             CONCAT(IFNULL(Src.PickupFranchiseeCode, ''), '^', IFNULL(Src.PickupCourierNumber, '')),
             '^'
           ) AS Courier_HSK
-        FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.Staging_PickupRequest_NZ_Stg` AS Src
-        LEFT JOIN `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS C
+        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_PickupRequest_NZ_Stg` AS Src
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS C
           ON C.CountryCode = Src.CountryCode
         WHERE Src.LabelNumber IS NOT NULL
       )
@@ -217,7 +217,7 @@ BEGIN
     ) AS Src
     WHERE NOT EXISTS (
       SELECT 1
-      FROM `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dv_SAT_Label_PickupRequest` AS Tgt
+      FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_PickupRequest` AS Tgt
       WHERE Tgt.LabelNo = Src.LabelNumber
     );
 
@@ -229,7 +229,7 @@ BEGIN
   END;
 
   SET v_Ended = CURRENT_DATETIME();
-  CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_SaveLog`(
+  CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
     v_Component,
     p_ProcessID,
     v_Started,

@@ -173,12 +173,8 @@ BEGIN
         CAST(K.ActualArrivalDate AS DATE)                                  AS arr_date
 
       FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Daily` K
-<<<<<<< HEAD
       LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` MF
 
-=======
-      LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` MF
->>>>>>> origin/dev_composer_manas
         ON  MF.LabelNo     = K.LabelNo
         AND MF.IsCurrent   = 1
         AND MF.CountryCode = K.CountryCode

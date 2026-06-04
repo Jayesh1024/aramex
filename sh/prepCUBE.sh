@@ -16,3 +16,18 @@ python src/run_sql_bq.py \
     --max-workers 20 \
     --log-dir logs/
 
+python src/run_sql_bq.py \
+    ProceduresBQ/BQ_GOLD_1/StoredProc/rendered/Historical \
+    ~/.config/gcloud/application_default_credentials.json \
+    --project prj-drgfly-prod-sp-01 \
+    --location europe-west2 \
+    --max-workers 20 \
+    --log-dir logs/
+
+python src/run_sql_bq.py \
+    ProceduresBQ/BQ_GOLD_1/StoredProc/rendered/Incremental \
+    ~/.config/gcloud/application_default_credentials.json \
+    --project prj-drgfly-prod-sp-01 \
+    --location europe-west2 \
+    --max-workers 20 \
+    --log-dir logs/

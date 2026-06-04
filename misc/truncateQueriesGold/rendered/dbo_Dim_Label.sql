@@ -1,5 +1,5 @@
 <<<<<<< HEAD
 TRUNCATE TABLE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label`;
 =======
-TRUNCATE TABLE prj-drgfly-dev-sp-01.bq_ds_dev_euw2_oceania_cube_gold_1.dbo_Dim_Label;
+TRUNCATE TABLE prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label;
 >>>>>>> origin/dev_composer_manas

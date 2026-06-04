@@ -16,11 +16,11 @@ with DAG(
         location="europe-west2",
         configuration={
             "query": {
-                "query": "CALL `prj-drgfly-dev-sp-01.bq_ds_dev_euw2_store_procedure.Staging_Load_CF_Productivity_NZ_Hist`(-1717);",
+                "query": "CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_Load_CF_Productivity_NZ_Hist`(-1717);",
                 "use_legacy_sql": False,
             }
         },
         job_id="bq_gold_transformation_oceania",
     )
     
-    op_1
+    op_1git 
