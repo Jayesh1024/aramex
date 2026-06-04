@@ -1,3 +1,9 @@
+-- ==========================================================================================
+-- Routine:     Load_Fact_KPI_Src_Stg_Hist
+-- Description: One-shot historical load of Fact KPI source scans from dv_LNK_Scan.
+--              No LoadControl window, no late-upload catch-up (Part 2), no watermark update.
+-- Example:     CALL Staging_Load_Fact_KPI_Src_Stg_Hist(2574);
+-- ==========================================================================================
 CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_Load_Fact_KPI_Src_Stg_Hist`(
     IN p_ProcessID INT64
 )
@@ -5,22 +11,15 @@ BEGIN
     -- Core Variables
     DECLARE v_Component STRING DEFAULT 'prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Load_Fact_KPI_Src_Stg';
     DECLARE v_Step STRING DEFAULT 'Initialization';
-    
-    -- OPTION 2: Changed from TIMESTAMP to DATETIME
+
     DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
     DECLARE v_Ended DATETIME;
     DECLARE v_Result STRING DEFAULT 'Success';
     DECLARE v_ErrorMessage STRING;
     DECLARE v_Inserted INT64 DEFAULT 0;
-    DECLARE v_EndDate DATETIME;
-    DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
 
     BEGIN
-        -- ====================================================================
-        -- Part 1: Daily scans load
-        -- ====================================================================
         SET v_Step = 'Part1';
-        SET v_EndDate = DATETIME_SUB(DATETIME_TRUNC(v_Loaded, DAY), INTERVAL 1 MILLISECOND);
 
         INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Src_Stg` (
             LabelNo, CountryCode, ScanDateTime, ScanType, ScanStatus, FranchiseeCode, 
@@ -52,15 +51,10 @@ BEGIN
             AND MF.LabelNo = R.LabelNo 
             AND MF.IsCurrent = 1 
             AND MF.RealisedDate IS NOT NULL
-        WHERE R.CountryName = 'Australia'        
-            AND R.ScanDate <= v_EndDate;
+        WHERE R.CountryName = 'Australia';
 
         SET v_Inserted = @@row_count;
 
-        -- Update Watermark / Last Loaded Date
-        CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_Set_LastValue`('Fact_KPI_Scan', 'ScanDateTime', CAST(v_EndDate AS STRING),FALSE);
-
-        -- Log Part 1 Success (Option 2: Use DATETIME and CURRENT_DATETIME)
         SET v_Ended = CURRENT_DATETIME();
         CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
             CONCAT(v_Component, '-Part1'),
