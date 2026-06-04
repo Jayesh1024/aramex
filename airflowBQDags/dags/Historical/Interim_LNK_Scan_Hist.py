@@ -19,7 +19,7 @@ from airflow.models import Variable
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
-from utils.getValue import allocate_negative_sentinel_processid, get_last_value
+from utils.getValue import allocate_negative_sentinel_processid
 
 GCP_PROJECT_ID = Variable.get("PROJECT_ID")
 SP_DATASET_ID = Variable.get("SP_DATASET_ID")
@@ -27,8 +27,6 @@ TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
 _TASK_ID_GET_PROCESS_ID = "tg_package_staging.package_staging_get_processid"
-_TASK_ID_GET_LAST_SIGAI = "tg_package_staging.package_staging_get_last_date_signatureai"
-_TASK_ID_GET_LAST_TT = "tg_package_staging.package_staging_get_last_id_trackandtraceid"
 
 
 with DAG(
@@ -48,8 +46,6 @@ with DAG(
 ) as dag:
 
     _xcom_processid = f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_PROCESS_ID}') }}}}"
-    _xcom_last_sigai = f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LAST_SIGAI}') }}}}"
-    _xcom_last_tt = f"{{{{ ti.xcom_pull(task_ids='{_TASK_ID_GET_LAST_TT}') }}}}"
 
     with TaskGroup(group_id="tg_package_staging") as tg_staging:
         # STOCK:SEQUENCE — ref_id: Package\Staging
@@ -81,29 +77,7 @@ with DAG(
             job_id="bq_gold_transformation_oceania",
         )
 
-        # ref_id: Package\Staging\Get Last Date (SignatureAI) — [Staging].[Get_LastValue] RecordSource1
-        op_16 = PythonOperator(
-            task_id="package_staging_get_last_date_signatureai",
-            python_callable=get_last_value,
-            op_kwargs={
-                "project_id": GCP_PROJECT_ID,
-                "dataset_id": SP_DATASET_ID,
-                "record_source": "{{ params.RecordSource1 }}",
-            },
-        )
-
-        # ref_id: Package\Staging\Get Last ID (TrackAndTraceID) — [Staging].[Get_LastValue] RecordSource3
-        op_17 = PythonOperator(
-            task_id="package_staging_get_last_id_trackandtraceid",
-            python_callable=get_last_value,
-            op_kwargs={
-                "project_id": GCP_PROJECT_ID,
-                "dataset_id": SP_DATASET_ID,
-                "record_source": "{{ params.RecordSource3 }}",
-            },
-        )
-
-        # ref_id: Package\Staging\Load TrackAndTrace SignatureAI — pipeline -> inferred SP (LastUpdateDate)
+        # ref_id: Package\Staging\Load TrackAndTrace SignatureAI — historical full load (no watermark)
         op_19 = BigQueryInsertJobOperator(
             task_id="package_staging_load_trackandtrace_signatureai",
             gcp_conn_id="oceania_target_sa_connection",
@@ -111,8 +85,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{SP_DATASET_ID}.sp_load_InterimStaging_TrackAndTraceData_SignatureAI_Stg`("
-                        f"SAFE_CAST('{_xcom_last_sigai}' AS DATETIME));"
+                        f"CALL `{SP_DATASET_ID}.sp_load_InterimStaging_TrackAndTraceData_SignatureAI_Stg_Hist`();"
                     ),
                     "useLegacySql": False,
                 }
@@ -120,7 +93,7 @@ with DAG(
             job_id="bq_gold_transformation_oceania",
         )
 
-        # ref_id: Package\Staging\Load TrackAndTrace_Stg — pipeline -> inferred SP (LastId)
+        # ref_id: Package\Staging\Load TrackAndTrace_Stg — historical full load (no watermark)
         op_20 = BigQueryInsertJobOperator(
             task_id="package_staging_load_trackandtrace_stg",
             gcp_conn_id="oceania_target_sa_connection",
@@ -128,8 +101,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{SP_DATASET_ID}.sp_load_InterimStaging_TrackAndTrace_Stg_Hist`("
-                        f"SAFE_CAST('{_xcom_last_tt}' AS INT64));"
+                        f"CALL `{SP_DATASET_ID}.sp_load_InterimStaging_TrackAndTrace_Stg_Hist`();"
                     ),
                     "useLegacySql": False,
                 }
@@ -137,9 +109,7 @@ with DAG(
             job_id="bq_gold_transformation_oceania",
         )
 
-        op_18 >> op_21
-        op_21 >> op_16 >> op_19
-        op_21 >> op_17 >> op_20
+        op_18 >> op_21 >> [op_19, op_20]
 
     with TaskGroup(group_id="tg_package_final") as tg_final:
         # STOCK:SEQUENCE — ref_id: Package\Final
@@ -189,7 +159,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.Staging_Load_LNK_Scan_Stg`("
+                            f"CALL `{SP_DATASET_ID}.Staging_Load_LNK_Scan_Stg_Hist`("
                             f"{_xcom_processid});"
                         ),
                         "useLegacySql": False,

@@ -3,11 +3,11 @@ from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 import pendulum
 
 with DAG(
-    dag_id="interim_scans",
+    dag_id="ssis_skeleton_interim_scans_Hist",
     start_date=pendulum.datetime(2026, 4, 1, tz="Pacific/Auckland"),
-    schedule_interval="*/15 * * * *",
+    schedule_interval=None,
     catchup=False,
-    tags=["interim", "scans", "ssis", "Incremental"],
+    tags=["interim", "scans", "ssis", "Historical"],
 ) as dag:
 
     op_1 = TriggerDagRunOperator(
