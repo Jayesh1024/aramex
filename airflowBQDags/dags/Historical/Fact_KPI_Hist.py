@@ -179,7 +179,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{SP_DATASET_ID}.dbo_Load_Fact_KPI_Performance`("
+                        f"CALL `{SP_DATASET_ID}.dbo_Load_Fact_KPI_Performance_Hist`("
                         f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}});"
                     ),
                     "useLegacySql": False,
