@@ -28,11 +28,9 @@ from datetime import datetime
 from airflow import DAG
 from airflow.models import Variable
 from airflow.operators.empty import EmptyOperator
-from airflow.operators.python import PythonOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.task_group import TaskGroup
-from utils.getValue import get_last_value
 
 GCP_PROJECT_ID = Variable.get("PROJECT_ID")
 SP_DATASET_ID = Variable.get("SP_DATASET_ID")
@@ -495,17 +493,6 @@ with DAG(
 
         with TaskGroup(group_id="tg_package_staging_source1_labelmaster"):
 
-            # ref_id: Package\\Staging\\Source1 (LabelMaster)\\Get LastDate (LabelMaster)
-            op_35 = PythonOperator(
-                task_id="package_staging_source1_labelmaster_get_lastdate_labelmaster",
-                python_callable=get_last_value,
-                op_kwargs={
-                    "project_id": GCP_PROJECT_ID,
-                    "dataset_id": SP_DATASET_ID,
-                    "record_source": "{{ params.RecordSource1 }}",
-                },
-            )
-
             # ref_id: Package\\Staging\\Source1 (LabelMaster)\\Load LabelMaster_Stg
             op_36 = BigQueryInsertJobOperator(
                 task_id="package_staging_source1_labelmaster_load_labelmaster_stg",
@@ -514,8 +501,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_LabelMaster_Stg` "
-                            f"(SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_35.task_id}') }}}}' AS DATETIME))"
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_LabelMaster_Stg_Hist` "
                         ),
                         "useLegacySql": False,
                     }
@@ -539,17 +525,6 @@ with DAG(
             )
 
         with TaskGroup(group_id="tg_package_staging_source10_ebay_ebay"):
-            # ref_id: Package\\Staging\\Source10 (EBAY) _EBAY\\Get LastID (EBAY)
-            op_40 = PythonOperator(
-                task_id="package_staging_source10_ebay_ebay_get_lastid_ebay",
-                python_callable=get_last_value,
-                op_kwargs={
-                    "project_id": GCP_PROJECT_ID,
-                    "dataset_id": SP_DATASET_ID,
-                    "record_source": "{{ params.RecordSource10 }}",
-                },
-            )
-
             # ref_id: Package\\Staging\\Source10 (EBAY) _EBAY\\Load Ebay_labels_Stg
             op_41 = BigQueryInsertJobOperator(
                 task_id="package_staging_source10_ebay_ebay_load_ebay_labels_stg",
@@ -558,8 +533,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_Ebay_Labels_Stg` "
-                            f"({{{{ ti.xcom_pull(task_ids='{op_40.task_id}') }}}})"
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_Ebay_Labels_Stg_Hist` "
                         ),
                         "useLegacySql": False,
                     }
@@ -584,17 +558,6 @@ with DAG(
             )
 
         with TaskGroup(group_id="tg_package_staging_source11_myfastwaysrv_mf_2"):
-            # ref_id: Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Get LastDate (MyFastway)
-            op_45 = PythonOperator(
-                task_id="package_staging_source11_myfastwaysrv_mf_2_get_lastdate_myfastway",
-                python_callable=get_last_value,
-                op_kwargs={
-                    "project_id": GCP_PROJECT_ID,
-                    "dataset_id": SP_DATASET_ID,
-                    "record_source": "{{ params.RecordSource11 }}",
-                },
-            )
-
             # ref_id: Package\\Staging\\Source11 (MyFastwaySrv) _MF 2\\Load fl_ConItemSrv_Stg
             op_46 = BigQueryInsertJobOperator(
                 task_id="package_staging_source11_myfastwaysrv_mf_2_load_fl_conitemsrv_stg",
@@ -630,18 +593,6 @@ with DAG(
         
 
         with TaskGroup(group_id="tg_package_staging_source2_dynamiclabel_dl"):
-
-            # ref_id: Package\\Staging\\Source2 (DynamicLabel) _DL\\Get LastId (DynamicLabel)
-            op_55 = PythonOperator(
-                task_id="package_staging_source2_dynamiclabel_dl_get_lastid_dynamiclabel",
-                python_callable=get_last_value,
-                op_kwargs={
-                    "project_id": GCP_PROJECT_ID,
-                    "dataset_id": SP_DATASET_ID,
-                    "record_source": "{{ params.RecordSource2 }}",
-                }
-            )
-
             # ref_id: Package\\Staging\\Source2 (DynamicLabel) _DL\\Load API_RF_AdHocLabel_AllocationHistory_Stg
             op_56 = BigQueryInsertJobOperator(
                 task_id="package_staging_source2_dynamiclabel_dl_load_api_rf_adhoclabel_allocationhistory_stg",
@@ -650,8 +601,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_API_RF_AdHocLabel_AllocationHistory_Stg` "
-                            f"({{{{ ti.xcom_pull(task_ids='{op_55.task_id}') }}}})"
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_API_RF_AdHocLabel_AllocationHistory_Stg_Hist` "
                         ),
                         "useLegacySql": False,
                     }
@@ -675,17 +625,6 @@ with DAG(
             )
 
         with TaskGroup(group_id="tg_package_staging_source3_fastlabel_fl"):
-            # ref_id: Package\\Staging\\Source3 (FastLabel) _FL\\Get LastDate (FastLabel)
-            op_60 = PythonOperator(
-                task_id="package_staging_source3_fastlabel_fl_get_lastdate_fastlabel",
-                python_callable=get_last_value,
-                op_kwargs={
-                    "project_id": GCP_PROJECT_ID,
-                    "dataset_id": SP_DATASET_ID,
-                    "record_source": "{{ params.RecordSource3 }}",
-                },
-            )
-
             # ref_id: Package\\Staging\\Source3 (FastLabel) _FL\\Load tblFastLabel_Consignment_Stg
             op_61 = BigQueryInsertJobOperator(
                 task_id="package_staging_source3_fastlabel_fl_load_tblfastlabel_consignment_stg",
@@ -694,8 +633,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_tblFastLabel_Consignment_Stg` "
-                            f"(SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_60.task_id}') }}}}' AS DATETIME))"
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_tblFastLabel_Consignment_Stg_Hist` "
                         ),
                         "useLegacySql": False,
                     }
@@ -720,17 +658,6 @@ with DAG(
             )
 
         with TaskGroup(group_id="tg_package_staging_source4_myfastway_mf"):
-            # ref_id: Package\\Staging\\Source4 (MyFastway) _MF\\Get LastDate (MyFastway)
-            op_65 = PythonOperator(
-                task_id="package_staging_source4_myfastway_mf_get_lastdate_myfastway",
-                python_callable=get_last_value,
-                op_kwargs={
-                    "project_id": GCP_PROJECT_ID,
-                    "dataset_id": SP_DATASET_ID,
-                    "record_source": "{{ params.RecordSource4 }}",
-                },
-            )
-
             # ref_id: Package\\Staging\\Source4 (MyFastway) _MF\\Load fl_ConItem_Stg
             op_66 = BigQueryInsertJobOperator(
                 task_id="package_staging_source4_myfastway_mf_load_fl_conitem_stg",
@@ -764,17 +691,6 @@ with DAG(
             )
 
         with TaskGroup(group_id="tg_package_staging_source5_hdmanifest_ifs"):
-            # ref_id: Package\\Staging\\Source5 (HDManifest) _IFS\\Get LastID(IFS)
-            op_70 = PythonOperator(
-                task_id="package_staging_source5_hdmanifest_ifs_get_lastid_ifs",
-                python_callable=get_last_value,
-                op_kwargs={
-                    "project_id": GCP_PROJECT_ID,
-                    "dataset_id": SP_DATASET_ID,
-                    "record_source": "{{ params.RecordSource5 }}",
-                },
-            )
-
             # ref_id: Package\\Staging\\Source5 (HDManifest) _IFS\\Load HDManifests_Stg
             op_71 = BigQueryInsertJobOperator(
                 task_id="package_staging_source5_hdmanifest_ifs_load_hdmanifests_stg",
@@ -783,8 +699,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_HDManifests_Stg` "
-                            f"({{{{ ti.xcom_pull(task_ids='{op_70.task_id}') }}}})"
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_HDManifests_Stg_Hist` "
                         ),
                         "useLegacySql": False,
                     }
@@ -809,17 +724,6 @@ with DAG(
             )
 
         with TaskGroup(group_id="tg_package_staging_source6_fastlabelenterprise_fle"):
-            # ref_id: Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Get LastDate (FastLabelEnterprise)
-            op_75 = PythonOperator(
-                task_id="package_staging_source6_fastlabelenterprise_fle_get_lastdate_fastlabelenterprise",
-                python_callable=get_last_value,
-                op_kwargs={
-                    "project_id": GCP_PROJECT_ID,
-                    "dataset_id": SP_DATASET_ID,
-                    "record_source": "{{ params.RecordSource6 }}",
-                },
-            )
-
             # ref_id: Package\\Staging\\Source6 (FastLabelEnterprise) _FLE\\Load ConsignmentItem_Stg
             op_76 = BigQueryInsertJobOperator(
                 task_id="package_staging_source6_fastlabelenterprise_fle_load_consignmentitem_stg",
@@ -828,8 +732,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_ConsignmentItem_Stg` "
-                            f"(SAFE_CAST('{{{{ ti.xcom_pull(task_ids='{op_75.task_id}') }}}}' AS DATETIME))"
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_ConsignmentItem_Stg_Hist` "
                         ),
                         "useLegacySql": False,
                     }
@@ -855,17 +758,6 @@ with DAG(
 
 
         with TaskGroup(group_id="tg_package_staging_source8_receiverpays_rp"):
-            # ref_id: Package\\Staging\\Source8 (ReceiverPays) _RP\\Get LastID  (ReceiverPays)
-            op_85 = PythonOperator(
-                task_id="package_staging_source8_receiverpays_rp_get_lastid_receiverpays",
-                python_callable=get_last_value,
-                op_kwargs={
-                    "project_id": GCP_PROJECT_ID,
-                    "dataset_id": SP_DATASET_ID,
-                    "record_source": "{{ params.RecordSource8 }}",
-                },
-            )
-
             # ref_id: Package\\Staging\\Source8 (ReceiverPays) _RP\\Load tblOnlineEnquiry_RP_Stg
             op_86 = BigQueryInsertJobOperator(
                 task_id="package_staging_source8_receiverpays_rp_load_tblonlineenquiry_rp_stg",
@@ -874,8 +766,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_tblOnlineEnquiry_RP_Stg` "
-                            f"({{{{ ti.xcom_pull(task_ids='{op_85.task_id}') }}}})"
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_tblOnlineEnquiry_RP_Stg_Hist` "
                         ),
                         "useLegacySql": False,
                     }
@@ -940,21 +831,13 @@ with DAG(
     # the original SSIS ordering: Group 1 (DL, EBAY, FLE) -> Group 2 (IFS, MF,
     # Pickup Requests) -> Group 3 (FL, RP, TMD).
     tg_sat_label_allocation_group_1 >> tg_sat_label_allocation_group_2 >> tg_sat_label_allocation_group_3
-    op_38 >> op_35
-    op_35 >> op_36
-    op_43 >> op_40
-    op_40 >> op_41
-    op_48 >> op_45
-    op_45 >> op_46
+    op_38 >> op_36
+    op_43 >> op_41
+    op_48 >> op_46
     op_58 >> op_55
     op_55 >> op_56
-    op_63 >> op_60
-    op_60 >> op_61
-    op_68 >> op_65
-    op_65 >> op_66
-    op_73 >> op_70
-    op_70 >> op_71
-    op_78 >> op_75
-    op_75 >> op_76
-    op_88 >> op_85
-    op_85 >> op_86
+    op_63 >> op_61
+    op_68 >> op_66
+    op_73 >> op_71
+    op_78 >> op_76
+    op_88 >> op_86
