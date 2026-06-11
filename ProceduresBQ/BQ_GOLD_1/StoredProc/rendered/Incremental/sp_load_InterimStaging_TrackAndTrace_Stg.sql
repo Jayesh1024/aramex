@@ -8,7 +8,7 @@ BEGIN
   -- Use DATETIME_SUB and CURRENT_DATETIME() to replicate DATEADD and GETDATE()
   SET boundDate = DATETIME_SUB(CURRENT_DATETIME(), INTERVAL 30 DAY);
   SET endID = lastId + 200000; -- Batchsize - rows every 15min
-
+  INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.InterimStaging_TrackAndTrace_Stg`
   SELECT
       a.ID,
       a.RecordId,

@@ -31,11 +31,19 @@ _TASK_ID_GET_LAST_SIGAI = "tg_package_staging.package_staging_get_last_date_sign
 _TASK_ID_GET_LAST_TT = "tg_package_staging.package_staging_get_last_id_trackandtraceid"
 
 
+
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': True,
+    'retries': 0,
+}
+
 with DAG(
     dag_id="ssis_skeleton_interim_lnk_scan",
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
+    default_args=default_args,
     tags=["ssis", "skeleton", "interim_lnk_scan", "RecordSource_TrackAndTraceData_SignatureAI", "RecordSource_TTSignatureAI", "RecordSource_TrackAndTraceID", "Incremental"],
     params={
         "DisableFinal": 0,

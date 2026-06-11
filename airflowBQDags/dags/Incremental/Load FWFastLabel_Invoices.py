@@ -26,11 +26,19 @@ TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 _TASK_ID_GET_LAST_HEADER = "tg_package_staging.package_staging_get_last_invoiceheaderdate"
 _TASK_ID_GET_LAST_PAYMENT = "tg_package_staging.package_staging_get_last_invoicepaymentdate"
 
+
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': True,
+    'retries': 0,
+}
+
 with DAG(
     dag_id="ssis_skeleton_load_fwfastlabel_invoices",
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
+    default_args=default_args,
     tags=["ssis", "skeleton", "load fwfastlabel_invoices", "RecordSource_fl_InvoiceHeader", "RecordSource_fl_InvoicePayment", "Incremental"],
     params={
         "DisableFinal": 0,

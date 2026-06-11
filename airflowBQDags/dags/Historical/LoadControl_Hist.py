@@ -241,31 +241,7 @@ with DAG(
             job_id="bq_gold_transformation_oceania",
         )
 
-    with TaskGroup(
-        group_id="tg_package_send_notification_email"
-    ) as tg_send_notification_email:
-        op_20 = BigQueryInsertJobOperator(
-            task_id="package_send_notification_email_get_summary_data",
-            gcp_conn_id="oceania_target_sa_connection",
-            location="europe-west2",
-            configuration={
-                "query": {
-                    "query": (
-                        f"CALL `{SP_DATASET_ID}.Staging_Get_LoadReportHtml`("
-                        f"{_GET_PROCESSID_XCOM}, "
-                        f"CAST('{{{{ dag_run.id }}}}' AS INT64));"
-                    ),
-                    "useLegacySql": False,
-                }
-            },
-            job_id="bq_gold_transformation_oceania",
-        )
-
-        op_21 = EmptyOperator(task_id="package_send_notification_email_send_email")
-
-        op_20 >> op_21
 
     op_3 >> op_18
     op_18 >> tg_load_hub_tables
     tg_load_hub_tables >> tg_load_dim_tables
-    tg_load_dim_tables >> tg_send_notification_email

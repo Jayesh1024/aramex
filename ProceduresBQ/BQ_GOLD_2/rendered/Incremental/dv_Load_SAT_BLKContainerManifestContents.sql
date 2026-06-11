@@ -1,42 +1,57 @@
--- ==========================================================================================
--- Routine:     dv_Load_SAT_BLKContainerManifestContents
--- Description: Loads SAT_BLKContainerManifestContents from `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_BLK_ContainerManifestContents_Stg`
---              BigQuery compatible version of Load_SAT_BLKContainerManifestContents
---              Note: CTE pattern preserved. WITH (TABLOCK) removed.
---                    dbo.GetHashKey replaced with TO_HEX(MD5(...)).
--- Example:     CALL dv.dv_Load_SAT_BLKContainerManifestContents(-4, 'BLK_ManifestContents')
--- History:
---  30/05/2024  B. Woods        Routine Written
---  [BQ Port]   Converted from SQL Server to BigQuery
---  [BQ Fix]    Removed TRIM() from INT64 column ContainerManifestId (TRIM only accepts STRING).
---              Used CONCAT() instead of || for string concatenation in MD5 hash.
---              WHERE NOT EXISTS comparison uses direct equality for INT64 ContainerManifestId.
---              TO_HEX(MD5(...)) → MD5(...) to match target column type (BYTES).
---              SaveLog → Staging_SaveLog with additional -1, -1 arguments.
--- ==========================================================================================
 CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_SAT_BLKContainerManifestContents`(
-    IN ProcessID    INT64,
-    IN RecordSource STRING
+    IN p_ProcessID    INT64,
+    IN p_RecordSource STRING
 )
 BEGIN
-
-    DECLARE Loaded    DATETIME DEFAULT CURRENT_DATETIME();
-
-    DECLARE Component    STRING DEFAULT 'dv.Load_SAT_BLKContainerManifestContents';
-    DECLARE Started      DATETIME DEFAULT CURRENT_DATETIME();
-    DECLARE Ended        DATETIME;
-    DECLARE Result       STRING;
-    DECLARE ErrorMessage STRING;
-    DECLARE Inserted     INT64 DEFAULT 0;
+    -- Declarations & Variable Initialization
+    DECLARE Loaded        DATETIME DEFAULT CURRENT_DATETIME();
+    DECLARE Component     STRING DEFAULT 'dv.Load_SAT_BLKContainerManifestContents';
+    DECLARE Started       DATETIME DEFAULT CURRENT_DATETIME();
+    DECLARE Ended         DATETIME;
+    DECLARE Result        STRING DEFAULT 'Success';
+    DECLARE ErrorMessage  STRING DEFAULT NULL;
+    
+    DECLARE Updated       INT64 DEFAULT 0;
+    DECLARE Inserted      INT64 DEFAULT 0;
 
     BEGIN
+        BEGIN TRANSACTION;
 
-        INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_BLKContainerManifestContents`
+        -- STEP 1: UPDATE Existing Records if attributes have changed
+        -- Replicates the MSSQL JOIN + EXCEPT behavior
+        MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_BLKContainerManifestContents` AS LTP
+        USING `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_BLK_ContainerManifestContents_Stg` AS Src
+        ON LTP.ContainerManifestId = Src.ContainerManifestId 
+           AND RTRIM(LTP.LabelNo) = RTRIM(Src.LabelNo)
+        WHEN MATCHED AND (
+            -- Replicating the EXCEPT clause logic (checking if any descriptive attributes differ or contain changes)
+            IFNULL(LTP.ScanDate, DATETIME '1900-01-01')        != IFNULL(Src.ScanDate, DATETIME '1900-01-01') OR
+            IFNULL(LTP.MixedManifestId, -1)                    != IFNULL(Src.MixedManifestId, -1) OR
+            IFNULL(LTP.ScanUserId, -1)                         != IFNULL(Src.ScanUserId, -1) OR
+            IFNULL(LTP.Destination, '')                        != IFNULL(Src.Destination, '') OR
+            IFNULL(LTP.Weight, -1.0)                           != IFNULL(Src.Weight, -1.0) OR
+            IFNULL(LTP.CF, '')                               != IFNULL(Src.CF, '')
+        ) THEN
+            UPDATE SET
+                LTP.ScanDate        = Src.ScanDate,
+                LTP.ScanUserId      = Src.ScanUserId,
+                LTP.Destination     = Src.Destination,
+                LTP.MixedManifestId = Src.MixedManifestId,
+                LTP.Weight          = Src.Weight,
+                LTP.CF              = Src.CF,
+                LTP.Loaded          = Started,
+                LTP.ProcessID       = p_ProcessID,
+                LTP.RecordSource    = p_RecordSource;
+
+        SET Updated = @@ROW_COUNT;
+
+        -- STEP 2: INSERT Brand New Records
+        INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_BLKContainerManifestContents` (
+            ContainerManifestContents_HSK, ContainerManifestId, LabelNo, ScanDate, 
+            ScanUserId, Destination, MixedManifestId, Weight, CF, Loaded, ProcessID, RecordSource
+        )
         SELECT
-            -- CONCAT used instead of || for BQ string concatenation
-            -- ContainerManifestId is INT64 so CAST to STRING before hashing; no TRIM needed
-            -- MD5 used directly (without TO_HEX) to match target column BYTES type
-            MD5(CONCAT(CAST(Src.ContainerManifestId AS STRING), TRIM(Src.LabelNo))) AS ContainerManifestContents_HSK,
+            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CONCAT(CAST(Src.ContainerManifestId AS STRING), RTRIM(Src.LabelNo)), '^') AS ContainerManifestContents_HSK,
             Src.ContainerManifestId,
             Src.LabelNo,
             Src.ScanDate,
@@ -46,38 +61,36 @@ BEGIN
             Src.Weight,
             Src.CF,
             Started      AS Loaded,
-            ProcessID    AS ProcessID,
-            RecordSource AS RecordSource
+            p_ProcessID    AS ProcessID,
+            p_RecordSource AS RecordSource
         FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_BLK_ContainerManifestContents_Stg` AS Src
-        -- Only insert rows whose (ContainerManifestId, LabelNo) key doesn't already exist
-        WHERE NOT EXISTS (
-            SELECT 1
-            FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_BLKContainerManifestContents` AS Dest
-            WHERE Dest.ContainerManifestId = Src.ContainerManifestId
-              AND TRIM(Dest.LabelNo)       = TRIM(Src.LabelNo)
-        );
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_BLKContainerManifestContents` AS LTP
+            ON LTP.ContainerManifestId = Src.ContainerManifestId 
+           AND RTRIM(LTP.LabelNo) = RTRIM(Src.LabelNo)
+        WHERE LTP.LabelNo IS NULL;
 
         SET Inserted = @@ROW_COUNT;
-        SET Result   = 'Success';
+        
+        COMMIT TRANSACTION;
 
     EXCEPTION WHEN ERROR THEN
+        -- Automated Rollback on Exception block execution
+        ROLLBACK TRANSACTION;
         SET Result       = 'Failed';
         SET ErrorMessage = @@error.message;
-
     END;
 
-    -- Record load metrics in log
-    SET Result = 'Success';
-    SET Ended  = CURRENT_DATETIME();
+    -- Record load metrics in log (Clean exit, safely tracking Failure or Success states)
+    SET Ended = CURRENT_DATETIME();
     CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(
         Component,
-        ProcessID,
+        p_ProcessID,
         Started,
         Ended,
         Result,
         ErrorMessage,
         Inserted,
-        -1,
+        Updated,
         -1
     );
 

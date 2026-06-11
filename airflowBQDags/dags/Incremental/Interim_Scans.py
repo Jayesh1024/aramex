@@ -2,12 +2,19 @@ from airflow import DAG
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 import pendulum
 
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': True, # <-- Tells tasks to wait for their previous run to succeed
+    'retries': 0,
+}
+
 with DAG(
     dag_id="interim_scans",
     start_date=pendulum.datetime(2026, 4, 1, tz="Pacific/Auckland"),
     schedule_interval="*/15 * * * *",
     catchup=False,
     tags=["interim", "scans", "ssis", "Incremental"],
+    default_args=default_args,
 ) as dag:
 
     op_1 = TriggerDagRunOperator(

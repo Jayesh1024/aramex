@@ -43,11 +43,19 @@ _STAGING_TABLES_TO_TRUNCATE = [
     "Staging_fl_ConItemSrv_Stg",
 ]
 
+
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': True,
+    'retries': 0,
+}
+
 with DAG(
     dag_id="ssis_skeleton_hub_label_mf_only",
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
+    default_args=default_args,
     tags=["ssis", "skeleton", "hub_label_mf_only", "RecordSource_MyFastway", "Incremental"],
     params={
         "BatchDays": -1,

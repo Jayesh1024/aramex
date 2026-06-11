@@ -39,11 +39,19 @@ SP_DATASET_ID = Variable.get("SP_DATASET_ID")
 TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
+
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': True,
+    'retries': 0,
+}
+
 with DAG(
     dag_id="ssis_skeleton_hub_label",
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
+    default_args=default_args,
     tags=["ssis", "skeleton", "hub_label", "RecordSource_LabelMaster", "RecordSource_EBAY", "RecordSource_MyFastwaySrv", "RecordSource_InterBranchAU", "RecordSource_PickupRequest", "RecordSource_DynamicLabel", "RecordSource_FastLabel", "RecordSource_MyFastway", "RecordSource_HDManifestID", "RecordSource_FastLabelEnterprise", "RecordSource_Temando", "RecordSource_ReceiverPays", "RecordSource_Tasman", "Incremental"],
     params={
         "DisableFinal": 0,
@@ -398,23 +406,7 @@ with DAG(
                 job_id="bq_gold_transformation_oceania",
             )
 
-            # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Load SAT_Label_Allocation_TMD
-            # SSIS: Exec [dv].[Load_SAT_Label_Allocation_TMD] ProcessID, 'Temando'
-            op_27 = BigQueryInsertJobOperator(
-                task_id="package_final_load_sat_label_allocation_group_3_load_sat_label_allocation_tmd",
-                gcp_conn_id="oceania_target_sa_connection",
-                location="europe-west2",
-                configuration={
-                    "query": {
-                        "query": (
-                            f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_TMD`"
-                            f"({{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource7 }}}}');"
-                        ),
-                        "useLegacySql": False,
-                    }
-                },
-                job_id="bq_gold_transformation_oceania",
-            )
+            
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Set LastDate (FastLabel)
             op_28 = BigQueryInsertJobOperator(
@@ -450,22 +442,6 @@ with DAG(
                 job_id="bq_gold_transformation_oceania",
             )
 
-            # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Set LastDate (Temando)
-            op_30 = BigQueryInsertJobOperator(
-                task_id="package_final_load_sat_label_allocation_group_3_set_lastdate_temando",
-                gcp_conn_id="oceania_target_sa_connection",
-                location="europe-west2",
-                configuration={
-                    "query": {
-                        "query": (
-                            f"CALL `{SP_DATASET_ID}.Staging_Set_LastValue`("
-                            f"'{{{{ params.RecordSource7 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
-                        ),
-                        "useLegacySql": False,
-                    }
-                },
-                job_id="bq_gold_transformation_oceania",
-            )
 
     # ref_id: Package\\HUB_Address — SSIS Microsoft.ExecutePackageTask (HUB_Address.dtsx)
     op_31 = TriggerDagRunOperator(
@@ -603,7 +579,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_fl_ConItemSrv_Stg` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_fl_ConItemSrv_Stg`() "
                         ),
                         "useLegacySql": False,
                     }
@@ -936,7 +912,6 @@ with DAG(
     op_19 >> op_23
     op_25 >> op_28
     op_26 >> op_29
-    op_27 >> op_30
 
     # TaskGroup-level precedence (was routed through removed `op_11` / `op_18`
     # STOCK:SEQUENCE gates). Chaining the three Allocation subgroups preserves

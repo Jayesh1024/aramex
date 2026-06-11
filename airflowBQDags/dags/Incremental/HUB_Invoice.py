@@ -28,11 +28,19 @@ TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 # Full task id for XCom (Final is defined above Staging in this file; cannot reference op_16 at parse time).
 _TASK_IDS_LASTDATE_FMS_INVOICE = "tg_package_staging.package_staging_get_lastdate_fms_invoice"
 
+
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': True,
+    'retries': 0,
+}
+
 with DAG(
     dag_id="ssis_skeleton_hub_invoice",
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
+    default_args=default_args,
     tags=["ssis", "skeleton", "hub_invoice", "RecordSource_FMS_Invoice", "RecordSource_FMSUndTcktInvoice", "RecordSource_FMS_InvoiceBooks", "RecordSource_FMS_InvoiceHead", "RecordSource_FMS_InvoiceLines", "Incremental"],
     params={
         "DisableFinal": 0,
