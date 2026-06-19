@@ -169,7 +169,7 @@ BEGIN
       AND i.BatchId     = b.BatchId
     LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` l
       ON  i.LabelNo     = l.LabelNo
-      AND l.CountryCode = i.CountryCode
+      AND l.CountryCode = CAST(i.CountryCode AS INT64)
     WHERE i.LabelNo NOT IN (
       SELECT LabelNo
       FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF`
