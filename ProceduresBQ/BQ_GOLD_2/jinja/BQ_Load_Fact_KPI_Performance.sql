@@ -26,7 +26,7 @@ BEGIN
     SET v_EndDate = (
       SELECT CAST(LastValue AS DATETIME)
       FROM `{{ project_id }}.{{ target_dataset_id }}.Staging_LoadControl`
-      WHERE RecordSource = 'Fact_KPI_Scan'
+      WHERE UPPER(RecordSource) = UPPER('Fact_KPI_Scan')
     );
 
     SET v_StartDate = CAST(
@@ -48,17 +48,17 @@ BEGIN
       CAST(ActualAttemptedDate AS DATE) AS DeliveryDate,
       COUNT(LabelNo) AS NumofLabels,
       SUM(CASE
-        WHEN Category = 'Local' THEN NULL
+        WHEN UPPER(Category) = UPPER('Local') THEN NULL
         WHEN KPIPickupImpact = 0 AND (ActualDepartureDate IS NULL OR DATETIME_ADD(KPIDepartureDate, INTERVAL 30 HOUR) < ActualDepartureDate) THEN 0
         ELSE 1
       END) AS OnTimePickup,
       SUM(CASE
-        WHEN Category = 'Local' THEN NULL
+        WHEN UPPER(Category) = UPPER('Local') THEN NULL
         WHEN KPILEAImpact = 0 AND (KPIArrivalDate IS NOT NULL AND ActualArrivalDate IS NOT NULL AND KPIArrivalDate < CAST(ActualDepartureDate AS DATE)) THEN 0
         ELSE 1
       END) AS OnTimeLEA,
       SUM(CASE
-        WHEN Category = 'Local' THEN NULL
+        WHEN UPPER(Category) = UPPER('Local') THEN NULL
         WHEN KPIDeliveryImpact = 1 OR (EstimatedDeliveryDate IS NOT NULL AND EstimatedDeliveryDate >= ActualAttemptedDateAdjust) OR (EstimatedDeliveryDate IS NULL AND ActualDepartureDate IS NULL) THEN 1
         ELSE 0
       END) AS OnTimeDelivery,
@@ -83,18 +83,18 @@ BEGIN
           AND f.ActualAttemptedDate > v_StartDate
           AND f.ActualAttemptedDate <= v_EndDate
           AND m.IsCurrent = 1
-          AND f.Category IN ('Interbranch', 'Local')
+          AND UPPER(f.Category) IN UPPER(('Interbranch', 'Local'))
       ) k
       -- Join to the Time/Exclusion tables using the inequality
       INNER JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_Dim_Time` dt
         ON dt.Calendar_Date <= CAST(k.ActualAttemptedDate AS DATE)
       LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIExcludedDates` ex
         ON dt.Calendar_Date = ex.Date AND ex.Franchise = k.ToRf
-      WHERE dt.week_day_flag = 'Y'
+      WHERE UPPER(dt.week_day_flag) = UPPER('Y')
         AND ex.Comment IS NULL
     ) AS kpi
     WHERE rn = 1 -- This replaces the 'LIMIT 1' from your subquery
-      AND ToRf != 'TMW'
+      AND UPPER(ToRf) != UPPER('TMW')
       AND ToRf = ActualAttemptedRF
     GROUP BY CountryCode, FromRF, FromCf, ToRf, ToCf, Category, CAST(ActualAttemptedDate AS DATE);
 

@@ -324,7 +324,7 @@ BEGIN
       SELECT COUNT(*)
       FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_Scan_KPI`
       WHERE ProcessId = p_ProcessId
-        AND Updated   = v_Loaded
+        AND UPPER(Updated)   = UPPER(v_Loaded)
     );
 
     -- Interim log for Updates phase
@@ -423,7 +423,7 @@ BEGIN
       SELECT COUNT(*)
       FROM `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_Scan_KPI`
       WHERE ProcessId = p_ProcessId
-        AND Created   = v_Loaded
+        AND UPPER(Created)   = UPPER(v_Loaded)
     );
 
     SET v_Result = 'Success';
