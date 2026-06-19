@@ -51,7 +51,7 @@ BEGIN
                         ), ', '
                     ))                                          AS Address,
                     TRIM(Stg.EmailAddress)                      AS EmailAddress,
-                    TRIM(Stg.PhoneNumber)                       AS PhoneNumber,
+                    TRIM(Stg.PhoneNumber)                       AS PhoneNsatumber,
                     TRIM(Stg.Mobile)                            AS MobileNumber,
                     Stg.BlackbayRouteId,
                     TRIM(Stg.CourierGroup)                      AS CourierGroup,

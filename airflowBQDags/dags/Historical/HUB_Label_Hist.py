@@ -444,6 +444,18 @@ with DAG(
         conf={"process_id": "{{ dag_run.conf.get('process_id', params.process_id) }}"},
     )
 
+    truncate_pickuprequest_stg = BigQueryInsertJobOperator(
+        task_id="truncate_pickuprequest_stg",
+        gcp_conn_id="oceania_target_sa_connection",
+        location="europe-west2",
+        configuration={
+            "query": {
+                "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_PickupRequest_Stg`",
+            }
+        },
+        job_id="bq_gold_transformation_oceania"
+    )
+
     # ref_id: Package\\LNK_Label_Product_ServiceItem — SSIS Microsoft.ExecutePackageTask (LNK_Label_Product_ServiceItem.dtsx)
     op_32 = TriggerDagRunOperator(
         task_id="package_lnk_label_product_serviceitem",
@@ -468,7 +480,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_LabelMaster_Stg_Hist` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_LabelMaster_Stg_Hist`() "
                         ),
                         "useLegacySql": False,
                     }
@@ -500,7 +512,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_Ebay_Labels_Stg_Hist` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_Ebay_Labels_Stg_Hist`() "
                         ),
                         "useLegacySql": False,
                     }
@@ -568,7 +580,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_API_RF_AdHocLabel_AllocationHistory_Stg_Hist` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_API_RF_AdHocLabel_AllocationHistory_Stg_Hist`() "
                         ),
                         "useLegacySql": False,
                     }
@@ -600,7 +612,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_tblFastLabel_Consignment_Stg_Hist` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_tblFastLabel_Consignment_Stg_Hist`() "
                         ),
                         "useLegacySql": False,
                     }
@@ -666,7 +678,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_HDManifests_Stg_Hist` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_HDManifests_Stg_Hist`() "
                         ),
                         "useLegacySql": False,
                     }
@@ -699,7 +711,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_ConsignmentItem_Stg_Hist` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_ConsignmentItem_Stg_Hist`() "
                         ),
                         "useLegacySql": False,
                     }
@@ -733,7 +745,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_tblOnlineEnquiry_RP_Stg_Hist` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_tblOnlineEnquiry_RP_Stg_Hist`() "
                         ),
                         "useLegacySql": False,
                     }
@@ -775,6 +787,7 @@ with DAG(
     op_33 >> op_2
     op_33 >> op_6
     op_33 >> op_31
+    op_31 >> truncate_pickuprequest_stg
     op_33 >> op_32
 
     op_5 >> op_4
@@ -800,8 +813,7 @@ with DAG(
     op_38 >> op_36
     op_43 >> op_41
     op_48 >> op_46
-    op_58 >> op_55
-    op_55 >> op_56
+    op_58 >> op_56
     op_63 >> op_61
     op_68 >> op_66
     op_73 >> op_71
