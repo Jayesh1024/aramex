@@ -38,11 +38,19 @@ TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 _TASK_ID_GET_LAST_ID = "tg_package_staging_2.package_staging_2_get_lastid_interbranch"
 
+
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': True,
+    'retries': 0,
+}
+
 with DAG(
     dag_id="ssis_skeleton_hub_label_2",
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
+    default_args=default_args,
     tags=["ssis", "skeleton", "hub_label_2", "RecordSource_InterBranchNZ", "Incremental"],
     params={
         "DisableFinal": 0,

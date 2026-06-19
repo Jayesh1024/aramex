@@ -25,11 +25,19 @@ SP_DATASET_ID = Variable.get("SP_DATASET_ID")
 TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
+
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': True,
+    'retries': 0,
+}
+
 with DAG(
     dag_id="ssis_skeleton_hub_customer",
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
+    default_args=default_args,
     tags=["ssis", "skeleton", "hub_customer", "RecordSource_FMS_Customer", "RecordSource_tblCustomer", "RecordSource_CustomerLinks", "Incremental"],
     params={
         "DisableFinal": 0,

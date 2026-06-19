@@ -37,11 +37,19 @@ TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 _TASK_ID_GET_PROCESS_ID = "tg_package_sequence_container.package_sequence_container_get_processid"
 _TASK_ID_GET_LASTDATE = "tg_package_load_la_ruraonforwards.package_load_la_ruraonforwards_get_lastdate_la_ruralonforwards"
 
+
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': True,
+    'retries': 0,
+}
+
 with DAG(
     dag_id="ssis_skeleton_lnk_ruralonfowards",
     start_date=pendulum.datetime(2026, 4, 1, tz="Pacific/Auckland"),
     schedule_interval="30 0 * * *",
     catchup=False,
+    default_args=default_args,
     tags=["ssis", "skeleton", "lnk_ruralonfowards", "RecordSource_LA_RuralOnforwards", "Incremental"],
     params={
         "EndDate": '1900-01-01',

@@ -2,11 +2,19 @@ from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 import pendulum
 
+
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': True,
+    'retries': 0,
+}
+
 with DAG(
     dag_id="load_cf_productivity_nz",
     start_date=pendulum.datetime(2026, 4, 1, tz="Pacific/Auckland"),
     schedule_interval="30 6 * * *",
     catchup=False,
+    default_args=default_args,
     tags=["load", "cf", "productivity", "nz", "ssis", "Incremental"],
 ) as dag:
 

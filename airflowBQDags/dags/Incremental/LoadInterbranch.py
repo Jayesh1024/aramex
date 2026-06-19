@@ -7,11 +7,19 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobO
 from airflow.utils.task_group import TaskGroup
 import pendulum
 
+
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': True,
+    'retries': 0,
+}
+
 with DAG(
     dag_id="load_interbranch",
     start_date=pendulum.datetime(2026, 4, 1, tz="Pacific/Auckland"),
     schedule_interval="0 12 1 * *",
     catchup=False,
+    default_args=default_args,
     tags=["load", "interbranch", "ssis", "RecordSource_InterBranchNZ", "RecordSource_InterBranchAU", "Incremental"],
 ) as dag:
     

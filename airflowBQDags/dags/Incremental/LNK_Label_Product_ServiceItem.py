@@ -26,11 +26,19 @@ TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
 # --- Project Configuration ---
+
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': True,
+    'retries': 0,
+}
+
 with DAG(
     dag_id="ssis_skeleton_lnk_label_product_serviceitem",
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
+    default_args=default_args,
     tags=["ssis", "skeleton", "lnk_label_product_serviceitem", "RecordSource_MyFastway", "Incremental"],
     params={
         "DisableFinal": 0,

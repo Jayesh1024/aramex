@@ -51,11 +51,19 @@ _COUNTRY_BRANCHES: tuple[dict[str, Any], ...] = (
 _COPY_COUNTRY_TO_SHARED_SP = "Staging_Copy_PickupRequest_Country_To_Stg"
 
 
+
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': True,
+    'retries': 0,
+}
+
 with DAG(
     dag_id="ssis_skeleton_loadpickuprequests",
     start_date=datetime(2024, 1, 1),
-    schedule=None,
+    schedule="10 16 * * *",
     catchup=False,
+    default_args=default_args,
     tags=["ssis", "skeleton", "loadpickuprequests", "RecordSource_PickupRequests_AU", "RecordSource_PickupRequests_NZ", "RecordSource_PickupRequests_SA", "Incremental"],
 ) as dag:
 

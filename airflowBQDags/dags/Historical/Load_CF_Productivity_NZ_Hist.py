@@ -23,4 +23,4 @@ with DAG(
         job_id="bq_gold_transformation_oceania",
     )
     
-    op_1git 
+    op_1

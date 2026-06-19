@@ -28,11 +28,19 @@ SP_DATASET_ID = Variable.get("SP_DATASET_ID")
 TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 _TASK_ID_GET_LAST_ID = "tg_package_source2_dynamiclabel_dl.package_source2_dynamiclabel_dl_get_lastid_dynamiclabel"
 
+
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': True,
+    'retries': 0,
+}
+
 with DAG(
     dag_id="ssis_skeleton_dls_manual_pricing",
     start_date=pendulum.datetime(2026, 4, 1, tz="Pacific/Auckland"),
     schedule_interval="0 8 * * 0",
     catchup=False,
+    default_args=default_args,
     tags=["ssis", "skeleton", "dls_manual_pricing", "RecordSource_DynamicLabel", "Incremental"],
     params={
         "Disable_DynamicLabel": 0,

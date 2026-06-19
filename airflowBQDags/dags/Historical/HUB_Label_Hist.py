@@ -398,23 +398,6 @@ with DAG(
                 job_id="bq_gold_transformation_oceania",
             )
 
-            # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Load SAT_Label_Allocation_TMD
-            # SSIS: Exec [dv].[Load_SAT_Label_Allocation_TMD] ProcessID, 'Temando'
-            op_27 = BigQueryInsertJobOperator(
-                task_id="package_final_load_sat_label_allocation_group_3_load_sat_label_allocation_tmd",
-                gcp_conn_id="oceania_target_sa_connection",
-                location="europe-west2",
-                configuration={
-                    "query": {
-                        "query": (
-                            f"CALL `{SP_DATASET_ID}.dv_Load_SAT_Label_Allocation_TMD`"
-                            f"({{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource7 }}}}');"
-                        ),
-                        "useLegacySql": False,
-                    }
-                },
-                job_id="bq_gold_transformation_oceania",
-            )
 
             # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Set LastDate (FastLabel)
             op_28 = BigQueryInsertJobOperator(
@@ -450,22 +433,6 @@ with DAG(
                 job_id="bq_gold_transformation_oceania",
             )
 
-            # ref_id: Package\\Final (Load SAT_Label_Allocation_*)\\Group 3\\Set LastDate (Temando)
-            op_30 = BigQueryInsertJobOperator(
-                task_id="package_final_load_sat_label_allocation_group_3_set_lastdate_temando",
-                gcp_conn_id="oceania_target_sa_connection",
-                location="europe-west2",
-                configuration={
-                    "query": {
-                        "query": (
-                            f"CALL `{SP_DATASET_ID}.Staging_Set_LastValue`("
-                            f"'{{{{ params.RecordSource7 }}}}', CAST(NULL AS STRING), CAST(NULL AS STRING), FALSE);"
-                        ),
-                        "useLegacySql": False,
-                    }
-                },
-                job_id="bq_gold_transformation_oceania",
-            )
 
     # ref_id: Package\\HUB_Address — SSIS Microsoft.ExecutePackageTask (HUB_Address.dtsx)
     op_31 = TriggerDagRunOperator(
@@ -475,6 +442,18 @@ with DAG(
         poke_interval=30,
         reset_dag_run=True,
         conf={"process_id": "{{ dag_run.conf.get('process_id', params.process_id) }}"},
+    )
+
+    truncate_pickuprequest_stg = BigQueryInsertJobOperator(
+        task_id="truncate_pickuprequest_stg",
+        gcp_conn_id="oceania_target_sa_connection",
+        location="europe-west2",
+        configuration={
+            "query": {
+                "query": f"TRUNCATE TABLE `{TARGET_DATASET_ID}.Staging_PickupRequest_Stg`",
+            }
+        },
+        job_id="bq_gold_transformation_oceania"
     )
 
     # ref_id: Package\\LNK_Label_Product_ServiceItem — SSIS Microsoft.ExecutePackageTask (LNK_Label_Product_ServiceItem.dtsx)
@@ -501,7 +480,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_LabelMaster_Stg_Hist` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_LabelMaster_Stg_Hist`() "
                         ),
                         "useLegacySql": False,
                     }
@@ -533,7 +512,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_Ebay_Labels_Stg_Hist` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_Ebay_Labels_Stg_Hist`() "
                         ),
                         "useLegacySql": False,
                     }
@@ -601,7 +580,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_API_RF_AdHocLabel_AllocationHistory_Stg_Hist` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_API_RF_AdHocLabel_AllocationHistory_Stg_Hist`() "
                         ),
                         "useLegacySql": False,
                     }
@@ -633,7 +612,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_tblFastLabel_Consignment_Stg_Hist` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_tblFastLabel_Consignment_Stg_Hist`() "
                         ),
                         "useLegacySql": False,
                     }
@@ -699,7 +678,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_HDManifests_Stg_Hist` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_HDManifests_Stg_Hist`() "
                         ),
                         "useLegacySql": False,
                     }
@@ -732,7 +711,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_ConsignmentItem_Stg_Hist` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_ConsignmentItem_Stg_Hist`() "
                         ),
                         "useLegacySql": False,
                     }
@@ -766,7 +745,7 @@ with DAG(
                 configuration={
                     "query": {
                         "query": (
-                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_tblOnlineEnquiry_RP_Stg_Hist` "
+                            f"CALL `{SP_DATASET_ID}.sp_load_Staging_tblOnlineEnquiry_RP_Stg_Hist`() "
                         ),
                         "useLegacySql": False,
                     }
@@ -808,6 +787,7 @@ with DAG(
     op_33 >> op_2
     op_33 >> op_6
     op_33 >> op_31
+    op_31 >> truncate_pickuprequest_stg
     op_33 >> op_32
 
     op_5 >> op_4
@@ -824,7 +804,6 @@ with DAG(
     op_19 >> op_23
     op_25 >> op_28
     op_26 >> op_29
-    op_27 >> op_30
 
     # TaskGroup-level precedence (was routed through removed `op_11` / `op_18`
     # STOCK:SEQUENCE gates). Chaining the three Allocation subgroups preserves
@@ -834,8 +813,7 @@ with DAG(
     op_38 >> op_36
     op_43 >> op_41
     op_48 >> op_46
-    op_58 >> op_55
-    op_55 >> op_56
+    op_58 >> op_56
     op_63 >> op_61
     op_68 >> op_66
     op_73 >> op_71

@@ -33,11 +33,19 @@ _TASK_ID_GET_PROCESS_ID = "tg_package_staging.package_staging_get_processid"
 _TASK_ID_GET_LAST_RUN = "tg_package_staging.package_staging_get_last_run_date_zenlog"
 
 
+
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': True,
+    'retries': 0,
+}
+
 with DAG(
     dag_id="ssis_skeleton_hub_zentickets",
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
+    default_args=default_args,
     tags=["ssis", "skeleton", "hub_zentickets", "RecordSource_ZenLog", "Incremental", "Deprecated"],
     params={
         "DisableFinal": 0,

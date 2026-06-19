@@ -21,11 +21,19 @@ TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 
 # --- Project Configuration ---
+
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': True,
+    'retries': 0,
+}
+
 with DAG(
     dag_id="ssis_skeleton_fact_delivery_performance",
     start_date=pendulum.datetime(2026, 4, 1, tz="Pacific/Auckland"),
     schedule_interval="10 0 * * *",
     catchup=False,
+    default_args=default_args,
     tags=["ssis", "skeleton", "fact_delivery_performance", "Incremental"],
     params={
         "process_id": 0,
