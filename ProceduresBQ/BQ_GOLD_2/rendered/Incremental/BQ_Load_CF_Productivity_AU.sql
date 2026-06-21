@@ -9,8 +9,7 @@ CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedu
   IN p_ProcessId INT64
 )
 BEGIN
-
-  DECLARE v_Component       STRING DEFAULT 'Staging_Load_CF_Productivity_AU';
+DECLARE v_Component       STRING DEFAULT 'Staging_Load_CF_Productivity_AU';
   DECLARE v_Started         DATETIME DEFAULT CURRENT_DATETIME();
   DECLARE v_Ended           DATETIME;
   DECLARE v_Result          STRING;
@@ -44,7 +43,7 @@ BEGIN
   SET v_StartDate = (
     SELECT CAST(LastValue AS DATETIME)
     FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LoadControl`
-    WHERE RecordSource = 'CF_Productivity'
+    WHERE (RecordSource = 'CF_Productivity')
     LIMIT 1
   );
 
@@ -72,8 +71,8 @@ BEGIN
       LabelNo, ScanDate, CAST(ScanDate AS DATE), ScanType, ScanStatus,
       FranchiseeCode, CourierNumber, CountryName, Latitude, Longitude
     FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LNK_Scan`
-    WHERE ScanDate >= v_StartDate
-      AND ScanDate <  v_EndDate;
+    WHERE (ScanDate >= v_StartDate)
+      AND (ScanDate <  v_EndDate);
 
     -- -----------------------------------------------------------------------
     -- Iterate over each date in the window
@@ -103,7 +102,7 @@ BEGIN
       FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2` s
       LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIExcludedLabels` ex
         ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix AND ex.CountryName = s.CountryName
-      WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName AND s.ScanType = 'D' AND ex.LabelPrefix IS NULL
+      WHERE (s.ScanDate = day_rec.day_date) AND (s.CountryName = v_CountryName) AND (UPPER(s.ScanType) = 'D') AND (ex.LabelPrefix IS NULL)
       GROUP BY s.FranchiseeCode, s.CourierNumber;
 
       -- 2. First scan time
@@ -111,7 +110,7 @@ BEGIN
       (WorkDate, CountryCode, RF, CF, FirstScanTime)
       SELECT day_rec.day_date, v_CountryCode, s.FranchiseeCode, s.CourierNumber, MIN(s.ScanDateTime)
       FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2` s
-      WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName
+      WHERE (s.ScanDate = day_rec.day_date) AND (s.CountryName = v_CountryName)
       GROUP BY s.FranchiseeCode, s.CourierNumber;
 
       -- 3. In-depot scan start (CK1)
@@ -119,16 +118,16 @@ BEGIN
       (WorkDate, CountryCode, RF, CF, ArrivalTime_AM, ArrivalTime_PM, ArrivalTime_TW, InDepotScan_StartTime)
       SELECT
         day_rec.day_date, v_CountryCode, FranchiseeCode, CourierNumber,
-        IF(Cycle = 'AM', ScanDateTime, NULL), IF(Cycle = 'PM', ScanDateTime, NULL), IF(Cycle = 'TW', ScanDateTime, NULL),
-        IF(Cycle = 'PM', MAX(NextScanTime), NULL)
+        IF(UPPER(Cycle) = 'AM', ScanDateTime, NULL), IF(UPPER(Cycle) = 'PM', ScanDateTime, NULL), IF(UPPER(Cycle) = 'TW', ScanDateTime, NULL),
+        IF(UPPER(Cycle) = 'PM', MAX(NextScanTime), NULL)
       FROM (
         SELECT FranchiseeCode, CourierNumber, ScanStatus, ScanDateTime,
           CASE WHEN EXTRACT(HOUR FROM s.ScanDateTime) < 10 THEN 'AM' WHEN EXTRACT(HOUR FROM s.ScanDateTime) < 15 THEN 'PM' ELSE 'TW' END AS Cycle,
           LEAD(ScanDateTime) OVER (PARTITION BY s.FranchiseeCode, s.CourierNumber ORDER BY s.ScanDateTime) AS NextScanTime
         FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2` s
-        WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName
+        WHERE (s.ScanDate = day_rec.day_date) AND (s.CountryName = v_CountryName)
       ) s
-      WHERE ScanStatus = 'CK1'
+      WHERE UPPER(ScanStatus) = 'CK1'
       GROUP BY FranchiseeCode, CourierNumber, Cycle, ScanDateTime;
 
       -- 4. In-depot scan finish (CK2)
@@ -136,16 +135,16 @@ BEGIN
       (WorkDate, CountryCode, RF, CF, DepartureTime_AM, DepartureTime_PM, DepartureTime_TW, InDepotScan_FinishTime)
       SELECT
         day_rec.day_date, v_CountryCode, FranchiseeCode, CourierNumber,
-        IF(Cycle = 'AM', ScanDateTime, NULL), IF(Cycle = 'PM', ScanDateTime, NULL), IF(Cycle = 'TW', ScanDateTime, NULL),
-        IF(Cycle = 'PM', MAX(PreviousScanTime), NULL)
+        IF(UPPER(Cycle) = 'AM', ScanDateTime, NULL), IF(UPPER(Cycle) = 'PM', ScanDateTime, NULL), IF(UPPER(Cycle) = 'TW', ScanDateTime, NULL),
+        IF(UPPER(Cycle) = 'PM', MAX(PreviousScanTime), NULL)
       FROM (
         SELECT FranchiseeCode, CourierNumber, ScanStatus, ScanDateTime,
           CASE WHEN EXTRACT(HOUR FROM s.ScanDateTime) < 10 THEN 'AM' WHEN EXTRACT(HOUR FROM s.ScanDateTime) < 15 THEN 'PM' ELSE 'TW' END AS Cycle,
           LAG(ScanDateTime) OVER (PARTITION BY s.FranchiseeCode, s.CourierNumber ORDER BY s.ScanDateTime) AS PreviousScanTime
         FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2` s
-        WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName
+        WHERE (s.ScanDate = day_rec.day_date) AND (s.CountryName = v_CountryName)
       ) ss
-      WHERE ScanStatus = 'CK2'
+      WHERE UPPER(ScanStatus) = 'CK2'
       GROUP BY FranchiseeCode, CourierNumber, Cycle, ScanDateTime;
 
       -- 5. Average time between stops
@@ -158,21 +157,21 @@ BEGIN
         FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2` s
         LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIExcludedLabels` ex
           ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix AND ex.CountryName = s.CountryName
-        WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName AND s.ScanType IN ('P', 'D') AND ex.LabelPrefix IS NULL
+        WHERE (s.ScanDate = day_rec.day_date) AND (s.CountryName = v_CountryName) AND (UPPER(s.ScanType) IN ('P', 'D')) AND (ex.LabelPrefix IS NULL)
       ) s
-      WHERE DATETIME_DIFF(NextScanTime, ScanDateTime, MINUTE) > 0 AND DATETIME_DIFF(NextScanTime, ScanDateTime, MINUTE) < 30
+      WHERE (DATETIME_DIFF(NextScanTime, ScanDateTime, MINUTE) > 0) AND (DATETIME_DIFF(NextScanTime, ScanDateTime, MINUTE) < 30)
       GROUP BY FranchiseeCode, CourierNumber;
 
       -- 6. Break start/finish
       INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_CF_Productivity_Stg_AU`
       (WorkDate, CountryCode, RF, CF, BreakStartTime_AM, BreakStartTime_PM, BreakStartTime_TW)
       SELECT day_rec.day_date, v_CountryCode, FranchiseeCode, CourierNumber,
-        IF(Cycle = 'AM', ScanDateTime, NULL), IF(Cycle = 'PM', ScanDateTime, NULL), IF(Cycle = 'TW', ScanDateTime, NULL)
+        IF(UPPER(Cycle) = 'AM', ScanDateTime, NULL), IF(UPPER(Cycle) = 'PM', ScanDateTime, NULL), IF(UPPER(Cycle) = 'TW', ScanDateTime, NULL)
       FROM (
         SELECT FranchiseeCode, CourierNumber, ScanStatus, ScanDateTime,
           CASE WHEN EXTRACT(HOUR FROM s.ScanDateTime) < 10 THEN 'AM' WHEN EXTRACT(HOUR FROM s.ScanDateTime) < 15 THEN 'PM' ELSE 'TW' END AS Cycle
         FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2` s
-        WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName AND ScanStatus = 'BKS'
+        WHERE (s.ScanDate = day_rec.day_date) AND (s.CountryName = v_CountryName) AND (UPPER(ScanStatus) = 'BKS')
       ) s GROUP BY FranchiseeCode, CourierNumber, Cycle, ScanDateTime;
 
       -- 7. Pickups for Day
@@ -186,7 +185,7 @@ BEGIN
         ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix AND ex.CountryName = s.CountryName
       LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` l
         ON s.LabelNo = l.LabelNo AND s.CountryName = l.Country
-      WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName AND s.ScanType = 'P' AND ex.LabelPrefix IS NULL
+      WHERE (s.ScanDate = day_rec.day_date) AND (s.CountryName = v_CountryName) AND (UPPER(s.ScanType) = 'P') AND (ex.LabelPrefix IS NULL)
       GROUP BY s.FranchiseeCode, s.CourierNumber;
 
       -- Update global counter
@@ -243,4 +242,4 @@ BEGIN
   SET v_Ended = CURRENT_DATETIME();
   CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_SaveLog`(v_Component, p_ProcessId, v_Started, v_Ended, v_Result, v_ErrorMessage, v_TotalInserted, -1, -1);
 
-END;
+END

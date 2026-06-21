@@ -10,8 +10,7 @@ CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedu
   IN p_ProcessId INT64
 )
 BEGIN
-
-  DECLARE v_Component     STRING DEFAULT 'dbo_Load_Fact_KPI_Priority';
+DECLARE v_Component     STRING DEFAULT 'dbo_Load_Fact_KPI_Priority';
   DECLARE v_SubComponent  STRING;
   DECLARE v_Step          STRING;
   DECLARE v_Started       DATETIME;
@@ -105,7 +104,7 @@ BEGIN
       LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIExcludedDates` ex
         ON  dt.Calendar_Date = ex.Date
         AND ex.Comment       IS NULL
-      WHERE dt.week_day_flag = 'Y'
+      WHERE (UPPER(dt.week_day_flag) = 'Y')
       GROUP BY ex.Franchise
     ),
     Base AS (
@@ -171,14 +170,12 @@ BEGIN
         CAST(COALESCE(K.KPILEA, 0) + COALESCE(K.KPIDelivery, 0) AS INT64) AS lea_del_offset,
         CAST(K.ActualDepartureDate AS DATE)                                AS dep_date,
         CAST(K.ActualArrivalDate AS DATE)                                  AS arr_date
-
       FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Daily` K
       LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` MF
-
         ON  MF.LabelNo     = K.LabelNo
         AND MF.IsCurrent   = 1
         AND MF.CountryCode = K.CountryCode
-      WHERE K.ServiceType = 'P'
+      WHERE (UPPER(K.ServiceType) = 'P')
     )
     SELECT
       B.LabelNo,
@@ -294,4 +291,4 @@ BEGIN
     -1
   );
 
-END;
+END

@@ -21,8 +21,7 @@ CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedu
   IN p_EndDate    STRING     -- e.g. '2025-05-01'
 )
 BEGIN
-
-  -- -----------------------------------------------------------------------
+-- -----------------------------------------------------------------------
   -- Step 1: Attempted delivery scans
   -- Replaces SELECT INTO working.temp_AttemptedDeliveryScans
   -- CREATE OR REPLACE makes this idempotent — no OBJECT_ID check needed
@@ -46,9 +45,9 @@ BEGIN
   LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIScanGroups` G
     ON G.ScanStatus = S.ScanStatus
    AND G.KPIGroup   IN ('Attempted')
-  WHERE S.LabelNo              IS NOT NULL
-    AND G.ScanStatus           IS NOT NULL
-    AND D.ActualAttemptedDate  IS NULL;
+  WHERE (S.LabelNo              IS NOT NULL)
+    AND (G.ScanStatus           IS NOT NULL)
+    AND (D.ActualAttemptedDate  IS NULL);
 
   -- -----------------------------------------------------------------------
   -- Step 2: Truncate Staging target before loading
@@ -131,9 +130,9 @@ BEGIN
   LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIScanGroups` G
     ON G.ScanStatus = S.ScanStatus
    AND G.KPIGroup   IN ('Delivery')
-  WHERE S.LabelNo                IS NOT NULL
-    AND G.ScanStatus             IS NOT NULL
-    AND D.ActualDeliveryScanDate IS NULL;
+  WHERE (S.LabelNo                IS NOT NULL)
+    AND (G.ScanStatus             IS NOT NULL)
+    AND (D.ActualDeliveryScanDate IS NULL);
 
   -- -----------------------------------------------------------------------
   -- Step 5: Insert actual delivery scans joined to SAT_Label_Allocation_MF
@@ -193,4 +192,4 @@ BEGIN
   -- -----------------------------------------------------------------------
   CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.Staging_Load_Fact_KPI_Daily_Stg`(p_ProcessId);
 
-END;
+END
