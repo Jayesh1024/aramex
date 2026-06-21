@@ -3,7 +3,7 @@ CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedu
   InvoiceFromDate DATE
 )
 BEGIN
--- CALL example:
+  -- CALL example:
   -- CALL `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.sp_GetParcelMovementDetails`(1, DATE '2022-01-01');
 
   DECLARE p_CountryCode INT64;
@@ -153,8 +153,8 @@ BEGIN
   LEFT JOIN `bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` AS m
     ON l.LabelNo = m.LabelNo
     AND m.IsCurrent = 1
-  WHERE (l.CountryCode = p_CountryCode)
-    AND (l.IsCurrent = 1)
+  WHERE l.CountryCode = p_CountryCode
+    AND l.IsCurrent = 1
 
   UNION DISTINCT
 
@@ -169,7 +169,7 @@ BEGIN
     b.InvoiceDate,
     i.BatchId,
     InvoiceNumber AS InvoiceNo,
-    (CASE WHEN LEFT(UPPER(i.LabelNo), 2) IN ('MP', 'MS', 'MX', 'FX') THEN 0 ELSE i.Price END) AS Price,
+    (CASE WHEN UPPER(LEFT(i.LabelNo, 2)) IN ('MP', 'MS', 'MX', 'FX') THEN 0 ELSE i.Price END) AS Price,
     'Legacy DLBS' AS `Type`,
     p.Description AS Product,
     0.05 AS WeightPerc,
@@ -185,19 +185,19 @@ BEGIN
   LEFT JOIN `bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` AS l
     ON i.LabelNo = l.LabelNo
     AND CAST(l.CountryCode AS STRING) = CAST(i.CountryCode AS STRING)
-  WHERE (i.LabelNo NOT IN (
+  WHERE i.LabelNo NOT IN (
       SELECT LabelNo
       FROM `bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF`
       WHERE CountryCode = p_CountryCode
         AND IsCurrent = 1
         AND (DLBSBatchId > 0 OR PLBSBatchId > 0)
-    ))
-    AND (i.LabelNo NOT IN (
+    )
+    AND i.LabelNo NOT IN (
       SELECT LabelNo
       FROM `bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_Label_Product_ServiceItem`
       WHERE CountryCode = p_CountryCode
         AND IsCurrent = 1
         AND (DLBSBatchId > 0 OR PLBSBatchId > 0)
-    ))
-    AND (i.ProductID NOT IN (523, 371, 598));
-END
+    )
+    AND i.ProductID NOT IN (523, 371, 598);
+END;

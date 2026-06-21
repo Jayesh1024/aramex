@@ -71,7 +71,7 @@ BEGIN
                 CROSS JOIN (SELECT DISTINCT ToRf AS Franchise, DATE(ActualDepartureDate) AS DepartureDateStart FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Stg`) e
                 LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIExcludedDates` ex ON t.Calendar_Date = ex.Date AND ex.Franchise = e.Franchise
                 WHERE t.Calendar_Date >= e.DepartureDateStart
-                  AND t.week_day_flag = 'Y' AND ex.Comment IS NULL
+                  AND UPPER(t.week_day_flag) = 'Y' AND ex.Comment IS NULL
             )
             SELECT 
                 Base.*,
@@ -143,7 +143,7 @@ BEGIN
                 SELECT ToRf AS Franchise, DATE(ActualArrivalDate) AS RefDate, 'DEL' AS RefType FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Stg`
             ) e
             LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIExcludedDates` ex ON t.Calendar_Date = ex.Date AND ex.Franchise = e.Franchise
-            WHERE t.Calendar_Date >= e.RefDate AND t.week_day_flag = 'Y' AND ex.Comment IS NULL
+            WHERE t.Calendar_Date >= e.RefDate AND UPPER(t.week_day_flag) = 'Y' AND ex.Comment IS NULL
         )
         SELECT
             Src.LabelNo, Src.CountryCode, Src.Category, Src.CreatedOn, Src.ServiceType, Src.RealisedDate,
