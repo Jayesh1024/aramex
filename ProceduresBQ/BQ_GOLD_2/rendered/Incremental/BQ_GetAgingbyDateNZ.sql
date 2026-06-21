@@ -18,7 +18,7 @@ BEGIN
             (CASE 
                 WHEN FastLabel_DestinationRF IS NOT NULL THEN FastLabel_DestinationRF 
                 WHEN DeedRF IS NOT NULL THEN DeedRF 
-                WHEN k.LastSortedScanStatus IS NOT NULL AND k.LastSortedScanStatus NOT IN ('UNW', 'MIX') THEN k.LastSortedScanStatus 
+                WHEN k.LastSortedScanStatus IS NOT NULL AND UPPER(k.LastSortedScanStatus) NOT IN ('UNW', 'MIX') THEN k.LastSortedScanStatus 
                 WHEN k.FirstOutRF IS NOT NULL THEN k.FirstOutRF 
                 ELSE '' 
              END) AS DestRF,
@@ -38,7 +38,7 @@ BEGIN
             AND (DATE(k.FirstStopDate) > DATE(p_ReportDate) OR k.FirstStopDate IS NULL) 
             AND (r.CountryCode = 6)              -- Filter for NZ
             AND (SUBSTR(k.LabelNo, 1, 1) <> '9') -- NZ specific Label prefix check
-            AND k.LastScanStatus NOT IN ('ONF', 'RTS', 'FUT', 'RUD', 'N/A', 'CCP', 'BDS', 'O07')
+            AND UPPER(k.LastScanStatus) NOT IN ('ONF', 'RTS', 'FUT', 'RUD', 'N/A', 'CCP', 'BDS', 'O07')
     ),
 
     -- CTE 2: Calculate the Target Offset based on the KPI Matrix
@@ -64,7 +64,7 @@ BEGIN
             ON dt.Calendar_Date = ex.Date 
             AND ex.Franchise = t.DestRF  -- NZ Specific logic: Filter by Destination Franchise
         WHERE dt.Calendar_Date >= t.PickupDate 
-          AND dt.week_day_flag = 'Y' 
+          AND UPPER(dt.week_day_flag) = 'Y' 
           AND ex.Comment IS NULL
     )
 

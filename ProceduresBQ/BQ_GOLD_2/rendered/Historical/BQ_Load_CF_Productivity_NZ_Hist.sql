@@ -48,7 +48,7 @@ BEGIN
       FranchiseeCode, CourierNumber,
       CountryName, Latitude, Longitude
     FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LNK_Scan`
-    WHERE CountryName = v_CountryName;
+    WHERE UPPER(CountryName) = UPPER(v_CountryName);
 
     -- -----------------------------------------------------------------------
     -- 1. Deliveries for Day (all work dates in one pass)
@@ -66,7 +66,7 @@ BEGIN
     FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2_NZ` s
     LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIExcludedLabels` ex
       ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix AND ex.CountryName = s.CountryName
-    WHERE s.CountryName = v_CountryName AND s.ScanType = 'D' AND ex.LabelPrefix IS NULL
+    WHERE UPPER(s.CountryName) = UPPER(v_CountryName) AND UPPER(s.ScanType) = 'D' AND ex.LabelPrefix IS NULL
     GROUP BY s.ScanDate, s.FranchiseeCode, s.CourierNumber;
 
     -- -----------------------------------------------------------------------
@@ -76,7 +76,7 @@ BEGIN
     (WorkDate, CountryCode, RF, CF, FirstScanTime)
     SELECT s.ScanDate, v_CountryCode, s.FranchiseeCode, s.CourierNumber, MIN(s.ScanDateTime)
     FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2_NZ` s
-    WHERE s.CountryName = v_CountryName
+    WHERE UPPER(s.CountryName) = UPPER(v_CountryName)
     GROUP BY s.ScanDate, s.FranchiseeCode, s.CourierNumber;
 
     -- -----------------------------------------------------------------------
@@ -86,10 +86,10 @@ BEGIN
     (WorkDate, CountryCode, RF, CF, ArrivalTime_AM, ArrivalTime_PM, ArrivalTime_TW, InDepotScan_StartTime)
     SELECT
       ScanDate, v_CountryCode, FranchiseeCode, CourierNumber,
-      MAX(IF(Cycle = 'AM', ScanDateTime, NULL)),
-      MAX(IF(Cycle = 'PM', ScanDateTime, NULL)),
-      MAX(IF(Cycle = 'TW', ScanDateTime, NULL)),
-      MAX(IF(Cycle = 'PM', NextScanTime, NULL))
+      MAX(IF(UPPER(Cycle) = 'AM', ScanDateTime, NULL)),
+      MAX(IF(UPPER(Cycle) = 'PM', ScanDateTime, NULL)),
+      MAX(IF(UPPER(Cycle) = 'TW', ScanDateTime, NULL)),
+      MAX(IF(UPPER(Cycle) = 'PM', NextScanTime, NULL))
     FROM (
       SELECT s.ScanDate, FranchiseeCode, CourierNumber, ScanStatus, ScanDateTime,
         CASE WHEN EXTRACT(HOUR FROM s.ScanDateTime) < 10 THEN 'AM' WHEN EXTRACT(HOUR FROM s.ScanDateTime) < 15 THEN 'PM' ELSE 'TW' END AS Cycle,
@@ -98,9 +98,9 @@ BEGIN
           ORDER BY s.ScanDateTime
         ) AS NextScanTime
       FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2_NZ` s
-      WHERE s.CountryName = v_CountryName
+      WHERE UPPER(s.CountryName) = UPPER(v_CountryName)
     ) s
-    WHERE ScanStatus = 'B87'
+    WHERE UPPER(ScanStatus) = 'B87'
     GROUP BY ScanDate, FranchiseeCode, CourierNumber;
 
     -- -----------------------------------------------------------------------
@@ -110,10 +110,10 @@ BEGIN
     (WorkDate, CountryCode, RF, CF, DepartureTime_AM, DepartureTime_PM, DepartureTime_TW, InDepotScan_FinishTime)
     SELECT
       ScanDate, v_CountryCode, FranchiseeCode, CourierNumber,
-      MAX(IF(Cycle = 'AM', ScanDateTime, NULL)),
-      MAX(IF(Cycle = 'PM', ScanDateTime, NULL)),
-      MAX(IF(Cycle = 'TW', ScanDateTime, NULL)),
-      MAX(IF(Cycle = 'PM', PreviousScanTime, NULL))
+      MAX(IF(UPPER(Cycle) = 'AM', ScanDateTime, NULL)),
+      MAX(IF(UPPER(Cycle) = 'PM', ScanDateTime, NULL)),
+      MAX(IF(UPPER(Cycle) = 'TW', ScanDateTime, NULL)),
+      MAX(IF(UPPER(Cycle) = 'PM', PreviousScanTime, NULL))
     FROM (
       SELECT s.ScanDate, FranchiseeCode, CourierNumber, ScanStatus, ScanDateTime,
         CASE WHEN EXTRACT(HOUR FROM s.ScanDateTime) < 10 THEN 'AM' WHEN EXTRACT(HOUR FROM s.ScanDateTime) < 15 THEN 'PM' ELSE 'TW' END AS Cycle,
@@ -122,9 +122,9 @@ BEGIN
           ORDER BY s.ScanDateTime
         ) AS PreviousScanTime
       FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2_NZ` s
-      WHERE s.CountryName = v_CountryName
+      WHERE UPPER(s.CountryName) = UPPER(v_CountryName)
     ) ss
-    WHERE ScanStatus = 'B88'
+    WHERE UPPER(ScanStatus) = 'B88'
     GROUP BY ScanDate, FranchiseeCode, CourierNumber;
 
     -- -----------------------------------------------------------------------
@@ -144,7 +144,7 @@ BEGIN
       FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2_NZ` s
       LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIExcludedLabels` ex
         ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix AND ex.CountryName = s.CountryName
-      WHERE s.CountryName = v_CountryName AND s.ScanType IN ('P', 'D') AND ex.LabelPrefix IS NULL
+      WHERE UPPER(s.CountryName) = UPPER(v_CountryName) AND UPPER(s.ScanType) IN ('P', 'D') AND ex.LabelPrefix IS NULL
     ) s
     WHERE DATETIME_DIFF(NextScanTime, ScanDateTime, MINUTE) BETWEEN 1 AND 29
     GROUP BY ScanDate, FranchiseeCode, CourierNumber;
@@ -164,7 +164,7 @@ BEGIN
       FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2_NZ` s
       LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIExcludedLabels` ex
         ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix AND ex.CountryName = s.CountryName
-      WHERE s.CountryName = v_CountryName AND s.ScanType IN ('P', 'D') AND ex.LabelPrefix IS NULL
+      WHERE UPPER(s.CountryName) = UPPER(v_CountryName) AND UPPER(s.ScanType) IN ('P', 'D') AND ex.LabelPrefix IS NULL
     ) AS A
     WHERE DATETIME_DIFF(NextScanTime, ScanDateTime, MINUTE) > 30
     GROUP BY ScanDate, FranchiseeCode, CourierNumber;
@@ -183,7 +183,7 @@ BEGIN
       ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix AND ex.CountryName = s.CountryName
     LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` l
       ON s.LabelNo = l.LabelNo AND s.CountryName = l.Country
-    WHERE s.CountryName = v_CountryName AND s.ScanType = 'P' AND ex.LabelPrefix IS NULL
+    WHERE UPPER(s.CountryName) = UPPER(v_CountryName) AND UPPER(s.ScanType) = 'P' AND ex.LabelPrefix IS NULL
     GROUP BY s.ScanDate, s.FranchiseeCode, s.CourierNumber;
 
     -- -----------------------------------------------------------------------
@@ -213,7 +213,7 @@ BEGIN
 
     UPDATE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LoadControl`
     SET LastValue = CAST(v_EndDate AS STRING)
-    WHERE RecordSource = 'CF_Productivity_NZ';
+    WHERE UPPER(RecordSource) = UPPER('CF_Productivity_NZ');
 
     SET v_Result = 'Success';
 

@@ -57,7 +57,7 @@ BEGIN
     LEFT JOIN `{{ project_id }}.{{ target_dataset_id }}.dbo_KPIExcludedDates` ex
       ON dt.Calendar_Date = ex.Date
      AND ex.Franchise     = fr.FranchiseCode
-    WHERE dt.week_day_flag = 'Y'
+    WHERE UPPER(dt.week_day_flag) = 'Y'
       AND ex.Comment IS NULL;
 
     -- -----------------------------------------------------------------------
@@ -118,7 +118,7 @@ BEGIN
     -- -----------------------------------------------------------------------
     -- Step 4: Simple INSERT for new records
     -- -----------------------------------------------------------------------
-    IF v_Result = 'Success' THEN
+    IF UPPER(v_Result) = UPPER('Success') THEN
         SET v_Step = 'Inserts';
         BEGIN
             INSERT INTO `{{ project_id }}.{{ target_dataset_id }}.dbo_Fact_KPI_Daily`
