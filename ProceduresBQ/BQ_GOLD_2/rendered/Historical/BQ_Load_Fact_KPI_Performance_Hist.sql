@@ -55,7 +55,7 @@ BEGIN
         INNER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` AS m ON f.LabelNo = m.LabelNo
         WHERE f.CountryCode = 1
           AND m.IsCurrent = 1
-          AND UPPER(f.Category) IN UPPER(('Interbranch', 'Local'))
+          AND UPPER(f.Category) IN (UPPER('Interbranch'), UPPER('Local'))
       ) k
       -- Join to the Time/Exclusion tables using the inequality
       INNER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Time` dt

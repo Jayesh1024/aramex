@@ -1,5 +1,5 @@
 python src/run_sql_bq.py \
-    ProceduresBQ/BQ_GOLD_2/rendered/Incremental \
+    sql/truncateQueriesGold/rendered \
     ~/.config/gcloud/application_default_credentials.json \
     --project prj-drgfly-prod-sp-01 \
     --location europe-west2 \

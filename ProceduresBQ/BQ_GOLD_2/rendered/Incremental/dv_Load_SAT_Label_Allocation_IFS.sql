@@ -1,19 +1,3 @@
--- ==========================================================================================
--- Routine:     dv_Load_SAT_Label_Allocation_IFS
--- Description: Loads attributes into SAT_Label_Allocation_IFS from `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_HDManifests_Stg`
---              BigQuery compatible version of Load_SAT_Label_Allocation_IFS
---              Note: MERGE with OUTPUT $action not supported in BQ.
---                    Replaced with:
---                      1. MERGE to expire changed current rows (IsCurrent=0, ValidTo=Loaded)
---                      2. INSERT new rows (IsCurrent=1)
---                    Audit table format preserved exactly.
---                    PIVOT replaced with conditional aggregation.
---                    dbo.GetHashKey replaced with TO_HEX(MD5(...)).
--- Example:     CALL dv.dv_Load_SAT_Label_Allocation_IFS(153, 'IFS')
--- History:
---  25/07/2019  P. Waldron      Routine Written
---  [BQ Port]   Converted from SQL Server to BigQuery
--- ==========================================================================================
 CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_SAT_Label_Allocation_IFS`(
     IN ProcessID    INT64,
     IN RecordSource STRING
@@ -40,7 +24,7 @@ BEGIN
         MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_IFS` AS Tgt
         USING (
             SELECT DISTINCT
-                MD5(Stg.LabelNo) AS LabelNo_HSK,
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(Stg.LabelNo,'^') AS LabelNo_HSK,
                 Stg.LabelNo,
                 Stg.CountryCode,
                 IFNULL(cty.CountryName, 'Unknown') AS Country,
@@ -124,7 +108,7 @@ BEGIN
             UniqueParcelIdentifier
         )
         SELECT DISTINCT
-            MD5(Stg.LabelNo) AS LabelNo_HSK,
+            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(Stg.LabelNo,'^') AS LabelNo_HSK,
             Stg.LabelNo,
             Stg.CountryCode,
             IFNULL(cty.CountryName, 'Unknown') AS Country,
@@ -156,7 +140,7 @@ BEGIN
         WHERE NOT EXISTS (
             SELECT 1
             FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_IFS` AS Tgt
-            WHERE Tgt.LabelNo_HSK = MD5(Stg.LabelNo)
+            WHERE Tgt.LabelNo_HSK = `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(Stg.LabelNo,'^')
               AND Tgt.IsCurrent   = 1
         );
 
