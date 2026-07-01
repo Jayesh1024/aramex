@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan_KPI`;
+
 CREATE OR REPLACE TABLE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan_KPI`
 (
   LabelNo STRING NOT NULL,
