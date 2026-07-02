@@ -33,7 +33,7 @@ BEGIN
   SET v_DateBOM = (
     SELECT CAST(LastValue AS DATE)
     FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LoadControl`
-    WHERE RecordSource = 'Fact_KPI_DPFM_Export'
+    WHERE UPPER(RecordSource) = 'FACT_KPI_DPFM_EXPORT'
     LIMIT 1
   );
 
@@ -92,7 +92,7 @@ BEGIN
         v_DateBOM                                                               AS DateBOM,
         CAST(ROUND(SUM(OnTimeDelivery) * 100.0 / SUM(NumofLabels), 0) AS INT64) AS PerformancePercentage
       FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Delivery_Performance`
-      WHERE Category    = 'Interbranch'
+      WHERE UPPER(Category)    = 'INTERBRANCH'
         AND DeliveryDate BETWEEN v_StartDate AND v_EndDate
       GROUP BY CountryCode, PickupRF, DeliveryRF, Category
     ) t
@@ -133,7 +133,7 @@ BEGIN
         v_DateBOM                                                               AS DateBOM,
         CAST(ROUND(SUM(OnTimeDelivery) * 100.0 / SUM(NumofLabels), 0) AS INT64) AS PerformancePercentage
       FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Delivery_Performance`
-      WHERE Category    = 'Interbranch'
+      WHERE UPPER(Category)    = 'INTERBRANCH'
         AND DeliveryDate BETWEEN v_StartDate AND v_EndDate
       GROUP BY CountryCode, DeliveryRF, Category
     ) t

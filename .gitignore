@@ -9,3 +9,4 @@ TODO.txt
 commitMssg.txt
 *.log
 temp.sql
+*.tsv

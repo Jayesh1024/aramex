@@ -132,14 +132,6 @@ with DAG(
         with TaskGroup(
             group_id="tg_package_load_hub_tables_full_reload"
         ) as tg_full_reload:
-            op_9 = TriggerDagRunOperator(
-                task_id="package_load_hub_tables_full_reload_hub_cf",
-                trigger_dag_id="ssis_skeleton_hub_cf",
-                wait_for_completion=True,
-                poke_interval=30,
-                reset_dag_run=True,
-                conf={"process_id": _GET_PROCESSID_XCOM},
-            )
 
             op_10 = TriggerDagRunOperator(
                 task_id="package_load_hub_tables_full_reload_hub_customer",

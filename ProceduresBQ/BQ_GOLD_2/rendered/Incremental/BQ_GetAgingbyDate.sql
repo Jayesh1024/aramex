@@ -12,7 +12,7 @@ BEGIN
             (CASE 
                 WHEN FastLabel_DestinationRF IS NOT NULL THEN FastLabel_DestinationRF 
                 WHEN DeedRF IS NOT NULL THEN DeedRF 
-                WHEN k.LastSortedScanStatus IS NOT NULL AND k.LastSortedScanStatus NOT IN ('UNW', 'MIX', 'STC') THEN k.LastSortedScanStatus 
+                WHEN k.LastSortedScanStatus IS NOT NULL AND UPPER(k.LastSortedScanStatus) NOT IN ('UNW', 'MIX', 'STC') THEN k.LastSortedScanStatus 
                 WHEN k.FirstOutRF IS NOT NULL THEN k.FirstOutRF 
                 ELSE '' 
              END) AS DestRF,
@@ -32,7 +32,7 @@ BEGIN
             AND (CASE 
                 WHEN FastLabel_DestinationRF IS NOT NULL THEN FastLabel_DestinationRF 
                 WHEN DeedRF IS NOT NULL THEN DeedRF 
-                WHEN k.LastSortedScanStatus IS NOT NULL AND k.LastSortedScanStatus NOT IN ('UNW', 'MIX', 'STC') THEN k.LastSortedScanStatus 
+                WHEN k.LastSortedScanStatus IS NOT NULL AND UPPER(k.LastSortedScanStatus) NOT IN ('UNW', 'MIX', 'STC') THEN k.LastSortedScanStatus 
                 WHEN k.FirstOutRF IS NOT NULL THEN k.FirstOutRF 
                 ELSE '' 
              END) = m.DeliveryFranchise
@@ -42,7 +42,7 @@ BEGIN
             AND (DATE(k.FirstStopDate) > DATE(p_ReportDate) OR k.FirstStopDate IS NULL) 
             AND (r.CountryCode = 1) 
             AND (SUBSTR(k.LabelNo, 1, 2) <> '5A') 
-            AND k.LastScanStatus NOT IN ('ONF', 'RTS', 'FUT', 'RUD', 'N/A', 'CCP', 'BDS', 'O07')
+            AND UPPER(k.LastScanStatus) NOT IN ('ONF', 'RTS', 'FUT', 'RUD', 'N/A', 'CCP', 'BDS', 'O07')
     ),
 
     -- CTE 2: Calculate the target "Nth" day offset
@@ -69,7 +69,7 @@ BEGIN
         LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIExcludedDates` ex 
             ON dt.Calendar_Date = ex.Date AND ex.Franchise = ''
         WHERE dt.Calendar_Date >= t.PickupDate 
-          AND dt.week_day_flag = 'Y' 
+          AND UPPER(dt.week_day_flag) = 'Y' 
           AND ex.Comment IS NULL
           -- Optimization: Only look forward 30 days for performance
           AND dt.Calendar_Date <= DATE_ADD(t.PickupDate, INTERVAL 30 DAY)
