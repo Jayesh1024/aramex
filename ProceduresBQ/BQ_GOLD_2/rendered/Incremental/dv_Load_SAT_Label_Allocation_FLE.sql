@@ -1,10 +1,3 @@
--- ==========================================================================================
--- Routine:     dv_Load_SAT_Label_Allocation_FLE
--- Description: Loads attributes into SAT_Label_Allocation_FLE from `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_ConsignmentItem_Stg`
--- Fixes:       1. Comparison logic uses CAST to STRING for IFNULL safety.
---              2. INSERT logic uses original types (INT64) to match table schema.
---              3. Joins and HSK use matching types (BYTES for MD5).
--- ==========================================================================================
 CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_SAT_Label_Allocation_FLE`(
     IN ProcessID    INT64,
     IN RecordSource STRING
@@ -30,7 +23,7 @@ BEGIN
         MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_FLE` AS Tgt
         USING (
             SELECT DISTINCT
-                MD5(CAST(Stg.LabelNumber AS STRING)) AS LabelNo_HSK,
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CAST(Stg.LabelNumber AS STRING),'^') AS LabelNo_HSK,
                 Stg.LabelNumber,
                 Stg.CountryId,
                 IFNULL(CAST(cty.CountryName AS STRING), 'Unknown') AS Country,
@@ -115,7 +108,7 @@ BEGIN
             RecordSource, RecordSourceId, ValidFrom, ValidTo, IsCurrent
         )
         SELECT DISTINCT
-            MD5(CAST(Stg.LabelNumber AS STRING)) AS LabelNo_HSK,
+            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CAST(Stg.LabelNumber AS STRING),'^') AS LabelNo_HSK,
             CAST(Stg.LabelNumber AS STRING)      AS LabelNo,
             Stg.CountryId, 
             IFNULL(CAST(cty.CountryName AS STRING), 'Unknown'),
@@ -157,7 +150,7 @@ BEGIN
         WHERE NOT EXISTS (
             SELECT 1
             FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_FLE` AS Tgt
-            WHERE Tgt.LabelNo_HSK = MD5(CAST(Stg.LabelNumber AS STRING))
+            WHERE Tgt.LabelNo_HSK = `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CAST(Stg.LabelNumber AS STRING),'^')
               AND Tgt.IsCurrent   = 1
         );
 

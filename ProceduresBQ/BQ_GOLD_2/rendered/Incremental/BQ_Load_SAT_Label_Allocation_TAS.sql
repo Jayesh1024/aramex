@@ -10,7 +10,7 @@ CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedu
   p_RecordSource STRING
 )
 BEGIN
-  DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
+DECLARE v_Started DATETIME DEFAULT CURRENT_DATETIME();
   DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
   DECLARE v_Status STRING DEFAULT 'Success';
   DECLARE v_Error_Msg STRING DEFAULT NULL;
@@ -23,7 +23,6 @@ BEGIN
 
   BEGIN
     BEGIN TRANSACTION;
-
       -- 1. Identify Changes (Delta Logic)
       CREATE TEMP TABLE temp_SAT_TAS_Toload AS
       WITH Stg AS (
@@ -46,7 +45,7 @@ BEGIN
         FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_tblTasman_Consignment_Stg` Stg 
         LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` cty
           ON cty.CountryCode = Stg.Origin_CountryCode 
-        WHERE stg.LabelNumber IS NOT NULL AND stg.LabelNumber <> ''
+        WHERE (stg.LabelNumber IS NOT NULL) AND (stg.LabelNumber <> '')
       ),
       Current_Sat AS (
         SELECT * FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_TAS` WHERE IsCurrent = 1
@@ -56,7 +55,7 @@ BEGIN
         CASE WHEN T.LabelNo_HSK IS NULL THEN 'I' ELSE 'U' END AS ActionType
       FROM Stg S
       LEFT JOIN Current_Sat T ON T.LabelNo_HSK = S.LabelNo_HSK
-      WHERE T.LabelNo_HSK IS NULL -- New Business Key
+      WHERE (T.LabelNo_HSK IS NULL) -- New Business Key
          OR (
            -- Change Detection Logic (Brackets Removed)
            S.Country != T.Country OR
@@ -77,9 +76,9 @@ BEGIN
       SET IsCurrent = 0,
           ValidTo = v_Loaded
       FROM temp_SAT_TAS_Toload Source
-      WHERE Target.LabelNo_HSK = Source.LabelNo_HSK
-        AND Target.IsCurrent = 1
-        AND Source.ActionType = 'U';
+      WHERE (Target.LabelNo_HSK = Source.LabelNo_HSK)
+        AND (Target.IsCurrent = 1)
+        AND (UPPER(Source.ActionType) = 'U');
 
       SET v_Updated_Count = @@row_count;
 
@@ -124,7 +123,7 @@ BEGIN
         p_ProcessID,
         p_RecordSource,
         TasmanID,
-        CASE WHEN ActionType = 'I' THEN v_DefaultValidFrom ELSE v_Loaded END,
+        CASE WHEN UPPER(ActionType) = 'I' THEN v_DefaultValidFrom ELSE v_Loaded END,
         v_DefaultValidTo,
         1
       FROM temp_SAT_TAS_Toload;
@@ -156,4 +155,4 @@ BEGIN
     RAISE USING MESSAGE = v_Error_Msg;
   END IF;
 
-END;
+END

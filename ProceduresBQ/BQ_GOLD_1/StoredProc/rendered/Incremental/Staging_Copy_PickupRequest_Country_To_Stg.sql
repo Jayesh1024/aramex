@@ -13,7 +13,7 @@ CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedu
   IN p_country_suffix STRING
 )
 BEGIN
-  IF p_country_suffix NOT IN ('AU', 'NZ', 'SA') THEN
+  IF UPPER(p_country_suffix) NOT IN ('AU', 'NZ', 'SA') THEN
     RAISE USING MESSAGE = CONCAT(
       'Invalid p_country_suffix: ',
       IFNULL(p_country_suffix, '<NULL>'),

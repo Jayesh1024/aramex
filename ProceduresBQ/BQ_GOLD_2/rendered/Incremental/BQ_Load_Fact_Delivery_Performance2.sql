@@ -42,7 +42,7 @@ BEGIN
 
     -- Remove the invalid labels
     DELETE FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Delivery_Performance` 
-    WHERE DeliveryDate >= v_MaxDate AND Category = 'Invalid';
+    WHERE DeliveryDate >= v_MaxDate AND UPPER(Category) = UPPER('Invalid');
 
     -- MERGE Rule: Single MERGE since SP contains both INSERT and UPDATE
     MERGE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Delivery_Performance` AS Tgt
@@ -66,7 +66,7 @@ BEGIN
           -- FLAG: CONVERT without style arg translated to standard ANSI CAST
           CAST(k.FirstStopDate AS DATE) AS DeliveryDate,
           CASE 
-            WHEN (k.FirstReceivedRF IS NULL OR k.FirstStopScanStatus = 'MAC') THEN 'Invalid' 
+            WHEN (k.FirstReceivedRF IS NULL OR UPPER(k.FirstStopScanStatus) = 'MAC') THEN 'Invalid' 
             WHEN c.OESCustomerID IS NOT NULL OR lc.FMSCustomerId IS NOT NULL THEN 'Bulk'
             WHEN k.FirstReceivedRF = k.FirstStopRF THEN 'Local' 
             ELSE 'Interbranch' 

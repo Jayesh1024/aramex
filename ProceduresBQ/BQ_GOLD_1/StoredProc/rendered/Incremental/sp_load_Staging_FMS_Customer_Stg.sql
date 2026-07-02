@@ -1,7 +1,7 @@
 CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.sp_load_Staging_FMS_Customer_Stg`(
 )
 BEGIN
-  INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_FMS_Customer_Stg`
+INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_FMS_Customer_Stg`
   SELECT RFId
         ,CourierNumber
         ,Concat(RFId, LPAD(CAST(CourierNumber AS STRING), 3, '0'), LPAD(CAST(CustomerNumber AS STRING), 4, '0')) AS CustomerKey
@@ -44,7 +44,7 @@ BEGIN
         ,CAST(xLabelAlcoholDeliveries AS INT64) AS xLabelAlcoholDeliveries
         ,CAST(NULL AS STRING) AS SalesForceId
     FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.Fastway_dbo_FMS_Customer` c
-  LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.Fastway_dbo_FMS_LookUpTableDetail` g on HeaderCode = 'IND' and c.IndustryClassification = g.ItemCode and g.NMid = c.NMId
+  LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.Fastway_dbo_FMS_LookUpTableDetail` g on UPPER(HeaderCode) = 'IND' and c.IndustryClassification = g.ItemCode and g.NMid = c.NMId
   ;
 
-END;
+END

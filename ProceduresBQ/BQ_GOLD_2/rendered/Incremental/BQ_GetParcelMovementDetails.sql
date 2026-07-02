@@ -62,7 +62,7 @@ BEGIN
     DLBSPrice AS Price,
     'MFW DLBS' AS `Type`,
     LEFT(LabelNo, 2) AS Product,
-    (CASE WHEN WeightPriced > 3 OR SatchelSize = 'A2' THEN 0.05 ELSE 0.025 END) AS WeightPerc,
+    (CASE WHEN WeightPriced > 3 OR UPPER(SatchelSize) = 'A2' THEN 0.05 ELSE 0.025 END) AS WeightPerc,
     l.CustomerId AS FMSCustomerID,
     CAST(NULL AS INT64) AS OESCustomerID
   FROM `bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` AS l
@@ -114,7 +114,7 @@ BEGIN
     l.DLBSPrice AS Price,
     'MFW DLBS' AS `Type`,
     LEFT(l.LabelNo, 2) AS Product,
-    (CASE WHEN m.WeightPriced > 3 OR m.SatchelSize = 'A2' THEN 0.05 ELSE 0.025 END) AS WeightPerc,
+    (CASE WHEN m.WeightPriced > 3 OR UPPER(m.SatchelSize) = 'A2' THEN 0.05 ELSE 0.025 END) AS WeightPerc,
     m.CustomerId AS FMSCustomerID,
     CAST(NULL AS INT64) AS OESCustomerID
   FROM `bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_Label_Product_ServiceItem` AS l
@@ -169,7 +169,7 @@ BEGIN
     b.InvoiceDate,
     i.BatchId,
     InvoiceNumber AS InvoiceNo,
-    (CASE WHEN LEFT(i.LabelNo, 2) IN ('MP', 'MS', 'MX', 'FX') THEN 0 ELSE i.Price END) AS Price,
+    (CASE WHEN UPPER(LEFT(i.LabelNo, 2)) IN ('MP', 'MS', 'MX', 'FX') THEN 0 ELSE i.Price END) AS Price,
     'Legacy DLBS' AS `Type`,
     p.Description AS Product,
     0.05 AS WeightPerc,

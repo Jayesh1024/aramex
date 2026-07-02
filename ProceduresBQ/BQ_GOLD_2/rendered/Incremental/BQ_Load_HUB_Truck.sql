@@ -5,12 +5,10 @@
 -- History:
 --	25/10/2018  P. Waldron		Routine Written
 -- ==========================================================================================
-
 CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_HUB_Truck`(
     IN p_ProcessID INT64,
     IN p_RecordSource STRING
 )
-OPTIONS(strict_mode=false)
 BEGIN
     -- Standard variables for load tracking and logging
     DECLARE v_Loaded DATETIME DEFAULT CURRENT_DATETIME();
@@ -28,7 +26,7 @@ BEGIN
         USING (
             SELECT DISTINCT Container AS TruckNum
             FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_BBA_ContainerMaster_Stg`
-            WHERE TruckOrContainer = 'T'
+            WHERE UPPER(TruckOrContainer) = 'T'
         ) AS Src
         ON Dest.TruckNum = Src.TruckNum
         WHEN NOT MATCHED THEN

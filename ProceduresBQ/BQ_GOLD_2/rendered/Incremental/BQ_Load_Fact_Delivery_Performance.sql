@@ -16,7 +16,7 @@
 -- ==========================================================================================
 CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_Load_Fact_Delivery_Performance`(IN p_ProcessID INT64, IN p_Force INT64)
 BEGIN
-  /*
+/*
   ** Routine: Load_Fact_Delivery_Performance
   ** Description: Refreshes Fact_Delivery_Performance from Fact_Scan_KPI
   */
@@ -58,8 +58,8 @@ BEGIN
           -- FLAG: CONVERT without a style argument is safely translated to a standard ANSI CAST.
           CAST(k.FirstStopDate AS DATE) AS DeliveryDate, 
           CASE 
-            WHEN (k.FirstReceivedRF IS NULL OR k.FirstStopScanStatus = 'MAC') THEN 'Invalid' 
-            WHEN c.OESCustomerID IS NOT NULL OR lc.FMSCustomerId IS NOT NULL THEN 'Bulk'
+            WHEN (k.FirstReceivedRF IS NULL OR UPPER(k.FirstStopScanStatus) = 'MAC') THEN 'Invalid' 
+            WHEN ((c.OESCustomerID IS NOT NULL) OR (lc.FMSCustomerId IS NOT NULL)) THEN 'Bulk'
             WHEN k.FirstReceivedRF = k.FirstStopRF THEN 'Local' 
             ELSE 'Interbranch' 
           END AS Category,
@@ -156,4 +156,4 @@ BEGIN
     -1
   );
 
-END;
+END

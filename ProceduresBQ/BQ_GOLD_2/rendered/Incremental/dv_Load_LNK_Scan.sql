@@ -1,19 +1,3 @@
--- ==========================================================================================
--- Routine:     dv_Load_LNK_Scan
--- Description: Loads relationships into LNK_Scan.
---              BigQuery compatible version of Load_LNK_Scan
---              Note: Batch WHILE loop removed - BigQuery handles large inserts natively.
---                    dbo.GetHashKey replaced with TO_HEX(MD5(...)).
---                    FORMAT() and RAISERROR removed (not supported in BQ).
--- Example:     CALL dv.dv_Load_LNK_Scan(590)
--- History:
---  20/11/2018  P. Waldron      Routine Written
---  20/12/2019  P. Waldron      Replace check of LNK_Scan_Err with check of LNK_Scan
---  [BQ Port]   Converted from SQL Server to BigQuery
---  [BQ Fix]    TO_HEX(MD5(...)) → MD5(...) in all COALESCE fallbacks
---              (HSK columns are BYTES; COALESCE cannot mix BYTES and STRING)
---  [BQ Fix]    SaveLog → Staging_SaveLog with additional -1, -1 arguments.
--- ==========================================================================================
 CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_LNK_Scan`(
     IN ProcessID INT64
 )
@@ -57,13 +41,11 @@ BEGIN
         )
         SELECT
             Scan_HSK,
-            -- MD5 returns BYTES to match target BYTES column type
-            -- COALESCE requires both args to be same type (BYTES); TO_HEX removed
-            COALESCE(FranchiseeCode_HSK, MD5(FranchiseeCode))                                          AS FranchiseeCode_HSK,
-            COALESCE(Courier_HSK,        MD5(FranchiseeCode || '^' || CourierNumber))                  AS Courier_HSK,
-            COALESCE(LabelNo_HSK,        MD5(LabelNo))                                                 AS LabelNo_HSK,
-            COALESCE(Location_HSK,       MD5(CAST(Latitude AS STRING) || '^' || CAST(Longitude AS STRING))) AS Location_HSK,
-            COALESCE(ScanStatus_HSK,     MD5(ScanStatus || '^' || CountryName))                        AS ScanStatus_HSK,
+            COALESCE(FranchiseeCode_HSK, `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(FranchiseeCode,'^'))                                          AS FranchiseeCode_HSK,
+            COALESCE(Courier_HSK,        `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(FranchiseeCode || '^' || CourierNumber,'^'))                  AS Courier_HSK,
+            COALESCE(LabelNo_HSK,        `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(LabelNo,'^'))                                                 AS LabelNo_HSK,
+            COALESCE(Location_HSK,       `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CAST(Latitude AS STRING) || '^' || CAST(Longitude AS STRING),'^')) AS Location_HSK,
+            COALESCE(ScanStatus_HSK,     `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(ScanStatus || '^' || CountryName,'^'))                        AS ScanStatus_HSK,
             FranchiseeCode,
             CourierNumber,
             LabelNo,

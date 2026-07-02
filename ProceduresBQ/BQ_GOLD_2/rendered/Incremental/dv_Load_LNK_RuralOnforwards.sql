@@ -1,16 +1,3 @@
--- ==========================================================================================
--- Routine:     dv_Load_LNK_RuralOnforwards
--- Description: Loads relationships into LNK_RuralOnforwards
---              BigQuery compatible version of Load_LNK_RuralOnforwards
--- Example:     CALL dv.dv_Load_LNK_RuralOnforwards(590)
--- History:
---  17/01/2024  B. Woods        Routine Written
---  [BQ Port]   Converted from SQL Server to BigQuery
---  [BQ Fix]    Dim_Country → fully qualified `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country`
---  [BQ Fix]    Src.Date + Src.Time → Src.Date only (Src.Time contains non-time values e.g. "Time_49")
---  [BQ Fix]    TO_HEX(MD5(...)) → MD5(...) for all HSK columns (target columns are BYTES not STRING)
---  [BQ Fix]    SaveLog → Staging_SaveLog with additional -1, -1 arguments.
--- ==========================================================================================
 CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_LNK_RuralOnforwards`(
     IN ProcessID INT64
 )
@@ -48,17 +35,11 @@ BEGIN
             RecordSource
         )
         SELECT
-            -- MD5 returns BYTES directly to match target BYTES column type
-            -- Src.Time dropped — contains non-time values (e.g. "Time_49"), Src.Date used directly
-            MD5(
-                Src.RF || '^'
-                || Src.CF || '^'
-                || Src.LabelNo || '^'
-                || FORMAT_DATETIME('%Y-%m-%dT%H:%M:%E3S', Src.Date)
-            )                                                            AS OnForwards_HSK,
-            MD5(Src.LabelNo)                                            AS LabelNo_HSK,
-            MD5(Src.RF)                                                  AS FranchiseeCode_HSK,
-            MD5(Src.RF || '^' || Src.CF)                                AS Courier_HSK,
+            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(
+                Src.RF || '^' || Src.CF || '^' || Src.LabelNo || '^' || FORMAT_DATETIME('%Y-%m-%dT%H:%M:%E3S', Src.Date),'^') AS OnForwards_HSK,
+            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(Src.LabelNo,'^') AS LabelNo_HSK,
+            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(Src.RF,'^') AS FranchiseeCode_HSK,
+            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(Src.RF || '^' || Src.CF,'^') AS Courier_HSK,
             Src.CountryCode,
             Src.RF,
             Src.CF,

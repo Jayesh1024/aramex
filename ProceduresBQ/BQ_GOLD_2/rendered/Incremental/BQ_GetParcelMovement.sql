@@ -1,15 +1,11 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.rpt_GetParcelMovement`(
-  IN p_CountryCode      INT64,
-  IN p_InvoiceFromDate  DATE,
-  IN p_InvoiceToDate    DATE
-)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.rpt_GetParcelMovement`(IN p_CountryCode INT64, IN p_InvoiceFromDate DATE, IN p_InvoiceToDate DATE)
 BEGIN
 
-  -- DECLARE p_CountryCode INT64 = 1;
-  -- DECLARE p_InvoiceFromDate DATE = '2022-01-01';
-  -- DECLARE p_InvoiceToDate   DATE = '2022-08-01';
-  -- DECLARE p_InvoiceFromRF STRING = 'SYD';
-  -- DECLARE p_InvoiceToRF   STRING = 'ADL';
+  -- DECLARE p_CountryCode INT64 DEFAULT 1;
+  -- DECLARE p_InvoiceFromDate DATE DEFAULT '2022-01-01';
+  -- DECLARE p_InvoiceToDate   DATE DEFAULT '2022-08-01';
+  -- DECLARE p_InvoiceFromRF STRING DEFAULT 'SYD';
+  -- DECLARE p_InvoiceToRF   STRING DEFAULT 'ADL';
 
   CREATE TEMP TABLE Results AS
 
@@ -36,7 +32,7 @@ BEGIN
       DeliveryRF          AS InvoiceToRF,
       PickupRFInvoiceDate AS InvoiceDate
     FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_PLBSInvoiceHeader`
-    WHERE CountryId    = p_CountryCode
+    WHERE CountryId    =  p_CountryCode
       AND PickupRFInvoiceDate BETWEEN p_InvoiceFromDate AND p_InvoiceToDate
     -- AND DeliveryRF = p_InvoiceToRF AND PickupRF = p_InvoiceFromRF
   ),
@@ -56,7 +52,7 @@ BEGIN
     -- Con Item DLBS
     SELECT
       l.LabelNo,
-      l.CountryCode,
+      CAST(l.CountryCode AS STRING) AS CountryCode,
       h.InvoiceFromRF,
       h.InvoiceToRF,
       h.InvoiceDate,
@@ -78,7 +74,7 @@ BEGIN
     -- Con Item PLBS
     SELECT
       l.LabelNo,
-      l.CountryCode,
+      CAST(l.CountryCode AS STRING) AS CountryCode,
       h.InvoiceFromRF,
       h.InvoiceToRF,
       h.InvoiceDate,
@@ -99,7 +95,7 @@ BEGIN
     -- Con Item Service DLBS
     SELECT
       l.LabelNo,
-      l.CountryCode,
+      CAST(l.CountryCode AS STRING) AS CountryCode,
       h.InvoiceFromRF,
       h.InvoiceToRF,
       h.InvoiceDate,
@@ -124,7 +120,7 @@ BEGIN
     -- Con Item Service PLBS
     SELECT
       l.LabelNo,
-      l.CountryCode,
+      CAST(l.CountryCode AS STRING) AS CountryCode,
       h.InvoiceFromRF,
       h.InvoiceToRF,
       h.InvoiceDate,
@@ -148,7 +144,7 @@ BEGIN
     -- Legacy DLBS excluding Excess and MFW
     SELECT
       i.LabelNo,
-      i.CountryCode,
+      CAST(i.CountryCode AS STRING) AS CountryCode,
       i.InvoiceFromRF,
       i.InvoiceToRF,
       b.InvoiceDate,
@@ -161,7 +157,7 @@ BEGIN
         ELSE i.Price
       END                                 AS Bonus,
       l.FMSCustomerID,
-      l.OESCustomerID,
+      CAST(l.OESCustomerID AS STRING) AS OESCustomerID,
       'Legacy DLBS'                       AS Type
     FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Interbranch` i
     INNER JOIN DLBSBatching b
@@ -169,7 +165,7 @@ BEGIN
       AND i.BatchId     = b.BatchId
     LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` l
       ON  i.LabelNo     = l.LabelNo
-      AND l.CountryCode = CAST(i.CountryCode AS INT64)
+      AND CAST(l.CountryCode AS STRING) = CAST(i.CountryCode AS STRING)
     WHERE i.LabelNo NOT IN (
       SELECT LabelNo
       FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF`

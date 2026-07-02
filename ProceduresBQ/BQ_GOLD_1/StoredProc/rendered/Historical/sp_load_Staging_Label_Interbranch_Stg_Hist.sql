@@ -5,10 +5,10 @@ BEGIN
   DECLARE v_CountryCode INT64;
   SET v_CountryCode = 0;
 
-  IF RecordSource = 'InterBranchAU' THEN
+  IF UPPER(RecordSource) = 'INTERBRANCHAU' THEN
     SET v_CountryCode = 1;
   END IF;
-  IF RecordSource = 'InterBranchNZ' THEN
+  IF UPPER(RecordSource) = 'INTERBRANCHNZ' THEN
     SET v_CountryCode = 6;
   END IF;
 
@@ -40,7 +40,7 @@ BEGIN
     d.ProductId,
     DATE(d.CourierDate) AS DeliveryDate,
     d.CourierTime AS DeliveryTime,
-    CAST(v.DeliveryCostPerProduct AS FLOAT64) AS Price
+    COALESCE(CAST(v.DeliveryCostPerProduct AS FLOAT64), 0) AS Price
   
   FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.Fastway_dbo_invbtch` b 
   
@@ -49,9 +49,8 @@ BEGIN
   LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.Fastway_dbo_prods` p  on d.ProductId = p.ProductId and d.CountryCode = p.CountryCode
   LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.Fastway_dbo_invdet` v  on d.InvoiceNumber = v.InvoiceNumber and i.DeliveryFranchisee = v.DeliveryFranchisee and i.Country = v.CountryCode and p.LabelPrefix = v.Prefix
   
-  WHERE b.CountryCode = v_CountryCode  and d.PickupDelivery = 'D'
+  WHERE b.CountryCode = v_CountryCode AND UPPER(d.PickupDelivery) = 'D'
   AND b.released = TRUE
   ;
 
 END;
-

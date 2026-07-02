@@ -29,7 +29,7 @@ BEGIN
         SET v_StartDate = (
             SELECT SAFE_CAST(LastValue AS DATETIME) 
             FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LoadControl` 
-            WHERE RecordSource = 'Fact_KPI_Scan' 
+            WHERE UPPER(RecordSource) = 'FACT_KPI_SCAN'  
             LIMIT 1
         );
 
@@ -81,7 +81,7 @@ BEGIN
             AND MF.RealisedDate IS NOT NULL
             AND MF.RealisedDate > v_RealisedDateCutOff
         WHERE R.ScanDateTime > v_StartDate 
-            AND R.CountryName = 'Australia'        
+            AND UPPER(R.CountryName) = 'AUSTRALIA'            
             AND R.ScanDateTime <= v_EndDate;
 
         SET v_Inserted = @@row_count;
@@ -148,7 +148,7 @@ BEGIN
             AND stg.ScanDateTime = R.ScanDate  
         WHERE stg.LabelNo IS NULL   -- not already in todays load
             AND R.Loaded > v_StartDate 
-            AND R.CountryName = 'Australia'        
+            AND UPPER(R.CountryName) = 'AUSTRALIA'        
             AND (
                 (CAST(R.ScanDate AS DATE) >= DATE('2024-02-15') AND DATE_DIFF(CAST(R.Loaded AS DATE), CAST(R.ScanDate AS DATE), DAY) > 0)
                 OR

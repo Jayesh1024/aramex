@@ -60,7 +60,7 @@ BEGIN
     FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2` s
     LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIExcludedLabels` ex
       ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix AND ex.CountryName = s.CountryName
-    WHERE s.CountryName = v_CountryName AND s.ScanType = 'D' AND ex.LabelPrefix IS NULL
+    WHERE s.CountryName = v_CountryName AND UPPER(s.ScanType) = 'D' AND ex.LabelPrefix IS NULL
     GROUP BY s.ScanDate, s.FranchiseeCode, s.CourierNumber;
 
     -- -----------------------------------------------------------------------
@@ -80,8 +80,8 @@ BEGIN
     (WorkDate, CountryCode, RF, CF, ArrivalTime_AM, ArrivalTime_PM, ArrivalTime_TW, InDepotScan_StartTime)
     SELECT
       ScanDate, v_CountryCode, FranchiseeCode, CourierNumber,
-      IF(Cycle = 'AM', ScanDateTime, NULL), IF(Cycle = 'PM', ScanDateTime, NULL), IF(Cycle = 'TW', ScanDateTime, NULL),
-      IF(Cycle = 'PM', MAX(NextScanTime), NULL)
+      IF(UPPER(Cycle) = 'AM', ScanDateTime, NULL), IF(UPPER(Cycle) = 'PM', ScanDateTime, NULL), IF(UPPER(Cycle) = 'TW', ScanDateTime, NULL),
+      IF(UPPER(Cycle) = 'PM', MAX(NextScanTime), NULL)
     FROM (
       SELECT s.ScanDate, FranchiseeCode, CourierNumber, ScanStatus, ScanDateTime,
         CASE WHEN EXTRACT(HOUR FROM s.ScanDateTime) < 10 THEN 'AM' WHEN EXTRACT(HOUR FROM s.ScanDateTime) < 15 THEN 'PM' ELSE 'TW' END AS Cycle,
@@ -92,7 +92,7 @@ BEGIN
       FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2` s
       WHERE s.CountryName = v_CountryName
     ) s
-    WHERE ScanStatus = 'CK1'
+    WHERE UPPER(ScanStatus) = 'CK1'
     GROUP BY ScanDate, FranchiseeCode, CourierNumber, Cycle, ScanDateTime;
 
     -- -----------------------------------------------------------------------
@@ -102,8 +102,8 @@ BEGIN
     (WorkDate, CountryCode, RF, CF, DepartureTime_AM, DepartureTime_PM, DepartureTime_TW, InDepotScan_FinishTime)
     SELECT
       ScanDate, v_CountryCode, FranchiseeCode, CourierNumber,
-      IF(Cycle = 'AM', ScanDateTime, NULL), IF(Cycle = 'PM', ScanDateTime, NULL), IF(Cycle = 'TW', ScanDateTime, NULL),
-      IF(Cycle = 'PM', MAX(PreviousScanTime), NULL)
+      IF(UPPER(Cycle) = 'AM', ScanDateTime, NULL), IF(UPPER(Cycle) = 'PM', ScanDateTime, NULL), IF(UPPER(Cycle) = 'TW', ScanDateTime, NULL),
+      IF(UPPER(Cycle) = 'PM', MAX(PreviousScanTime), NULL)
     FROM (
       SELECT s.ScanDate, FranchiseeCode, CourierNumber, ScanStatus, ScanDateTime,
         CASE WHEN EXTRACT(HOUR FROM s.ScanDateTime) < 10 THEN 'AM' WHEN EXTRACT(HOUR FROM s.ScanDateTime) < 15 THEN 'PM' ELSE 'TW' END AS Cycle,
@@ -114,7 +114,7 @@ BEGIN
       FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2` s
       WHERE s.CountryName = v_CountryName
     ) ss
-    WHERE ScanStatus = 'CK2'
+    WHERE UPPER(ScanStatus) = 'CK2'
     GROUP BY ScanDate, FranchiseeCode, CourierNumber, Cycle, ScanDateTime;
 
     -- -----------------------------------------------------------------------
@@ -132,7 +132,7 @@ BEGIN
       FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2` s
       LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIExcludedLabels` ex
         ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix AND ex.CountryName = s.CountryName
-      WHERE s.CountryName = v_CountryName AND s.ScanType IN ('P', 'D') AND ex.LabelPrefix IS NULL
+      WHERE s.CountryName = v_CountryName AND UPPER(s.ScanType) IN ('P', 'D') AND ex.LabelPrefix IS NULL
     ) s
     WHERE DATETIME_DIFF(NextScanTime, ScanDateTime, MINUTE) > 0 AND DATETIME_DIFF(NextScanTime, ScanDateTime, MINUTE) < 30
     GROUP BY ScanDate, FranchiseeCode, CourierNumber;
@@ -144,12 +144,12 @@ BEGIN
     (WorkDate, CountryCode, RF, CF, BreakStartTime_AM, BreakStartTime_PM, BreakStartTime_TW)
     SELECT
       ScanDate, v_CountryCode, FranchiseeCode, CourierNumber,
-      IF(Cycle = 'AM', ScanDateTime, NULL), IF(Cycle = 'PM', ScanDateTime, NULL), IF(Cycle = 'TW', ScanDateTime, NULL)
+      IF(UPPER(Cycle) = 'AM', ScanDateTime, NULL), IF(UPPER(Cycle) = 'PM', ScanDateTime, NULL), IF(UPPER(Cycle) = 'TW', ScanDateTime, NULL)
     FROM (
       SELECT s.ScanDate, FranchiseeCode, CourierNumber, ScanStatus, ScanDateTime,
         CASE WHEN EXTRACT(HOUR FROM s.ScanDateTime) < 10 THEN 'AM' WHEN EXTRACT(HOUR FROM s.ScanDateTime) < 15 THEN 'PM' ELSE 'TW' END AS Cycle
       FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2` s
-      WHERE s.CountryName = v_CountryName AND ScanStatus = 'BKS'
+      WHERE s.CountryName = v_CountryName AND UPPER(ScanStatus) = 'BKS'
     ) s
     GROUP BY ScanDate, FranchiseeCode, CourierNumber, Cycle, ScanDateTime;
 
@@ -167,7 +167,7 @@ BEGIN
       ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix AND ex.CountryName = s.CountryName
     LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` l
       ON s.LabelNo = l.LabelNo AND s.CountryName = l.Country
-    WHERE s.CountryName = v_CountryName AND s.ScanType = 'P' AND ex.LabelPrefix IS NULL
+    WHERE s.CountryName = v_CountryName AND UPPER(s.ScanType) = 'P' AND ex.LabelPrefix IS NULL
     GROUP BY s.ScanDate, s.FranchiseeCode, s.CourierNumber;
 
     -- -----------------------------------------------------------------------

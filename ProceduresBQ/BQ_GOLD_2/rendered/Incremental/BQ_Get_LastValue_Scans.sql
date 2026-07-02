@@ -11,7 +11,7 @@ BEGIN
     DECLARE v_Offset INT64;
 
     -- 1. Determine Start ID and Last Date based on Calculation Method
-    IF p_CalcMethod = 'ScanDate' THEN
+    IF UPPER(p_CalcMethod) = 'SCANDATE' THEN
         SET (v_LastId, v_LastDate) = (
             SELECT AS STRUCT 
                 -- Added COALESCE to handle empty tables gracefully
@@ -21,7 +21,7 @@ BEGIN
             WHERE RecordSource = p_RecordSource
         );
 
-    ELSEIF p_CalcMethod = 'UploadDate' THEN
+    ELSEIF UPPER(p_CalcMethod) = 'UPLOADDATE' THEN
         SET (v_LastId, v_LastDate) = (
             SELECT AS STRUCT 
                 0, 
@@ -30,7 +30,7 @@ BEGIN
             WHERE RecordSource = p_RecordSource
         );
 
-    ELSEIF p_CalcMethod = 'RecordId' THEN
+    ELSEIF UPPER(p_CalcMethod) = 'RECORDID' THEN
         SET (v_LastId, v_LastDate) = (
             SELECT AS STRUCT 
                 CAST(LastValue AS INT64),
@@ -49,7 +49,7 @@ BEGIN
     END IF;
 
     -- 3. Calculate End Date logic
-    SET v_Offset = IF(p_CalcMethod = 'UploadDate', -1, 0);
+    SET v_Offset = IF(UPPER(p_CalcMethod) = 'UPLOADDATE', -1, 0);
 
     IF p_MaxDays > -99 THEN
         -- OPTION 2: Using CURRENT_DATETIME() instead of CURRENT_TIMESTAMP()
@@ -62,7 +62,7 @@ BEGIN
     END IF;
 
     -- 4. Strip time if method is UploadDate
-    IF p_CalcMethod = 'UploadDate' THEN
+    IF UPPER(p_CalcMethod) = 'UPLOADDATE' THEN
         SET v_LastDate = DATETIME(DATE(v_LastDate));
         SET p_EndDate = DATETIME(DATE(p_EndDate));
     END IF;

@@ -10,8 +10,7 @@ CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedu
   IN p_ProcessId INT64
 )
 BEGIN
-
-  DECLARE v_Component     STRING DEFAULT 'dbo_Load_FMS_RFBatchingPerformanceBonus';
+DECLARE v_Component     STRING DEFAULT 'dbo_Load_FMS_RFBatchingPerformanceBonus';
   DECLARE v_Step          STRING;
   DECLARE v_Started       DATETIME;
   DECLARE v_Ended         DATETIME;
@@ -79,12 +78,12 @@ BEGIN
         v_DateBOM                                                         AS DateBOM,
         CAST(ROUND(SUM(OnTimeDelivery) * 100.0 / SUM(NumofLabels), 0) AS INT64) AS PerformancePercentage
       FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_KPI_Delivery_Performance`
-      WHERE Category    = 'Interbranch'
-        AND DeliveryDate BETWEEN v_StartDate AND v_EndDate
+      WHERE (UPPER(Category)    = 'INTERBRANCH')
+        AND (DeliveryDate BETWEEN v_StartDate AND v_EndDate)
       GROUP BY CountryCode, PickupRF, DeliveryRF, Category
     ) t
     LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIRate` r ON t.DateBOM = r.DateBOM
-    WHERE t.PerformancePercentage >= COALESCE(r.Rate, 95);
+    WHERE (t.PerformancePercentage >= COALESCE(r.Rate, 95));
 
     -- Capture the number of rows calculated
     SET v_Inserted = (SELECT COUNT(*) FROM Results);
@@ -96,7 +95,7 @@ BEGIN
     -- -----------------------------------------------------------------------
     UPDATE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LoadControl`
     SET LastValue = CAST(DATE_ADD(v_DateBOM, INTERVAL 1 MONTH) AS STRING)
-    WHERE RecordSource = 'Fact_KPI_DPFM_Export';
+    WHERE (RecordSource = 'Fact_KPI_DPFM_Export');
 
   EXCEPTION WHEN ERROR THEN
     SET v_Result       = CONCAT('Failed (', v_Step, ')');
@@ -120,4 +119,4 @@ BEGIN
     -1
   );
 
-END;
+END

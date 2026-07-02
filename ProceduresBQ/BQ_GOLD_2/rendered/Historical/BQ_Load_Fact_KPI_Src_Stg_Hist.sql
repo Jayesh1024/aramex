@@ -51,7 +51,7 @@ BEGIN
             AND MF.LabelNo = R.LabelNo 
             AND MF.IsCurrent = 1 
             AND MF.RealisedDate IS NOT NULL
-        WHERE R.CountryName = 'Australia';
+        WHERE UPPER(R.CountryName) = 'AUSTRALIA';
 
         SET v_Inserted = @@row_count;
 

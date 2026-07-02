@@ -47,7 +47,7 @@ BEGIN
   SET v_StartDate = (
     SELECT CAST(LastValue AS DATETIME)
     FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LoadControl`
-    WHERE RecordSource = 'CF_Productivity_NZ'
+    WHERE UPPER(RecordSource) = 'CF_PRODUCTIVITY_NZ'
     LIMIT 1
   );
   SET v_EndDate = DATETIME_ADD(v_StartDate, INTERVAL 1 DAY);
@@ -104,7 +104,7 @@ BEGIN
       FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2_NZ` s
       LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIExcludedLabels` ex
         ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix AND ex.CountryName = s.CountryName
-      WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName AND s.ScanType = 'D' AND ex.LabelPrefix IS NULL
+      WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName AND UPPER(s.ScanType) = 'D' AND ex.LabelPrefix IS NULL
       GROUP BY s.FranchiseeCode, s.CourierNumber;
       -- 2. First scan time
       INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_CF_Productivity_Stg_NZ`
@@ -130,7 +130,7 @@ BEGIN
         FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2_NZ` s
         WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName
       ) s
-      WHERE ScanStatus = 'B87'
+      WHERE UPPER(ScanStatus) = 'B87'
       GROUP BY FranchiseeCode, CourierNumber;
       -- 4. In-depot scan finish time (B88)
       INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_CF_Productivity_Stg_NZ`
@@ -148,7 +148,7 @@ BEGIN
         FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2_NZ` s
         WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName
       ) ss
-      WHERE ScanStatus = 'B88'
+      WHERE UPPER(ScanStatus) = 'B88'
       GROUP BY FranchiseeCode, CourierNumber;
       -- 5. Average time between stops (< 30 min)
       INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_CF_Productivity_Stg_NZ`
@@ -161,7 +161,7 @@ BEGIN
           LEAD(ScanDateTime) OVER (PARTITION BY s.FranchiseeCode, s.CourierNumber ORDER BY s.ScanDateTime) AS NextScanTime
         FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2_NZ` s
         LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIExcludedLabels` ex ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix AND ex.CountryName = s.CountryName
-        WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName AND s.ScanType IN ('P', 'D') AND ex.LabelPrefix IS NULL
+        WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName AND UPPER(s.ScanType) IN ('P', 'D') AND ex.LabelPrefix IS NULL
       ) s
       WHERE DATETIME_DIFF(NextScanTime, ScanDateTime, MINUTE) BETWEEN 1 AND 29
       GROUP BY FranchiseeCode, CourierNumber;
@@ -175,7 +175,7 @@ BEGIN
           LEAD(ScanDateTime) OVER (PARTITION BY s.FranchiseeCode, s.CourierNumber ORDER BY s.ScanDateTime) AS NextScanTime
         FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2_NZ` s
         LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIExcludedLabels` ex ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix AND ex.CountryName = s.CountryName
-        WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName AND s.ScanType IN ('P', 'D') AND ex.LabelPrefix IS NULL
+        WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName AND UPPER(s.ScanType) IN ('P', 'D') AND ex.LabelPrefix IS NULL
       ) AS A
       WHERE DATETIME_DIFF(NextScanTime, ScanDateTime, MINUTE) > 30
       GROUP BY FranchiseeCode, CourierNumber;
@@ -188,7 +188,7 @@ BEGIN
       FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_Scan_Stg2_NZ` s
       LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIExcludedLabels` ex ON SUBSTR(s.LabelNo, 1, 2) = ex.LabelPrefix AND ex.CountryName = s.CountryName
       LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` l ON s.LabelNo = l.LabelNo AND s.CountryName = l.Country
-      WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName AND s.ScanType = 'P' AND ex.LabelPrefix IS NULL
+      WHERE s.ScanDate = day_rec.day_date AND s.CountryName = v_CountryName AND UPPER(s.ScanType) = 'P' AND ex.LabelPrefix IS NULL
       GROUP BY s.FranchiseeCode, s.CourierNumber;
     END FOR;
     -- -----------------------------------------------------------------------
@@ -217,7 +217,7 @@ BEGIN
     -- Advance LoadControl
     UPDATE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_LoadControl`
     SET LastValue = CAST(v_EndDate AS STRING)
-    WHERE RecordSource = 'CF_Productivity_NZ';
+    WHERE UPPER(RecordSource) = 'CF_PRODUCTIVITY_NZ';
     SET v_Result = 'Success';
   EXCEPTION WHEN ERROR THEN
     SET v_Result       = 'Failed';

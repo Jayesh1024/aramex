@@ -42,7 +42,7 @@ BEGIN
   d.ProductId,
   DATE(d.CourierDate) AS DeliveryDate,
   d.CourierTime AS DeliveryTime,
-  CAST(v.DeliveryCostPerProduct AS NUMERIC) AS Price
+  COALESCE(CAST(v.DeliveryCostPerProduct AS NUMERIC), 0) AS Price
 
   FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_krillin_silver.Fastway_dbo_invbtch` b
 
