@@ -85,8 +85,8 @@ BEGIN
   DO
     -- Exit loop if current day/cycle combination is already valid
     IF NOT (
-      (v_ArrivalCycle = 'A' AND v_CurrentCycle = 'N') OR
-      (v_ArrivalCycle = 'P' AND v_CurrentCycle NOT IN ('P', 'B'))
+      (UPPER(v_ArrivalCycle) = 'A' AND UPPER(v_CurrentCycle) = 'N') OR
+      (UPPER(v_ArrivalCycle) = 'P' AND UPPER(v_CurrentCycle) NOT IN ('P', 'B'))
     ) THEN
       SET v_Found = TRUE;
       LEAVE;                      -- BQ LEAVE exits the FOR loop
@@ -126,7 +126,7 @@ BEGIN
   -- Final cycle adjustment:
   -- If we landed on an AM arrival with a PM-only cycle, promote to PM
   -- -----------------------------------------------------------------------
-  IF v_ArrivalCycle = 'A' AND v_CurrentCycle = 'P' THEN
+  IF UPPER(v_ArrivalCycle) = 'A' AND UPPER(v_CurrentCycle) = 'P' THEN
     SET v_ArrivalCycle = 'P';
   END IF;
 

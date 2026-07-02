@@ -60,7 +60,7 @@ BEGIN
       FROM temp_SAT_MF_Labels_Toload Source
       WHERE Target.LabelNo = Source.LabelNo 
         AND Target.CountryCode = Source.CountryCode
-        AND Source.RType = 'U'
+        AND UPPER(Source.RType) = 'U'
         AND Target.IsCurrent = 1;
 
       SET v_Updated_Count = @@row_count;
@@ -109,7 +109,7 @@ BEGIN
         Stg.BareProfileId, Stg.ConUpdatedOn, Stg.ConItemUpdatedOn, Stg.ItemSumPrice,
         Stg.ItemSumTax, Stg.ItemSumTotal, Stg.ItemSumPackageTypeId, Stg.LabelExternal,
         v_Loaded, p_ProcessID, p_RecordSource, Stg.ConItemId,
-        CASE WHEN T.RType = 'I' THEN v_DefaultValidFrom ELSE v_Loaded END,
+        CASE WHEN UPPER(T.RType) = 'I' THEN v_DefaultValidFrom ELSE v_Loaded END,
         v_DefaultValidTo, 1
       FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_fl_ConItem_Stg` AS Stg
       JOIN temp_SAT_MF_Labels_Toload T ON T.LabelNo = Stg.Label AND T.CountryCode = Stg.CountryId

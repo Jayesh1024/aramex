@@ -61,7 +61,7 @@ BEGIN
       h.InvoiceToRF,
       h.InvoiceDate,
       l.DLBSprice                                                               AS Price,
-      (CASE WHEN l.WeightPriced > 3 OR l.SatchelSize = 'A2' THEN 0.05 ELSE 0.025 END)
+      (CASE WHEN l.WeightPriced > 3 OR UPPER(l.SatchelSize) = 'A2' THEN 0.05 ELSE 0.025 END)
         * l.DLBSPrice                                                           AS Bonus,
       l.CustomerId                                                              AS FMSCustomerID,
       CAST(NULL AS STRING)                                                      AS OESCustomerID,
@@ -104,7 +104,7 @@ BEGIN
       h.InvoiceToRF,
       h.InvoiceDate,
       l.DLBSPrice                                                               AS Price,
-      (CASE WHEN m.WeightPriced > 3 OR m.SatchelSize = 'A2' THEN 0.05 ELSE 0.025 END)
+      (CASE WHEN m.WeightPriced > 3 OR UPPER(m.SatchelSize) = 'A2' THEN 0.05 ELSE 0.025 END)
         * l.DLBSPrice                                                           AS Bonus,
       m.CustomerId                                                              AS FMSCustomerID,
       CAST(NULL AS STRING)                                                      AS OESCustomerID,
@@ -153,11 +153,11 @@ BEGIN
       i.InvoiceToRF,
       b.InvoiceDate,
       CASE
-        WHEN SUBSTR(i.LabelNo, 1, 2) IN ('MP','MS','MX','FX') THEN 0
+        WHEN UPPER(SUBSTR(i.LabelNo, 1, 2)) IN ('MP','MS','MX','FX') THEN 0
         ELSE i.Price
       END                                 AS Price,
       0.05 * CASE
-        WHEN SUBSTR(i.LabelNo, 1, 2) IN ('MP','MS','MX','FX') THEN 0
+        WHEN UPPER(SUBSTR(i.LabelNo, 1, 2)) IN ('MP','MS','MX','FX') THEN 0
         ELSE i.Price
       END                                 AS Bonus,
       l.FMSCustomerID,
