@@ -172,15 +172,15 @@ BEGIN
             COALESCE(CAST(stg1.WeightDead AS NUMERIC), CAST(stg2.Weight AS NUMERIC), CAST(stg3.Weight AS NUMERIC), CAST(stg4.WeightDead AS NUMERIC), CAST(stg5.Weight AS NUMERIC), CAST(stg8.Weight AS NUMERIC), CAST(stg9.parcelWeight AS NUMERIC)) AS ParcelWeight,
             COALESCE(CAST(stg1.WeightCubic AS NUMERIC), CAST(stg2.CubicWeight AS NUMERIC), CAST(stg4.WeightCubic AS NUMERIC), CAST(stg8.WeightCubic AS NUMERIC)) AS ParcelCubicWeight
         FROM Stg_Label2 lbl
-        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_fl_ConItem_Stg` stg1                             ON stg1.Label        = lbl.LabelNo
-        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_API_RF_AdHocLabel_AllocationHistory_Stg` stg2    ON stg2.LabelNumber  = lbl.LabelNo
-        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_tblFastLabel_Consignment_Stg` stg3               ON stg3.LabelNumber  = lbl.LabelNo
-        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_ConsignmentItem_Stg` stg4                        ON stg4.LabelNumber  = lbl.LabelNo
-        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_HDManifests_Stg` stg5                            ON stg5.LabelNo      = lbl.LabelNo
-        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Ebay_Labels_Stg` stg6                            ON stg6.LabelNumber  = lbl.LabelNo
-        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_tblOnlineEnquiry_RP_Stg` stg7                    ON stg7.label_number = lbl.LabelNo
-        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_tblTasman_Consignment_Stg` stg8                  ON stg8.LabelNumber  = lbl.LabelNo
-        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_API_Temando_RequestLabel_Stg` stg9               ON stg9.result_LabelNumber = lbl.LabelNo
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_fl_ConItem_Stg` stg1                             ON stg1.Label        = lbl.LabelNo -- MyFastway
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_API_RF_AdHocLabel_AllocationHistory_Stg` stg2    ON stg2.LabelNumber  = lbl.LabelNo -- DynamicLabel
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_tblFastLabel_Consignment_Stg` stg3               ON stg3.LabelNumber  = lbl.LabelNo -- FastLabel
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_ConsignmentItem_Stg` stg4                        ON stg4.LabelNumber  = lbl.LabelNo -- FastLabelEnterprise
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_HDManifests_Stg` stg5                            ON stg5.LabelNo      = lbl.LabelNo -- HDManifests
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Ebay_Labels_Stg` stg6                            ON stg6.LabelNumber  = lbl.LabelNo -- EBAY
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_tblOnlineEnquiry_RP_Stg` stg7                    ON stg7.label_number = lbl.LabelNo -- ReceiverPays
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_tblTasman_Consignment_Stg` stg8                  ON stg8.LabelNumber  = lbl.LabelNo -- Tasman
+        LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_API_Temando_RequestLabel_Stg` stg9               ON stg9.result_LabelNumber = lbl.LabelNo -- Temando
     ) stg
     LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation` sat
         ON sat.LabelNo = stg.LabelNo AND sat.IsCurrent = 1

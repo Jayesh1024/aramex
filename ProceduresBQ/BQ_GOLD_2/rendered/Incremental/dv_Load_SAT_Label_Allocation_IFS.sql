@@ -108,7 +108,7 @@ BEGIN
             UniqueParcelIdentifier
         )
         SELECT DISTINCT
-            `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(Stg.LabelNo,'^') AS LabelNo_HSK,
+            Stg.LabelNo_HSK_Calculated AS LabelNo_HSK,
             Stg.LabelNo,
             Stg.CountryCode,
             IFNULL(cty.CountryName, 'Unknown') AS Country,
@@ -135,12 +135,17 @@ BEGIN
             DefaultValidTo,
             1,
             Stg.UniqueParcelIdentifier
-        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_HDManifests_Stg` Stg
+        FROM (
+            SELECT
+                *,
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(LabelNo, '^') AS LabelNo_HSK_Calculated
+            FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_HDManifests_Stg`
+        ) Stg
         LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` cty ON cty.CountryCode = Stg.CountryCode
         WHERE NOT EXISTS (
             SELECT 1
             FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_IFS` AS Tgt
-            WHERE Tgt.LabelNo_HSK = `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(Stg.LabelNo,'^')
+            WHERE Tgt.LabelNo_HSK = Stg.LabelNo_HSK_Calculated
               AND Tgt.IsCurrent   = 1
         );
 

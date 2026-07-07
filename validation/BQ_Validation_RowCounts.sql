@@ -254,5 +254,5 @@ END WHILE;
 
 SELECT SchemaName AS `Schema`, TableName AS `Table`, FilterColumn AS `Filter_Column`,
        FilterApplied AS `Filter_Applied`, IFNULL(RowCount, 0) AS `Row_Count`,
-       IFNULL(ErrorMessage, '') AS `Error`
+       IFNULL(ErrorMessage, '') AS `Error`, dyn_sql AS `query_used`
 FROM _Results ORDER BY SchemaName, TableName;
