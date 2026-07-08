@@ -112,8 +112,8 @@ BEGIN
         COALESCE(CAST(sat.DeliveryRF AS STRING),         CAST(stg.DeliveryRF AS STRING)),
         COALESCE(CAST(sat.DeliveryCF AS STRING),         CAST(stg.DeliveryCF AS STRING)),
         COALESCE(sat.LabelColour,                        stg.LabelColour),
-        COALESCE(stg.CreateDateUTC,                      sat.CreateDateUTC),
-        COALESCE(stg.CreateDateLocal,                    sat.CreateDateLocal),
+        COALESCE(sat.CreateDateUTC,                      stg.CreateDateUTC),
+        COALESCE(sat.CreateDateLocal,                    stg.CreateDateLocal),
         COALESCE(CAST(sat.OESCustomerID AS INT64),       CAST(stg.OESCustomerID AS INT64)),
         COALESCE(CAST(sat.FMSCustomerID AS INT64),       CAST(stg.FMSCustomerID AS INT64)),
         COALESCE(CAST(sat.IFSCustomerCode AS STRING),    CAST(stg.IFSCustomerCode AS STRING)),
@@ -139,7 +139,7 @@ BEGIN
             lbl.LabelNo,
             -- col = COALESCE(...) syntax → COALESCE(...) AS col
             COALESCE(CAST(stg1.CountryId AS INT64), CAST(stg2.CountryCode AS INT64), CAST(stg3.CountryCode AS INT64), CAST(stg4.CountryId AS INT64), CAST(stg5.CountryCode AS INT64), CAST(stg6.C_CountryCode AS INT64), CAST(stg7.CountryID AS INT64), SAFE_CAST(stg8.Receiver_CountryCode AS INT64), SAFE_CAST(stg9.originCountry AS INT64)) AS CountryCode,
-            COALESCE(CAST(stg1.FromRf AS STRING), CAST(stg2.Franchise AS STRING), CAST(stg5.CollectionRF AS STRING), CAST(stg6.C_RF AS STRING), CAST(stg7.Sender_LocalRF AS STRING), CAST(stg8.Origin_FranchiseeCode AS STRING), CAST(stg9.originRF AS STRING)) AS PickupRF,
+            COALESCE(CAST(stg1.FromRf AS STRING), CAST(stg2.Franchise AS STRING), CAST(stg5.CollectionRF AS STRING), CAST(stg6.C_RF AS STRING), CAST(stg7.Receiver_LocalRF AS STRING), CAST(stg8.Origin_FranchiseeCode AS STRING), CAST(stg9.originRF AS STRING)) AS PickupRF,
             COALESCE(CAST(stg1.FromCf AS STRING), CAST(stg7.PickupCourierNumber AS STRING)) AS PickupCF,
             COALESCE(CAST(stg1.ToRf AS STRING), CAST(stg3.destRF AS STRING), CAST(stg4.DestinationRF AS STRING), CAST(stg5.DeliveryRF AS STRING), CAST(stg6.DeliveryRF AS STRING), CAST(stg7.Receiver_LocalRF AS STRING), CAST(stg8.Receiver_FranchiseeCode AS STRING), CAST(stg9.destinationRF AS STRING)) AS DeliveryRF,
             CAST(stg1.ToCf AS STRING) AS DeliveryCF,
@@ -192,10 +192,24 @@ BEGIN
             -- EXCEPT change detection replaced with explicit IFNULL comparisons
             WHEN
                 IFNULL(CAST(stg.CountryCode AS STRING), '') <> IFNULL(CAST(sat.CountryCode AS STRING), '') OR
-                IFNULL(stg.PickupRF,    '') <> IFNULL(sat.PickupRF,    '') OR
-                IFNULL(stg.DeliveryRF,  '') <> IFNULL(sat.DeliveryRF,  '') OR
+                IFNULL(stg.PickupRF, '') <> IFNULL(sat.PickupRF, '') OR
+                IFNULL(stg.PickupCF, '') <> IFNULL(sat.PickupCF, '') OR
+                IFNULL(stg.DeliveryRF, '') <> IFNULL(sat.DeliveryRF, '') OR
+                IFNULL(stg.DeliveryCF, '') <> IFNULL(sat.DeliveryCF, '') OR
                 IFNULL(stg.LabelColour, '') <> IFNULL(sat.LabelColour, '') OR
+                IFNULL(CAST(stg.CreateDateUTC AS STRING), '') <> IFNULL(CAST(sat.CreateDateUTC AS STRING), '') OR
+                IFNULL(CAST(stg.CreateDateLocal AS STRING), '') <> IFNULL(CAST(sat.CreateDateLocal AS STRING), '') OR
+                IFNULL(CAST(stg.OESCustomerID AS STRING), '') <> IFNULL(CAST(sat.OESCustomerID AS STRING), '') OR
+                IFNULL(CAST(stg.FMSCustomerID AS STRING), '') <> IFNULL(CAST(sat.FMSCustomerID AS STRING), '') OR
+                IFNULL(stg.IFSCustomerCode, '') <> IFNULL(sat.IFSCustomerCode, '') OR
+                IFNULL(CAST(stg.FMSInvoiceID AS STRING), '') <> IFNULL(CAST(sat.FMSInvoiceID AS STRING), '') OR
+                IFNULL(CAST(stg.FMSProductID AS STRING), '') <> IFNULL(CAST(sat.FMSProductID AS STRING), '') OR
+                IFNULL(stg.FKSource, '') <> IFNULL(sat.FKSource, '') OR
+                IFNULL(CAST(stg.FKID AS STRING), '') <> IFNULL(CAST(sat.FKID AS STRING), '') OR
+                IFNULL(stg.Reference, '') <> IFNULL(sat.Reference, '') OR
+                IFNULL(CAST(stg.NumberOfParcels AS STRING), '') <> IFNULL(CAST(sat.NumberOfParcels AS STRING), '') OR
                 IFNULL(CAST(stg.Price AS NUMERIC), 0) <> IFNULL(CAST(sat.Price AS NUMERIC), 0)
+           
             THEN 1
             WHEN
                 LENGTH(IFNULL(CONCAT(CAST(stg.ParcelLength AS STRING), CAST(stg.ParcelWidth AS STRING), CAST(stg.ParcelHeight AS STRING), CAST(stg.ParcelWeight AS STRING), CAST(stg.ParcelCubicWeight AS STRING)), '')) >
