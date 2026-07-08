@@ -47,11 +47,11 @@ BEGIN
             MF.CustomerId
         FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LNK_Scan` R 
         JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` MF 
-            ON MF.CountryCode = 1 
+            ON (MF.CountryCode = 1 OR MF.CountryCode = 6)
             AND MF.LabelNo = R.LabelNo 
             AND MF.IsCurrent = 1 
             AND MF.RealisedDate IS NOT NULL
-        WHERE UPPER(R.CountryName) = 'AUSTRALIA';
+        WHERE (UPPER(R.CountryName) = 'AUSTRALIA' OR UPPER(R.CountryName) = 'NEW ZEALAND');
 
         SET v_Inserted = @@row_count;
 
