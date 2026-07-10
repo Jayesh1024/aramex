@@ -1,17 +1,3 @@
--- ==========================================================================================
--- Routine:		Load_SAT_Label_Allocation
--- Description: Loads attributes into SAT_Label from Staging_SAT_Label_Allocation_Stg
--- Example:		Exec [dv].[Load_SAT_Label_Allocation] 649
--- History:
---	20/11/2018  P. Waldron		Routine Written
---  27/06/2019  P. Waldron      Refactor to use SAT_Label_Allocation instead of SAT_Label
---  09/07/2019  P. Waldron      Add Pickup/Delivery postcode and suburb
---  29/07/2019  P. Waldron      Refactor to use SAT_Label_Allocation_Stg
---  07/08/2019  P. Waldron      DynamicLabel data trumps all other sources
---  05/11/2019  P. Waldron      Refactor table columns when adding RP,TAS,TMD,EBAY
---  17/08/2020  P. Waldron      Refactor MERGE to UPDATE then INSERT - to avoid CCI slowdown
---  10/09/2020  P. Waldron		Add PickupCF and DeliveryCF columns 
--- ==========================================================================================
 CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_SAT_Label_Allocation`(IN p_ProcessID INT64)
 BEGIN
   /*
@@ -71,7 +57,7 @@ BEGIN
           Stg.RecordSourceId,
           Stg.Action,
           `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CAST(Stg.LabelNo AS STRING), '^') AS LabelNo_HSK,
-          ROW_NUMBER() OVER (PARTITION BY Stg.LabelNo ORDER BY Stg.CountryCode) AS RowNum
+          ROW_NUMBER() OVER (PARTITION BY Stg.LabelNo ORDER BY Stg.CountryCode ASC NULLS FIRST) AS RowNum
         FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_SAT_Label_Allocation_Stg` AS Stg
         LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS cty ON cty.CountryCode = Stg.CountryCode
       )

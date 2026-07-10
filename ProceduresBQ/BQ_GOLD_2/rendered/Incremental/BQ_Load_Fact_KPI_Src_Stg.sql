@@ -75,13 +75,13 @@ BEGIN
             MF.CustomerId
         FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan_Recent` R 
         JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` MF 
-            ON MF.CountryCode = 1 
+            ON (MF.CountryCode = 1 OR MF.CountryCode = 6)
             AND MF.LabelNo = R.LabelNo 
             AND MF.IsCurrent = 1 
             AND MF.RealisedDate IS NOT NULL
             AND MF.RealisedDate > v_RealisedDateCutOff
         WHERE R.ScanDateTime > v_StartDate 
-            AND UPPER(R.CountryName) = 'AUSTRALIA'            
+            AND (UPPER(R.CountryName) = 'AUSTRALIA' OR UPPER(R.CountryName) = 'NEW ZEALAND')           
             AND R.ScanDateTime <= v_EndDate;
 
         SET v_Inserted = @@row_count;
@@ -138,7 +138,7 @@ BEGIN
             MF.CustomerId
         FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LNK_Scan` R 
         JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` MF 
-            ON MF.CountryCode = 1 
+            ON MF.Country = R.CountryName
             AND MF.LabelNo = R.LabelNo 
             AND MF.IsCurrent = 1 
             AND MF.RealisedDate IS NOT NULL
@@ -148,12 +148,8 @@ BEGIN
             AND stg.ScanDateTime = R.ScanDate  
         WHERE stg.LabelNo IS NULL   -- not already in todays load
             AND R.Loaded > v_StartDate 
-            AND UPPER(R.CountryName) = 'AUSTRALIA'        
-            AND (
-                (CAST(R.ScanDate AS DATE) >= DATE('2024-02-15') AND DATE_DIFF(CAST(R.Loaded AS DATE), CAST(R.ScanDate AS DATE), DAY) > 0)
-                OR
-                (CAST(R.ScanDate AS DATE) < DATE('2024-02-15') AND DATE_DIFF(CAST(R.Loaded AS DATE), CAST(R.ScanDate AS DATE), DAY) > 1)
-            );
+            AND (UPPER(R.CountryName) = 'AUSTRALIA' OR UPPER(R.CountryName) = 'NEW ZEALAND');
+       
 
         SET v_Inserted = @@row_count;
 
