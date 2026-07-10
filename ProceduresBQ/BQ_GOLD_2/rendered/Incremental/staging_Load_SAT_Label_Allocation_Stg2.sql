@@ -1,37 +1,3 @@
--- ==========================================================================================
--- Routine:     staging_Load_SAT_Label_Allocation_Stg2
--- Description: Loads attributes into SAT_Label_Allocation from 9x staging tables (variant 2)
---              BigQuery compatible version of Load_SAT_Label_Allocation_Stg2
---              Note: Same conversions as BQ_Load_SAT_Label_Allocation_Stg.
---                    Key differences from Stg version preserved:
---                      - COALESCE order is reversed (SAT values take priority over STG).
---                      - DLSInvoiceID column not present in this variant.
---                      - stg1null typo from original preserved as NULL (original bug preserved).
---                      - fl_ConItem_Stg (stg1) joined last in FROM clause (order preserved).
---                    #Stg_Label → BQ TEMP TABLE Stg_Label2 (different name to avoid collision).
---                    CREATE CLUSTERED INDEX removed.
---                    WITH (TABLOCK) removed.
---                    ISNULL → IFNULL. IIF → IF.
---                    CONVERT(datetime,...) → CAST(... AS DATETIME).
---                    ISNUMERIC(x)=1 → SAFE_CAST(x AS INT64) IS NOT NULL.
---                    Try_Convert(int,x) → SAFE_CAST(x AS INT64).
---                    SET NOCOUNT ON / SET ANSI_WARNINGS OFF removed.
---                    SYSDATETIME() → CURRENT_DATETIME().
---                    FULL JOIN → LEFT JOIN (BQ FULL JOIN on temp tables not supported here).
---                    UNION → UNION DISTINCT.
---                    EXCEPT change detection → explicit IFNULL column comparisons.
---                    col = COALESCE(...) alias syntax → COALESCE(...) AS col.
---                    Audit table format preserved exactly.
--- Example:     CALL Staging.staging_Load_SAT_Label_Allocation_Stg2(619)
--- History:
---  29/07/2019  P. Waldron      Routine Written
---  01/11/2019  P. Waldron      Add data sources TMD, RP, TAS and EBAY
---  29/11/2019  P. Waldron      Refactor routine to use coalesce function
---  17/08/2020  P. Waldron      Add Except clause and Action column
---  10/09/2020  P. Waldron      Add PickupCF and DeliveryCF columns
---  05/05/2021  B. Woods        Changed stg1.BasePrice to BasePriceDiscounted + ExcessPriceDiscounted
---  [BQ Port]   Converted from SQL Server to BigQuery
--- ==========================================================================================
 CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.staging_Load_SAT_Label_Allocation_Stg2`(
     IN ProcessID INT64
 )
@@ -189,7 +155,7 @@ BEGIN
     AND (
         CASE
             WHEN sat.LabelNo IS NULL THEN 1
-            -- EXCEPT change detection replaced with explicit IFNULL comparisons
+            -- EXCEPT change detection replaced with explicit IFNULL comparisons (all 18 columns)
             WHEN
                 IFNULL(CAST(stg.CountryCode AS STRING), '') <> IFNULL(CAST(sat.CountryCode AS STRING), '') OR
                 IFNULL(stg.PickupRF, '') <> IFNULL(sat.PickupRF, '') OR
@@ -236,4 +202,4 @@ BEGIN
 
     DROP TABLE IF EXISTS Stg_Label2;
 
-END;
+END
