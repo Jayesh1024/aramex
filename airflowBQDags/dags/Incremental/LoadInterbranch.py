@@ -24,7 +24,7 @@ with DAG(
 ) as dag:
     
     op_1 = TriggerDagRunOperator(
-        task_id="trigger_load_interbranch_au",
+        task_id="trigger_load_interbranch_nz",
         trigger_dag_id="ssis_skeleton_hub_label_2",
         wait_for_completion=True,
         poke_interval=30,
@@ -35,7 +35,7 @@ with DAG(
     )
     
     op_2 = TriggerDagRunOperator(
-        task_id="trigger_load_interbranch_nz",
+        task_id="trigger_load_interbranch_au",
         trigger_dag_id="ssis_skeleton_hub_label_2",
         wait_for_completion=True,
         poke_interval=30,
