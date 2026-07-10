@@ -36,7 +36,7 @@ default_args = {
 with DAG(
     dag_id="ssis_skeleton_load_fwfastlabel_invoices",
     start_date=datetime(2024, 1, 1),
-    schedule="45 3 * * *",
+    schedule="45 15 * * *",
     catchup=False,
     default_args=default_args,
     tags=["ssis", "skeleton", "load fwfastlabel_invoices", "RecordSource_fl_InvoiceHeader", "RecordSource_fl_InvoicePayment", "Incremental"],
