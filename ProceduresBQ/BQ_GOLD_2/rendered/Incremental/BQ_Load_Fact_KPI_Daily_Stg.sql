@@ -54,7 +54,7 @@ BEGIN
             LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_TSS_PostCodeMaster` t 
                 ON L.ToLocality = t.Suburb AND L.ToPostalCode = CAST(t.Postcode AS STRING) AND t.CountryCode = 1
             LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_Label_Product_ServiceItem` s  
-                ON s.ProductCode = 'MYFPRI' AND s.Labelno = L.LabelNo 
+                ON s.ProductCode IN ('MYFPRI', 'MYFPRIORITY') AND s.Labelno = L.LabelNo 
         ),
 
         RankedScans AS (
