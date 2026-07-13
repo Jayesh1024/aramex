@@ -164,7 +164,7 @@ BEGIN
       LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Product_Stg` AS Prod
         ON Srv.CountryId     = Prod.CountryCode
        AND Srv.ProductId     = Prod.ProductId
-      INNER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_fl_ServiceItem_Stg` AS SI   -- INNER JOIN preserved from original
+      LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_fl_ServiceItem_Stg` AS SI   -- INNER JOIN preserved from original
         ON Srv.CountryId     = SI.CountryId
        AND Srv.ProductId     = SI.ProductId
        AND Srv.ServiceItemId = SI.ServiceItemId
