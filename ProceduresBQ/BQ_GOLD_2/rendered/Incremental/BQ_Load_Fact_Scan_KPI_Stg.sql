@@ -228,6 +228,7 @@ BEGIN
                     LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPICodes` AS k 
                         ON scan.ScanStatus = k.ScanStatus 
                     LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS dc 
+                        ON dc.CountryCode = k.CountryCode AND scan.CountryName = dc.CountryName
                     WHERE (scan.ScanDate >= v_MinScanDate)
                 ) sc
             ) grp
