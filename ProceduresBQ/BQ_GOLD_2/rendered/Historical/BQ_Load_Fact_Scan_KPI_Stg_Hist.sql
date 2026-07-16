@@ -186,7 +186,7 @@ BEGIN
                     IF(UPPER(KPIGroup)='STOP' AND KPIGroupOrder = 1, ScanType, NULL) AS FirstStopScanType,
                     IF(UPPER(KPIGroup)='STOP' AND KPIGroupOrder = 1, ScanStatus, NULL) AS FirstStopScanStatus,
                     IF(UPPER(KPIGroup)='STOP' AND KPIGroupReverse = 1, ScanDate, NULL) AS LastStopDate,
-                    IF(UPPER(KPIGroup)='STOP' AND IF(ScanReverse = 1, TRUE, FALSE), FranchiseeCode, NULL) AS LastStopRF,
+                    IF(UPPER(KPIGroup)='STOP' AND KPIGroupReverse = 1, FranchiseeCode, NULL) AS LastStopRF,
                     IF(UPPER(KPIGroup)='STOP' AND KPIGroupReverse = 1, CourierNumber, NULL) AS LastStopCF,
                     IF(UPPER(KPIGroup)='STOP' AND KPIGroupReverse = 1, ScanType, NULL) AS LastStopScanType,
                     IF(UPPER(KPIGroup)='STOP' AND KPIGroupReverse = 1, ScanStatus, NULL) AS LastStopScanStatus,
@@ -223,10 +223,10 @@ BEGIN
                     FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LNK_Scan_By_LabelNo` AS scan 
                     JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_KPI_Labels_Stg` batch 
                         ON batch.LabelNo = scan.LabelNo
-                    LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPICodes` AS k 
-                        ON scan.ScanStatus = k.ScanStatus 
-                    LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS dc 
-                        ON dc.CountryCode = k.CountryCode AND scan.CountryName = dc.CountryName
+                    LEFT JOIN ( `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPICodes` AS k
+                        INNER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS dc
+                        ON dc.CountryCode = k.CountryCode
+                    ) ON scan.ScanStatus = k.ScanStatus AND  scan.CountryName = dc.CountryName
                 ) sc
                 ) grp
             GROUP BY LabelNo
