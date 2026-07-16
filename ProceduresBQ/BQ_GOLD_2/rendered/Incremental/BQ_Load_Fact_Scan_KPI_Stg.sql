@@ -225,10 +225,9 @@ BEGIN
                     FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LNK_Scan_By_LabelNo` AS scan 
                     JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_KPI_Labels_Stg` batch 
                         ON batch.LabelNo = scan.LabelNo
-                    LEFT JOIN ( `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPICodes` AS k
-                        INNER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS dc
-                        ON dc.CountryCode = k.CountryCode
-                    ) ON scan.ScanStatus = k.ScanStatus AND  scan.CountryName = dc.CountryName
+                    LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPICodes` AS k 
+                        ON scan.ScanStatus = k.ScanStatus 
+                    LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` AS dc 
                     WHERE (scan.ScanDate >= v_MinScanDate)
                 ) sc
             ) grp
