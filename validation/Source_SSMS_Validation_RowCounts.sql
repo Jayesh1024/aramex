@@ -185,7 +185,7 @@ INSERT INTO #Tables (SchemaName, TableName, FilterColumn, HasIsCurrent) VALUES
 ('dv', 'SAT_BLKContainerManifestContents', 'ScanDate', 0),
 ('dv', 'SAT_BLKTransitManifest', 'DateOpened', 0),
 ('dv', 'SAT_BLKTransitManifestContents', NULL, 0),
-('dv', 'SAT_CF', 'ValidFrom', 1),
+('dv', 'SAT_CF', NULL, 1),
 ('dv', 'SAT_Customer', 'StartDate', 1),
 ('dv', 'SAT_CustomerCommissionOverride', NULL, 0),
 ('dv', 'SAT_Customer_OES', 'Undelivered_Labels_Report_LastReportDate', 0),
@@ -202,10 +202,10 @@ INSERT INTO #Tables (SchemaName, TableName, FilterColumn, HasIsCurrent) VALUES
 ('dv', 'SAT_Label_Allocation_RP', 'CreateDateUTC', 1),
 ('dv', 'SAT_Label_Distribution', 'Distribution_Date', 1),
 ('dv', 'SAT_Label_PickupRequest', 'CollectionDate', 0),
-('dv', 'SAT_Product', 'ValidFrom', 1),
-('dv', 'SAT_RF', 'ValidFrom', 1),
+('dv', 'SAT_Product', NULL, 1),
+('dv', 'SAT_RF', NULL, 1),
 ('dv', 'SAT_STK_RFProducts', NULL, 0),
-('dv', 'SAT_ScanStatus', 'ValidFrom', 1);
+('dv', 'SAT_ScanStatus', NULL, 1);
 
 DECLARE @i INT = 1, @MaxId INT, @Schema NVARCHAR(128), @Table NVARCHAR(128),
         @Filter NVARCHAR(128), @HasIsCurrent BIT, @SQL NVARCHAR(MAX), @Cnt BIGINT, @ErrMsg NVARCHAR(4000);

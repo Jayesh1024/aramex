@@ -144,15 +144,21 @@ BEGIN
             Loaded,
             DefaultValidTo,
             1
-        FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_ConsignmentItem_Stg` Stg
+        FROM (
+            SELECT 
+                *,
+                `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CAST(LabelNumber AS STRING),'^') AS LabelNo_HSK_Calculated
+            FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_ConsignmentItem_Stg`
+        ) Stg
         LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Country` cty 
             ON CAST(cty.CountryCode AS STRING) = CAST(Stg.CountryId AS STRING)
         WHERE NOT EXISTS (
             SELECT 1
             FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_FLE` AS Tgt
-            WHERE Tgt.LabelNo_HSK = `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CAST(Stg.LabelNumber AS STRING),'^')
+            WHERE Tgt.LabelNo_HSK = Stg.LabelNo_HSK_Calculated
               AND Tgt.IsCurrent   = 1
         );
+   
 
         SET Inserted = @@ROW_COUNT;
         SET Result   = 'Success';

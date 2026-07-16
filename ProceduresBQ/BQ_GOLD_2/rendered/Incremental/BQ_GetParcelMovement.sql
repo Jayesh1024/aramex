@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.rpt_GetParcelMovement`(IN p_CountryCode INT64, IN p_InvoiceFromDate DATE, IN p_InvoiceToDate DATE)
+CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.rpt_GetParcelMovement`(OUT Results, IN p_CountryCode INT64, IN p_InvoiceFromDate DATE, IN p_InvoiceToDate DATE)
 BEGIN
 
   -- DECLARE p_CountryCode INT64 DEFAULT 1;
