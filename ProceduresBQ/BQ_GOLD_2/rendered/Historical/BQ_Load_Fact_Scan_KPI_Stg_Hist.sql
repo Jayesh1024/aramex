@@ -186,7 +186,7 @@ BEGIN
                     IF(UPPER(KPIGroup)='STOP' AND KPIGroupOrder = 1, ScanType, NULL) AS FirstStopScanType,
                     IF(UPPER(KPIGroup)='STOP' AND KPIGroupOrder = 1, ScanStatus, NULL) AS FirstStopScanStatus,
                     IF(UPPER(KPIGroup)='STOP' AND KPIGroupReverse = 1, ScanDate, NULL) AS LastStopDate,
-                    IF(UPPER(KPIGroup)='STOP' AND IF(ScanReverse = 1, TRUE, FALSE), FranchiseeCode, NULL) AS LastStopRF,
+                    IF(UPPER(KPIGroup)='STOP' AND KPIGroupReverse = 1, FranchiseeCode, NULL) AS LastStopRF,
                     IF(UPPER(KPIGroup)='STOP' AND KPIGroupReverse = 1, CourierNumber, NULL) AS LastStopCF,
                     IF(UPPER(KPIGroup)='STOP' AND KPIGroupReverse = 1, ScanType, NULL) AS LastStopScanType,
                     IF(UPPER(KPIGroup)='STOP' AND KPIGroupReverse = 1, ScanStatus, NULL) AS LastStopScanStatus,

@@ -1,37 +1,3 @@
--- ==========================================================================================
--- Routine:     staging_Load_SAT_Label_Allocation_Stg2
--- Description: Loads attributes into SAT_Label_Allocation from 9x staging tables (variant 2)
---              BigQuery compatible version of Load_SAT_Label_Allocation_Stg2
---              Note: Same conversions as BQ_Load_SAT_Label_Allocation_Stg.
---                    Key differences from Stg version preserved:
---                      - COALESCE order is reversed (SAT values take priority over STG).
---                      - DLSInvoiceID column not present in this variant.
---                      - stg1null typo from original preserved as NULL (original bug preserved).
---                      - fl_ConItem_Stg (stg1) joined last in FROM clause (order preserved).
---                    #Stg_Label → BQ TEMP TABLE Stg_Label2 (different name to avoid collision).
---                    CREATE CLUSTERED INDEX removed.
---                    WITH (TABLOCK) removed.
---                    ISNULL → IFNULL. IIF → IF.
---                    CONVERT(datetime,...) → CAST(... AS DATETIME).
---                    ISNUMERIC(x)=1 → SAFE_CAST(x AS INT64) IS NOT NULL.
---                    Try_Convert(int,x) → SAFE_CAST(x AS INT64).
---                    SET NOCOUNT ON / SET ANSI_WARNINGS OFF removed.
---                    SYSDATETIME() → CURRENT_DATETIME().
---                    FULL JOIN → LEFT JOIN (BQ FULL JOIN on temp tables not supported here).
---                    UNION → UNION DISTINCT.
---                    EXCEPT change detection → explicit IFNULL column comparisons.
---                    col = COALESCE(...) alias syntax → COALESCE(...) AS col.
---                    Audit table format preserved exactly.
--- Example:     CALL Staging.staging_Load_SAT_Label_Allocation_Stg2(619)
--- History:
---  29/07/2019  P. Waldron      Routine Written
---  01/11/2019  P. Waldron      Add data sources TMD, RP, TAS and EBAY
---  29/11/2019  P. Waldron      Refactor routine to use coalesce function
---  17/08/2020  P. Waldron      Add Except clause and Action column
---  10/09/2020  P. Waldron      Add PickupCF and DeliveryCF columns
---  05/05/2021  B. Woods        Changed stg1.BasePrice to BasePriceDiscounted + ExcessPriceDiscounted
---  [BQ Port]   Converted from SQL Server to BigQuery
--- ==========================================================================================
 CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.staging_Load_SAT_Label_Allocation_Stg2`(
     IN ProcessID INT64
 )
@@ -112,8 +78,8 @@ BEGIN
         COALESCE(CAST(sat.DeliveryRF AS STRING),         CAST(stg.DeliveryRF AS STRING)),
         COALESCE(CAST(sat.DeliveryCF AS STRING),         CAST(stg.DeliveryCF AS STRING)),
         COALESCE(sat.LabelColour,                        stg.LabelColour),
-        COALESCE(stg.CreateDateUTC,                      sat.CreateDateUTC),
-        COALESCE(stg.CreateDateLocal,                    sat.CreateDateLocal),
+        COALESCE(sat.CreateDateUTC,                      stg.CreateDateUTC),
+        COALESCE(sat.CreateDateLocal,                    stg.CreateDateLocal),
         COALESCE(CAST(sat.OESCustomerID AS INT64),       CAST(stg.OESCustomerID AS INT64)),
         COALESCE(CAST(sat.FMSCustomerID AS INT64),       CAST(stg.FMSCustomerID AS INT64)),
         COALESCE(CAST(sat.IFSCustomerCode AS STRING),    CAST(stg.IFSCustomerCode AS STRING)),
@@ -139,7 +105,7 @@ BEGIN
             lbl.LabelNo,
             -- col = COALESCE(...) syntax → COALESCE(...) AS col
             COALESCE(CAST(stg1.CountryId AS INT64), CAST(stg2.CountryCode AS INT64), CAST(stg3.CountryCode AS INT64), CAST(stg4.CountryId AS INT64), CAST(stg5.CountryCode AS INT64), CAST(stg6.C_CountryCode AS INT64), CAST(stg7.CountryID AS INT64), SAFE_CAST(stg8.Receiver_CountryCode AS INT64), SAFE_CAST(stg9.originCountry AS INT64)) AS CountryCode,
-            COALESCE(CAST(stg1.FromRf AS STRING), CAST(stg2.Franchise AS STRING), CAST(stg5.CollectionRF AS STRING), CAST(stg6.C_RF AS STRING), CAST(stg7.Sender_LocalRF AS STRING), CAST(stg8.Origin_FranchiseeCode AS STRING), CAST(stg9.originRF AS STRING)) AS PickupRF,
+            COALESCE(CAST(stg1.FromRf AS STRING), CAST(stg2.Franchise AS STRING), CAST(stg5.CollectionRF AS STRING), CAST(stg6.C_RF AS STRING), CAST(stg7.Receiver_LocalRF AS STRING), CAST(stg8.Origin_FranchiseeCode AS STRING), CAST(stg9.originRF AS STRING)) AS PickupRF,
             COALESCE(CAST(stg1.FromCf AS STRING), CAST(stg7.PickupCourierNumber AS STRING)) AS PickupCF,
             COALESCE(CAST(stg1.ToRf AS STRING), CAST(stg3.destRF AS STRING), CAST(stg4.DestinationRF AS STRING), CAST(stg5.DeliveryRF AS STRING), CAST(stg6.DeliveryRF AS STRING), CAST(stg7.Receiver_LocalRF AS STRING), CAST(stg8.Receiver_FranchiseeCode AS STRING), CAST(stg9.destinationRF AS STRING)) AS DeliveryRF,
             CAST(stg1.ToCf AS STRING) AS DeliveryCF,
@@ -191,24 +157,25 @@ BEGIN
             WHEN sat.LabelNo IS NULL THEN 1
             -- EXCEPT change detection replaced with explicit IFNULL comparisons (all 18 columns)
             WHEN
-                IFNULL(CAST(stg.CountryCode AS STRING), '')     <> IFNULL(CAST(sat.CountryCode AS STRING), '')     OR
-                IFNULL(stg.PickupRF,        '') <> IFNULL(sat.PickupRF,        '') OR
-                IFNULL(stg.PickupCF,        '') <> IFNULL(sat.PickupCF,        '') OR
-                IFNULL(stg.DeliveryRF,      '') <> IFNULL(sat.DeliveryRF,      '') OR
-                IFNULL(stg.DeliveryCF,      '') <> IFNULL(sat.DeliveryCF,      '') OR
-                IFNULL(stg.LabelColour,     '') <> IFNULL(sat.LabelColour,     '') OR
-                IFNULL(CAST(stg.CreateDateUTC AS STRING), '')   <> IFNULL(CAST(sat.CreateDateUTC AS STRING), '')   OR
+                IFNULL(CAST(stg.CountryCode AS STRING), '') <> IFNULL(CAST(sat.CountryCode AS STRING), '') OR
+                IFNULL(stg.PickupRF, '') <> IFNULL(sat.PickupRF, '') OR
+                IFNULL(stg.PickupCF, '') <> IFNULL(sat.PickupCF, '') OR
+                IFNULL(stg.DeliveryRF, '') <> IFNULL(sat.DeliveryRF, '') OR
+                IFNULL(stg.DeliveryCF, '') <> IFNULL(sat.DeliveryCF, '') OR
+                IFNULL(stg.LabelColour, '') <> IFNULL(sat.LabelColour, '') OR
+                IFNULL(CAST(stg.CreateDateUTC AS STRING), '') <> IFNULL(CAST(sat.CreateDateUTC AS STRING), '') OR
                 IFNULL(CAST(stg.CreateDateLocal AS STRING), '') <> IFNULL(CAST(sat.CreateDateLocal AS STRING), '') OR
-                IFNULL(CAST(stg.OESCustomerID AS STRING), '')   <> IFNULL(CAST(sat.OESCustomerID AS STRING), '')   OR
-                IFNULL(CAST(stg.FMSCustomerID AS STRING), '')   <> IFNULL(CAST(sat.FMSCustomerID AS STRING), '')   OR
-                IFNULL(CAST(stg.IFSCustomerCode AS STRING), '') <> IFNULL(CAST(sat.IFSCustomerCode AS STRING), '') OR
-                IFNULL(CAST(stg.FMSInvoiceID AS STRING), '')    <> IFNULL(CAST(sat.FMSInvoiceID AS STRING), '')    OR
-                IFNULL(CAST(stg.FMSProductID AS STRING), '')    <> IFNULL(CAST(sat.FMSProductID AS STRING), '')    OR
-                IFNULL(stg.FKSource,        '') <> IFNULL(sat.FKSource,        '') OR
-                IFNULL(CAST(stg.FKID AS STRING), '')            <> IFNULL(CAST(sat.FKID AS STRING), '')            OR
-                IFNULL(stg.Reference,       '') <> IFNULL(sat.Reference,       '') OR
+                IFNULL(CAST(stg.OESCustomerID AS STRING), '') <> IFNULL(CAST(sat.OESCustomerID AS STRING), '') OR
+                IFNULL(CAST(stg.FMSCustomerID AS STRING), '') <> IFNULL(CAST(sat.FMSCustomerID AS STRING), '') OR
+                IFNULL(stg.IFSCustomerCode, '') <> IFNULL(sat.IFSCustomerCode, '') OR
+                IFNULL(CAST(stg.FMSInvoiceID AS STRING), '') <> IFNULL(CAST(sat.FMSInvoiceID AS STRING), '') OR
+                IFNULL(CAST(stg.FMSProductID AS STRING), '') <> IFNULL(CAST(sat.FMSProductID AS STRING), '') OR
+                IFNULL(stg.FKSource, '') <> IFNULL(sat.FKSource, '') OR
+                IFNULL(CAST(stg.FKID AS STRING), '') <> IFNULL(CAST(sat.FKID AS STRING), '') OR
+                IFNULL(stg.Reference, '') <> IFNULL(sat.Reference, '') OR
                 IFNULL(CAST(stg.NumberOfParcels AS STRING), '') <> IFNULL(CAST(sat.NumberOfParcels AS STRING), '') OR
                 IFNULL(CAST(stg.Price AS NUMERIC), 0) <> IFNULL(CAST(sat.Price AS NUMERIC), 0)
+           
             THEN 1
             WHEN
                 LENGTH(IFNULL(CONCAT(CAST(stg.ParcelLength AS STRING), CAST(stg.ParcelWidth AS STRING), CAST(stg.ParcelHeight AS STRING), CAST(stg.ParcelWeight AS STRING), CAST(stg.ParcelCubicWeight AS STRING)), '')) >

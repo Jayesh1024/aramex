@@ -10,3 +10,6 @@ commitMssg.txt
 *.log
 temp.sql
 *.tsv
+validation/application_default_credentials.json
+validation/testSpark.ipynb
+validation/testSpark.py
