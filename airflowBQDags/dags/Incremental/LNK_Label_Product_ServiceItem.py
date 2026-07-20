@@ -74,7 +74,7 @@ with DAG(
             configuration={
                 "query": {
                     "query": (
-                        f"CALL `{SP_DATASET_ID}.dv_Load_Label_Product_ServiceItem_Stg`({{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource }}}}');"
+                        f"CALL `{SP_DATASET_ID}.Staging_Load_Label_Product_ServiceItem_Stg`({{{{ dag_run.conf.get('process_id', params.process_id) }}}}, '{{{{ params.RecordSource }}}}');"
                     ),
                     "useLegacySql": False,
                 }
