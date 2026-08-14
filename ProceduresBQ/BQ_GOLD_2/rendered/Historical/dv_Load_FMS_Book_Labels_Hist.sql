@@ -52,7 +52,6 @@ BEGIN
                 AND P.IsCurrent = 1
                 AND P.Country = LI.Country
             WHERE P.LabelsPerBook > 1
-              AND SAFE_CAST(RIGHT(L.LabelNo, 10) AS INT64) IS NOT NULL
         ),
         -- GENERATE_ARRAY correctly produces offsets 0 through (LabelsPerBook - 1)
         MissingLabels AS (

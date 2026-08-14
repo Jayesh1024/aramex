@@ -197,7 +197,7 @@ BEGIN
             FastLabel_DestinationRF     = Src.FastLabel_DestinationRF,
             Distribution_Date           = Src.Distribution_Date,
             Distribution_FranchiseeCode = Src.Distribution_FranchiseeCode,
-            FKSource                    = Src.FKSource,
+            FKSource                    = COALESCE(Src.FKSource, Tgt.FKSource),
             OESCustomerID               = Src.OESCustomerID,
             FMSCustomerID               = Src.FMSCustomerID,
             FMSRfID                     = Src.FMSRfID,

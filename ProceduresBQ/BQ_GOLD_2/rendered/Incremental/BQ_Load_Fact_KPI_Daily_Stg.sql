@@ -52,9 +52,9 @@ BEGIN
             LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_KPIMatrix` k 
                 ON L.FromRf = k.PickupFranchise AND (CASE WHEN L.ToRf = '' THEN L.Zone ELSE L.ToRf END) = k.DeliveryFranchise
             LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_TSS_PostCodeMaster` t 
-                ON L.ToLocality = t.Suburb AND L.ToPostalCode = CAST(t.Postcode AS STRING) AND t.CountryCode = 1
+                ON lower(L.ToLocality) = lower(t.Suburb) AND L.ToPostalCode = CAST(t.Postcode AS STRING) AND t.CountryCode = 1
             LEFT JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LSAT_Label_Product_ServiceItem` s  
-                ON s.ProductCode IN ('MYFPRI', 'MYFPRIORITY') AND s.Labelno = L.LabelNo 
+                ON s.ProductCode in ('MYFPRI','MYFPRIORITY') AND s.Labelno = L.LabelNo 
         ),
 
         RankedScans AS (
@@ -80,7 +80,7 @@ BEGIN
                 MIN(ToRf) as ToRf,
                 -- SLA Logic
                 CAST(COALESCE(MIN(CASE WHEN ServiceType = 'P' THEN kdays + PriorityDays + MaxDaysWithExceptionPriority
-                         ELSE kdays + EconomyDays + MaxDaysWithExceptionEconomy END), 1) AS INT64) AS SLA,
+                                    ELSE kdays + EconomyDays + MaxDaysWithExceptionEconomy END), 1) AS INT64) AS SLA,
                 0 as KPIPickup,
                 MIN(CASE WHEN FromRf = (CASE WHEN ToRf = '' THEN Zone ELSE ToRf END) THEN 0 ELSE kdays END) as KPILEA,
                 MIN(MaxDays + CASE WHEN ServiceType = 'P' THEN PriorityDays ELSE EconomyDays END) as KPIDelivery,
