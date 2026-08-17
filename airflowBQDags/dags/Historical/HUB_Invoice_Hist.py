@@ -151,23 +151,6 @@ with DAG(
             job_id="bq_gold_transformation_oceania",
         )
 
-        # ref_id: Package\\Final\\Load_FMS_Book_Labels â€” SSIS: EXEC dv.Load_FMS_Book_Labels ?, ?; BQ Hist: dv_Load_FMS_Book_Labels_Hist(p_ProcessID)
-        op_11 = BigQueryInsertJobOperator(
-            task_id="package_final_load_fms_book_labels",
-            gcp_conn_id="oceania_target_sa_connection",
-            location="europe-west2",
-            configuration={
-                "query": {
-                    "query": (
-                        f"CALL `{SP_DATASET_ID}.dv_Load_FMS_Book_Labels_Hist`("
-                        f"{{{{ dag_run.conf.get('process_id', params.process_id) }}}});"
-                    ),
-                    "useLegacySql": False,
-                }
-            },
-            job_id="bq_gold_transformation_oceania",
-        )
-
         # ref_id: Package\\Final\\Set LastDate (FMS_Invoice) â€” SSIS: Exec [Staging].[Set_LastValue]; BQ: Staging_Set_LastValue(p_RecordSource, p_ColumnName, p_LastValue, p_Force)
         op_10 = BigQueryInsertJobOperator(
             task_id="package_final_set_lastdate_fms_invoice",
@@ -339,8 +322,7 @@ with DAG(
     op_6 >> op_7
     op_5 >> op_8
     op_8 >> op_10
-    op_9 >> op_11
-    op_11 >> op_10
+    op_9 >> op_10
     op_2 >> op_3
     op_20 >> op_17
     op_20 >> op_18
