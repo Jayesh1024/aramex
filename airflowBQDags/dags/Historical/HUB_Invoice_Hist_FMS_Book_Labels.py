@@ -21,7 +21,7 @@ SP_DATASET_ID = Variable.get("SP_DATASET_ID")
 TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 
 with DAG(
-    dag_id="ssis_skeleton_hub_invoice_Hist",
+    dag_id="ssis_skeleton_hub_invoice_hist_fms_book_labels",
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,

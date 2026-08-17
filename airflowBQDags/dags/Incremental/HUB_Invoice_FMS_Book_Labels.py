@@ -36,7 +36,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id="ssis_skeleton_hub_invoice",
+    dag_id="ssis_skeleton_hub_invoice_fms_book_labels",
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
