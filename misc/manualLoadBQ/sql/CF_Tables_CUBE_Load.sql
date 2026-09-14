@@ -1,11 +1,7 @@
--- In order for this to work, you need to have the following tables:
--- 1. hub_cf_import_csv - This is the table that contains the data taken directly from SQL SERVER CUBE that you want to load into the HUB_CF table.
--- 2. sat_cf_import - This is the table that contains the data taken directly from SQL SERVER CUBE that you want to load into the SAT_CF table.
-
 TRUNCATE TABLE prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_HUB_CF;
 TRUNCATE TABLE prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_CF;
 
--- Transer Data to HUB_CF --
+-- Transfer Data to HUB_CF --
 INSERT INTO prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_HUB_CF (
   Courier_HSK,
   RFCode,
@@ -15,17 +11,20 @@ INSERT INTO prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_HUB_CF 
   RecordSource
 ) 
 SELECT
-  `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(CONCAT(IFNULL(RFCode, ''), '^', IFNULL(CourierNumber, '')), '^') AS Courier_HSK,
-  RFCode,
-  COALESCE(CourierNumber,''),
-  CAST(Loaded as DATETIME),
+  `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(
+    CONCAT(TRIM(COALESCE(RFCode, '')), '^', TRIM(COALESCE(CourierNumber, ''))), 
+    '^'
+  ) AS Courier_HSK,
+  TRIM(COALESCE(RFCode, '')) AS RFCode,
+  TRIM(COALESCE(CourierNumber, '')) AS CourierNumber,
+  CAST(Loaded AS DATETIME) AS Loaded,
   ProcessId,
-  RecordSource
+  TRIM(COALESCE(RecordSource, '')) AS RecordSource
 FROM
-  `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.hub_cf_import_csv`;
+  `prj-drgfly-prod-sp-01.validation_results.dv_HUB_CF_sqlserver`;
 
--- Transer Data to SAT_CF --
 
+-- Transfer Data to SAT_CF --
 INSERT INTO prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_CF (
   Courier_HSK,
   RFCode,
@@ -49,29 +48,30 @@ INSERT INTO prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_CF 
   Inactive,
   ParcelConnectCFTerritory
 )
--- use coalesce like how I used in some column that I am trying to insert for all the columns that have type STRING
 SELECT
-  `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`( CONCAT(IFNULL(RFCode, ''), '^', IFNULL(CourierNumber, '')),
-    '^') AS Courier_HSK,
-  COALESCE(RFCode, ''),
-  COALESCE(CourierNumber, ''),
-  COALESCE(Name, ''),
-  COALESCE(ShortName, ''),
-  COALESCE(CFName, ''),
-  COALESCE(Address, ''),
-  COALESCE(EmailAddress, ''),
-  COALESCE(PhoneNumber, ''),
-  COALESCE(MobileNumber, ''),
-  SAFE_CAST(BlackbayRouteId AS INT64),
-  COALESCE(CourierGroup, ''),
-  COALESCE(CFOwnershipModel, ''),
-  DATETIME(Loaded),
+  `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dbo_GetHashKey`(
+    CONCAT(TRIM(COALESCE(RFCode, '')), '^', TRIM(COALESCE(CourierNumber, ''))),
+    '^'
+  ) AS Courier_HSK,
+  TRIM(COALESCE(RFCode, '')) AS RFCode,
+  TRIM(COALESCE(CourierNumber, '')) AS CourierNumber,
+  TRIM(COALESCE(Name, '')) AS Name,
+  TRIM(COALESCE(ShortName, '')) AS ShortName,
+  TRIM(COALESCE(CFName, '')) AS CFName,
+  TRIM(COALESCE(Address, '')) AS Address,
+  TRIM(COALESCE(EmailAddress, '')) AS EmailAddress,
+  TRIM(COALESCE(PhoneNumber, '')) AS PhoneNumber,
+  TRIM(COALESCE(MobileNumber, '')) AS MobileNumber,
+  SAFE_CAST(BlackbayRouteId AS INT64) AS BlackbayRouteId,
+  TRIM(COALESCE(CourierGroup, '')) AS CourierGroup,
+  TRIM(COALESCE(CFOwnershipModel, '')) AS CFOwnershipModel,
+  DATETIME(Loaded) AS Loaded,
   ProcessId,
-  COALESCE(RecordSource, ''),
-  DATETIME(ValidFrom),
-  DATETIME(ValidTo),
-  IsCurrent,
-  SAFE_CAST(Inactive AS INT64),
-  COALESCE(ParcelConnectCFTerritory, '')
+  TRIM(COALESCE(RecordSource, '')) AS RecordSource,
+  DATETIME(ValidFrom) AS ValidFrom,
+  DATETIME(ValidTo) AS ValidTo,
+  CAST(IsCurrent AS INT64),
+  SAFE_CAST(Inactive AS INT64) AS Inactive,
+  TRIM(COALESCE(ParcelConnectCFTerritory, '')) AS ParcelConnectCFTerritory
 FROM
-  `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.sat_cf_import`;
+  `prj-drgfly-prod-sp-01.validation_results.dv_SAT_CF_sqlserver`;

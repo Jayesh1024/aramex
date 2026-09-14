@@ -13,3 +13,7 @@ temp.sql
 validation/application_default_credentials.json
 validation/testSpark.ipynb
 validation/testSpark.py
+random
+temp.*
+sql/workarounds
+validation

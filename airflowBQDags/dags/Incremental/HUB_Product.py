@@ -32,7 +32,7 @@ TARGET_DATASET_ID = Variable.get("TARGET_DATASET_ID")
 default_args = {
     'owner': 'airflow',
     'depends_on_past': True,
-    'retries': 0,
+    'retries': 3,
 }
 
 with DAG(

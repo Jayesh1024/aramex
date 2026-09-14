@@ -32,7 +32,7 @@ _TASK_IDS_LASTDATE_FMS_INVOICE = "tg_package_staging.package_staging_get_lastdat
 default_args = {
     'owner': 'airflow',
     'depends_on_past': True,
-    'retries': 0,
+    'retries': 3,
 }
 
 with DAG(

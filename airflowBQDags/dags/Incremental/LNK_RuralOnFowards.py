@@ -41,7 +41,7 @@ _TASK_ID_GET_LASTDATE = "tg_package_load_la_ruraonforwards.package_load_la_rurao
 default_args = {
     'owner': 'airflow',
     'depends_on_past': True,
-    'retries': 0,
+    'retries': 3,
 }
 
 with DAG(

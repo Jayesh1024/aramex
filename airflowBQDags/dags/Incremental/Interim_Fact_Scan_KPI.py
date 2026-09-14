@@ -34,7 +34,7 @@ _TASK_ID_GET_PROCESS_ID = "tg_package_staging.package_staging_get_processid"
 default_args = {
     'owner': 'airflow',
     'depends_on_past': True,
-    'retries': 0,
+    'retries': 3,
 }
 
 with DAG(

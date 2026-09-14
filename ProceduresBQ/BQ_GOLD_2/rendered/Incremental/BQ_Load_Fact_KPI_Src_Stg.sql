@@ -42,7 +42,6 @@ BEGIN
             DATETIME_SUB(DATETIME_TRUNC(v_Loaded, DAY), INTERVAL 1 MILLISECOND)
         );
 
-        SET v_EndDate = COALESCE(SAFE_CAST(NULLIF(p_EndDateOverRide, '') AS DATETIME), v_EndDate);
 
         -- ====================================================================
         -- Part 1: Daily scans load

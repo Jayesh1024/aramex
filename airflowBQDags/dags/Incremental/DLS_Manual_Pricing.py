@@ -32,7 +32,7 @@ _TASK_ID_GET_LAST_ID = "tg_package_source2_dynamiclabel_dl.package_source2_dynam
 default_args = {
     'owner': 'airflow',
     'depends_on_past': True,
-    'retries': 0,
+    'retries': 3,
 }
 
 with DAG(

@@ -42,7 +42,7 @@ _TASK_ID_GET_LAST_ID = "tg_package_staging_2.package_staging_2_get_lastid_interb
 default_args = {
     'owner': 'airflow',
     'depends_on_past': True,
-    'retries': 0,
+    'retries': 3,
 }
 
 with DAG(

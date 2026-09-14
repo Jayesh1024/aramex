@@ -1,3 +1,5 @@
+-- This updates the NULL FMSInvoiceID and FMSRfID in dbo_Dim_Label with the InvoiceNumber and FranchiseeCode from the Staging_FastwayLabels_Stg table.
+-- which comes from the dv_LNK_Invoice_Label table.
 CREATE OR REPLACE PROCEDURE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_store_procedure.dv_Load_Label_Invoices_Hist`(IN p_ProcessID INT64)
 BEGIN
   /*

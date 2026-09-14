@@ -5,7 +5,7 @@ import pendulum
 default_args = {
     'owner': 'airflow',
     'depends_on_past': True, # <-- Tells tasks to wait for their previous run to succeed
-    'retries': 0,
+    'retries': 3,
 }
 
 with DAG(

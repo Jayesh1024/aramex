@@ -55,7 +55,7 @@ _COPY_COUNTRY_TO_SHARED_SP = "Staging_Copy_PickupRequest_Country_To_Stg"
 default_args = {
     'owner': 'airflow',
     'depends_on_past': True,
-    'retries': 0,
+    'retries': 3,
 }
 
 with DAG(
