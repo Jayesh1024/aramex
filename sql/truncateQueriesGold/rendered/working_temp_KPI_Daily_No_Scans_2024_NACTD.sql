@@ -1,1 +1,0 @@
-TRUNCATE TABLE `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.working_temp_KPI_Daily_No_Scans_2024_NACTD`;
