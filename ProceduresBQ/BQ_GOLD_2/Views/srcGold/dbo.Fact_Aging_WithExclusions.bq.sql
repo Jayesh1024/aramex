@@ -98,7 +98,7 @@ FROM (
       SELECT COUNT(1)
       FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LNK_Scan_By_LabelNo`
       WHERE
-        ScanDate > DATETIME_ADD(CURRENT_DATETIME(), INTERVAL -3 MONTH)
+        ScanDate > DATETIME_ADD(CURRENT_DATETIME('Pacific/Auckland'), INTERVAL -3 MONTH)
         AND LabelNo = k.LabelNo
         AND ScanStatus IN ('BBD', 'BB1', 'BB2', 'BB3')
     ) AS ToBlu,
@@ -106,7 +106,7 @@ FROM (
     k.LabelPrefix2
   FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Aging_Indexed` AS k
   LEFT OUTER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Dim_Label` AS l
-    ON l.CreateDate >= CAST(DATETIME_ADD(CURRENT_DATETIME(), INTERVAL -6 MONTH) AS DATETIME)
+    ON l.CreateDate >= CAST(DATETIME_ADD(CURRENT_DATETIME('Pacific/Auckland'), INTERVAL -6 MONTH) AS DATETIME)
    AND k.LabelNo = l.LabelNo
    AND k.CountryCode = l.CountryCode
   LEFT OUTER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_TSS_PostCodeMaster` AS p
@@ -123,22 +123,22 @@ FROM (
    AND fk.Category IN ('Interbranch', 'Local')
    AND fk.CountryCode = 1
   WHERE (
-        k.FirstReceivedDate >= DATETIME_ADD(CURRENT_DATETIME(), INTERVAL -1 MONTH)
-    AND k.FirstReceivedDate <= CURRENT_DATETIME()
+        k.FirstReceivedDate >= DATETIME_ADD(CURRENT_DATETIME('Pacific/Auckland'), INTERVAL -1 MONTH)
+    AND k.FirstReceivedDate <= CURRENT_DATETIME('Pacific/Auckland')
     AND d.IsCurrent = 1
     AND k.CountryCode = 1
     AND k.LabelPrefix2 <> '5A'
   )
   OR (
-        k.FirstReceivedDate >= DATETIME_ADD(CURRENT_DATETIME(), INTERVAL -1 MONTH)
-    AND k.FirstReceivedDate <= CURRENT_DATETIME()
+        k.FirstReceivedDate >= DATETIME_ADD(CURRENT_DATETIME('Pacific/Auckland'), INTERVAL -1 MONTH)
+    AND k.FirstReceivedDate <= CURRENT_DATETIME('Pacific/Auckland')
     AND d.IsCurrent = 1
     AND k.CountryCode = 6
     AND k.LabelPrefix1 <> '9'
   )
   OR (
-        k.FirstReceivedDate >= DATETIME_ADD(CURRENT_DATETIME(), INTERVAL -1 MONTH)
-    AND k.FirstReceivedDate <= CURRENT_DATETIME()
+        k.FirstReceivedDate >= DATETIME_ADD(CURRENT_DATETIME('Pacific/Auckland'), INTERVAL -1 MONTH)
+    AND k.FirstReceivedDate <= CURRENT_DATETIME('Pacific/Auckland')
     AND d.IsCurrent = 1
     AND k.CountryCode = 24
   )
@@ -149,4 +149,4 @@ LEFT OUTER JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_Ag
   ON s.LabelNo = ael.LabelNo
 WHERE
   ael.LabelNo IS NULL
-  AND (s.FMSCustomerID NOT IN (106215) OR s.FMSCustomerID IS NULL)
+  AND (s.FMSCustomerID NOT IN (106215))
