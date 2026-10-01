@@ -44,7 +44,8 @@ BEGIN
             MF.ToPostalCode,
             MF.RealisedDate,
             MF.Zone,
-            MF.CustomerId
+            MF.CustomerId,
+            R.TrackAndTraceID
         FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_LNK_Scan` R 
         JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` MF 
             ON MF.Country = R.CountryName

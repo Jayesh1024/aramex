@@ -153,25 +153,25 @@ BEGIN
             OR IFNULL(CAST(Tgt.PickupCF                AS STRING), '') <> IFNULL(CAST(Src.PickupCF                AS STRING), '')
             OR IFNULL(CAST(Tgt.DeliveryRF              AS STRING), '') <> IFNULL(CAST(Src.DeliveryRF              AS STRING), '')
             OR IFNULL(CAST(Tgt.DeliveryCF              AS STRING), '') <> IFNULL(CAST(Src.DeliveryCF              AS STRING), '')
-            OR IFNULL(CAST(Tgt.Electronic_CustomerType AS STRING), '') <> IFNULL(CAST(Src.Electronic_CustomerType AS STRING), '')
-            OR IFNULL(CAST(Tgt.Electronic_CustomerID   AS STRING), '') <> IFNULL(CAST(Src.Electronic_CustomerID   AS STRING), '')
-            OR IFNULL(CAST(Tgt.Electronic_Reference    AS STRING), '') <> IFNULL(CAST(Src.Electronic_Reference    AS STRING), '')
-            OR IFNULL(CAST(Tgt.FastLabel_ConsignmentID AS STRING), '') <> IFNULL(CAST(Src.FastLabel_ConsignmentID AS STRING), '')
-            OR IFNULL(CAST(Tgt.FastLabel_DestinationRF AS STRING), '') <> IFNULL(CAST(Src.FastLabel_DestinationRF AS STRING), '')
-            OR IFNULL(CAST(Tgt.Distribution_Date       AS STRING), '') <> IFNULL(CAST(Src.Distribution_Date       AS STRING), '')
-            OR IFNULL(CAST(Tgt.Distribution_FranchiseeCode AS STRING), '') <> IFNULL(CAST(Src.Distribution_FranchiseeCode AS STRING), '')
-            OR IFNULL(CAST(Tgt.FKSource                AS STRING), '') <> IFNULL(CAST(Src.FKSource                AS STRING), '')
-            OR IFNULL(CAST(Tgt.OESCustomerID           AS STRING), '') <> IFNULL(CAST(Src.OESCustomerID           AS STRING), '')
-            OR IFNULL(CAST(Tgt.FMSCustomerID           AS STRING), '') <> IFNULL(CAST(Src.FMSCustomerID           AS STRING), '')
-            OR IFNULL(CAST(Tgt.FMSRfID                 AS STRING), '') <> IFNULL(CAST(Src.FMSRfID                 AS STRING), '')
+            OR IFNULL(CAST(Tgt.Electronic_CustomerType AS STRING), '') <> IFNULL(COALESCE(CAST(Src.Electronic_CustomerType AS STRING), CAST(Tgt.Electronic_CustomerType AS STRING)), '')
+            OR IFNULL(CAST(Tgt.Electronic_CustomerID   AS STRING), '') <> IFNULL(COALESCE(CAST(Src.Electronic_CustomerID   AS STRING), CAST(Tgt.Electronic_CustomerID   AS STRING)), '')
+            OR IFNULL(CAST(Tgt.Electronic_Reference    AS STRING), '') <> IFNULL(COALESCE(CAST(Src.Electronic_Reference    AS STRING), CAST(Tgt.Electronic_Reference    AS STRING)), '')
+            OR IFNULL(CAST(Tgt.FastLabel_ConsignmentID AS STRING), '') <> IFNULL(COALESCE(CAST(Src.FastLabel_ConsignmentID AS STRING), CAST(Tgt.FastLabel_ConsignmentID AS STRING)), '')
+            OR IFNULL(CAST(Tgt.FastLabel_DestinationRF AS STRING), '') <> IFNULL(COALESCE(CAST(Src.FastLabel_DestinationRF AS STRING), CAST(Tgt.FastLabel_DestinationRF AS STRING)), '')
+            OR IFNULL(CAST(Tgt.Distribution_Date       AS STRING), '') <> IFNULL(COALESCE(CAST(Src.Distribution_Date       AS STRING), CAST(Tgt.Distribution_Date       AS STRING)), '')
+            OR IFNULL(CAST(Tgt.Distribution_FranchiseeCode AS STRING), '') <> IFNULL(COALESCE(CAST(Src.Distribution_FranchiseeCode AS STRING), CAST(Tgt.Distribution_FranchiseeCode AS STRING)), '')
+            OR IFNULL(CAST(Tgt.FKSource                AS STRING), '') <> IFNULL(COALESCE(CAST(Src.FKSource                AS STRING), CAST(Tgt.FKSource                AS STRING)), '')
+            OR IFNULL(CAST(Tgt.OESCustomerID           AS STRING), '') <> IFNULL(COALESCE(CAST(IF(Src.OESCustomerID = 0, NULL, Src.OESCustomerID)            AS STRING), CAST(Tgt.OESCustomerID            AS STRING)), '')
+            OR IFNULL(CAST(Tgt.FMSCustomerID           AS STRING), '') <> IFNULL(COALESCE(CAST(IF(Src.FMSCustomerID = 0, NULL, Src.FMSCustomerID)            AS STRING), CAST(Tgt.FMSCustomerID            AS STRING)), '')
+            OR IFNULL(CAST(Tgt.FMSRfID                 AS STRING), '') <> IFNULL(COALESCE(CAST(Src.FMSRfID                 AS STRING), CAST(Tgt.FMSRfID                 AS STRING)), '')
             OR IFNULL(CAST(Tgt.Reference               AS STRING), '') <> IFNULL(CAST(Src.Reference               AS STRING), '')
             OR IFNULL(CAST(Tgt.LabelColour             AS STRING), '') <> IFNULL(CAST(Src.LabelColour             AS STRING), '')
             OR IFNULL(CAST(Tgt.NumberOfParcels         AS STRING), '') <> IFNULL(CAST(Src.NumberOfParcels         AS STRING), '')
             OR IFNULL(CAST(Tgt.Price                   AS STRING), '') <> IFNULL(CAST(Src.Price                   AS STRING), '')
             OR IFNULL(CAST(Tgt.CreateDate              AS STRING), '') <> IFNULL(CAST(Src.CreateDate              AS STRING), '')
             OR IFNULL(CAST(Tgt.DLSInvoiceID            AS STRING), '') <> IFNULL(CAST(Src.DLSInvoiceID            AS STRING), '')
-            OR IFNULL(CAST(Tgt.FMSInvoiceID            AS STRING), '') <> IFNULL(CAST(Src.FMSInvoiceID            AS STRING), '')
-            OR IFNULL(CAST(Tgt.FMSProductID            AS STRING), '') <> IFNULL(CAST(Src.FMSProductID            AS STRING), '')
+            OR IFNULL(CAST(Tgt.FMSInvoiceID            AS STRING), '') <> IFNULL(COALESCE(CAST(IF(Src.FMSInvoiceID = 0, NULL, Src.FMSInvoiceID)            AS STRING), CAST(Tgt.FMSInvoiceID            AS STRING)), '')
+            OR IFNULL(CAST(Tgt.FMSProductID            AS STRING), '') <> IFNULL(COALESCE(CAST(IF(Src.FMSProductID = 0, NULL, Src.FMSProductID)            AS STRING), CAST(Tgt.FMSProductID            AS STRING)), '')
             OR IFNULL(CAST(Tgt.ParcelLength            AS STRING), '') <> IFNULL(CAST(Src.ParcelLength            AS STRING), '')
             OR IFNULL(CAST(Tgt.ParcelWidth             AS STRING), '') <> IFNULL(CAST(Src.ParcelWidth             AS STRING), '')
             OR IFNULL(CAST(Tgt.ParcelHeight            AS STRING), '') <> IFNULL(CAST(Src.ParcelHeight            AS STRING), '')
@@ -190,24 +190,24 @@ BEGIN
             PickupCF                    = Src.PickupCF,
             DeliveryRF                  = Src.DeliveryRF,
             DeliveryCF                  = Src.DeliveryCF,
-            Electronic_CustomerType     = Src.Electronic_CustomerType,
-            Electronic_CustomerID       = Src.Electronic_CustomerID,
-            Electronic_Reference        = Src.Electronic_Reference,
-            FastLabel_ConsignmentID     = Src.FastLabel_ConsignmentID,
-            FastLabel_DestinationRF     = Src.FastLabel_DestinationRF,
-            Distribution_Date           = Src.Distribution_Date,
-            Distribution_FranchiseeCode = Src.Distribution_FranchiseeCode,
+            Electronic_CustomerType     = COALESCE(Src.Electronic_CustomerType, Tgt.Electronic_CustomerType),
+            Electronic_CustomerID       = COALESCE(Src.Electronic_CustomerID, Tgt.Electronic_CustomerID),
+            Electronic_Reference        = COALESCE(Src.Electronic_Reference, Tgt.Electronic_Reference),
+            FastLabel_ConsignmentID     = COALESCE(Src.FastLabel_ConsignmentID, Tgt.FastLabel_ConsignmentID),
+            FastLabel_DestinationRF     = COALESCE(Src.FastLabel_DestinationRF, Tgt.FastLabel_DestinationRF),
+            Distribution_Date           = COALESCE(Src.Distribution_Date, Tgt.Distribution_Date),
+            Distribution_FranchiseeCode = COALESCE(Src.Distribution_FranchiseeCode, Tgt.Distribution_FranchiseeCode),
             FKSource                    = COALESCE(Src.FKSource, Tgt.FKSource),
-            OESCustomerID               = Src.OESCustomerID,
+            OESCustomerID               = COALESCE(Src.OESCustomerID, Tgt.OESCustomerID),
             FMSCustomerID               = Src.FMSCustomerID,
-            FMSRfID                     = Src.FMSRfID,
+            FMSRfID                     = COALESCE(Src.FMSRfID, Tgt.FMSRfID),
             Reference                   = Src.Reference,
             LabelColour                 = Src.LabelColour,
             Price                       = Src.Price,
             CreateDate                  = Src.CreateDate,
             DLSInvoiceID                = Src.DLSInvoiceID,
-            FMSInvoiceID                = Src.FMSInvoiceID,
-            FMSProductID                = Src.FMSProductID,
+            FMSInvoiceID                = COALESCE(IF(Src.FMSInvoiceID = 0, NULL, Src.FMSInvoiceID), Tgt.FMSInvoiceID),
+            FMSProductID                = COALESCE(IF(Src.FMSProductID = 0, NULL, Src.FMSProductID), Tgt.FMSProductID),
             ParcelLength                = Src.ParcelLength,
             ParcelWidth                 = Src.ParcelWidth,
             ParcelHeight                = Src.ParcelHeight,

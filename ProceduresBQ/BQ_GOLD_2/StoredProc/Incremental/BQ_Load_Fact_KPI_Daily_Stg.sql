@@ -33,7 +33,7 @@ BEGIN
                 DATE(L.RealisedDate) AS RealisedDateAsDateOnly,
                 L.FranchiseeCode, L.CourierNumber, L.ScanDate, L.ScanDateTime, L.ScanType, L.ScanStatus,
                 G.KPIGroup,
-                L.CustomerId, L.FromCF, L.ToCf, L.ToPostalCode, L.ToLocality, L.Zone,
+                L.CustomerId, L.FromCF, L.ToCf, L.ToPostalCode, L.ToLocality, L.Zone, L.TrackAndTraceID
                 CASE 
                     WHEN (L.FranchiseeCode IS NULL AND L.Zone NOT IN ('SHU', 'SHT')) OR L.ToRf IN ('LEA', 'TMW') THEN 'Other'
                     WHEN L.FromRf = L.ToRf THEN 'Local'
@@ -60,11 +60,11 @@ BEGIN
         RankedScans AS (
             SELECT 
                 *,
-                ROW_NUMBER() OVER(PARTITION BY LabelNo ORDER BY ScanDateTime DESC) as ScanReverse,
-                ROW_NUMBER() OVER(PARTITION BY LabelNo, KPIGroup ORDER BY IF(CourierNumber != 'API', 1, 0), ScanDateTime) as KPIDepartureOrder,
-                ROW_NUMBER() OVER(PARTITION BY LabelNo, KPIGroup ORDER BY ScanDateTime) as KPIGroupOrder,
-                ROW_NUMBER() OVER(PARTITION BY LabelNo, FranchiseeCode ORDER BY ScanDateTime) as FranchiseeOrderArrival,
-                ROW_NUMBER() OVER(PARTITION BY LabelNo ORDER BY IF(KPIGroup IS NULL, 1, 0), ScanDateTime) as KPIGroupNotNull
+                ROW_NUMBER() OVER(PARTITION BY LabelNo ORDER BY ScanDateTime DESC, TrackAndTraceID DESC) as ScanReverse,
+                ROW_NUMBER() OVER(PARTITION BY LabelNo, KPIGroup ORDER BY IF(CourierNumber != 'API', 1, 0), ScanDateTime, TrackAndTraceID) as KPIDepartureOrder,
+                ROW_NUMBER() OVER(PARTITION BY LabelNo, KPIGroup ORDER BY ScanDateTime, TrackAndTraceID) as KPIGroupOrder,
+                ROW_NUMBER() OVER(PARTITION BY LabelNo, FranchiseeCode ORDER BY ScanDateTime, TrackAndTraceID) as FranchiseeOrderArrival,
+                ROW_NUMBER() OVER(PARTITION BY LabelNo ORDER BY IF(KPIGroup IS NULL, 1, 0), ScanDateTime, TrackAndTraceID) as KPIGroupNotNull
             FROM BaseData
         ),
 

@@ -53,7 +53,7 @@ BEGIN
         INSERT INTO `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.Staging_Fact_KPI_Src_Stg` (
             LabelNo, CountryCode, ScanDateTime, ScanType, ScanStatus, FranchiseeCode, 
             CourierNumber, ScanDate, CreatedOn, FromRf, FromCf, ToRf, ToCf, 
-            ToLocality, ToPostalCode, RealisedDate, Zone, CustomerId
+            ToLocality, ToPostalCode, RealisedDate, Zone, CustomerId, TrackAndTraceID
         )
         SELECT 
             MF.LabelNo,
@@ -73,7 +73,8 @@ BEGIN
             MF.ToPostalCode,
             MF.RealisedDate,
             MF.Zone,
-            MF.CustomerId
+            MF.CustomerId,
+            R.TrackAndTraceID
         FROM `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dbo_Fact_Scan_Recent` R 
         JOIN `prj-drgfly-prod-sp-01.bq_ds_prod_euw2_oceania_cube_gold_1.dv_SAT_Label_Allocation_MF` MF 
             ON (MF.CountryCode = 1 OR MF.CountryCode = 6)

@@ -47,7 +47,7 @@ BEGIN
   con.ToEmail,
   CAST(con.ToLng AS NUMERIC) AS ToLng,
   CAST(con.ToLat AS NUMERIC) AS ToLat,
-  COALESCE(ci.RealisedDate, con.RealisedDate) AS RealisedDate,
+  ci.RealisedDate AS RealisedDate,
   CAST(ci.BasePrice AS NUMERIC) AS BasePrice,
   CAST(ci.ExcessPrice AS NUMERIC) AS ExcessPrice,
   CAST(ci.PickUpPriceTotal AS NUMERIC) AS PickUpPriceTotal,
