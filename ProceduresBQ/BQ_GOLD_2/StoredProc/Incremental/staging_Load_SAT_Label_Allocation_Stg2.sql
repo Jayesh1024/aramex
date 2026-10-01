@@ -70,32 +70,31 @@ BEGIN
     SELECT
         sat.LabelNo_HSK,
         stg.LabelNo,
-        -- Note: COALESCE order reversed vs Stg version - SAT values take priority
+        -- Note: STG values take priority over SAT values
         -- Explicit CASTs added to ensure type compatibility
-        COALESCE(CAST(sat.CountryCode AS INT64),        CAST(stg.CountryCode AS INT64)),
-        COALESCE(CAST(sat.PickupRF AS STRING),           CAST(stg.PickupRF AS STRING)),
-        COALESCE(CAST(sat.PickupCF AS STRING),           CAST(stg.PickupCF AS STRING)),
-        COALESCE(CAST(sat.DeliveryRF AS STRING),         CAST(stg.DeliveryRF AS STRING)),
-        COALESCE(CAST(sat.DeliveryCF AS STRING),         CAST(stg.DeliveryCF AS STRING)),
-        COALESCE(sat.LabelColour,                        stg.LabelColour),
-        COALESCE(sat.CreateDateUTC,                      stg.CreateDateUTC),
-        COALESCE(sat.CreateDateLocal,                    stg.CreateDateLocal),
-        COALESCE(CAST(sat.OESCustomerID AS INT64),       CAST(stg.OESCustomerID AS INT64)),
-        COALESCE(CAST(sat.FMSCustomerID AS INT64),       CAST(stg.FMSCustomerID AS INT64)),
-        COALESCE(CAST(sat.IFSCustomerCode AS STRING),    CAST(stg.IFSCustomerCode AS STRING)),
-        COALESCE(CAST(sat.FMSInvoiceID AS INT64),        CAST(stg.FMSInvoiceID AS INT64)),
-        COALESCE(CAST(sat.FMSProductID AS INT64),        CAST(stg.FMSProductID AS INT64)),
-        COALESCE(sat.FKSource,                           stg.FKSource),
-        COALESCE(CAST(sat.FKID AS INT64),                CAST(stg.FKID AS INT64)),
-        COALESCE(sat.Reference,                          stg.Reference),
-        COALESCE(CAST(sat.NumberOfParcels AS INT64),     CAST(stg.NumberOfParcels AS INT64)),
-        -- Note: stg.Price takes priority over sat.Price in this variant
+        COALESCE(CAST(stg.CountryCode AS INT64),        CAST(sat.CountryCode AS INT64)),
+        COALESCE(CAST(stg.PickupRF AS STRING),           CAST(sat.PickupRF AS STRING)),
+        COALESCE(CAST(stg.PickupCF AS STRING),           CAST(sat.PickupCF AS STRING)),
+        COALESCE(CAST(stg.DeliveryRF AS STRING),         CAST(sat.DeliveryRF AS STRING)),
+        COALESCE(CAST(stg.DeliveryCF AS STRING),         CAST(sat.DeliveryCF AS STRING)),
+        COALESCE(stg.LabelColour,                        sat.LabelColour),
+        COALESCE(stg.CreateDateUTC,                      sat.CreateDateUTC),
+        COALESCE(stg.CreateDateLocal,                    sat.CreateDateLocal),
+        COALESCE(CAST(stg.OESCustomerID AS INT64),       CAST(sat.OESCustomerID AS INT64)),
+        COALESCE(CAST(stg.FMSCustomerID AS INT64),       CAST(sat.FMSCustomerID AS INT64)),
+        COALESCE(CAST(stg.IFSCustomerCode AS STRING),    CAST(sat.IFSCustomerCode AS STRING)),
+        COALESCE(CAST(stg.FMSInvoiceID AS INT64),        CAST(sat.FMSInvoiceID AS INT64)),
+        COALESCE(CAST(stg.FMSProductID AS INT64),        CAST(sat.FMSProductID AS INT64)),
+        COALESCE(stg.FKSource,                           sat.FKSource),
+        COALESCE(CAST(stg.FKID AS INT64),                CAST(sat.FKID AS INT64)),
+        COALESCE(stg.Reference,                          sat.Reference),
+        COALESCE(CAST(stg.NumberOfParcels AS INT64),     CAST(sat.NumberOfParcels AS INT64)),
         COALESCE(CAST(stg.Price AS NUMERIC),             CAST(sat.Price AS NUMERIC)),
-        COALESCE(CAST(sat.ParcelLength AS NUMERIC),      CAST(stg.ParcelLength AS NUMERIC)),
-        COALESCE(CAST(sat.ParcelWidth AS NUMERIC),       CAST(stg.ParcelWidth AS NUMERIC)),
-        COALESCE(CAST(sat.ParcelHeight AS NUMERIC),      CAST(stg.ParcelHeight AS NUMERIC)),
-        COALESCE(CAST(sat.ParcelWeight AS NUMERIC),      CAST(stg.ParcelWeight AS NUMERIC)),
-        COALESCE(CAST(sat.ParcelCubicWeight AS NUMERIC), CAST(stg.ParcelCubicWeight AS NUMERIC)),
+        COALESCE(CAST(stg.ParcelLength AS NUMERIC),      CAST(sat.ParcelLength AS NUMERIC)),
+        COALESCE(CAST(stg.ParcelWidth AS NUMERIC),       CAST(sat.ParcelWidth AS NUMERIC)),
+        COALESCE(CAST(stg.ParcelHeight AS NUMERIC),      CAST(sat.ParcelHeight AS NUMERIC)),
+        COALESCE(CAST(stg.ParcelWeight AS NUMERIC),      CAST(sat.ParcelWeight AS NUMERIC)),
+        COALESCE(CAST(stg.ParcelCubicWeight AS NUMERIC), CAST(sat.ParcelCubicWeight AS NUMERIC)),
         stg.FKSource                                     AS RecordSource,
         NULL                                             AS RecordSourceID,
         IF(sat.LabelNo IS NULL, 'Insert', 'Update')     AS Action
@@ -157,24 +156,25 @@ BEGIN
             WHEN sat.LabelNo IS NULL THEN 1
             -- EXCEPT change detection replaced with explicit IFNULL comparisons (all 18 columns)
             WHEN
-                IFNULL(CAST(stg.CountryCode AS STRING), '') <> IFNULL(CAST(sat.CountryCode AS STRING), '') OR
-                IFNULL(stg.PickupRF, '') <> IFNULL(sat.PickupRF, '') OR
-                IFNULL(stg.PickupCF, '') <> IFNULL(sat.PickupCF, '') OR
-                IFNULL(stg.DeliveryRF, '') <> IFNULL(sat.DeliveryRF, '') OR
-                IFNULL(stg.DeliveryCF, '') <> IFNULL(sat.DeliveryCF, '') OR
-                IFNULL(stg.LabelColour, '') <> IFNULL(sat.LabelColour, '') OR
-                IFNULL(CAST(stg.CreateDateUTC AS STRING), '') <> IFNULL(CAST(sat.CreateDateUTC AS STRING), '') OR
-                IFNULL(CAST(stg.CreateDateLocal AS STRING), '') <> IFNULL(CAST(sat.CreateDateLocal AS STRING), '') OR
-                IFNULL(CAST(stg.OESCustomerID AS STRING), '') <> IFNULL(CAST(sat.OESCustomerID AS STRING), '') OR
-                IFNULL(CAST(stg.FMSCustomerID AS STRING), '') <> IFNULL(CAST(sat.FMSCustomerID AS STRING), '') OR
-                IFNULL(stg.IFSCustomerCode, '') <> IFNULL(sat.IFSCustomerCode, '') OR
-                IFNULL(CAST(stg.FMSInvoiceID AS STRING), '') <> IFNULL(CAST(sat.FMSInvoiceID AS STRING), '') OR
-                IFNULL(CAST(stg.FMSProductID AS STRING), '') <> IFNULL(CAST(sat.FMSProductID AS STRING), '') OR
-                IFNULL(stg.FKSource, '') <> IFNULL(sat.FKSource, '') OR
-                IFNULL(CAST(stg.FKID AS STRING), '') <> IFNULL(CAST(sat.FKID AS STRING), '') OR
-                IFNULL(stg.Reference, '') <> IFNULL(sat.Reference, '') OR
-                IFNULL(CAST(stg.NumberOfParcels AS STRING), '') <> IFNULL(CAST(sat.NumberOfParcels AS STRING), '') OR
-                IFNULL(CAST(stg.Price AS NUMERIC), 0) <> IFNULL(CAST(sat.Price AS NUMERIC), 0)
+                COALESCE(stg.CountryCode, sat.CountryCode, '')        <> COALESCE(sat.CountryCode, stg.CountryCode, '') OR
+                COALESCE(stg.PickupRF, sat.PickupRF, '')              <> COALESCE(sat.PickupRF, stg.PickupRF, '') OR
+                COALESCE(stg.PickupCF, sat.PickupCF, '')              <> COALESCE(sat.PickupCF, stg.PickupCF, '') OR
+                COALESCE(stg.DeliveryRF, sat.DeliveryRF, '')          <> COALESCE(sat.DeliveryRF, stg.DeliveryRF, '') OR
+                COALESCE(stg.DeliveryCF, sat.DeliveryCF, '')          <> COALESCE(sat.DeliveryCF, stg.DeliveryCF, '') OR
+                COALESCE(stg.LabelColour, sat.LabelColour, '')        <> COALESCE(sat.LabelColour, stg.LabelColour, '') OR
+                COALESCE(CAST(stg.CreateDateUTC AS STRING), CAST(sat.CreateDateUTC AS STRING), '') <> COALESCE(CAST(sat.CreateDateUTC AS STRING), CAST(stg.CreateDateUTC AS STRING), '') OR
+                COALESCE(CAST(stg.CreateDateLocal AS STRING), CAST(sat.CreateDateLocal AS STRING), '') <> COALESCE(CAST(sat.CreateDateLocal AS STRING), CAST(stg.CreateDateLocal AS STRING), '') OR
+                COALESCE(CAST(stg.OESCustomerID AS STRING), CAST(sat.OESCustomerID AS STRING), '') <> COALESCE(CAST(sat.OESCustomerID AS STRING), CAST(stg.OESCustomerID AS STRING), '') OR
+                COALESCE(CAST(stg.FMSCustomerID AS STRING), CAST(sat.FMSCustomerID AS STRING), '') <> COALESCE(CAST(sat.FMSCustomerID AS STRING), CAST(stg.FMSCustomerID AS STRING), '') OR
+                COALESCE(stg.IFSCustomerCode, sat.IFSCustomerCode, '') <> COALESCE(sat.IFSCustomerCode, stg.IFSCustomerCode, '') OR
+                COALESCE(CAST(stg.FMSInvoiceID AS STRING), CAST(sat.FMSInvoiceID AS STRING), '') <> COALESCE(CAST(sat.FMSInvoiceID AS STRING), CAST(stg.FMSInvoiceID AS STRING), '') OR
+                COALESCE(CAST(stg.FMSProductID AS STRING), CAST(sat.FMSProductID AS STRING), '') <> COALESCE(CAST(sat.FMSProductID AS STRING), CAST(stg.FMSProductID AS STRING), '') OR
+                COALESCE(stg.FKSource, sat.FKSource, '')             <> COALESCE(sat.FKSource, stg.FKSource, '') OR
+                COALESCE(CAST(stg.FKID AS STRING), CAST(sat.FKID AS STRING), '') <> COALESCE(CAST(sat.FKID AS STRING), CAST(stg.FKID AS STRING), '') OR
+                COALESCE(stg.Reference, sat.Reference, '')           <> COALESCE(sat.Reference, stg.Reference, '') OR
+                COALESCE(CAST(stg.NumberOfParcels AS STRING), CAST(sat.NumberOfParcels AS STRING), '') <> COALESCE(CAST(sat.NumberOfParcels AS STRING), CAST(stg.NumberOfParcels AS STRING), '') OR
+                COALESCE(CAST(stg.Price AS NUMERIC), CAST(sat.Price AS NUMERIC), 0) <> COALESCE(CAST(sat.Price AS NUMERIC), CAST(stg.Price AS NUMERIC), 0)
+           
            
             THEN 1
             WHEN
