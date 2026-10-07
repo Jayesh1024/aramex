@@ -33,7 +33,7 @@ BEGIN
                 DATE(L.RealisedDate) AS RealisedDateAsDateOnly,
                 L.FranchiseeCode, L.CourierNumber, L.ScanDate, L.ScanDateTime, L.ScanType, L.ScanStatus,
                 G.KPIGroup,
-                L.CustomerId, L.FromCF, L.ToCf, L.ToPostalCode, L.ToLocality, L.Zone, L.TrackAndTraceID
+                L.CustomerId, L.FromCF, L.ToCf, L.ToPostalCode, L.ToLocality, L.Zone, L.TrackAndTraceID,
                 CASE 
                     WHEN (L.FranchiseeCode IS NULL AND L.Zone NOT IN ('SHU', 'SHT')) OR L.ToRf IN ('LEA', 'TMW') THEN 'Other'
                     WHEN L.FromRf = L.ToRf THEN 'Local'

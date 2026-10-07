@@ -156,7 +156,7 @@ BEGIN
             WHEN sat.LabelNo IS NULL THEN 1
             -- EXCEPT change detection replaced with explicit IFNULL comparisons (all 18 columns)
             WHEN
-                COALESCE(stg.CountryCode, sat.CountryCode, '')        <> COALESCE(sat.CountryCode, stg.CountryCode, '') OR
+                COALESCE(CAST(stg.CountryCode AS STRING), CAST(sat.CountryCode AS STRING), '') <> COALESCE(CAST(sat.CountryCode AS STRING), CAST(stg.CountryCode AS STRING), '') OR
                 COALESCE(stg.PickupRF, sat.PickupRF, '')              <> COALESCE(sat.PickupRF, stg.PickupRF, '') OR
                 COALESCE(stg.PickupCF, sat.PickupCF, '')              <> COALESCE(sat.PickupCF, stg.PickupCF, '') OR
                 COALESCE(stg.DeliveryRF, sat.DeliveryRF, '')          <> COALESCE(sat.DeliveryRF, stg.DeliveryRF, '') OR
@@ -173,7 +173,7 @@ BEGIN
                 COALESCE(CAST(stg.FKID AS STRING), CAST(sat.FKID AS STRING), '') <> COALESCE(CAST(sat.FKID AS STRING), CAST(stg.FKID AS STRING), '') OR
                 COALESCE(stg.Reference, sat.Reference, '')           <> COALESCE(sat.Reference, stg.Reference, '') OR
                 COALESCE(CAST(stg.NumberOfParcels AS STRING), CAST(sat.NumberOfParcels AS STRING), '') <> COALESCE(CAST(sat.NumberOfParcels AS STRING), CAST(stg.NumberOfParcels AS STRING), '') OR
-                COALESCE(CAST(stg.Price AS NUMERIC), CAST(sat.Price AS NUMERIC), 0) <> COALESCE(CAST(sat.Price AS NUMERIC), CAST(stg.Price AS NUMERIC), 0)
+                COALESCE(CAST(stg.Price AS STRING), CAST(sat.Price AS STRING), '') <> COALESCE(CAST(sat.Price AS STRING), CAST(stg.Price AS STRING), '')
            
            
             THEN 1
