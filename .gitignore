@@ -18,3 +18,4 @@ temp.*
 workarounds
 validation
 aramex_dev_composer
+airflowBQDags/dags/dagsToBeDeleted
