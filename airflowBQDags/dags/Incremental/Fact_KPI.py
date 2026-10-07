@@ -1,3 +1,4 @@
+
 """
 Completed DAG for SSIS package: Fact_KPI
 Migration: SSIS -> BigQuery
@@ -29,7 +30,7 @@ SPs resolved against `ProceduresBQ/sp_json.json` and `SP.json`:
 from __future__ import annotations
 
 from datetime import datetime
-
+import pendulum
 from airflow import DAG
 from airflow.models import Variable
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
@@ -49,8 +50,8 @@ default_args = {
 
 with DAG(
     dag_id="ssis_skeleton_fact_kpi",
-    start_date=datetime(2024, 1, 1),
-    schedule=None,
+    start_date=pendulum.datetime(2024, 1, 1, tz="Pacific/Auckland"),
+    schedule_interval='15 13 * * *',
     catchup=False,
     default_args=default_args,
     tags=["ssis", "skeleton", "fact_kpi", "RecordSource_Fact_KPI_Scan", "Incremental"],

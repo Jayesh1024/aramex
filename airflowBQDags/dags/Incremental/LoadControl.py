@@ -224,14 +224,14 @@ with DAG(
         tg_full_reload >> [op_15, op_16, op_17]
 
     with TaskGroup(group_id="tg_package_load_dim_tables") as tg_load_dim_tables:
-        op_5 = TriggerDagRunOperator(
-            task_id="package_load_dim_tables_fact_kpi",
-            trigger_dag_id="ssis_skeleton_fact_kpi",
-            wait_for_completion=True,
-            poke_interval=30,
-            reset_dag_run=True,
-            conf={"process_id": _GET_PROCESSID_XCOM},
-        )
+        # op_5 = TriggerDagRunOperator(
+        #     task_id="package_load_dim_tables_fact_kpi",
+        #     trigger_dag_id="ssis_skeleton_fact_kpi",
+        #     wait_for_completion=True,
+        #     poke_interval=30,
+        #     reset_dag_run=True,
+        #     conf={"process_id": _GET_PROCESSID_XCOM},
+        # )
 
         op_6 = BigQueryInsertJobOperator(
             task_id="package_load_dim_tables_load_dim_label",

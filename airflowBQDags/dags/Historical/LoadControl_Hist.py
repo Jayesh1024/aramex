@@ -73,6 +73,13 @@ with DAG(
     },
 ) as dag:
 
+    
+    load_pickuprequest_hist = TriggerDagRunOperator(
+        task_id = 'load_pickuprequest_hist',
+        trigger_dag_id= 'ssis_skeleton_loadpickuprequests_Hist',
+        wait_for_completion=True
+    )
+
     op_3 = PythonOperator(
         task_id="package_get_next_processid",
         python_callable=get_next_process_id,
@@ -234,6 +241,6 @@ with DAG(
         )
 
 
-    op_3 >> op_18
+    load_pickuprequest_hist >> op_3 >> op_18
     op_18 >> tg_load_hub_tables
     tg_load_hub_tables >> tg_load_dim_tables
